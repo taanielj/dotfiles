@@ -16,6 +16,14 @@ check_root() {
 # array of required packages
 required_packages=(wget curl)
 
+# check if required packages are installed
+for package in "${required_packages[@]}"; do
+	if [ ! -x "$(command -v $package)" ]; then
+		echo "$package not found, installing $package"
+		$SUDO apt-get install -y $package
+	fi
+done
+
 # get user home (~) if not root
 if [ -z "$SUDO" ]; then
 	USER_HOME=$HOME
