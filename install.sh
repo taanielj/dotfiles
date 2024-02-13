@@ -13,6 +13,9 @@ check_root() {
 	fi
 }
 
+# array of required packages
+required_packages=(wget curl)
+
 # get user home (~) if not root
 if [ -z "$SUDO" ]; then
 	USER_HOME=$HOME
@@ -62,9 +65,16 @@ install_tmux() {
 install_nvim() {
 	echo "Installing neovim"
 	wget https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage
+	# extract appimage
 	chmod u+x nvim.appimage
-	$SUDO mv nvim.appimage /usr/local/bin/nvim
-	$SUDO mv nvim/ $USER_HOME/.config/nvim
+	./nvim.appimage --appimage-extract
+	# move to /usr/local/bin
+	$SUDO mv squashfs-root /usr/local/bin/nvim
+	# create symlink
+	$SUDO ln -s /usr/local/bin/nvim/AppRun /usr/local/bin/nvim
+	
+	mkdir -p $USER_HOME/.config/nvim
+	cp -r .config/nvim/* $USER_HOME/.config/nvim
 }
 
 check_root
