@@ -75,15 +75,17 @@ install_nvim() {
 	wget https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage
 	# extract appimage
 	chmod u+x nvim.appimage
-	./nvim.appimage --appimage-extract ./squashfs-root/usr/bin/nvim
-	# move to /usr/bin
-	$SUDO mv ./squashfs-root/usr/bin/nvim /usr/bin/nvim
+	./nvim.appimage --appimage-extract
+	# move to /usr/local/bin
+	$SUDO mv ./squashfs-root /usr/local/bin/nvim
+	# create symlink
+	$SUDO ln -s /usr/local/bin/nvim/AppRun /usr/local/bin/nvim
 	# cleanup
-	rm -rf ./nvim.appimage ./squashfs-root
+	rm -rf ./nvim.appimage
 		
 	
 	mkdir -p $USER_HOME/.config/nvim
-	cp -r .config/nvim/* $USER_HOME/.config/nvim
+	cp -r nvim/* $USER_HOME/.config/nvim
 }
 
 check_root
@@ -93,6 +95,7 @@ $SUDO apt-get update || {
 	echo "apt-get update failed"
 	exit 1
 }
+install_zsh
 install_tmux
 install_nvim
 
