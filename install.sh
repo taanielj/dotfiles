@@ -52,6 +52,7 @@ install_zsh() {
 	echo "Installing zsh"
 	$SUDO apt-get install -y zsh
 	# install oh-my-zsh from github
+	rm -rf $USER_HOME/.oh-my-zsh
 	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	# get auto-suggestions
 	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$USER_HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
@@ -61,8 +62,8 @@ install_zsh() {
 install_tmux() {
 	echo "Installing tmux"
 	$SUDO apt-get install -y tmux
-	cp .tmux.conf $USER_HOME/.tmux.conf
 	git clone https://github.com/tmux-plugins/tpm $USER_HOME/.tmux/plugins/tpm
+	cp .tmux.conf $USER_HOME/.tmux.conf
 	# start tmux and install plugins
 	tmux start-server
 	tmux new-session -d
