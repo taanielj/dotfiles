@@ -55,7 +55,7 @@ install_zsh() {
 	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 	# get auto-suggestions
 	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$USER_HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-	cp .zshrc /.zshrc
+	cp .zshrc $USER_HOME/.zshrc
 }
 
 install_tmux() {
@@ -66,7 +66,7 @@ install_tmux() {
 	# start tmux and install plugins
 	tmux start-server
 	tmux new-session -d
-	$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh
+	$USER_HOME/.tmux/plugins/tpm/scripts/install_plugins.sh
 	tmux kill-server
 }
 
@@ -76,10 +76,12 @@ install_nvim() {
 	# extract appimage
 	chmod u+x nvim.appimage
 	./nvim.appimage --appimage-extract
-	# move to /usr/local/bin
-	$SUDO mv ./squashfs-root /usr/local/bin/nvim
+	
+	$SUDO mv ./squashfs-root /opt/nvim
 	# create symlink
-	$SUDO ln -s /usr/local/bin/nvim/AppRun /usr/local/bin/nvim
+
+	$SUDO ln -s /opt/nvim/AppRun /usr/bin/nvim
+
 	# cleanup
 	rm -rf ./nvim.appimage
 		
