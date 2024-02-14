@@ -6,11 +6,11 @@ This repository contains my personal dotfiles and scripts to set up a developmen
 
 ```bash
 .
+├── docker-compose.yml
 ├── Dockerfile
+├── install.sh
 ├── LICENSE
 ├── README.md
-├── docker-compose.yml
-├── install.sh
 └── nvim
     ├── init.lua
     ├── lazy-lock.json
