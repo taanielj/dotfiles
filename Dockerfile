@@ -14,13 +14,14 @@ RUN useradd -m -s /bin/bash taaniel \
     && chmod 0440 /etc/sudoers.d/taaniel
 
 # switch to user taaniel
+
+
+
+COPY . /home/taaniel/dotfiles
+RUN chmod +x /home/taaniel/dotfiles/install.sh
+RUN echo "alias install='bash /home/taaniel/dotfiles/install.sh'" >> /home/taaniel/.bashrc
+RUN chown -R taaniel:taaniel /home/taaniel/dotfiles
 USER taaniel
-WORKDIR /home/taaniel
-RUN git clone https://github.com/taanielj/dotfiles.git
+WORKDIR /home/taaniel/dotfiles
 
-
-ENTRYPOINT ["/bin/bash"]
-
-# to run this local dockerfile
-# docker build -t custom-ubuntu:22.04 .
-# docker run -it --rm custom-ubuntu:22.04
+ENTRYPOINT ["/usr/bin/tail", "-f", "/dev/null"]

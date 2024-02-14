@@ -5,6 +5,8 @@
 
 # ZSH
 
+required_packages=(sudo apt-get curl wget git)
+
 check_root() {
 	if [ "$EUID" -ne 0 ]; then
 		SUDO='sudo'
@@ -13,16 +15,22 @@ check_root() {
 	fi
 }
 
-# array of required packages
-required_packages=(wget curl)
-
-# check if required packages are installed
-for package in "${required_packages[@]}"; do
-	if [ ! -x "$(command -v $package)" ]; then
-		echo "$package not found, installing $package"
-		$SUDO apt-get install -y $package
+check_required_packages() {
+	# checks if required packages are installed, provides entire list of missing packages and only then exits
+	missing_packages=()
+	for package in "${required_packages[@]}"; do
+		if [ ! -x "$(command -v $package)" ]; then
+			missing_packages+=($package)
+		fi
+	done
+	if [ ${#missing_packages[@]} -ne 0 ]; then
+		echo "Missing required packages: ${missing_packages[@]}"
+		exit 1
 	fi
-done
+}
+
+
+
 
 # get user home (~) if not root
 if [ -z "$SUDO" ]; then
@@ -31,29 +39,19 @@ else
 	USER_HOME=$(eval echo ~$(logname))
 fi
 
-update_packages() {
-	if [ ! -x "$(command -v apt-get)" ]; then
-		echo "apt-get not found"
-		exit 1
-	else
-		$SUDO apt-get update
-	fi
+# get name of the user
 
-}
 
-check_git() {
-	if [ ! -x "$(command -v git)" ]; then
-		echo "Git not found, installing git"
-		$SUDO apt-get install -y git
-	fi
-}
+
+
 
 install_zsh() {
 	echo "Installing zsh"
 	$SUDO apt-get install -y zsh
 	# install oh-my-zsh from github
 	rm -rf $USER_HOME/.oh-my-zsh
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	sh -c "$(wget -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+	# set zsh as default shell
 	# get auto-suggestions
 	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$USER_HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 	cp .zshrc $USER_HOME/.zshrc
@@ -92,8 +90,7 @@ install_nvim() {
 }
 
 check_root
-update_packages
-check_git
+check_required_packages
 $SUDO apt-get update || {
 	echo "apt-get update failed"
 	exit 1
