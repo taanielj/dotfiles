@@ -4,3 +4,12 @@ services:
   ubuntu-test:
     build: .
     container_name: ubuntu-test
+    # run with tail
+    command: tail -f /dev/null
+
+    # to enter the container with bash:
+    # docker exec -it ubuntu-test /bin/bash
+
+    # run install script with just install
+    # change default shell to zsh:
+    # inside the container run chsh -s $(which zsh)

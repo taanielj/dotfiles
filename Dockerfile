@@ -5,7 +5,7 @@ USER root
 # update the package list and clean up
 RUN apt-get update \
     && apt-get upgrade -y \ 
-    && apt-get install git sudo -y \
+    && apt-get install git sudo curl wget -y \
     && apt-get clean
 
 # add passwordless user taaniel and passwordless sudo
@@ -13,15 +13,22 @@ RUN useradd -m -s /bin/bash taaniel \
     && echo "taaniel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/taaniel \
     && chmod 0440 /etc/sudoers.d/taaniel
 
+# force set user password to "password
+RUN echo "taaniel:password" | chpasswd
+
 # switch to user taaniel
 
 
 
 COPY . /home/taaniel/dotfiles
 RUN chmod +x /home/taaniel/dotfiles/install.sh
-RUN echo "alias install='bash /home/taaniel/dotfiles/install.sh'" >> /home/taaniel/.bashrc
-RUN chown -R taaniel:taaniel /home/taaniel/dotfiles
+# RUN echo "alias install='bash /home/taaniel/dotfiles/install.sh'" >> /home/taaniel/.bashrc
 USER taaniel
-WORKDIR /home/taaniel/dotfiles
+RUN sudo /home/taaniel/dotfiles/install.sh
 
+
+WORKDIR /home/taaniel/dotfiles
+ENV TERM=xterm-256color
 ENTRYPOINT ["/usr/bin/tail", "-f", "/dev/null"]
+
+
