@@ -1,5 +1,3 @@
-Based on the structure of your `dotfiles` repository and the contents of your `install.sh` script that sets up Zsh (Oh-My-Zsh), Tmux, Neovim, and several utilities, here's a README template you could use. You might need to adjust the details to better fit your script's specifics and any additional functionalities or particularities of your setup:
-
 # Dotfiles Repository
 
 This repository contains my personal dotfiles and scripts to set up a development environment on Debian-based systems. It includes configurations for Zsh (with Oh-My-Zsh), Tmux, and Neovim, along with a selection of command-line utilities like `ripgrep`, `fd-find`, `fzf`, and `bat`.
