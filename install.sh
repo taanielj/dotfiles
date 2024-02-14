@@ -120,7 +120,7 @@ install_nvim() {
 # Function to set correct permissions
 set_permissions() {
     echo "Setting permissions..."
-    chown -R "${SUDO_USER:-$(whoami)}" "$USER_HOME"
+    chown -R "${SUDO_USER:-$(whoami)}":"${SUDO_USER:-$(whoami)}" $USER_HOME
 }
 
 # Function to install additional utilities

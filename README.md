@@ -1,23 +1,79 @@
-# Repository to keep dotfiles and other dev environment configurations
+Based on the structure of your `dotfiles` repository and the contents of your `install.sh` script that sets up Zsh (Oh-My-Zsh), Tmux, Neovim, and several utilities, here's a README template you could use. You might need to adjust the details to better fit your script's specifics and any additional functionalities or particularities of your setup:
 
-# Structure
+# Dotfiles Repository
+
+This repository contains my personal dotfiles and scripts to set up a development environment on Debian-based systems. It includes configurations for Zsh (with Oh-My-Zsh), Tmux, and Neovim, along with a selection of command-line utilities like `ripgrep`, `fd-find`, `fzf`, and `bat`.
+
+## Structure
+
 ```bash
 .
-├── install.sh # Wrapper script to run other install.sh scripts   
+├── Dockerfile
+├── LICENSE
 ├── README.md
-├── zsh
-│   ├── .zshrc # zsh configuration file, contains aliases, plugins, themes and other configurations
-│   └── install.sh # Script to install zsh and oh-my-zsh 
-├── neovim # Personalized neovim configuration using lazy.vim as a package manager
-│   ├──nvim
-│   │   ├── plugins
-│   │   │   ├── neotree.vim # neovim file explorer
-│   │   │   ├── telescope.vim # neovim fuzzy finder
-
-│   │   ├── init.vim # neovim configuration file
-│   │   ├── install.sh # Script to install neovim and lazy.vim
-│   │   
-
-
+├── docker-compose.yml
+├── install.sh
+└── nvim
+    ├── init.lua
+    ├── lazy-lock.json
+    └── lua
+        ├── plugins
+        │   ├── catppuccin.lua
+        │   ├── neo-tree.lua
+        │   ├── telescope.lua
+        │   └── treesitter.lua
+        └── plugins.lua
 ```
+
+- `Dockerfile` and `docker-compose.yml`: For testing the installation script and trying the environment in a container.
+- `install.sh`: Script to install and configure Zsh, Tmux, Neovim, and utilities.
+- `nvim`: Neovim configuration files and plugins setup.
+
+## Installation
+
+**Warning**: The `install.sh` script will overwrite existing configurations for Zsh, Tmux, and Neovim. It is advised to backup any important configurations before proceeding.
+
+1. Clone this repository:
+   ```
+   git clone https://github.com/yourusername/dotfiles.git
+   ```
+2. Run the installation script with root privileges:
+   ```
+   cd dotfiles
+   sudo ./install.sh
+   ```
+
+The installation script will perform the following actions:
+- Check and install required packages (`curl`, `wget`, `git`).
+- Backup existing configuration files for Zsh, Tmux, and Neovim.
+- Install and configure Zsh, Tmux, Neovim, bat, ripgrep, fd-find, and fzf.
+- Set correct permissions for the installed files.
+
+## Custom Neovim Configuration
+
+The Neovim setup includes an `init.lua` configuration and several Lua-based plugins for an enhanced coding experience. The plugins are managed through a custom `plugins.lua` file and include themes (catppuccin), file navigation (neo-tree), fuzzy searching (telescope), and syntax highlighting (treesitter).
+
+## License
+
+This project is open-sourced under the [MIT License](LICENSE). Feel free to fork, modify, and use it in your own setups.
+
+## Acknowledgments
+
+Thanks to the authors and contributors of the following projects:
+
+- Oh My Zsh: https://ohmyz.sh/
+- Tmux Plugin Manager: https://github.com/tmux-plugins/tpm
+- Neovim: https://neovim.io/
+
+## TODO
+
+- [ ] Add support for other Linux distributions.
+- [ ] Add support for macOS.
+- [ ] Add starship for a fancy prompt.
+- [ ] Expand neovim configuration with more plugins and customizations.
+    - [ ] Add LSP support. (with Mason)
+    - [ ] Add copilot support.
+    - [ ] Tabs?
+    - [ ] Integrated terminal?
+
 
