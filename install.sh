@@ -126,8 +126,8 @@ set_permissions() {
 # Function to install additional utilities
 install_utilities() {
     echo "Installing additional utilities..."
-    apt-get install -qq -y bat ripgrep fd-find fzf
-	echo "Installed bat, ripgrep, fd-find, and fzf."
+    apt-get install -qq -y bat ripgrep fd-find fzf zoxide
+	echo "Installed bat, ripgrep, fd-find, fzf, and zoxide."
 }
 
 # Main script execution
