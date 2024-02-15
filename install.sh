@@ -48,7 +48,8 @@ backup_config() {
             local path="${config_paths[$config]}"
             if [ -e "$path" ]; then # Check if file or directory exists
                 echo "Backing up existing $config configuration..."
-                mv "$path" "$USER_HOME/config-backup/"
+				cp -r "$path" "$USER_HOME/config-backup/"
+				rm -rf "$path"
             fi
         done
     else
@@ -113,7 +114,7 @@ install_nvim() {
     rm nvim.appimage
 
     mkdir -p "$USER_HOME/.config/nvim"
-    cp -r $repo_dir/nvim/* $USER_HOME/.config/nvim
+    cp -r $repo_dir/.config/nvim/* $USER_HOME/.config/nvim
 	sleep 5
 }
 
