@@ -5,7 +5,7 @@ USER root
 # update the package list and clean up
 RUN apt-get update \
     && apt-get upgrade -y \ 
-    && apt-get install git sudo curl wget -y \
+    && apt-get install git sudo curl wget cmake gcc g++ -y
     && apt-get clean
 
 # add passwordless user taaniel and passwordless sudo

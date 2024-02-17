@@ -58,8 +58,9 @@ backup_config() {
 }
 
 # Define required packages and the user's environment variables
-required_packages=(curl wget git)
+required_packages=(curl wget git cmake gcc g++)
 USER_HOME=$(getent passwd "${SUDO_USER:-$(whoami)}" | cut -d: -f6)
+USER_NAME=$(getent passwd "${SUDO_USER:-$(whoami)}" | cut -d: -f1)
 repo_dir=$(dirname "$(realpath "$0")")
 
 # Function to check and install required packages
@@ -115,7 +116,6 @@ install_nvim() {
 
     mkdir -p "$USER_HOME/.config/nvim"
     cp -r $repo_dir/.config/nvim/* $USER_HOME/.config/nvim
-	sleep 5
 }
 
 # Function to set correct permissions
@@ -126,10 +126,22 @@ set_permissions() {
 
 # Function to install additional utilities
 install_utilities() {
-    echo "Installing additional utilities..."
-    apt-get install -qq -y bat ripgrep fd-find fzf zoxide
-	echo "Installed bat, ripgrep, fd-find, fzf, and zoxide."
+    echo "Installing additional utilities... (bat, ripgrep, fd-find, fzf)"
+    apt-get install -qq -y bat ripgrep fd-find fzf
 }
+
+install_rust_stuff() {
+    sudo -u $USER_NAME bash -c "
+        sleep 5;
+        curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y -q;
+        sleep 5;
+        $USER_HOME/.cargo/bin/cargo install zoxide starship;
+        sleep 5;
+        starship preset pastel-powerline -o ~/.config/starship.toml;
+        sleep 5;
+    "
+}
+
 
 # Main script execution
 display_warning
@@ -140,6 +152,7 @@ install_zsh
 install_tmux
 install_nvim
 install_utilities
+install_rust_stuff
 set_permissions
 
 echo "Installation completed successfully."
