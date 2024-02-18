@@ -1,13 +1,30 @@
 #!/bin/bash
 # Script to install Zsh (Oh-My-Zsh), Tmux, Neovim, and other utilities.
-
-# Ensure the script is run as root
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script must be run as root. Please use sudo to run this script."
-    exit 1
+# Ensure script is not run with sudo (unless running as root)
+if [ "$(id -u)" -eq 0 ]; then
+    if [ -z "$SUDO_USER" ]; then
+        echo "Running as root without sudo, continuing..."
+    else
+        echo "This script should not be run with sudo. Please run it as your normal user; it will invoke sudo as needed."
+        exit 1
+    fi
 fi
 
+declare -A command_to_package=(
+    [curl]="curl"
+    [wget]="wget"
+    [cmake]="cmake"
+    [gcc]="gcc"
+    [g++]="g++"
+    [tmux]="tmux"
+    [zsh]="zsh"
+    [batcat]="bat"
+    [rg]="ripgrep"
+    [fdfind]="fd-find"
+    [fzf]="fzf"
+)
 
+repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 display_warning() {
 	echo "This script will install Zsh (Oh-My-Zsh), Tmux, Neovim, ripgrep, fd-find, fzf, and bat."
@@ -17,14 +34,16 @@ display_warning() {
 	read -r
 }
 
+
+
 backup_config() {
     # Define a list of configurations to backup
     declare -A config_paths=(
-        [oh-my-zsh]="$USER_HOME/.oh-my-zsh"
-        [zshrc]="$USER_HOME/.zshrc"
-        [tmux.conf]="$USER_HOME/.tmux.conf"
-        [tmux]="$USER_HOME/.tmux"
-        [nvim]="$USER_HOME/.config/nvim"
+        [oh-my-zsh]="$HOME/.oh-my-zsh"
+        [zshrc]="$HOME/.zshrc"
+        [tmux.conf]="$HOME/.tmux.conf"
+        [tmux]="$HOME/.tmux"
+        [nvim]="$HOME/.config/nvim"
     )
 
     # Flag to track if any config exists
@@ -41,14 +60,14 @@ backup_config() {
     # Proceed to backup if any config exists
     if [ "$config_exists" = true ]; then
         echo "Creating backup directory..."
-        mkdir -p "$USER_HOME/config-backup"
+        mkdir -p "$HOME/config-backup"
 
         # Loop through the configurations and backup
         for config in "${!config_paths[@]}"; do
             local path="${config_paths[$config]}"
             if [ -e "$path" ]; then # Check if file or directory exists
                 echo "Backing up existing $config configuration..."
-				cp -r "$path" "$USER_HOME/config-backup/"
+				cp -r "$path" "$HOME/config-backup/"
 				rm -rf "$path"
             fi
         done
@@ -58,49 +77,49 @@ backup_config() {
 }
 
 # Define required packages and the user's environment variables
-required_packages=(curl wget git cmake gcc g++)
-USER_HOME=$(getent passwd "${SUDO_USER:-$(whoami)}" | cut -d: -f6)
-USER_NAME=$(getent passwd "${SUDO_USER:-$(whoami)}" | cut -d: -f1)
-repo_dir=$(dirname "$(realpath "$0")")
+
 
 # Function to check and install required packages
 check_required_packages() {
-    missing_packages=()
-    for package in "${required_packages[@]}"; do
-        if ! command -v "$package" &> /dev/null; then
-            missing_packages+=("$package")
+    local missing_packages=()
+    for cmd in "${!command_to_package[@]}"; do
+        if ! command -v "$cmd" &> /dev/null; then
+            missing_packages+=("${command_to_package[$cmd]}")
         fi
     done
     if [ ${#missing_packages[@]} -ne 0 ]; then
         echo "Missing required packages: ${missing_packages[*]}. Installing..."
-        apt-get update -qq && apt-get install -qq -y "${missing_packages[@]}"
+        sudo apt-get update -qq && sudo apt-get install -qq -y "${missing_packages[@]}"
     fi
 }
 
 # Function to install Zsh and Oh-My-Zsh
-install_zsh() {
-    echo "Installing Zsh..."
-
-
-    apt-get install -qq -y zsh
-    rm -rf $USER_HOME/.oh-my-zsh
+configure_zsh() {    
+    echo "Configuring Zsh..."
+    echo $HOME
+    if ! command -v zsh &> /dev/null; then
+        echo "Zsh is not installed. Please install it first."
+        return
+    fi
+    rm -rf $HOME/.oh-my-zsh
     sh -c "$(wget -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-	# zsh install script will install oh-my-zsh in /root/.oh-my-zsh, so we need to move it to the user's home directory
-	mv /root/.oh-my-zsh $USER_HOME
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$USER_HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    cp "$repo_dir/.zshrc" "$USER_HOME/.zshrc"
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k   
+    cp "$repo_dir/.zshrc" "$HOME/.zshrc"
 }
 
 # Function to install Tmux
-install_tmux() {
-    echo "Installing Tmux..."
-
-    apt-get install -qq -y tmux
-    git clone https://github.com/tmux-plugins/tpm "$USER_HOME/.tmux/plugins/tpm"
-    cp "$repo_dir/.tmux.conf" "$USER_HOME/.tmux.conf"
+configure_tmux() {
+    echo "Configuring tmux..."
+    if ! command -v tmux &> /dev/null; then
+        echo "Tmux is not installed. Please install it first."
+        return
+    fi
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    cp "$repo_dir/.tmux.conf" "$HOME/.tmux.conf"
     tmux start-server
     tmux new-session -d
-    bash "$USER_HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
+    bash "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
     tmux kill-server
 }
 
@@ -110,36 +129,20 @@ install_nvim() {
     wget https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage
     chmod u+x nvim.appimage
     ./nvim.appimage --appimage-extract %> /dev/null
-    mv ./squashfs-root /opt/nvim
-    ln -sf /opt/nvim/AppRun /usr/bin/nvim
+    sudo mv ./squashfs-root /opt/nvim
+    sudo ln -sf /opt/nvim/AppRun /usr/bin/nvim
     rm nvim.appimage
 
-    mkdir -p "$USER_HOME/.config/nvim"
-    cp -r $repo_dir/.config/nvim/* $USER_HOME/.config/nvim
+    mkdir -p "$HOME/.config/nvim"
+    cp -r $repo_dir/.config/nvim/* $HOME/.config/nvim
 }
 
-# Function to set correct permissions
-set_permissions() {
-    echo "Setting permissions..."
-    chown -R "${SUDO_USER:-$(whoami)}":"${SUDO_USER:-$(whoami)}" $USER_HOME
-}
 
-# Function to install additional utilities
-install_utilities() {
-    echo "Installing additional utilities... (bat, ripgrep, fd-find, fzf)"
-    apt-get install -qq -y bat ripgrep fd-find fzf
-}
+
 
 install_rust_stuff() {
-    sudo -u $USER_NAME bash -c "
-        sleep 5;
-        curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y -q;
-        sleep 5;
-        $USER_HOME/.cargo/bin/cargo install zoxide starship;
-        sleep 5;
-        starship preset pastel-powerline -o ~/.config/starship.toml;
-        sleep 5;
-    "
+    curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y -q;
+    $HOME/.cargo/bin/cargo install zoxide;
 }
 
 
@@ -147,12 +150,9 @@ install_rust_stuff() {
 display_warning
 check_required_packages
 backup_config
-apt-get update -qq -y || { echo "Failed to update package list"; exit 1; }
-install_zsh
-install_tmux
+configure_zsh
+configure_tmux
 install_nvim
-install_utilities
 install_rust_stuff
-set_permissions
 
 echo "Installation completed successfully."
