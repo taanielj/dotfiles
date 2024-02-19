@@ -46,37 +46,37 @@ backup_config() {
         [nvim]="$HOME/.config/nvim"
     )
 
-    # Flag to track if any config exists
+    # Flag to track if any config exists that is not a symlink
     local config_exists=false
 
-    # Check if any configuration files or directories exist
+    # Check if any configuration files or directories exist and are not symlinks
     for config_path in "${config_paths[@]}"; do
-        if [ -e "$config_path" ]; then
+        if [ -e "$config_path" ] && [ ! -L "$config_path" ]; then
             config_exists=true
-            break # Exit the loop early as we found at least one config
+            break # Exit the loop early as we found at least one config that is not a symlink
         fi
     done
 
-    # Proceed to backup if any config exists
+    # Proceed to backup if any config exists that is not a symlink
     if [ "$config_exists" = true ]; then
         echo "Creating backup directory..."
         mkdir -p "$HOME/config-backup"
 
-        # Loop through the configurations and backup
+        # Loop through the configurations and backup if not a symlink
         for config in "${!config_paths[@]}"; do
             local path="${config_paths[$config]}"
-            if [ -e "$path" ]; then # Check if file or directory exists
+            if [ -e "$path" ] && [ ! -L "$path" ]; then # Check if file or directory exists and is not a symlink
                 echo "Backing up existing $config configuration..."
-				cp -r "$path" "$HOME/config-backup/"
-				rm -rf "$path"
+                cp -r "$path" "$HOME/config-backup/"
+                rm -rf "$path"
+            else
+                echo "$config is a symlink and will not be backed up."
             fi
         done
     else
-        echo "No configurations found that require backup."
+        echo "No configurations found that require backup or all configs are symlinks."
     fi
 }
-
-# Define required packages and the user's environment variables
 
 
 # Function to check and install required packages
@@ -105,8 +105,9 @@ configure_zsh() {
     sh -c "$(wget -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k   
-    cp "$repo_dir/.zshrc" "$HOME/.zshrc"
-    cp "$repo_dir/.p10k.zsh" "$HOME/.p10k.zsh"
+    rm $HOME/.zshrc
+    ln -s $repo_dir/.zshrc $HOME/.zshrc
+    ln -s $repo_dir/.p10k.zsh $HOME/.p10k.zsh
 }
 
 # Function to install Tmux
@@ -117,7 +118,7 @@ configure_tmux() {
         return
     fi
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    cp "$repo_dir/.tmux.conf" "$HOME/.tmux.conf"
+    ln -s $repo_dir/.tmux.conf $HOME/.tmux.conf
     tmux start-server
     tmux new-session -d
     bash "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
@@ -134,8 +135,8 @@ install_nvim() {
     sudo ln -sf /opt/nvim/AppRun /usr/bin/nvim
     rm nvim.appimage
 
-    mkdir -p "$HOME/.config/nvim"
-    cp -r $repo_dir/.config/nvim/* $HOME/.config/nvim
+    rm -rf $HOME/.config/nvim
+    ln -s $repo_dir/.config/nvim $HOME/.config/nvim
 }
 
 
