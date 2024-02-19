@@ -6,6 +6,9 @@ return {
         wk.register({
             f = {
             name = "+Find",
+                h = {
+                    name = "+Hidden",
+                }
             },
         }, { prefix = "<leader>" })
 
