@@ -1,17 +1,24 @@
 return {
-	"nvim-lualine/lualine.nvim",
+    "nvim-lualine/lualine.nvim",
     dependencies = {
-        "nvim-tree/nvim-web-devicons",
+        "kyazdani42/nvim-web-devicons", -- Ensure correct dependency for icons
     },
-	config = function()
-		require("lualine").setup({
-			options = {
-				theme = "catppuccin",
-			},
-			sections = {
-				lualine_a = { "", "mode" },
-			},
-		})
-		vim.o.laststatus = 3
-	end,
+    config = function()
+        require("lualine").setup({
+            options = {
+                theme = "catppuccin",
+            },
+            sections = {
+                lualine_a = {
+                    {
+                        'mode',
+                        icons_enabled = true, -- Enable icons
+                        icon = {'', align = 'left'}, -- Icon to the right
+                        separator = nil, -- Optional: Define separator if needed
+                    }
+                }
+            },
+        })
+        vim.o.laststatus = 3 -- Ensure statusline is always shown
+    end,
 }

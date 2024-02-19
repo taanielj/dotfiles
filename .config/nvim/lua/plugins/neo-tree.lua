@@ -11,7 +11,7 @@ return {
 
 		require("neo-tree").setup({
 			default_component_configs = {
-				git_status({
+				git_status = {
 					symbols = {
 						-- Change type
 						added = "✚", -- NOTE: you can set any of these to an empty string to not show them
@@ -26,7 +26,7 @@ return {
 						conflict = "",
 					},
                     align = "right",
-				}),
+				},
 			},
 		})
 	end,
