@@ -5,29 +5,29 @@ USER root
 # update the package list and clean up
 RUN apt-get update \
     && apt-get upgrade -y \ 
-    && apt-get install git sudo curl wget cmake gcc g++ -y
+    && apt-get install git sudo curl wget cmake gcc g++ -y \
     && apt-get clean
 
-# add passwordless user taaniel and passwordless sudo
-RUN useradd -m -s /bin/bash taaniel \
-    && echo "taaniel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/taaniel \
-    && chmod 0440 /etc/sudoers.d/taaniel
+# add passwordless user test and passwordless sudo
+RUN useradd -m -s /bin/bash test \
+    && echo "test ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/test \
+    && chmod 0440 /etc/sudoers.d/test
 
 # force set user password to "password
-RUN echo "taaniel:password" | chpasswd
+RUN echo "test:password" | chpasswd
 
-# switch to user taaniel
-
-
-
-COPY . /home/taaniel/dotfiles
-RUN chmod +x /home/taaniel/dotfiles/install.sh
-# RUN echo "alias install='bash /home/taaniel/dotfiles/install.sh'" >> /home/taaniel/.bashrc
-USER taaniel
-RUN sudo /home/taaniel/dotfiles/install.sh
+# switch to user test
 
 
-WORKDIR /home/taaniel/dotfiles
+
+COPY . /home/test/dotfiles
+RUN chmod +x /home/test/dotfiles/install.sh
+# RUN echo "alias install='bash /home/test/dotfiles/install.sh'" >> /home/test/.bashrc
+USER test
+RUN /home/test/dotfiles/install.sh
+
+
+WORKDIR /home/test/dotfiles
 ENV TERM=xterm-256color
 ENTRYPOINT ["/usr/bin/tail", "-f", "/dev/null"]
 

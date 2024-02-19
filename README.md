@@ -47,6 +47,14 @@ The installation script will perform the following actions:
 - Install and configure Zsh, Tmux, Neovim, bat, ripgrep, fd-find, and fzf.
 - Set correct permissions for the installed files.
 
+## Test driving the config
+
+Requires [Docker engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/).
+
+To test drive the config all you need is to 
+1) Start the container with `docker compose up -d --build`
+2) Connect to the container with `docker exec -it ubuntu-dotfiles-testdrive /bin/zsh`
+
 ## Custom Neovim Configuration
 
 The Neovim setup includes an `init.lua` configuration and several Lua-based plugins for an enhanced coding experience. The plugins are managed through a custom `plugins.lua` file and include themes (catppuccin), file navigation (neo-tree), fuzzy searching (telescope), and syntax highlighting (treesitter).
