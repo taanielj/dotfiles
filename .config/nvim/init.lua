@@ -1,6 +1,6 @@
-# based on typecraft tutorial
 
 
+-- Set up the lazy loader
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
@@ -14,6 +14,10 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-
+-- Load ./lua/vim-options.lua Options such as tabstop, linenumbers etc 
 require("vim-options")
+-- Load .lua/keybinds.lua Contains keybinds not related to plugins
+require("keybinds")
+-- load plugins automatically in lua/plugins folder
 require("lazy").setup("plugins")
+
