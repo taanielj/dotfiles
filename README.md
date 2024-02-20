@@ -69,7 +69,7 @@ Requires [Docker engine](https://docs.docker.com/engine/install/) and [Docker Co
 
 To test drive the config all you need is to 
 1) Start the container with `docker compose up -d --build`
-2) Connect to the container with `docker exec -it ubuntu-dotfiles-testdrive /bin/zsh`
+2) Connect to the container with `docker exec -it ubuntu-dev /bin/zsh`
 
 ## Custom Neovim Configuration
 

@@ -1,8 +1,12 @@
 version: "3.9"
 
 services:
-  ubuntu-dotfiles-testdrive:
+  ubuntu-dev:
     build: .
-    container_name: ubuntu-dotfiles-testdrive
+    container_name: ubuntu-dev
     # run with tail
     command: tail -f /dev/null
+
+    # to enter the container with zsh:
+    # docker exec -it ubuntu-test /bin/zsh
+
