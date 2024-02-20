@@ -13,19 +13,11 @@ RUN useradd -m -s /bin/bash test \
     && echo "test ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/test \
     && chmod 0440 /etc/sudoers.d/test
 
-# force set user password to "password
-RUN echo "test:password" | chpasswd
-
-# switch to user test
-
-
-
 COPY . /home/test/dotfiles
 RUN chmod +x /home/test/dotfiles/install.sh
-# RUN echo "alias install='bash /home/test/dotfiles/install.sh'" >> /home/test/.bashrc
+
 USER test
 RUN /home/test/dotfiles/install.sh
-
 
 WORKDIR /home/test/dotfiles
 ENV TERM=xterm-256color

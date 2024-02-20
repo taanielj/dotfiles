@@ -6,30 +6,40 @@ This repository contains my personal dotfiles and scripts to set up a developmen
 
 ```bash
 .
+├── .tmux.conf
+├── .zshrc
 ├── docker-compose.yml
 ├── Dockerfile
 ├── install.sh
 ├── LICENSE
 ├── README.md
-└── nvim
+└── .config/nvim
     ├── init.lua
-    ├── lazy-lock.json
     └── lua
         ├── plugins
-        │   ├── catppuccin.lua
-        │   ├── neo-tree.lua
-        │   ├── telescope.lua
-        │   └── treesitter.lua
-        └── plugins.lua
+        │   ├── alpha.lua       # Dashboard
+        │   ├── barbar.lua      # Tabline
+        │   ├── catppuccin.lua  # Theme
+        │   ├── completions.lua # Autocomplete
+        │   ├── copilot.lua     # Autocomplete on steroids
+        │   ├── gitsigns.lua    # For previewing git changes
+        │   ├── lsp-config.lua  # Language Server Protocol configuration
+        │   ├── lualine.lua     # Statusline
+        │   ├── neo-tree.lua    # File navigation
+        │   ├── none-ls.lua     # Add linter support for lsp (null-ls drop in replacement)
+        │   ├── telescope.lua   # Fuzzy searching and navigation
+        │   ├── treesitter.lua  # Syntax highlighting
+        │   └── which-key.lua   # Cheat sheet for keybindings
+        └── vim-options.lua     # Neovim options and general keybindings
 ```
 
 - `Dockerfile` and `docker-compose.yml`: For testing the installation script and trying the environment in a container.
 - `install.sh`: Script to install and configure Zsh, Tmux, Neovim, and utilities.
-- `nvim`: Neovim configuration files and plugins setup.
+- `./config/nvim`: Neovim configuration files and plugins setup.
 
 ## Installation
 
-**Warning**: The `install.sh` script will overwrite existing configurations for Zsh, Tmux, and Neovim. It is advised to backup any important configurations before proceeding.
+**Warning**: The `install.sh` script will overwrite existing configurations for Zsh, Tmux, and Neovim. Existing files are backed up to `~/config-backup` before the installation.
 
 1. Clone this repository:
    ```
@@ -42,10 +52,16 @@ This repository contains my personal dotfiles and scripts to set up a developmen
    ```
 
 The installation script will perform the following actions:
-- Check and install required packages (`curl`, `wget`, `git`).
+- Check and install required packages 
+  - `curl`, `wget` - for downloading files
+  - `cmake`, `gcc`, `g++`, `make` - used by rustup and some nvim plugins
+  - `zsh`, `tmux` - the main shell and terminal multiplexer
+  - `neovim` - custom installation from the official repository using v0.9.5 appimage, extracted to /opt/nvim and symlinked to /usr/local/bin/nvim
+  - `bat` - a cat clone with syntax highlighting, line numbers and git integration
+  - `ripgrep` - a faster grep
+  - `fd-find` - a better, faster and more user-friendly find
+  - `fzf` - a general-purpose command-line fuzzy finder
 - Backup existing configuration files for Zsh, Tmux, and Neovim.
-- Install and configure Zsh, Tmux, Neovim, bat, ripgrep, fd-find, and fzf.
-- Set correct permissions for the installed files.
 
 ## Test driving the config
 
@@ -75,11 +91,11 @@ Thanks to the authors and contributors of the following projects:
 
 - [ ] Add support for other Linux distributions.
 - [ ] Add support for macOS.
-- [ ] Add starship for a fancy prompt.
+- [x] Add starship for a fancy prompt - actually added powerlevel10k
 - [ ] Expand neovim configuration with more plugins and customizations.
-    - [ ] Add LSP support. (with Mason)
-    - [ ] Add copilot support.
-    - [ ] Tabs?
+    - [x] Add LSP support. (with Mason) - done, also added none-ls for linter support
+    - [x] Add copilot support. - done, with nvim-cmp integration
+    - [x] Tabs - done, added barbar
     - [ ] Integrated terminal?
 
 
