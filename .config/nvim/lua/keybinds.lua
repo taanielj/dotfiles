@@ -36,15 +36,19 @@ vim.keymap.set("n", "<S-Left>", "vh", { noremap = true, silent = true, desc = "M
 vim.keymap.set("n", "<S-Right>", "vl", { noremap = true, silent = true, desc = "Move right" })
 
 -- enter visual mode from insert with shift hjkl or arrow key
-vim.keymap.set("i", "<S-k>", "<Esc>lvk", { noremap = true, silent = true, desc = "Move up" })
-vim.keymap.set("i", "<S-j>", "<Esc>lvj", { noremap = true, silent = true, desc = "Move down" })
-vim.keymap.set("i", "<S-h>", "<Esc>lvh", { noremap = true, silent = true, desc = "Move left" })
-vim.keymap.set("i", "<S-l>", "<Esc>lvl", { noremap = true, silent = true, desc = "Move right" })
-
-vim.keymap.set("i", "<S-Up>", "<Esc>lvk", { noremap = true, silent = true, desc = "Move up" })
+vim.keymap.set("i", "<S-Up>", "<Esc>vkl", { noremap = true, silent = true, desc = "Move up" })
 vim.keymap.set("i", "<S-Down>", "<Esc>lvj", { noremap = true, silent = true, desc = "Move down" })
-vim.keymap.set("i", "<S-Left>", "<Esc>lvh", { noremap = true, silent = true, desc = "Move left" })
-vim.keymap.set("i", "<S-Right>", "<Esc>lvl", { noremap = true, silent = true, desc = "Move right" })
+vim.keymap.set("i", "<S-Left>", "<Esc>v", { noremap = true, silent = true, desc = "Move left" })
+vim.keymap.set("i", "<S-Right>", "<Esc>lv", { noremap = true, silent = true, desc = "Move right" })
+
+-- shift end home in insert mode enters visual mode and selects until beginnig or end of line
+vim.keymap.set("i", "<S-End>", "<Esc>v$", { noremap = true, silent = true, desc = "Move to end of line" })
+vim.keymap.set("i", "<S-Home>", "<Esc>v^", { noremap = true, silent = true, desc = "Move to beginning of line" })
+
+-- ctrl backspace in insert delete previous word 
+vim.keymap.set("i", "<C-H>", "<C-o>db", { noremap = true, silent = true, desc = "Delete previous word" })
+-- ctrl delete in insert delete next (FROM CURSOR) word 
+vim.keymap.set("i", "<C-Delete>", "<C-o>de", { noremap = true, silent = true, desc = "Delete from cursor to end of word" })
 
 -- ignore shift key in visual mode
 vim.keymap.set("v", "<S-k>", "k", { noremap = true, silent = true, desc = "Move up" })

@@ -8,7 +8,7 @@ return {
         require("bufferline").setup({
             options ={
                 offsets = {
-                    { filetype = "NvimTree", padding = 1 }
+                    { filetype = "NvimTree", text = "File Explorer"}
                 }
             }
         })
