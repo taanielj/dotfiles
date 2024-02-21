@@ -6,8 +6,10 @@ return {
     },
     config = function()
         require("bufferline").setup({
-            offsets = {
-                { filetype = "NvimTree", padding = 1 }
+            options ={
+                offsets = {
+                    { filetype = "NvimTree", padding = 1 }
+                }
             }
         })
         vim.g.barbar_auto_setup = false

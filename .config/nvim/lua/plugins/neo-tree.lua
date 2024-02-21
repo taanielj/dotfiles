@@ -7,7 +7,12 @@ return {
 		"MunifTanjim/nui.nvim",
 	},
 	config = function()
-		vim.keymap.set("n", "<leader>e", ":Neotree filesystem reveal left toggle=true<CR>", { desc = "Show Files", silent = true })
+		vim.keymap.set(
+			"n",
+			"<leader>e",
+			":Neotree filesystem reveal left toggle=true<CR>",
+			{ desc = "Show Files", silent = true }
+		)
 
 		require("neo-tree").setup({
 			default_component_configs = {
@@ -25,8 +30,13 @@ return {
 						staged = "✓",
 						conflict = "",
 					},
-                    align = "right",
+					align = "right",
 				},
+			},
+			window = {
+				mappings = {
+					["<space>"] = "none"
+                },
 			},
 		})
 	end,
