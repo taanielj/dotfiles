@@ -35,8 +35,8 @@ return {
 			},
 			window = {
 				mappings = {
-					["<space>"] = "none"
-                },
+					["<space>"] = "none",
+				},
 			},
 		})
 	end,

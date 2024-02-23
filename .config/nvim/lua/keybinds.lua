@@ -45,9 +45,9 @@ vim.keymap.set("i", "<S-Right>", "<Esc>lv", { noremap = true, silent = true, des
 vim.keymap.set("i", "<S-End>", "<Esc>v$", { noremap = true, silent = true, desc = "Move to end of line" })
 vim.keymap.set("i", "<S-Home>", "<Esc>v^", { noremap = true, silent = true, desc = "Move to beginning of line" })
 
--- ctrl backspace in insert delete previous word 
+-- ctrl backspace in insert delete previous word
 vim.keymap.set("i", "<C-H>", "<C-o>db", { noremap = true, silent = true, desc = "Delete previous word" })
--- ctrl delete in insert delete next (FROM CURSOR) word 
+-- ctrl delete in insert delete next (FROM CURSOR) word
 vim.keymap.set("i", "<C-Delete>", "<C-o>de", { noremap = true, silent = true, desc = "Delete from cursor to end of word" })
 
 -- ignore shift key in visual mode
@@ -69,6 +69,4 @@ vim.keymap.set("i", "<C-a>", "<Esc>ggVG", { noremap = true, silent = true, desc 
 -- ctrl C copy in visual mode
 vim.keymap.set("v", "<C-c>", '"+y', { noremap = true, silent = true, desc = "Copy" })
 
-
-vim.keymap.set("n", "<Tab>", "<C-w>w", { noremap = true, silent = true, desc = "Next window"})
-
+vim.keymap.set("n", "<Tab>", "<C-w>w", { noremap = true, silent = true, desc = "Next window" })

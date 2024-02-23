@@ -7,7 +7,7 @@ return {
 			vim.keymap.set("n", "<leader>gt", ":Gitsigns toggle_current_line_blame<CR>", { desc = "Toggle Blame" })
 		end,
 	},
-    {
-        "tpope/vim-fugitive",
-    }
+	{
+		"tpope/vim-fugitive",
+	},
 }
