@@ -39,9 +39,11 @@ return {
 			})
 			-- docker language server
 			lspconfig.dockerls.setup({ capabilities = capabilities })
-			vim.keymap.set("n", "K", vim.lsp.buf.hover, {})
-			vim.keymap.set("n", "gd", vim.lsp.buf.definition, {})
-			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, {})
+			vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Show hover doc" })
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
+
+            vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")
 		end,
 	},
 }
