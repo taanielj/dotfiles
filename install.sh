@@ -139,6 +139,15 @@ install_nvim() {
     ln -s $repo_dir/.config/nvim $HOME/.config/nvim
 }
 
+install_lazygit() {
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+    tar xf lazygit.tar.gz lazygit
+    sudo install lazygit /usr/local/bin/
+    # Clean up
+    rm lazygit.tar.gz lazygit
+}
+
 
 
 
@@ -156,5 +165,6 @@ configure_zsh
 configure_tmux
 install_nvim
 install_rust_stuff
+install_lazygit
 
 echo "Installation completed successfully."
