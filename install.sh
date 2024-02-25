@@ -56,18 +56,21 @@ backup_config() {
             break # Exit the loop early as we found at least one config that is not a symlink
         fi
     done
+    
+    # append timestamp to backup directory
+    config_backup_dir="$HOME/config-backup-$(date +%Y%m%d%H%M%S)"
 
     # Proceed to backup if any config exists that is not a symlink
     if [ "$config_exists" = true ]; then
         echo "Creating backup directory..."
-        mkdir -p "$HOME/config-backup"
+        mkdir -p "$config_backup_dir"
 
         # Loop through the configurations and backup if not a symlink
         for config in "${!config_paths[@]}"; do
             local path="${config_paths[$config]}"
             if [ -e "$path" ] && [ ! -L "$path" ]; then # Check if file or directory exists and is not a symlink
                 echo "Backing up existing $config configuration..."
-                cp -r "$path" "$HOME/config-backup/"
+                cp -r "$path" "$config_backup_dir"
                 rm -rf "$path"
             else
                 echo "$config is a symlink and will not be backed up."
@@ -111,19 +114,6 @@ configure_zsh() {
 }
 
 # Function to install Tmux
-configure_tmux() {
-    echo "Configuring tmux..."
-    if ! command -v tmux &> /dev/null; then
-        echo "Tmux is not installed. Please install it first."
-        return
-    fi
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    ln -s $repo_dir/.tmux.conf $HOME/.tmux.conf
-    tmux start-server
-    tmux new-session -d
-    bash "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
-    tmux kill-server
-}
 
 # Function to install Neovim
 install_nvim() {
@@ -156,15 +146,28 @@ install_rust_stuff() {
     $HOME/.cargo/bin/cargo install zoxide;
 }
 
+configure_tmux() {
+    echo "Configuring tmux..."
+    if ! command -v tmux &> /dev/null; then
+        echo "Tmux is not installed. Please install it first."
+        return
+    fi
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    ln -s $repo_dir/.tmux.conf $HOME/.tmux.conf
+    tmux start-server
+    tmux new-session -d
+    bash "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
+    tmux kill-server
+}
 
 # Main script execution
 display_warning
 check_required_packages
 backup_config
 configure_zsh
-configure_tmux
 install_nvim
 install_rust_stuff
 install_lazygit
+configure_tmux
 
 echo "Installation completed successfully."
