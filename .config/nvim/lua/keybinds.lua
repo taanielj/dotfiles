@@ -1,5 +1,5 @@
 vim.g.mapleader = " "
-vim.keymap.set("n", "<leader><Tab>", ":bnext<CR>", { noremap = true, silent = true, desc = "Next buffer" })
+vim.keymap.set("n", "<leader><Tab>", ":BufferLineCycleNext<CR>", { noremap = true, silent = true, desc = "Next buffer" })
 -- Normal mode move line up and down
 vim.keymap.set("n", "<C-j>", ":m .+1<CR>==", { noremap = true, silent = true, desc = "Move line down" })
 vim.keymap.set("n", "<C-k>", ":m .-2<CR>==", { noremap = true, silent = true, desc = "Move line up" })
@@ -70,3 +70,5 @@ vim.keymap.set("i", "<C-a>", "<Esc>ggVG", { noremap = true, silent = true, desc 
 vim.keymap.set("v", "<C-c>", '"+y', { noremap = true, silent = true, desc = "Copy" })
 
 vim.keymap.set("n", "<Tab>", "<C-w>w", { noremap = true, silent = true, desc = "Next window" })
+
+vim.keymap.set("n", "<leader>s", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", { noremap = true, silent = true, desc = "Search and replace" })
