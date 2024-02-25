@@ -14,6 +14,16 @@ return {
 			g = {
 				name = "+Git",
 			},
+
+            b = {
+                name = "+Buffer",
+                {
+                    s = "+Sort",
+                },
+                {
+                    m = "+Move",
+                },
+            },
 		}, { prefix = "<leader>" })
 
 		require("which-key").setup()
