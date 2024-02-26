@@ -41,6 +41,7 @@ backup_config() {
     declare -A config_paths=(
         [oh-my-zsh]="$HOME/.oh-my-zsh"
         [zshrc]="$HOME/.zshrc"
+        [p10k.zsh]="$HOME/.p10k.zsh"
         [tmux.conf]="$HOME/.tmux.conf"
         [tmux]="$HOME/.tmux"
         [nvim]="$HOME/.config/nvim"
