@@ -85,7 +85,9 @@ configure_zsh() {
 # Function to install Neovim, adjusted for Termux specifics
 install_nvim() {
     echo "Installing Neovim..."
+    # termux repo has the latest version of neovim (0.9.5 as of 2024-02-27)
     pkg install neovim -y
+    mkdir -p $HOME/.config
     ln -sf $repo_dir/.config/nvim $HOME/.config/nvim
 }
 
