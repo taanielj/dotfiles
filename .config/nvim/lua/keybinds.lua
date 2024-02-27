@@ -1,3 +1,6 @@
+-- since ctrl+v is used for paste in terminal, rebind VISUAL BLOCK to ctrl+q
+vim.keymap.set("v", "<C-q>", "<C-v>", { noremap = true, silent = true, desc = "Visual block" })
+
 vim.g.mapleader = " "
 vim.keymap.set("n", "<leader><Tab>", ":BufferLineCycleNext<CR>", { noremap = true, silent = true, desc = "Next buffer" })
 -- Normal mode move line up and down
