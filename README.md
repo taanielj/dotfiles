@@ -39,8 +39,7 @@ This repository contains my personal dotfiles and scripts to set up a developmen
 
 ## Installation
 
-**Warning**: The `install.sh` script will overwrite existing configurations for Zsh, Tmux, and Neovim. Existing files are backed up to `~/config-backup` before the installation.
-
+**Warning**: The `install.sh` script will overwrite existing configurations for Zsh, Tmux, and Neovim. Existing files are backed up to `~/config-backup` before the installation. fh
 1. Clone this repository:
    ```
    git clone https://github.com/yourusername/dotfiles.git
@@ -51,7 +50,7 @@ This repository contains my personal dotfiles and scripts to set up a developmen
    sudo ./install.sh
    ```
 
-The installation script will perform the following actions:
+The installation script will perform  the following actions:
 - Check and install required packages 
   - `curl`, `wget` - for downloading files
   - `cmake`, `gcc`, `g++`, `make` - used by rustup and some nvim plugins
@@ -62,6 +61,19 @@ The installation script will perform the following actions:
   - `fd-find` - a better, faster and more user-friendly find
   - `fzf` - a general-purpose command-line fuzzy finder
 - Backup existing configuration files for Zsh, Tmux, and Neovim.
+
+## Neovim info
+
+### Currently installed language servers (LSPs)
+The Neovim is configured to use the following language servers:
+- `lua_ls` - Lua language server
+- `pyright` - Python language server
+- `dockerls` - Dockerfile language server
+- `terraformls` - Terraform language server
+
+### Linters:
+- For linting Neovim is configured to use none-ls (fork of null-ls) and will auto install stylua, prettier and black for lua, javascript and python respectively.
+- It will attempt to auto detect other linters and install them as well based on the open buffers.
 
 ## Test driving the config
 

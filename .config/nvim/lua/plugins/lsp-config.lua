@@ -13,6 +13,8 @@ return {
 					"lua_ls",
 					"pyright",
 					"dockerls",
+					"terraformls",
+					"sqlls",
 				},
 			})
 		end,
@@ -40,7 +42,7 @@ return {
 			-- docker language server
 			lspconfig.dockerls.setup({ capabilities = capabilities })
 
-            ---- Keymaps:
+			---- Keymaps:
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Show hover doc" })
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
