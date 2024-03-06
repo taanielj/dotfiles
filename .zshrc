@@ -68,10 +68,12 @@ bindkey "^H" backward-kill-word
 bindkey "5~" kill-word
 
 # Aliases configuration
-alias ls="ls --color=auto"
 alias vim=nvim
 alias cat="batcat --paging=never"
 alias fd="fdfind"
+alias ls="exa --git-ignore --group-directories-first --icons --color=always --git -h"
+alias la="exa --git-ignore --group-directories-first --icons --color=always --git -h -la"
+
 
 # Custom functions
 

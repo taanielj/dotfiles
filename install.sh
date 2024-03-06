@@ -144,7 +144,7 @@ install_lazygit() {
 
 install_rust_stuff() {
     curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y -q;
-    $HOME/.cargo/bin/cargo install zoxide;
+    $HOME/.cargo/bin/cargo install zoxide exa;
 }
 
 configure_tmux() {
