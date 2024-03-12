@@ -45,6 +45,8 @@ return {
 			---- Keymaps:
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Show hover doc" })
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+            vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
 			vim.keymap.set("n", "<leader>la", ":lua vim.lsp.buf.code_action()<CR>", { desc = "Code Action" })
 			vim.keymap.set("n", "<leader>lr", ":lua vim.lsp.buf.rename()<CR>", { desc = "Rename Symbol" })
