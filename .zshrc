@@ -73,19 +73,21 @@ alias cat="batcat --paging=never"
 alias fd="fdfind"
 alias ls="exa --git-ignore --group-directories-first --icons --color=always --git -h"
 alias la="exa --git-ignore --group-directories-first --icons --color=always --git -h -la"
+alias tree="exa --tree"
 
 
 # Custom functions
 
 ## Find and set branch name var if in git repo
-function git_branch_name {
-  branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
-  if [[ $branch == "" ]]; then
-    :
-  else
-    echo '- ('$branch')'
-  fi
-}
+# Not needed with powerlevel10k, keeping here in case I stop using p10k
+# function git_branch_name {
+#   branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
+#   if [[ $branch == "" ]]; then
+#     :
+#   else
+#     echo '- ('$branch')'
+#   fi
+# }
 
 # Prompt customization
 # setopt prompt_subst
