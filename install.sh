@@ -1,6 +1,7 @@
 #!/bin/bash
 # Script to install Zsh (Oh-My-Zsh), Tmux, Neovim, and other utilities.
-# Ensure script is not run with sudo (unless running as root)
+# Designed to work with Ubuntu 22.04 LTS. 
+# Ensure script is not run with sudo, will invoke sudo as needed and prompt for password.
 if [ "$(id -u)" -eq 0 ]; then
     if [ -z "$SUDO_USER" ]; then
         echo "Running as root without sudo, continuing..."
@@ -22,6 +23,8 @@ declare -A command_to_package=(
     [rg]="ripgrep"
     [fdfind]="fd-find"
     [fzf]="fzf"
+    [npm]="nodejs npm"
+#     [neofetch]="neofetch" use fastfetch
 )
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -140,7 +143,11 @@ install_lazygit() {
 }
 
 
-
+install_fastfetch(){
+    sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
+    sudo apt-get update
+    sudo apt-get install fastfetch
+}
 
 install_rust_stuff() {
     curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y -q;
@@ -167,6 +174,7 @@ check_required_packages
 backup_config
 configure_zsh
 install_nvim
+install_fastfetch
 install_rust_stuff
 install_lazygit
 configure_tmux
