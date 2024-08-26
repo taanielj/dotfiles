@@ -168,6 +168,18 @@ configure_tmux() {
     tmux kill-server
 }
 
+setup_git() {
+    # prompt for git user name and email
+    read -p "Enter your git user name: " git_user_name
+    read -p "Enter your git email: " git_email
+    git config --global user.name "$git_user_name"
+    git config --global user.email "$git_email"
+    # setup global gitignore at ~/.gitignore_global
+    ln -s $repo_dir/.gitignore_global $HOME/.gitignore_global
+    git config --global core.excludesfile ~/.gitignore_global
+}
+
+
 # Main script execution
 display_warning
 check_required_packages
@@ -178,5 +190,6 @@ install_fastfetch
 install_rust_stuff
 install_lazygit
 configure_tmux
+setup_git
 
 echo "Installation completed successfully."

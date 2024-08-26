@@ -1,0 +1,21 @@
+# MacOS
+.DS_Store
+
+# global .gitignore
+.venv/
+venv/
+VENV/
+
+# IDE specific
+.idea/
+.vscode/
+session.vim
+Session.vim
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+
+
+
