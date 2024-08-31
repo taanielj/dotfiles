@@ -24,6 +24,9 @@ return {
                     m = "+Move",
                 },
             },
+            l = {
+                name = "+LSP"
+            },
 		}, { prefix = "<leader>" })
 
 		require("which-key").setup()

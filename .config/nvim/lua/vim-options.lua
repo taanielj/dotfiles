@@ -23,4 +23,8 @@ vim.opt.termguicolors = true
 
 vim.cmd("set colorcolumn=121")
 
+-- set persistent undo
+vim.opt.undofile = true
+vim.opt.undolevels = 1000
+vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
