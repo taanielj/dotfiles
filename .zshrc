@@ -69,7 +69,7 @@ bindkey "5~" kill-word
 
 # Aliases configuration
 alias vim=nvim
-alias cat="batcat --paging=never"
+alias cat="batcat -p --paging=never"
 alias fd="fdfind"
 alias ls="exa --git-ignore --group-directories-first --icons --color=always --git -h"
 alias la="exa --git-ignore --group-directories-first --icons --color=always --git -h -la"
