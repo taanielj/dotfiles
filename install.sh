@@ -48,6 +48,7 @@ backup_config() {
         [tmux.conf]="$HOME/.tmux.conf"
         [tmux]="$HOME/.tmux"
         [nvim]="$HOME/.config/nvim"
+        [gitignore_global]="$HOME/.gitignore_global"
     )
 
     # Flag to track if any config exists that is not a symlink
@@ -117,29 +118,23 @@ configure_zsh() {
     ln -s $repo_dir/.p10k.zsh $HOME/.p10k.zsh
 }
 
-# Function to install Tmux
 
 # Function to install Neovim
 install_nvim() {
     echo "Installing Neovim..."
-    wget https://github.com/neovim/neovim/releases/download/v0.9.5/nvim.appimage
-    chmod u+x nvim.appimage
-    ./nvim.appimage --appimage-extract %> /dev/null
-    sudo mv ./squashfs-root /opt/nvim
+    tmp_dir=$(mktemp -d /tmp/nvim-XXXXXX)
+    
+    wget -P $tmp_dir https://github.com/neovim/neovim/releases/download/v0.10.1/nvim.appimage
+    chmod +x $tmp_dir/nvim.appimage
+    (cd $tmp_dir && ./nvim.appimage --appimage-extract > /dev/null)
+    
+    # Remove /opt/nvim if it exists
+    sudo rm -rf /opt/nvim
+    sudo mv $tmp_dir/squashfs-root /opt/nvim
     sudo ln -sf /opt/nvim/AppRun /usr/bin/nvim
-    rm nvim.appimage
-
-    rm -rf $HOME/.config/nvim
+    
+    rm -rf $tmp_dir $HOME/.config/nvim
     ln -s $repo_dir/.config/nvim $HOME/.config/nvim
-}
-
-install_lazygit() {
-    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-    tar xf lazygit.tar.gz lazygit
-    sudo install lazygit /usr/local/bin/
-    # Clean up
-    rm lazygit.tar.gz lazygit
 }
 
 
@@ -168,17 +163,32 @@ configure_tmux() {
     tmux kill-server
 }
 
+
+
 setup_git() {
-    # prompt for git user name and email
-    read -p "Enter your git user name: " git_user_name
-    read -p "Enter your git email: " git_email
-    git config --global user.name "$git_user_name"
-    git config --global user.email "$git_email"
-    # setup global gitignore at ~/.gitignore_global
+
+    # Add global gitignore file
     ln -s $repo_dir/.gitignore_global $HOME/.gitignore_global
     git config --global core.excludesfile ~/.gitignore_global
-}
 
+    # Get the current Git username and email
+    git_user_name=$(git config --global user.name)
+    git_email=$(git config --global user.email)
+
+    # Check if both username and email are already set
+    if [ -n "$git_user_name" ] && [ -n "$git_email" ]; then
+        echo "Git user name and email already set."
+        return
+    fi
+
+    # If not set, prompt the user to enter the details
+    read -p "Enter your git user name: " git_user_name
+    read -p "Enter your git email: " git_email
+
+    # Set the new git username and email
+    git config --global user.name "$git_user_name"
+    git config --global user.email "$git_email"
+}
 
 # Main script execution
 display_warning
