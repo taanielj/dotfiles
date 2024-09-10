@@ -37,6 +37,19 @@ display_warning() {
 	read -r
 }
 
+install_python() {
+    sudo add-apt-repository ppa:deadsnakes/ppa
+    sudo apt-get install python3.11 python3.11-dev python3.11-venv
+    # symlink python to python3
+    sudo ln -s /usr/bin/python3.11 /usr/bin/python
+}
+
+install_node(){
+    wget -q -O- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+    . ~/.bashrc
+    nvm install node
+}
+
 
 
 backup_config() {
