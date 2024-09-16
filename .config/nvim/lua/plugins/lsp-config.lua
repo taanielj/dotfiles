@@ -15,6 +15,9 @@ return {
 					"dockerls",
 					"terraformls",
 					"sqlls",
+					"html",
+					"eslint",
+					"cssls",
 				},
 			})
 		end,
@@ -41,14 +44,25 @@ return {
 			})
 			-- docker language server
 			lspconfig.dockerls.setup({ capabilities = capabilities })
-
+			-- html-lsp
+			lspconfig.html.setup({
+				capabilities = capabilities,
+				configurationSection = { "html", "css", "javascript" },
+				embeddedLanguages = {
+					css = true,
+					javascript = true,
+				},
+				provideFormatter = true,
+			})
+			-- eslint language server
+			lspconfig.eslint.setup({ capabilities = capabilities })
 			---- Keymaps:
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Show hover doc" })
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
 			vim.keymap.set("n", "<leader>la", ":lua vim.lsp.buf.code_action()<CR>", { desc = "Code Action" })
 			vim.keymap.set("n", "<leader>lr", ":lua vim.lsp.buf.rename()<CR>", { desc = "Rename Symbol" })
-            vim.keymap.set("n", "<leader>lf", ":lua vim.lsp.buf.references()<CR>", { desc = "Find References" })
+			vim.keymap.set("n", "<leader>lf", ":lua vim.lsp.buf.references()<CR>", { desc = "Find References" })
 			vim.keymap.set("n", "<leader>le", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show Diagnostics" })
 			vim.keymap.set("n", "<leader>ln", ":lua vim.diagnostic.goto_next()<CR>", { desc = "Next Diagnostic" })
 			vim.keymap.set("n", "<leader>lp", ":lua vim.diagnostic.goto_prev()<CR>", { desc = "Previous Diagnostic" })
