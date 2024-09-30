@@ -71,9 +71,10 @@ bindkey "5~" kill-word
 alias vim=nvim
 alias cat="batcat -p --paging=never"
 alias fd="fdfind"
-alias ls="exa --git-ignore --group-directories-first --icons --color=always --git -h"
-alias la="exa --git-ignore --group-directories-first --icons --color=always --git -h -la"
-alias tree="exa --tree"
+# exa is nolonger maintained, using eza instead, a maintained fork
+alias ls="eza --git-ignore --group-directories-first --icons --color=always --git -h"
+alias la="eza --git-ignore --group-directories-first --icons --color=always --git -h -la"
+alias tree="eza --tree"
 
 
 # Custom functions

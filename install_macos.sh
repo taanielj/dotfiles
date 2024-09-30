@@ -24,6 +24,8 @@ declare -A command_to_package=(
     [fd]="fd"
     [fzf]="fzf"
     [npm]="node"
+    [zoxide]="z"
+    [eza]="exa"
 )
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
