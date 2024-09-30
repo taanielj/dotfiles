@@ -69,7 +69,14 @@ bindkey "5~" kill-word
 
 # Aliases configuration
 alias vim=nvim
-alias cat="batcat -p --paging=never"
+# on mac, the command is bat, on linux, it's batcat
+# alias cat="batcat -p --paging=never"
+# check if bat command exists, if not use batcat, if not use cat
+if command -v bat &> /dev/null; then
+  alias cat="bat -p --paging=never"
+elif command -v batcat &> /dev/null; then
+  alias cat="batcat -p --paging=never"
+fi
 alias fd="fdfind"
 # exa is nolonger maintained, using eza instead, a maintained fork
 alias ls="eza --git-ignore --group-directories-first --icons --color=always --git -h"
