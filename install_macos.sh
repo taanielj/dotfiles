@@ -78,6 +78,15 @@ backup_config() {
     fi
 }
 
+install_homebrew() {
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew is not installed. Installing..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+        echo "Homebrew is already installed."
+    fi
+}
+
 check_required_packages() {
     local missing_packages=()
     for cmd in "${!command_to_package[@]}"; do
@@ -86,8 +95,6 @@ check_required_packages() {
         fi
     done
     if [ ${#missing_packages[@]} -ne 0 ]; then
-        echo "Missing required packages: ${missing_packages[*]}. Installing with Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || echo "Homebrew is already installed."
         brew update
         brew install "${missing_packages[@]}"
     fi
@@ -150,6 +157,7 @@ setup_git() {
 
 # Main script execution
 display_warning
+install_homebrew
 check_required_packages
 backup_config
 configure_zsh
