@@ -73,9 +73,11 @@ alias vim=nvim
 # alias cat="batcat -p --paging=never"
 # check if bat command exists, if not use batcat, if not use cat
 if command -v bat &> /dev/null; then
-  alias cat="bat -p --paging=never"
+  alias cat="bat --paging=never"
 elif command -v batcat &> /dev/null; then
-  alias cat="batcat -p --paging=never"
+  alias cat="batcat --paging=never"
+else
+    alias cat="cat"
 fi
 alias fd="fdfind"
 # exa is nolonger maintained, using eza instead, a maintained fork

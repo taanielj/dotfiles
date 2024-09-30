@@ -26,6 +26,7 @@ declare -A command_to_package=(
     [npm]="node"
     [zoxide]="z"
     [eza]="exa"
+    [fastfetch]="fastfetch"
 )
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
