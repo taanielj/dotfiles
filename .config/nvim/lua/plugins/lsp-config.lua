@@ -56,6 +56,13 @@ return {
 			})
 			-- eslint language server
 			lspconfig.eslint.setup({ capabilities = capabilities })
+            -- css language server
+            lspconfig.cssls.setup({ capabilities = capabilities })
+            -- terraform language server
+            lspconfig.terraformls.setup({ capabilities = capabilities })
+            -- sql language server
+            lspconfig.sqlls.setup({ capabilities = capabilities })
+
 			---- Keymaps:
 			vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Show hover doc" })
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
