@@ -4,6 +4,7 @@ vim.cmd("set softtabstop=4")
 vim.cmd("set shiftwidth=4")
 vim.cmd("set number")
 vim.cmd("set relativenumber")
+vim.cmd("set clipboard^=unnamed,unnamedplus")
 
 vim.opt.smartindent = true
 
@@ -11,7 +12,6 @@ vim.opt.smartindent = true
 -- undo setup
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
 
 -- search stuff
