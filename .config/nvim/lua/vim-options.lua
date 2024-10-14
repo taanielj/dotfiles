@@ -13,7 +13,6 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
-vim.opt.scrolloff = 10
 
 -- search stuff
 vim.opt.hlsearch = false
