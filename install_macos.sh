@@ -12,6 +12,7 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 declare -A command_to_package=(
+    #[command]="package"
     [curl]="curl"
     [wget]="wget"
     [cmake]="cmake"
@@ -20,7 +21,7 @@ declare -A command_to_package=(
     [tmux]="tmux"
     [zsh]="zsh"
     [batcat]="bat" # on macOS it's just called 'bat'
-    [rg]="ripgrep"
+    [ripgrep]="rg"
     [fd]="fd"
     [fzf]="fzf"
     [npm]="node"
