@@ -1,4 +1,5 @@
 return {
+
 	{
 		"nvimtools/none-ls.nvim",
 		config = function()
@@ -13,7 +14,10 @@ return {
 					null_ls.builtins.formatting.isort,
 				},
 			})
-			vim.keymap.set("n", "<leader>m", vim.lsp.buf.format, { desc = "Format" })
+            local function call_formatter()
+                vim.lsp.buf.format({timeout_ms = 5000})
+            end
+			vim.keymap.set("n", "<leader>m", call_formatter, { desc = "Format" })
 		end,
 	},
 	{
