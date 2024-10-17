@@ -81,6 +81,7 @@ else
 fi
 alias fd="fdfind"
 # exa is nolonger maintained, using eza instead, a maintained fork
+alias l=ls
 alias ls="eza --git-ignore --group-directories-first --icons --color=always --git -h"
 alias la="eza --git-ignore --group-directories-first --icons --color=always --git -h -la"
 alias tree="eza --tree"
@@ -121,3 +122,16 @@ export NVM_DIR="$HOME/.nvm"
 nvimf() {
     nvim "$(fzf)"
 }
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# set alias for python=python3.11
+alias python=python3.11
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/taaniel.jakobson/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc'; fi
