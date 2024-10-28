@@ -59,10 +59,13 @@ export COLORTERM=truecolor
 bindkey -s "^[[1;5A" ""
 bindkey -s "^[[1;5B" ""
 
-## ctrl left and right: move to left or right word
+## ctrl left and right: move to left or right word (these don't work on mac)
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 
+## option left and right: move to left or right word (these work on mac)
+bindkey "^[[1;3D" backward-word # option left ⌥ + ←
+bindkey "^[[1;3C" forward-word # option right ⌥ + →
 ## ctrl backspace: delete word before cursor, ctrl delete: delete word after cursor
 bindkey "^H" backward-kill-word
 bindkey "5~" kill-word
