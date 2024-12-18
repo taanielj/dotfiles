@@ -4,9 +4,7 @@ vim.cmd("set softtabstop=4")
 vim.cmd("set shiftwidth=4")
 vim.cmd("set number")
 vim.cmd("set relativenumber")
-vim.cmd("set clipboard^=unnamed,unnamedplus")
-
-vim.opt.smartindent = true
+vim.cmd("set clipboard=unnamedplus")
 
 
 -- undo setup
@@ -15,7 +13,7 @@ vim.opt.backup = false
 
 
 -- search stuff
-vim.opt.hlsearch = false
+vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
 vim.opt.termguicolors = true

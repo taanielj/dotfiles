@@ -70,8 +70,22 @@ vim.keymap.set("v", "<C-a>", "<Esc>ggVG", { noremap = true, silent = true, desc 
 vim.keymap.set("i", "<C-a>", "<Esc>ggVG", { noremap = true, silent = true, desc = "Select all" })
 
 -- ctrl C copy in visual mode
-vim.keymap.set("v", "<C-c>", '"+y', { noremap = true, silent = true, desc = "Copy" })
+vim.keymap.set("x", "<C-c>", '"+y', { noremap = true, silent = true, desc = "Copy" })
+-- ctrl X cut in visual mode
+vim.keymap.set("x", "<C-x>", '"+x', { noremap = true, silent = true, desc = "Cut" })
+-- ctrl V paste in visual mode
+vim.keymap.set("x", "<C-v>", '"+p', { noremap = true, silent = true, desc = "Paste" })
 
 vim.keymap.set("n", "<Tab>", "<C-w>w", { noremap = true, silent = true, desc = "Next window" })
 
 vim.keymap.set("n", "<leader>s", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", { noremap = true, silent = true, desc = "Search and replace" })
+
+-- clear last search highlight
+vim.keymap.set("n", "<leader><CR>", ":let @/=''<CR>", { noremap = true, silent = true, desc = "Clear search highlight" })
+-- am I really going to use this? bing ctrl+s to save
+vim.keymap.set("n", "<C-s>", ":w<CR>", { noremap = true, silent = true, desc = "Save" })
+vim.keymap.set("i", "<C-s>", "<Esc>:w<CR>a", { noremap = true, silent = true, desc = "Save" })
+vim.keymap.set("x", "<C-s>", "<Esc>:w<CR>", { noremap = true, silent = true, desc = "Save" })
+
+-- prevent pasting from overwriting system clipboard
+vim.keymap.set('x', '<C-v>', '"+gP', { noremap = true, silent = true })

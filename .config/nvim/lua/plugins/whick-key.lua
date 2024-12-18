@@ -14,7 +14,7 @@ return {
 			{ "<leader>b m", "Move" },
 			{ "<leader>l", "LSP" },
 			{ "<leader>f", group = "Find" },
-			{ "<leader>f h", "Hidden" },
+			{ "<leader>fh", "Hidden" },
 			{ "<leader>g", "Git" },
 		})
 

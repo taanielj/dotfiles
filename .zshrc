@@ -82,7 +82,16 @@ elif command -v batcat &> /dev/null; then
 else
     alias cat="cat"
 fi
-alias fd="fdfind"
+#on mac the command is fd, on linux, it's fdfind
+#alias fd="fdfind"
+if command -v fd &> /dev/null; then
+  alias fd="fd"
+elif command -v fdfind &> /dev/null; then
+  alias fd="fdfind"
+else
+    alias fd="find"
+fi
+
 # exa is nolonger maintained, using eza instead, a maintained fork
 alias l=ls
 alias ls="eza --git-ignore --group-directories-first --icons --color=always --git -h"
@@ -92,22 +101,6 @@ alias tree="eza --tree"
 
 # Custom functions
 
-## Find and set branch name var if in git repo
-# Not needed with powerlevel10k, keeping here in case I stop using p10k
-# function git_branch_name {
-#   branch=$(git symbolic-ref HEAD 2> /dev/null | awk 'BEGIN{FS="/"} {print $NF}')
-#   if [[ $branch == "" ]]; then
-#     :
-#   else
-#     echo '- ('$branch')'
-#   fi
-# }
-
-# Prompt customization
-# setopt prompt_subst
-# export PS1="%F{#80c080}%n%f:%F{#8080ff}%~%f \$(git_branch_name)$ "
-
-
 # Initialize zoxide
 eval "$(zoxide init --cmd cd zsh)"
 
@@ -116,14 +109,20 @@ eval "$(zoxide init --cmd cd zsh)"
 
 setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
-
+export FZF_DEFAULT_COMMAND='fd --hidden'
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+#alias nvimf="fd --type f --hidden | fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}' | xargs nvim"
 nvimf() {
-    nvim "$(fzf)"
+    if [[ "$1" != "" && -d -$1 ]];
+    then
+        nvim $(fd . $1 | fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}')]
+    else
+        nvim $(fd --type f --hidden | fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}')
+    fi
 }
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
@@ -138,3 +137,30 @@ if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/path.zsh.inc' ]; then . '/User
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc'; fi
+
+reset_venv() {
+    deactivate
+    rm -rf .venv
+    python3.11 -m venv .venv
+    source venv/bin/activate
+    python -m pip install --upgrade pip
+}
+
+update_reqs() {
+    cp requirements.txt requirements_old.txt
+    # remove version numbers from requirements.txt
+    sed -i '' 's/==.*//g' requirements.txt
+    reset_venv
+    # install requirements
+    python -m pip install -r requirements.txt
+    # freeze requirements, loop over requirements.txt (remove [] and things between them)]), run pip freeze with grep and replace the line in requirements.txt
+    for req in $(cat requirements.txt); do
+        if [[ $req == *"["* ]]; then
+            echo $(pip freeze | grep $(echo $req | sed 's/\[.*\]//g')) >> requirements_tmp.txt
+        else
+            echo $(pip freeze | grep $req) >> requirements_tmp.txt
+        fi
+    done
+    mv requirements_tmp.txt requirements.txt
+    
+}
