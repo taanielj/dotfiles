@@ -75,6 +75,8 @@ vim.keymap.set("x", "<C-c>", '"+y', { noremap = true, silent = true, desc = "Cop
 vim.keymap.set("x", "<C-x>", '"+x', { noremap = true, silent = true, desc = "Cut" })
 -- ctrl V paste in visual mode
 vim.keymap.set("x", "<C-v>", '"+p', { noremap = true, silent = true, desc = "Paste" })
+-- ctrl V paste in insert mode
+vim.keymap.set("i", "<C-v>",  '<Left><C-o>"+p', { noremap = true, silent = true, desc = "Paste" })
 
 vim.keymap.set("n", "<Tab>", "<C-w>w", { noremap = true, silent = true, desc = "Next window" })
 

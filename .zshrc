@@ -68,7 +68,7 @@ bindkey "^[[1;3D" backward-word # option left ⌥ + ←
 bindkey "^[[1;3C" forward-word # option right ⌥ + →
 ## ctrl backspace: delete word before cursor, ctrl delete: delete word after cursor
 bindkey "^H" backward-kill-word
-bindkey "5~" kill-word
+bindkey "^[[3;5~" kill-word
 
 # Aliases configuration
 alias vim=nvim
@@ -139,28 +139,48 @@ if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/path.zsh.inc' ]; then . '/User
 if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc'; fi
 
 reset_venv() {
-    deactivate
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        source "$VIRTUAL_ENV/bin/activate"
+        deactivate
+    fi
     rm -rf .venv
     python3.11 -m venv .venv
-    source venv/bin/activate
+    source .venv/bin/activate
     python -m pip install --upgrade pip
 }
 
+
 update_reqs() {
-    cp requirements.txt requirements_old.txt
-    # remove version numbers from requirements.txt
+    # Step 1: Strip version numbers from requirements.txt in-place
     sed -i '' 's/==.*//g' requirements.txt
-    reset_venv
-    # install requirements
-    python -m pip install -r requirements.txt
-    # freeze requirements, loop over requirements.txt (remove [] and things between them)]), run pip freeze with grep and replace the line in requirements.txt
-    for req in $(cat requirements.txt); do
-        if [[ $req == *"["* ]]; then
-            echo $(pip freeze | grep $(echo $req | sed 's/\[.*\]//g')) >> requirements_tmp.txt
+
+    # Step 2: Install all packages from requirements.txt
+    python -m pip install --upgrade -r requirements.txt
+
+    # Step 3: Get the installed package versions from pip freeze
+    frozen_reqs=$(pip freeze)
+
+    # Step 4: Add version numbers back in-place, preserving comments and blank lines
+    while IFS= read -r line; do
+        if [[ -z "$line" || "$line" =~ ^# ]]; then
+            # Preserve empty lines and comments as is
+            echo "$line"
         else
-            echo $(pip freeze | grep $req) >> requirements_tmp.txt
+            base_req=$(echo "$line" | sed 's/\[.*\]//')  # Strip extras to match pip freeze
+            # Perform a case-insensitive match against pip freeze
+            frozen_line=$(echo "$frozen_reqs" | grep -i -m 1 "^${base_req}==")
+            if [[ -n $frozen_line ]]; then
+                # Append the version to the existing line
+                echo "${line}==${frozen_line##*==}"  # Extract and append version
+            else
+                # If no version is found, keep the line unchanged
+                echo "$line"
+            fi
         fi
-    done
-    mv requirements_tmp.txt requirements.txt
-    
+    done < requirements.txt > requirements.tmp
+
+    # Replace the old requirements.txt with the updated file
+    mv requirements.tmp requirements.txt
 }
+
+
