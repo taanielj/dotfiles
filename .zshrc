@@ -68,7 +68,7 @@ bindkey "^[[1;3D" backward-word # option left ⌥ + ←
 bindkey "^[[1;3C" forward-word # option right ⌥ + →
 ## ctrl backspace: delete word before cursor, ctrl delete: delete word after cursor
 bindkey "^H" backward-kill-word
-bindkey "^[[3;5~" kill-word
+bindkey "^[[3;3~" kill-word
 
 # Aliases configuration
 alias vim=nvim
@@ -182,5 +182,13 @@ update_reqs() {
     # Replace the old requirements.txt with the updated file
     mv requirements.tmp requirements.txt
 }
+
+# docker compose aliases
+alias dc="docker compose"
+alias dcu="docker compose up -d"
+alias dcd="docker compose down"
+alias dcdv="docker compose down -v"
+alias dcr="docker compose run --rm"
+alias dcrs="docker compose down && docker compose up -d"
 
 
