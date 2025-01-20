@@ -42,6 +42,11 @@ return {
                     ["<space>"] = "none",
                 },
             },
+            filesystem = {
+                group_empty_dirs = true, -- Group empty directories together
+                scan_mode = "deep"
+            },
         })
     end,
 }
+
