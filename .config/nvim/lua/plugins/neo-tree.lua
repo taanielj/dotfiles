@@ -44,9 +44,9 @@ return {
             },
             filesystem = {
                 group_empty_dirs = true, -- Group empty directories together
-                scan_mode = "deep"
+                scan_mode = "deep",
+                use_libuv_file_watcher = true,
             },
         })
     end,
 }
-
