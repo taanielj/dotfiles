@@ -193,3 +193,5 @@ alias dcr="docker compose run --rm"
 alias dcrs="docker compose down && docker compose up -d"
 
 
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
