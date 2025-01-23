@@ -2,7 +2,7 @@
 # Unified installation script for Ubuntu/Debian/MacOS/Termux
 # Do not run with sudo - script will invoke it when needed
 
-set -e  # Exit on error
+# set -e  # Exit on error
 
 # Detect OS
 detect_os() {
@@ -49,39 +49,41 @@ need_sudo() {
     fi
 }
 
+:/#!/usr/bin/env bash
 
-# Basic requirements by OS
-
-BASIC_REQUIREMENTS=(
-    "ubuntu:apt-transport-https ca-certificates curl wget git sudo software-properties-common gnupg"
-    "debian:apt-transport-https ca-certificates curl wget git sudo software-properties-common gnupg"
-    "macos:"
-    "termux:"
+# Define packages that should be installed across all environments
+PACKAGES=(
+    "curl"
+    "wget"
+    "git"
+    "cmake"
+    "gcc"
+    "g++"
+    "zsh"
+    "tmux"
+    "python3.11"
+    "bat"
+    "ripgrep"
+    "fd-find"
+    "fzf"
+    "eza"
+    "zoxide"
+    "node"
+    "nvim"
+    "lazygit"
+    "fastfetch"
 )
 
-
-# Installation methods and packages
-INSTALLATIONS=(
-    "curl:ubuntu|apt|curl:debian|apt|curl:termux|pkg|curl:macos|brew|curl"
-    "wget:ubuntu|apt|wget:debian|apt|wget:termux|pkg|wget:macos|brew|wget"
-    "git:ubuntu|apt|git:debian|apt|git:termux|pkg|git:macos|brew|git"
-    "cmake:ubuntu|apt|cmake:debian|apt|cmake:termux|pkg|cmake:macos|brew|cmake"
-    "gcc:ubuntu|apt|gcc:debian|apt|gcc:macos|brew|gcc"
-    "g++:ubuntu|apt|g++:debian|apt|g++"
-    "zsh:ubuntu|apt|zsh:debian|apt|zsh:termux|pkg|zsh:macos|brew|zsh"
-    "tmux:ubuntu|apt|tmux:debian|apt|tmux:termux|pkg|tmux:macos|brew|tmux"
-    "bat:ubuntu|apt|bat:debian|apt|bat:termux|pkg|bat:macos|brew|bat"
-    "ripgrep:ubuntu|apt|ripgrep:debian|apt|ripgrep:termux|pkg|ripgrep:macos|brew|ripgrep"
-    "fd-find:ubuntu|apt|fd-find:debian|apt|fd-find:termux|pkg|fd:macos|brew|fd"
-    "fzf:ubuntu|apt|fzf:debian|apt|fzf:termux|pkg|fzf:macos|brew|fzf"
-    "eza:ubuntu|deb|https://github.com/eza-community/eza/releases/latest:macos|brew|eza"
-    "zoxide:ubuntu|deb|https://github.com/ajeetdsouza/zoxide/releases/latest:macos|brew|zoxide"
-    "python3.11:ubuntu|ppa|ppa:deadsnakes/ppa,python3.11:macos|brew|python@3.11"
-    "node:ubuntu|custom|curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh:macos|brew|node:termux|pkg|nodejs"
-    "nvim:ubuntu|appimage|https://github.com/neovim/neovim/releases/latest:macos|brew|neovim:termux|pkg|neovim"
-    "lazygit:ubuntu|binary|https://github.com/jesseduffield/lazygit/releases/latest:macos|brew|lazygit:termux|pkg|lazygit"
-    "fastfetch:ubuntu|ppa|ppa:zhangsongcui3371/fastfetch,fastfetch:macos|brew|fastfetch"
-)
+# Define custom installation methods for specific packages per OS
+declare -A CUSTOM_INSTALL
+CUSTOM_INSTALL["ubuntu:python3.11"]="add-apt-repository -y ppa:deadsnakes/ppa && apt install -y python3.11"
+CUSTOM_INSTALL["ubuntu:eza"]="mkdir -p /etc/apt/keyrings && \
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg && \
+    echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | tee /etc/apt/sources.list.d/eza.list && \
+    apt update && apt install -y eza"
+CUSTOM_INSTALL["ubuntu:nvim"]="wget https://github.com/neovim/neovim/releases/latest/download/nvim.appimage -O /usr/local/bin/nvim && \
+    chmod +x /usr/local/bin/nvim"
+CUSTOM_INSTALL["ubuntu:node"]="curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash"
 
 # Repository directory
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -124,6 +126,27 @@ get_basic_requirements() {
     return 1
 }
 
+install_basic_requirements() {
+    local os=$1
+    local requirements=$(get_basic_requirements "$os")
+    
+    if [ -n "$requirements" ]; then
+        echo "Installing basic requirements for $os..."
+        case $os in
+            ubuntu|debian)
+                if need_sudo; then
+                    sudo apt-get update -qq
+                    sudo apt-get install -qq -y $requirements
+                else
+                    apt-get update -qq
+                    apt-get install -qq -y $requirements
+                fi
+                ;;
+        esac
+    fi
+}
+
+
 get_package_info() {
     local package=$1
     local os=$2
@@ -137,7 +160,7 @@ get_package_info() {
 }
 
 
-nstall_basic_requirements() {
+install_basic_requirements() {
     local os=$1
     local requirements=$(get_basic_requirements "$os")
     
@@ -180,79 +203,35 @@ setup_package_manager() {
 
 install_package() {
     local os=$1
-    local method=$2
-    local package=$3
-    local dependencies=$4
+    local package=$2
 
     echo "Installing $package..."
     
-    case $method in
-        apt)
+    # Check if package has a custom installation method
+    local custom_key="${os}:${package}"
+    if [ -n "${CUSTOM_INSTALL[$custom_key]}" ]; then
+        if need_sudo; then
+            sudo bash -c "${CUSTOM_INSTALL[$custom_key]}"
+        else
+            bash -c "${CUSTOM_INSTALL[$custom_key]}"
+        fi
+        return
+    fi
+
+    # Default installation method based on OS
+    case $os in
+        ubuntu|debian)
             if need_sudo; then
-                sudo apt-get install -y $package
+                sudo apt-get install -y "$package"
             else
-                apt-get install -y $package
+                apt-get install -y "$package"
             fi
             ;;
-        brew)
-            brew install $package
+        macos)
+            brew install "$package"
             ;;
-        pkg)
-            pkg install -y $package
-            ;;
-        ppa)
-            # Format: ppa:user/ppa,package
-            IFS=',' read -r ppa_name package_name <<< "$package"
-            if need_sudo; then
-                sudo add-apt-repository -y "$ppa_name"
-                sudo apt-get update -qq
-                sudo apt-get install -y "$package_name"
-            else
-                add-apt-repository -y "$ppa_name"
-                apt-get update -qq
-                apt-get install -y "$package_name"
-            fi
-            ;;
-        deb)
-            local tmp_dir=$(mktemp -d)
-            wget -qO "$tmp_dir/${package##*/}.deb" "$package"
-            if need_sudo; then
-                sudo dpkg -i "$tmp_dir/${package##*/}.deb"
-            else
-                dpkg -i "$tmp_dir/${package##*/}.deb"
-            fi
-            rm -rf "$tmp_dir"
-            ;;
-        appimage)
-            local tmp_dir=$(mktemp -d)
-            wget -P "$tmp_dir" "$package/nvim.appimage"
-            chmod +x "$tmp_dir/nvim.appimage"
-            (cd "$tmp_dir" && ./nvim.appimage --appimage-extract > /dev/null)
-            if need_sudo; then
-                sudo rm -rf /opt/nvim
-                sudo mv "$tmp_dir/squashfs-root" /opt/nvim
-                sudo ln -sf /opt/nvim/AppRun /usr/bin/nvim
-            else
-                rm -rf /opt/nvim
-                mv "$tmp_dir/squashfs-root" /opt/nvim
-                ln -sf /opt/nvim/AppRun /usr/bin/nvim
-            fi
-            rm -rf "$tmp_dir"
-            ;;
-        binary)
-            local tmp_dir=$(mktemp -d)
-            local version=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-            curl -Lo "$tmp_dir/lazygit.tar.gz" "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${version}_Linux_x86_64.tar.gz"
-            tar xf "$tmp_dir/lazygit.tar.gz" -C "$tmp_dir" lazygit
-            if need_sudo; then
-                sudo install "$tmp_dir/lazygit" /usr/local/bin
-            else
-                install "$tmp_dir/lazygit" /usr/local/bin
-            fi
-            rm -rf "$tmp_dir"
-            ;;
-        custom)
-            eval "$package"
+        termux)
+            pkg install -y "$package"
             ;;
     esac
 }
@@ -383,16 +362,8 @@ setup_git() {
 install_packages() {
     local os=$1
     
-    for p in "${INSTALLATIONS[@]}"; do
-        local package=${p%%:*}
-        local info=$(get_package_info "$package" "$os")
-        if [ -n "$info" ]; then
-            local method=$(echo "$info" | cut -d'|' -f1)
-            local package_info=$(echo "$info" | cut -d'|' -f2)
-            
-            echo "Installing $package using $method..."
-            install_package "$os" "$method" "$package_info"
-        fi
+    for package in "${PACKAGES[@]}"; do
+        install_package "$os" "$package"
     done
 }
 
