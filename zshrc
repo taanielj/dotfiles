@@ -77,11 +77,11 @@ alias vim=nvim
 # alias cat="batcat -p --paging=never"
 # check if bat command exists, if not use batcat, if not use cat
 if command -v bat &> /dev/null; then
-  alias cat="bat --paging=never"
+  alias cat="bat -p --paging=never"
 elif command -v batcat &> /dev/null; then
-  alias cat="batcat --paging=never"
+  alias cat="batcat -p --paging=never"
 else
-    alias cat="cat"
+  alias cat="cat"
 fi
 #on mac the command is fd, on linux, it's fdfind
 #alias fd="fdfind"
@@ -94,16 +94,25 @@ else
 fi
 
 # exa is nolonger maintained, using eza instead, a maintained fork
-alias l=ls
-alias ls="eza --git-ignore --group-directories-first --icons --color=always --git -h"
-alias la="eza --git-ignore --group-directories-first --icons --color=always --git -h -la"
-alias tree="eza --tree"
+if command -v eza &> /dev/null; then
+  alias l="eza"
+  alias ls="eza --git-ignore --group-directories-first --icons --color=always --git -h"
+  alias la="eza --git-ignore --group-directories-first --icons --color=always --git -h -la"
+  alias tree="eza --tree"
+else
+  alias l="ls"
+  alias ls="ls --color=auto"
+  alias la="ls -la --color=auto"
+  alias tree="tree"
+fi
 
 
 # Custom functions
 
 # Initialize zoxide
-eval "$(zoxide init --cmd cd zsh)"
+if command -v zoxide &> /dev/null; then
+  eval "$(zoxide init --cmd cd zsh)"
+fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

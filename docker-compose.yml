@@ -7,6 +7,4 @@ services:
     # run with tail
     command: tail -f /dev/null
 
-    # to enter the container with zsh:
-    # docker exec -it ubuntu-test /bin/zsh
 
