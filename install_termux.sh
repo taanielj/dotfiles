@@ -78,8 +78,8 @@ configure_zsh() {
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-    ln -sf $repo_dir/.zshrc $HOME/.zshrc
-    ln -sf $repo_dir/.p10k.zsh $HOME/.p10k.zsh
+    ln -sf $repo_dir/zshrc $HOME/.zshrc
+    ln -sf $repo_dir/p10k.zsh $HOME/.p10k.zsh
 }
 
 # Function to install Neovim, adjusted for Termux specifics
@@ -88,7 +88,7 @@ install_nvim() {
     # termux repo has the latest version of neovim (0.9.5 as of 2024-02-27)
     pkg install neovim -y
     mkdir -p $HOME/.config
-    ln -sf $repo_dir/.config/nvim $HOME/.config/nvim
+    ln -sf $repo_dir/nvim $HOME/.config/nvim
 }
 
 install_lazygit() {
@@ -110,7 +110,7 @@ configure_tmux() {
         pkg install tmux -y
     fi
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    ln -sf $repo_dir/.tmux.conf $HOME/.tmux.conf
+    ln -sf $repo_dir/tmux.conf $HOME/.tmux.conf
     tmux start-server
     tmux new-session -d
     bash "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"

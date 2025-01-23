@@ -126,9 +126,8 @@ configure_zsh() {
     sh -c "$(wget -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k   
-    rm $HOME/.zshrc
-    ln -s $repo_dir/.zshrc $HOME/.zshrc
-    ln -s $repo_dir/.p10k.zsh $HOME/.p10k.zsh
+    ln -sf $repo_dir/zshrc $HOME/.zshrc
+    ln -sf $repo_dir/p10k.zsh $HOME/.p10k.zsh
 }
 
 
@@ -146,8 +145,8 @@ install_nvim() {
     sudo mv $tmp_dir/squashfs-root /opt/nvim
     sudo ln -sf /opt/nvim/AppRun /usr/bin/nvim
     
-    rm -rf $tmp_dir $HOME/.config/nvim
-    ln -s $repo_dir/.config/nvim $HOME/.config/nvim
+    rm -rf $tmp_dir $HOME/config/nvim
+    ln -s $repo_dir/nvim $HOME/.config/nvim
 }
 
 install_lazygit() {
@@ -175,7 +174,7 @@ configure_tmux() {
         return
     fi
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    ln -s $repo_dir/.tmux.conf $HOME/.tmux.conf
+    ln -sf $repo_dir/tmux.conf $HOME/.tmux.conf
     tmux start-server
     tmux new-session -d
     bash "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
@@ -187,7 +186,7 @@ configure_tmux() {
 setup_git() {
 
     # Add global gitignore file
-    ln -s $repo_dir/.gitignore_global $HOME/.gitignore_global
+    ln -sf $repo_dir/gitignore_global $HOME/.gitignore_global
     git config --global core.excludesfile ~/.gitignore_global
 
     # Get the current Git username and email

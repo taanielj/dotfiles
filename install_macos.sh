@@ -111,9 +111,9 @@ configure_zsh() {
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k   
-    rm $HOME/.zshrc
-    ln -s $repo_dir/.zshrc $HOME/.zshrc
-    ln -s $repo_dir/.p10k.zsh $HOME/.p10k.zsh
+    rm $HOME/.zshrc $HOME/.p10k.zsh
+    ln -s $repo_dir/zshrc $HOME/.zshrc
+    ln -s $repo_dir/p10k.zsh $HOME/.p10k.zsh
 }
 
 install_nvim() {
@@ -140,7 +140,8 @@ configure_tmux() {
         return
     fi
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    ln -s $repo_dir/.tmux.conf $HOME/.tmux.conf
+    rm $HOME/.tmux.conf
+    ln -s $repo_dir/tmux.conf $HOME/.tmux.conf
     tmux start-server
     tmux new-session -d
     bash "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
@@ -152,7 +153,7 @@ setup_git() {
     read -p "Enter your git email: " git_email
     git config --global user.name "$git_user_name"
     git config --global user.email "$git_email"
-    ln -s $repo_dir/.gitignore_global $HOME/.gitignore_global
+    ln -s $repo_dir/gitignore_global $HOME/.gitignore_global
     git config --global core.excludesfile ~/.gitignore_global
 }
 
