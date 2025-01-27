@@ -3,10 +3,10 @@ vim.keymap.set("v", "<C-q>", "<C-v>", { noremap = true, silent = true, desc = "V
 
 vim.g.mapleader = " "
 vim.keymap.set(
-    "n",
-    "<leader><Tab>",
-    ":BufferLineCycleNext<CR>",
-    { noremap = true, silent = true, desc = "Next buffer" }
+	"n",
+	"<leader><Tab>",
+	":BufferLineCycleNext<CR>",
+	{ noremap = true, silent = true, desc = "Next buffer" }
 )
 -- Normal mode move line up and down
 vim.keymap.set("n", "<C-Down>", ":m .+1<CR>==", { noremap = true, silent = true, desc = "Move line down" })
@@ -43,24 +43,24 @@ vim.keymap.set("i", "<S-Home>", "<Esc>v^", { noremap = true, silent = true, desc
 -- ctrl backspace in insert delete previous word
 
 vim.keymap.set("i", "<C-H>", function()
-    local col = vim.fn.col(".")
-    local line = vim.fn.getline(".")
-    local line_length = #line
+	local col = vim.fn.col(".")
+	local line = vim.fn.getline(".")
+	local line_length = #line
 
-    -- Check if at end of the line (col - 1 equals line length)
-    if col - 1 == line_length then
-        return "<C-o>db"
-    else
-        return "<C-h>"
-    end
+	-- Check if at end of the line (col - 1 equals line length)
+	if col - 1 == line_length then
+		return "<C-o>db"
+	else
+		return "<C-h>"
+	end
 end, { noremap = true, expr = true, silent = true, desc = "Delete previous word if at end of line" })
 
 -- ctrl delete in insert delete next (FROM CURSOR) word
 vim.keymap.set(
-    "i",
-    "<C-Delete>",
-    "<C-o>de",
-    { noremap = true, silent = true, desc = "Delete from cursor to end of word" }
+	"i",
+	"<C-Delete>",
+	"<C-o>de",
+	{ noremap = true, silent = true, desc = "Delete from cursor to end of word" }
 )
 
 -- ignore shift key in visual mode for arrows
@@ -87,10 +87,10 @@ vim.keymap.set("i", "<C-v>", '<Left><C-o>"+p', { noremap = true, silent = true, 
 vim.keymap.set("n", "<Tab>", "<C-w>w", { noremap = true, silent = true, desc = "Next window" })
 
 vim.keymap.set(
-    "n",
-    "<leader>s",
-    ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>",
-    { noremap = true, silent = true, desc = "Search and replace" }
+	"n",
+	"<leader>s",
+	":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>",
+	{ noremap = true, silent = true, desc = "Search and replace" }
 )
 -- ctrl f to open search (just open : and type /)
 vim.keymap.set("n", "<C-f>", ":/<Right>", { noremap = true, silent = true, desc = "Search" })
@@ -99,24 +99,24 @@ vim.keymap.set("x", "<C-f>", "<Esc>:/<Right>", { noremap = true, silent = true, 
 -- ctrl-shift-f to open search in files using telescope (space f g)
 vim.keymap.set("n", "<C-S-f>", ":Telescope live_grep<CR>", { noremap = true, silent = true, desc = "Search in files" })
 vim.keymap.set(
-    "i",
-    "<C-S-f>",
-    "<Esc>:Telescope live_grep<CR>",
-    { noremap = true, silent = true, desc = "Search in files" }
+	"i",
+	"<C-S-f>",
+	"<Esc>:Telescope live_grep<CR>",
+	{ noremap = true, silent = true, desc = "Search in files" }
 )
 vim.keymap.set(
-    "x",
-    "<C-S-f>",
-    "<Esc>:Telescope live_grep<CR>",
-    { noremap = true, silent = true, desc = "Search in files" }
+	"x",
+	"<C-S-f>",
+	"<Esc>:Telescope live_grep<CR>",
+	{ noremap = true, silent = true, desc = "Search in files" }
 )
 
 -- clear last search highlight
 vim.keymap.set(
-    "n",
-    "<leader><CR>",
-    ":let @/=''<CR>",
-    { noremap = true, silent = true, desc = "Clear search highlight" }
+	"n",
+	"<leader><CR>",
+	":let @/=''<CR>",
+	{ noremap = true, silent = true, desc = "Clear search highlight" }
 )
 -- saving
 vim.keymap.set("n", "<C-s>", ":w<CR>", { noremap = true, silent = true, desc = "Save" })
@@ -138,11 +138,11 @@ vim.keymap.set("x", "<C-v>", '"+gP', { noremap = true, silent = true })
 
 -- toggle wrapping at 120 characters
 vim.keymap.set("n", "<leader>sw", function()
-    vim.wo.wrap = true
-    vim.wo.linebreak = true
-    return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
-        .. (vim.v.count ~= 0 and vim.v.count or 125)
-        .. "|"
+	vim.wo.wrap = true
+	vim.wo.linebreak = true
+	return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
+		.. (vim.v.count ~= 0 and vim.v.count or 125)
+		.. "|"
 end, { expr = true })
 -- remap j and k to move visual line by line
 vim.keymap.set("n", "j", 'v:count ? "j" : "gj"', { noremap = true, expr = true })

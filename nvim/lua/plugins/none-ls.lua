@@ -6,17 +6,18 @@ return {
 			local null_ls = require("null-ls")
 			null_ls.setup({
 				sources = {
+					null_ls.builtins.formatting.shfmt,
 					null_ls.builtins.formatting.stylua,
 					null_ls.builtins.formatting.prettier,
 					null_ls.builtins.formatting.black.with({
-                        extra_args = { "--line-length", "120" },
-                    }),
+						extra_args = { "--line-length", "120" },
+					}),
 					null_ls.builtins.formatting.isort,
 				},
 			})
-            local function call_formatter()
-                vim.lsp.buf.format({timeout_ms = 5000})
-            end
+			local function call_formatter()
+				vim.lsp.buf.format({ timeout_ms = 5000 })
+			end
 			vim.keymap.set("n", "<leader>m", call_formatter, { desc = "Format" })
 		end,
 	},

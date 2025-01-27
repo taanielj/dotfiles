@@ -3,7 +3,7 @@ return {
 	lazy = false,
 	name = "catpuccin",
 	priority = 1000,
-    term_colors = false,
+	term_colors = false,
 	config = function()
 		vim.cmd.colorscheme("catppuccin")
 		require("catppuccin").setup({

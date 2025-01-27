@@ -6,11 +6,9 @@ vim.cmd("set number")
 vim.cmd("set relativenumber")
 vim.cmd("set clipboard=unnamedplus")
 
-
 -- undo setup
 vim.opt.swapfile = false
 vim.opt.backup = false
-
 
 -- search stuff
 vim.opt.hlsearch = true
@@ -31,4 +29,3 @@ vim.opt.wrap = true
 vim.opt.linebreak = true
 vim.opt.breakindent = true
 vim.opt.whichwrap = "b,s,<,>,[,],~"
-
