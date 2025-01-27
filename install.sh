@@ -2,8 +2,6 @@
 # Unified installation script for Ubuntu/Debian/MacOS/Termux
 # Do not run with sudo - script will invoke it when needed
 
-# set -e  # Exit on error
-
 # Detect OS
 detect_os() {
 	if [ -f /etc/os-release ]; then
