@@ -16,6 +16,10 @@ return {
 			{ "<leader>f", group = "Find" },
 			{ "<leader>fh", "Hidden" },
 			{ "<leader>g", "Git" },
+            -- quit menu
+            { "<leader>q", group = "Quit" },
+            { "<leader>qf", group = "Force quit" },
+            { "<leader>qfy", "Lose all unsaved changes?" },
 		})
 
 		require("which-key").setup()
