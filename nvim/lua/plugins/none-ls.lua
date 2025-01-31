@@ -15,6 +15,8 @@ return {
 						extra_args = { "--line-length", "120" },
 					}),
 					null_ls.builtins.formatting.isort,
+                    null_ls.builtins.formatting.sqlformat,
+                    null_ls.builtins.formatting.golangci_lint,
 				},
             })
 			local function call_formatter()
