@@ -4,6 +4,22 @@
             "complex_modifications": {
                 "rules": [
                     {
+                        "description": "Open a terminal window with Ctrl-Alt-T",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "t",
+                                    "modifiers": {
+                                        "mandatory": ["command", "option"],
+                                        "optional": ["caps_lock"]
+                                    }
+                                },
+                                "to": [{ "shell_command": "open -a Kitty ~" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Opera History",
                         "manipulators": [
                             {
