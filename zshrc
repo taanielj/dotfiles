@@ -103,7 +103,7 @@ if command -v eza &> /dev/null; then
       set -- -l -a "${args[@]}"
     fi
 
-    eza --git-ignore --group-directories-first --icons --color=always --git -h "$@"
+    eza --group-directories-first --icons --color=always --git -h "$@"
   }
 
   # Use aliases to redirect to the wrapper function
@@ -395,3 +395,4 @@ alias dcrs="docker compose down && docker compose up -d"
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+eval "$(direnv hook zsh)"
