@@ -2,7 +2,76 @@
 # Unified installation script for Ubuntu/Debian/MacOS/Termux
 # Do not run with sudo - script will invoke it when needed
 
-# Detect OS
+####################
+# Global variables #
+####################
+
+# Repository directory
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Define packages that should be installed across all environments
+PACKAGES=(
+	# basic requirements
+	"curl"
+	"wget"
+	"git"
+	#build tools
+	"cmake"
+	"gcc"
+	"g++"
+	# shell and multiplexer
+	"zsh"
+	"tmux"
+	# modern CLI tools
+	"bat"
+	"ripgrep"
+	"fd-find"
+	"fzf"
+	"eza"
+	"zoxide"
+	"fastfetch"
+	# development tools
+	"nvim"
+	"lazygit"
+	# programming languages
+	"python"
+	"node"
+	"go"
+)
+
+# Define custom installation methods for specific packages per OS
+declare -A CUSTOM_INSTALL
+CUSTOM_INSTALL["ubuntu:python"]="add-apt-repository -y ppa:deadsnakes/ppa && apt install -y python3.11"
+CUSTOM_INSTALL["macos:python"]="quiet_brew install python@3.11"
+CUSTOM_INSTALL["ubuntu:eza"]="install_eza"
+CUSTOM_INSTALL["ubuntu:nvim"]="install_nvim"
+CUSTOM_INSTALL["ubuntu:node"]="curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash"
+CUSTOM_INSTALL["macos:go"]="install_go"
+CUSTOM_INSTALL["macos:g++"]="true"
+CUSTOM_INSTALL["macos:cmake"]="true"
+CUSTOM_INSTALL["macos:fd-find"]="quiet_brew install fd"
+
+#####################
+# Utility functions #
+#####################
+
+display_warning() {
+	echo "This script will install and configure:"
+	echo "- Shell: Zsh with Oh-My-Zsh and Powerlevel10k"
+	echo "- Terminal multiplexer: Tmux with plugins"
+	echo "- Editor: Neovim with custom config"
+	echo "- Modern CLI tools: bat, ripgrep, fd, fzf, eza, zoxide"
+	echo "- Development tools: Python, Node.js, Git"
+	echo
+	echo "It will backup existing configurations to ~/config-backup-<timestamp>"
+	echo
+	if [ "$1" = "debian" ]; then
+		echo "WARNING: Running on Debian. Some features might not work as expected."
+		echo
+	fi
+	read -p "Press Enter to continue or Ctrl+C to cancel..."
+}
+
 detect_os() {
 	if [ -f /etc/os-release ]; then
 		. /etc/os-release
@@ -26,7 +95,6 @@ detect_os() {
 	echo "unsupported"
 }
 
-# Check if running with sudo
 check_sudo() {
 	if [ "$(id -u)" -eq 0 ]; then
 		if [ -z "$SUDO_USER" ]; then
@@ -39,71 +107,43 @@ check_sudo() {
 	fi
 }
 
-need_sudo() {
-	if [ "$(id -u)" -eq 0 ]; then
-		return 1 # root doesn't need sudo
-	else
-		return 0 # non-root needs sudo
-	fi
+##########################
+# Installation functions #
+##########################
+quiet_brew() {
+	grep_list="is already installed|To reinstall|brew reinstall|the latest version is already installed"
+	brew install "$1" >/dev/null 2>&1 | grep -Ev "$grep_list"
 }
 
-:/#!/usr/bin/env bash
-
-# Define packages that should be installed across all environments
-PACKAGES=(
-	"curl"
-	"wget"
-	"git"
-	"cmake"
-	"gcc"
-	"g++"
-	"zsh"
-	"tmux"
-	"python3.11"
-	"bat"
-	"ripgrep"
-	"fd-find"
-	"fzf"
-	"eza"
-	"zoxide"
-	"node"
-	"nvim"
-	"lazygit"
-	"fastfetch"
-)
-
-# Define custom installation methods for specific packages per OS
-declare -A CUSTOM_INSTALL
-CUSTOM_INSTALL["ubuntu:python3.11"]="add-apt-repository -y ppa:deadsnakes/ppa && apt install -y python3.11"
-CUSTOM_INSTALL["ubuntu:eza"]="mkdir -p /etc/apt/keyrings && \
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg && \
-    echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | tee /etc/apt/sources.list.d/eza.list && \
-    apt update && apt install -y eza"
-CUSTOM_INSTALL["ubuntu:nvim"]="wget https://github.com/neovim/neovim/releases/latest/download/nvim.appimage -O /usr/local/bin/nvim && \
-    chmod +x /usr/local/bin/nvim"
-CUSTOM_INSTALL["ubuntu:node"]="curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash"
-
-# Repository directory
-repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Display initial warning
-display_warning() {
-	echo "This script will install and configure:"
-	echo "- Shell: Zsh with Oh-My-Zsh and Powerlevel10k"
-	echo "- Terminal multiplexer: Tmux with plugins"
-	echo "- Editor: Neovim with custom config"
-	echo "- Modern CLI tools: bat, ripgrep, fd, fzf, eza, zoxide"
-	echo "- Development tools: Python, Node.js, Git"
-	echo
-	echo "It will backup existing configurations to ~/config-backup-<timestamp>"
-	echo
-	if [ "$1" = "debian" ]; then
-		echo "WARNING: Running on Debian. Some features might not work as expected."
-		echo
-	fi
-	read -p "Press Enter to continue or Ctrl+C to cancel..."
+install_eza() {
+	mkdir -p /etc/apt/keyrings &&
+		wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg &&
+		echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | tee /etc/apt/sources.list.d/eza.list &&
+		apt update && apt install -y eza
 }
-# Package management functions
+
+install_go() {
+	quiet_brew install go
+	echo 'export GOROOT=$(go env GOROOT)' >>~/.zprofile
+	echo 'export GOPATH=$(go env GOPATH)' >>~/.zprofile
+	echo 'export PATH=$GOPATH/bin:$PATH' >>~/.zprofile
+	quiet_brew install direnv
+	if ! grep -q 'eval "$(direnv hook zsh)"' ~/.zshrc; then
+		echo 'eval "$(direnv hook zsh)"' >>~/.zshrc
+	fi
+	quiet_brew install golangci-lint # linter
+	quiet_brew install clang-format  # protobuf formatter
+}
+
+install_nvim() {
+	wget https://github.com/neovim/neovim/releases/latest/download/nvim.appimage -O /usr/local/bin/nvim
+	chmod +x /usr/local/bin/nvim
+}
+
+################################
+# Package management functions #
+################################
+# Install brew, apt and pkg are pre-installed in Ubuntu/Debian and Termux respectively
 install_brew() {
 	if ! command -v brew &>/dev/null; then
 		echo "Installing Homebrew..."
@@ -113,74 +153,13 @@ install_brew() {
 	fi
 }
 
-get_basic_requirements() {
-	local os=$1
-	for req in "${BASIC_REQUIREMENTS[@]}"; do
-		if [[ $req == ${os}:* ]]; then
-			echo "${req#*:}"
-			return 0
-		fi
-	done
-	return 1
-}
-
-install_basic_requirements() {
-	local os=$1
-	local requirements=$(get_basic_requirements "$os")
-
-	if [ -n "$requirements" ]; then
-		echo "Installing basic requirements for $os..."
-		case $os in
-		ubuntu | debian)
-			if need_sudo; then
-				sudo apt-get update -qq
-				sudo apt-get install -qq -y $requirements
-			else
-				apt-get update -qq
-				apt-get install -qq -y $requirements
-			fi
-			;;
-		esac
-	fi
-}
-
-get_package_info() {
-	local package=$1
-	local os=$2
-	for p in "${INSTALLATIONS[@]}"; do
-		if [[ $p == ${package}:* ]]; then
-			echo "$p" | tr ':' '\n' | grep "^${os}|" | cut -d'|' -f2,3
-			return 0
-		fi
-	done
-	return 1
-}
-
-install_basic_requirements() {
-	local os=$1
-	local requirements=$(get_basic_requirements "$os")
-
-	if [ -n "$requirements" ]; then
-		echo "Installing basic requirements for $os..."
-		case $os in
-		ubuntu | debian)
-			if need_sudo; then
-				sudo apt-get update -qq
-				sudo apt-get install -qq -y $requirements
-			else
-				apt-get update -qq
-				apt-get install -qq -y $requirements
-			fi
-			;;
-		esac
-	fi
-}
 
 setup_package_manager() {
 	local os=$1
 	case $os in
 	ubuntu | debian)
-		if need_sudo; then
+		# if needed, run with sudo
+		if [ "$(id -u)" -eq 0 ]; then
 			sudo apt-get update -qq
 		else
 			apt-get update -qq
@@ -196,41 +175,9 @@ setup_package_manager() {
 	esac
 }
 
-install_package() {
-	local os=$1
-	local package=$2
-
-	echo "Installing $package..."
-
-	# Check if package has a custom installation method
-	local custom_key="${os}:${package}"
-	if [ -n "${CUSTOM_INSTALL[$custom_key]}" ]; then
-		if need_sudo; then
-			sudo bash -c "${CUSTOM_INSTALL[$custom_key]}"
-		else
-			bash -c "${CUSTOM_INSTALL[$custom_key]}"
-		fi
-		return
-	fi
-
-	# Default installation method based on OS
-	case $os in
-	ubuntu | debian)
-		if need_sudo; then
-			sudo apt-get install -y "$package"
-		else
-			apt-get install -y "$package"
-		fi
-		;;
-	macos)
-		brew install "$package"
-		;;
-	termux)
-		pkg install -y "$package"
-		;;
-	esac
-}
-
+###########################
+# Configuration functions #
+###########################
 backup_config() {
 	local config_backup_dir="$HOME/config-backup-$(date +%Y%m%d%H%M%S)"
 
@@ -243,6 +190,7 @@ backup_config() {
 		"tmux"
 		"nvim"
 		"gitignore_global"
+		"karabiner"
 	)
 
 	CONFIG_PATHS=(
@@ -253,6 +201,7 @@ backup_config() {
 		"$HOME/.tmux"
 		"$HOME/.config/nvim"
 		"$HOME/.gitignore_global"
+		"$HOME/.config/karabiner"
 	)
 
 	local config_exists=false
@@ -299,8 +248,8 @@ configure_zsh() {
 	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 
 	# Create symlinks
-	ln -sf "$repo_dir/zshrc" "$HOME/.zshrc"
-	ln -sf "$repo_dir/p10k.zsh" "$HOME/.p10k.zsh"
+	ln -sf "$REPO_DIR/zshrc" "$HOME/.zshrc"
+	ln -sf "$REPO_DIR/p10k.zsh" "$HOME/.p10k.zsh"
 }
 
 configure_tmux() {
@@ -310,9 +259,13 @@ configure_tmux() {
 		return 1
 	fi
 
+	if [ -n "$TMUX" ]; then
+		echo "Re-run this script outside of tmux to update tmux configuration. Skipping."
+		return 0
+	fi
 	# Install TPM
 	git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-	ln -sf "$repo_dir/tmux.conf" "$HOME/.tmux.conf"
+	ln -sf "$REPO_DIR/tmux.conf" "$HOME/.tmux.conf"
 
 	# Install plugins
 	tmux start-server
@@ -329,14 +282,14 @@ configure_nvim() {
 	fi
 
 	mkdir -p "$HOME/.config"
-	ln -sf "$repo_dir/nvim" "$HOME/.config/nvim"
+	ln -sfn "$REPO_DIR/nvim" "$HOME/.config/nvim"
 }
 
 setup_git() {
 	echo "Configuring Git..."
 
 	# Add global gitignore
-	ln -sf "$repo_dir/gitignore_global" "$HOME/.gitignore_global"
+	ln -sf "$REPO_DIR/gitignore_global" "$HOME/.gitignore_global"
 	git config --global core.excludesfile ~/.gitignore_global
 
 	# Check existing git config
@@ -356,22 +309,54 @@ setup_git() {
 
 install_packages() {
 	local os=$1
+	local to_install=()
 
 	for package in "${PACKAGES[@]}"; do
-		install_package "$os" "$package"
+		if ! [ -n "${CUSTOM_INSTALL["$os:$package"]}" ]; then
+			to_install+=("$package")
+		fi
+	done
+
+	# Batch install non-custom packages
+	if [ "${#to_install[@]}" -gt 0 ]; then
+		case $os in
+		ubuntu | debian)
+			echo "Installing batch packages with apt: ${to_install[*]}"
+			if need_sudo; then
+				sudo apt-get install -y "${to_install[@]}"
+			else
+				apt-get install -y "${to_install[@]}"
+			fi
+			;;
+		macos)
+			echo "Installing batch packages with brew: ${to_install[*]}"
+			quiet_brew install "${to_install[@]}"
+			;;
+		termux)
+			echo "Installing batch packages with pkg: ${to_install[*]}"
+			pkg install -y "${to_install[@]}"
+			;;
+		esac
+	fi
+
+	# Install custom packages separately
+	for package in "${PACKAGES[@]}"; do
+		if [ -n "${CUSTOM_INSTALL["$os:$package"]}" ]; then
+			eval "${CUSTOM_INSTALL["$os:$package"]}"
+		fi
 	done
 }
 
 setup_macos() {
 	# Install additional packages for MacOS and their configurations
 	# kitty terminal
-	brew install kitty
-	ln -sf "$repo_dir/kitty.conf" "$HOME/.config/kitty/kitty.conf"
+	quiet_brew install kitty 2>&1 | grep -Ev "the latest version is already installed"
+	ln -sf "$REPO_DIR/kitty.conf" "$HOME/.config/kitty/kitty.conf"
 
 	# karabiner-elements
-	# symlink karabiner dir to config
-	ln -s "$repo_dir/karabiner" "$HOME/.config/karabiner"
-	brew install --cask karabiner-elements
+	# symlink karabiner dir to config=
+	ln -sfn "$REPO_DIR/karabiner" "$HOME/.config/karabiner"
+	quiet_brew install --cask karabiner-elements
 }
 
 main() {
@@ -388,9 +373,8 @@ main() {
 	# Display warning and get confirmation
 	display_warning "$os"
 
-	# Setup package manager and install basic requirements
+	# Setup package manager
 	setup_package_manager "$os"
-	install_basic_requirements "$os"
 
 	# Backup existing configurations
 	backup_config
