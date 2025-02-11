@@ -6,7 +6,7 @@ return {
 	},
 	config = function()
 		require("bufferline").setup({
-            highlights = require("catppuccin.groups.integrations.bufferline").get(),
+			highlights = require("catppuccin.groups.integrations.bufferline").get(),
 			options = {
 				offsets = {
 					{
@@ -32,6 +32,8 @@ return {
 		vim.keymap.set("n", "<leader>bml", ":BufferLineMoveRight<CR>", { desc = "Move Right" })
 		-- cycle buffer
 		vim.keymap.set("n", "<leader>bn", ":BufferLineCycleNext<CR>", { desc = "Next Buffer" })
+		vim.keymap.set("n", "<leader><Tab>", ":BufferLineCycleNext<CR>", { desc = "Next Buffer" })
 		vim.keymap.set("n", "<leader>bp", ":BufferLineCyclePrev<CR>", { desc = "Previous Buffer" })
+		vim.keymap.set("n", "<leader><S-Tab>", ":BufferLineCyclePrev<CR>", { desc = "Previous Buffer" })
 	end,
 }
