@@ -10,14 +10,14 @@ return {
 
         wk.add({
             { "<leader>b",   group = "Buffer" },
-            { "<leader>bs",  "Sort" },
-            { "<leader>bc",  "Close" },
-            { "<leader>l",   "LSP" },
+            { "<leader>bs",  group = "Sort" },
+            { "<leader>bc",  group = "Close" },
+            { "<leader>l",   group = "LSP" },
             { "<leader>f",   group = "Find" },
-            { "<leader>fh",  "Hidden" },
-            { "<leader>g",   "Git" },
-            -- quit menu
-            { "<leader>q",   group = "Quit" },
+            { "<leader>h",   group = "Find Hidden" },
+            { "<leader>g",   group = "Git" },
+            -- close and force quit
+            { "<leader>q",   group = "Close" },
             { "<leader>qf",  group = "Force quit" },
             { "<leader>qfy", "Lose all unsaved changes?" },
         })

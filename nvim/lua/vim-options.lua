@@ -6,6 +6,7 @@ vim.cmd("set number")
 vim.cmd("set relativenumber")
 vim.cmd("set clipboard=unnamedplus")
 vim.cmd("set mousemoveevent")
+vim.opt.scrolloff = 10
 -- undo setup
 vim.opt.swapfile = false
 vim.opt.backup = false

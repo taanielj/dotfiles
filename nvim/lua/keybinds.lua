@@ -118,11 +118,6 @@ vim.keymap.set(
 
 -- clear last search highlight
 vim.keymap.set("n", "<Esc>", ":let @/=''<CR>", { noremap = true, silent = true, desc = "Clear search highlight" })
--- -- saving
--- quit and save all
-vim.keymap.set("n", "<Leader>qq", ":wa<CR>:qa<CR>", { noremap = true, silent = true, desc = "Quit and save all" })
--- quit without saving
-vim.keymap.set("n", "<Leader>qfy", ":qa!<CR>", { noremap = true, silent = true, desc = "Quit without saving?" })
 -- home and end in insert mode
 vim.keymap.set("i", "<Home>", "<Esc>0i", { noremap = true, silent = true, desc = "Move to beginning of line" })
 vim.keymap.set("i", "<End>", "<Esc>$a", { noremap = true, silent = true, desc = "Move to end of line" })
