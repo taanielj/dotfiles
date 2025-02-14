@@ -105,8 +105,6 @@ vim.keymap.set("v", "<C-x>", '"+x', { noremap = true, silent = true, desc = "Cut
 vim.keymap.set("x", "<C-v>", '"0dP', { noremap = true, silent = true, desc = "Paste without overwriting unnamed reg" })
 vim.keymap.set("i", "<C-v>", "<C-o>P", { noremap = true, silent = true, desc = "Paste" })
 
-vim.keymap.set("n", "<Tab>", "<C-w>w", { noremap = true, silent = true, desc = "Next window" })
-
 -- ==================
 -- Search and replace
 -- ==================
@@ -134,13 +132,6 @@ vim.keymap.set("i", "<End>", "<Esc>$a", { noremap = true, silent = true, desc = 
 -- ===============
 
 -- turn on wrap and linebreak for current window
-vim.keymap.set("n", "<leader>ww", function()
-	vim.wo.wrap = true
-	vim.wo.linebreak = true
-	return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
-		.. (vim.v.count ~= 0 and vim.v.count or 125) -- linewidth is 120, add 5 to account for line numbers
-		.. "|"
-end, { expr = true, noremap = true, silent = true, desc = "Wrap current window" })
 -- function to close no name buffers
 function _G.close_no_name_buffers()
 	local bufnr_list = vim.api.nvim_list_bufs()
@@ -150,6 +141,15 @@ function _G.close_no_name_buffers()
 		end
 	end
 end
+
+vim.keymap.set("n", "<leader>ww", function()
+	vim.cmd("lua close_no_name_buffers()")
+    vim.wo.wrap = true
+    vim.wo.linebreak = true
+    return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
+        .. (vim.v.count ~= 0 and vim.v.count or 125) -- linewidth is 120, add 5 to account for line numbers
+        .. "|"
+end, { expr = true, noremap = true, silent = true, desc = "Wrap current window" })
 
 -- turn off wrap and linebreak for current window, close no name buffers
 vim.keymap.set("n", "<leader>wu", function()

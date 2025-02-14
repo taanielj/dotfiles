@@ -384,6 +384,16 @@ update_reqs() {
     mv requirements.tmp requirements.txt
 }
 
+nvim() {
+    [[ $# -ne 0 ]] && command nvim "$@" && return
+    
+    local venv_path=$(__resolve_venv_path)
+    [[ -z $venv_path || ! -f "$venv_path/bin/activate" ]] && command nvim && return
+
+    source "$venv_path/bin/activate"
+    command nvim
+}
+
 # docker compose aliases
 alias dc="docker compose"
 alias dcu="docker compose up -d"

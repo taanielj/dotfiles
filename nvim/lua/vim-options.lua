@@ -25,10 +25,3 @@ vim.opt.undofile = true
 vim.opt.undolevels = 1000
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
-
--- wrap lines
--- vim.opt.textwidth = 120
--- vim.opt.wrap = true
--- vim.opt.linebreak = true
--- vim.opt.breakindent = true
--- vim.opt.whichwrap = "b,s,<,>,[,],~"

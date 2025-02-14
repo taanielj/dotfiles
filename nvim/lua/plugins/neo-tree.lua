@@ -15,6 +15,11 @@ return {
 		)
 
 		require("neo-tree").setup({
+			source_selector = {
+				statusline = true,
+			},
+			enable_git_status = true,
+			enable_diagnostics = true,
 			use_libuv_file_watcher = true,
 			follow_current_file = {
 				enabled = true,
@@ -60,6 +65,16 @@ return {
 				group_empty_dirs = true, -- Group empty directories together
 				scan_mode = "deep",
 				use_libuv_file_watcher = true,
+				filtered_items = {
+					hide_gitignored = false,
+					always_show = {
+						".gitignore",
+						".github",
+					},
+					always_show_by_pattern = {
+						".env*",
+					},
+				},
 			},
 		})
 	end,
