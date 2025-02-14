@@ -15,9 +15,6 @@ return {
 		)
 
 		require("neo-tree").setup({
-			source_selector = {
-				statusline = true,
-			},
 			enable_git_status = true,
 			enable_diagnostics = true,
 			use_libuv_file_watcher = true,
