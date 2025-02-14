@@ -90,10 +90,10 @@ return {
 
 			vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")
 
-			vim.fn.sign_define("DiagnosticSignError", { text = "󰅙" , texthl = "DiagnosticSignError" })
-			vim.fn.sign_define("DiagnosticSignInfo", { text = "󰋼" , texthl = "DiagnosticSignInfo" })
-			vim.fn.sign_define("DiagnosticSignHint" , { text = "󰌵", textxl = "DiagnosticSignHint"})
-            vim.fn.sign_define("DiagnosticSignWarn", { text = "󰅙" , texthl = "DiagnosticSignWarn" })
+			vim.fn.sign_define("DiagnosticSignError", { text = "󰅙", texthl = "DiagnosticSignError" })
+			vim.fn.sign_define("DiagnosticSignInfo", { text = "󰋼", texthl = "DiagnosticSignInfo" })
+			vim.fn.sign_define("DiagnosticSignHint", { text = "󰌵", textxl = "DiagnosticSignHint" })
+			vim.fn.sign_define("DiagnosticSignWarn", { text = "󰅙", texthl = "DiagnosticSignWarn" })
 			vim.diagnostic.config({
 				signs = {
 					[vim.diagnostic.severity.ERROR] = "󰅙",
@@ -123,16 +123,28 @@ return {
 	{
 		"mfussenegger/nvim-lint",
 		config = function()
-			require("lint").linters_by_ft = {
+			local lint = require("lint")
+			lint.linters_by_ft = {
 				go = { "golangci-lint" },
+				markdown = { "markdownlint" },
+				dockerfile = { "hadolint" },
 			}
+			local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+			vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+				group = lint_augroup,
+				callback = function()
+					if vim.opt_local.modifiable:get() then
+						lint.try_lint()
+					end
+				end,
+			})
 		end,
 	},
 	{
 		"rshkarin/mason-nvim-lint",
 		config = function()
 			require("mason-nvim-lint").setup({
-				ensure_installed = { "golangci-lint" },
+				ensure_installed = { "golangci-lint", "markdownlint", "hadolint" },
 				ignore_install = { "custom-linter" },
 				quiet_mode = true,
 			})

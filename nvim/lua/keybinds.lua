@@ -117,7 +117,7 @@ vim.keymap.set(
 )
 
 -- clear last search highlight
-vim.keymap.set("n", "<leader>n", ":let @/=''<CR>", { noremap = true, silent = true, desc = "Clear search highlight" })
+vim.keymap.set("n", "<Esc>", ":let @/=''<CR>", { noremap = true, silent = true, desc = "Clear search highlight" })
 -- -- saving
 -- quit and save all
 vim.keymap.set("n", "<Leader>qq", ":wa<CR>:qa<CR>", { noremap = true, silent = true, desc = "Quit and save all" })
