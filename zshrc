@@ -31,6 +31,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 ## Plugin configuration
 plugins=(
   git
+  fzf-tab
   zsh-autosuggestions
 )
 
