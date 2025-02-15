@@ -115,6 +115,11 @@ return {
 			})
 			lspconfig.ruff.setup({
 				capabilities = capabilities,
+				settings = {
+					args = {
+						"--line-length=120",
+					},
+				},
 			})
 			-- docker language server
 			lspconfig.dockerls.setup({ capabilities = capabilities })
