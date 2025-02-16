@@ -147,19 +147,35 @@ install_go() {
 }
 
 install_go_ubuntu() {
-    wget https://go.dev/dl/go1.23.6.linux-amd64.tar.gz
-    $ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.23.6.linux-amd64.tar.gz && rm go1.23.6.linux-amd64.tar.gz
-    echo 'export PATH=$PATH:/usr/local/go' >>~/.zprofile
-    echo 'export GOROOT=$(go env GOROOT)' >>~/.zprofile
-    echo 'export GOPATH=$(go env GOPATH)' >>~/.zprofile
-    echo 'export PATH=$GOPATH/bin:$PATH' >>~/.zprofile
-    $(need_sudo) apt install -y direnv
-    if ! grep -q 'eval "$(direnv hook zsh)"' ~/.zshrc; then
-        echo 'eval "$(direnv hook zsh)"' >>~/.zshrc
+    GO_VERSION="1.23.6"
+    GO_TARBALL="go${GO_VERSION}.linux-amd64.tar.gz"
+    GO_URL="https://go.dev/dl/${GO_TARBALL}"
+    GO_INSTALL_DIR="/usr/local/go"
+
+    # Download and install Go only if not already installed or version differs
+    if [ ! -x "${GO_INSTALL_DIR}/bin/go" ] || [ "$(${GO_INSTALL_DIR}/bin/go version | awk '{print $3}')" != "go${GO_VERSION}" ]; then
+        wget -q "${GO_URL}" -O "/tmp/${GO_TARBALL}"
+        $(need_sudo) rm -rf "${GO_INSTALL_DIR}"
+        $(need_sudo) tar -C /usr/local -xzf "/tmp/${GO_TARBALL}"
+        rm "/tmp/${GO_TARBALL}"
     fi
-    $(need_sudo) apt install -y golangci-lint # linter
-    $(need_sudo) apt install -y clang-format  # protobuf formatter
+
+    # Ensure Go environment variables are correctly set without duplication
+    ZPROFILE=~/.zprofile
+    grep -qxF 'export PATH=$PATH:/usr/local/go' "$ZPROFILE" || echo 'export PATH=$PATH:/usr/local/go' >>"$ZPROFILE"
+    grep -qxF 'export GOROOT=$(go env GOROOT)' "$ZPROFILE" || echo 'export GOROOT=$(go env GOROOT)' >>"$ZPROFILE"
+    grep -qxF 'export GOPATH=$(go env GOPATH)' "$ZPROFILE" || echo 'export GOPATH=$(go env GOPATH)' >>"$ZPROFILE"
+    grep -qxF 'export PATH=$GOPATH/bin:$PATH' "$ZPROFILE" || echo 'export PATH=$GOPATH/bin:$PATH' >>"$ZPROFILE"
+
+    # Install required packages only if not installed
+    $(need_sudo) apt update -y
+    $(need_sudo) apt install -y --no-install-recommends direnv golangci-lint clang-format
+
+    # Ensure direnv is added to ~/.zshrc without duplication
+    ZSHRC=~/.zshrc
+    grep -qxF 'eval "$(direnv hook zsh)"' "$ZSHRC" || echo 'eval "$(direnv hook zsh)"' >>"$ZSHRC"
 }
+
 
 install_nvim() {
 	wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim
@@ -427,7 +443,7 @@ main() {
     fi
 
     echo "Installation completed successfully!"
-    echo "Please restart your terminal and run 'zsh' to complete the setup."
+    echo "Please restart your terminal or run `exec zsh --login` to apply all changes."
 }
 
 # Run main function
