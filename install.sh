@@ -39,17 +39,28 @@ PACKAGES=(
     "go"
 )
 
+need_sudo() {
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "sudo"
+    else
+        echo ""
+    fi
+}
+
 # Define custom installation methods for specific packages per OS
 declare -A CUSTOM_INSTALL
-CUSTOM_INSTALL["ubuntu:python"]="add-apt-repository -y ppa:deadsnakes/ppa && apt install -y python3.11"
-CUSTOM_INSTALL["macos:python"]="quiet_brew install python@3.11"
+CUSTOM_INSTALL["ubuntu:lazygit"]="install_lazygit"
 CUSTOM_INSTALL["ubuntu:eza"]="install_eza"
 CUSTOM_INSTALL["ubuntu:nvim"]="install_nvim"
+CUSTOM_INSTALL["ubuntu:zoxide"]="install_zoxide"
+CUSTOM_INSTALL["ubuntu:python"]="install_python"
+CUSTOM_INSTALL["ubuntu:go"]="install_go_ubuntu"
 CUSTOM_INSTALL["ubuntu:node"]="curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash"
-CUSTOM_INSTALL["macos:go"]="install_go"
-CUSTOM_INSTALL["macos:g++"]="true"
-CUSTOM_INSTALL["macos:cmake"]="true"
+CUSTOM_INSTALL["macos:g++"]="true" # installed with Xcode when brew was installed
+CUSTOM_INSTALL["macos:cmake"]="true" # installed with Xcode when brew was installed
 CUSTOM_INSTALL["macos:fd-find"]="quiet_brew install fd"
+CUSTOM_INSTALL["macos:python"]="quiet_brew install python@3.11"
+CUSTOM_INSTALL["macos:go"]="install_go"
 
 #####################
 # Utility functions #
@@ -116,10 +127,10 @@ quiet_brew() {
 }
 
 install_eza() {
-    mkdir -p /etc/apt/keyrings &&
-        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/eza.gpg &&
-        echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | tee /etc/apt/sources.list.d/eza.list &&
-        apt update && apt install -y eza
+	$(need_sudo) mkdir -p /etc/apt/keyrings &&
+    $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza.gpg &&
+    $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list &&
+    $(need_sudo) apt update && apt install -y eza
 }
 
 install_go() {
@@ -135,9 +146,42 @@ install_go() {
     quiet_brew install clang-format  # protobuf formatter
 }
 
+install_go_ubuntu() {
+    wget https://go.dev/dl/go1.23.6.linux-amd64.tar.gz
+    $ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.23.6.linux-amd64.tar.gz && rm go1.23.6.linux-amd64.tar.gz
+    echo 'export PATH=$PATH:/usr/local/go' >>~/.zprofile
+    echo 'export GOROOT=$(go env GOROOT)' >>~/.zprofile
+    echo 'export GOPATH=$(go env GOPATH)' >>~/.zprofile
+    echo 'export PATH=$GOPATH/bin:$PATH' >>~/.zprofile
+    $(need_sudo) apt install -y direnv
+    if ! grep -q 'eval "$(direnv hook zsh)"' ~/.zshrc; then
+        echo 'eval "$(direnv hook zsh)"' >>~/.zshrc
+    fi
+    $(need_sudo) apt install -y golangci-lint # linter
+    $(need_sudo) apt install -y clang-format  # protobuf formatter
+}
+
 install_nvim() {
-    wget https://github.com/neovim/neovim/releases/latest/download/nvim.appimage -O /usr/local/bin/nvim
-    chmod +x /usr/local/bin/nvim
+	wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim
+    $(need_sudo) mv /tmp/nvim /usr/local/bin/nvim
+    $(need_sudo) chmod +x /usr/local/bin/nvim
+}
+
+install_lazygit() {
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | \grep -Po '"tag_name": *"v\K[^"]*')
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+    tar xf lazygit.tar.gz lazygit
+    $(need_sudo) install lazygit -D -t /usr/local/bin
+    rm lazygit.tar.gz lazygit
+}
+
+install_python() {
+    $(need_sudo) add-apt-repository -y ppa:deadsnakes/ppa
+    $(need_sudo) apt install -y python3.11
+}
+
+install_zoxide() {
+    curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 }
 
 ################################
@@ -154,24 +198,20 @@ install_brew() {
 }
 
 setup_package_manager() {
-    local os=$1
-    case $os in
-    ubuntu | debian)
-        # if needed, run with sudo
-        if [ "$(id -u)" -eq 0 ]; then
-            sudo apt-get update -qq
-        else
-            apt-get update -qq
-        fi
-        ;;
-    macos)
-        install_brew
-        brew update
-        ;;
-    termux)
-        pkg update -y
-        ;;
-    esac
+	local os=$1
+	case $os in
+	ubuntu | debian)
+		# if needed, run with sudo
+		$(need_sudo) apt-get update -qq
+		;;
+	macos)
+		install_brew
+		brew update
+		;;
+	termux)
+		pkg update -y
+		;;
+	esac
 }
 
 ###########################
@@ -316,27 +356,23 @@ install_packages() {
         fi
     done
 
-    # Batch install non-custom packages
-    if [ "${#to_install[@]}" -gt 0 ]; then
-        case $os in
-        ubuntu | debian)
-            echo "Installing batch packages with apt: ${to_install[*]}"
-            if need_sudo; then
-                sudo apt-get install -y "${to_install[@]}"
-            else
-                apt-get install -y "${to_install[@]}"
-            fi
-            ;;
-        macos)
-            echo "Installing batch packages with brew: ${to_install[*]}"
-            quiet_brew install "${to_install[@]}"
-            ;;
-        termux)
-            echo "Installing batch packages with pkg: ${to_install[*]}"
-            pkg install -y "${to_install[@]}"
-            ;;
-        esac
-    fi
+	# Batch install non-custom packages
+	if [ "${#to_install[@]}" -gt 0 ]; then
+		case $os in
+		ubuntu | debian)
+			echo "Installing batch packages with apt: ${to_install[*]}"
+            $(need_sudo) apt-get install -y "${to_install[@]}"
+			;;
+		macos)
+			echo "Installing batch packages with brew: ${to_install[*]}"
+			quiet_brew install "${to_install[@]}"
+			;;
+		termux)
+			echo "Installing batch packages with pkg: ${to_install[*]}"
+			pkg install -y "${to_install[@]}"
+			;;
+		esac
+	fi
 
     # Install custom packages separately
     for package in "${PACKAGES[@]}"; do
