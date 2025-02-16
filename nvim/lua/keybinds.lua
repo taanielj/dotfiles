@@ -27,8 +27,8 @@ end
 
 local select_mappings = {
 	-- Normal mode
-	{ "n", "<S-Up>", "<C-v>k", "Select up" },
-	{ "n", "<S-Down>", "<C-v>j", "Select down" },
+	-- { "n", "<S-Up>", "<C-v>k", "Select up" },
+	-- { "n", "<S-Down>", "<C-v>j", "Select down" },
 	{ "n", "<S-Left>", "vh", "Select left" },
 	{ "n", "<S-Right>", "vl", "Select right" },
 	{ "n", "<S-Home>", "v^", "Select to beginning of line" },

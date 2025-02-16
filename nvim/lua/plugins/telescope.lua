@@ -3,6 +3,8 @@ return {
     tag = "0.1.5",
     dependencies = {
         "nvim-lua/plenary.nvim",
+        "nvim-telescope/telescope-smart-history.nvim",
+        "kkharji/sqlite.lua",
         "nvim-telescope/telescope-ui-select.nvim",
         "nvim-tree/nvim-web-devicons",
         {
@@ -14,14 +16,29 @@ return {
         },
     },
     config = function()
+        local actions = require("telescope.actions")
         require("telescope").setup({
             extensions = {
                 ["ui-select"] = {
                     require("telescope.themes").get_dropdown({}),
                 },
             },
+            defaults = {
+                history = {
+                    path = "~/.local/share/nvim/databases/telescope_history.sqlite3",
+                    limit = 100,
+                },
+                mappings = {
+                    i = {
+                        ["<S-Down>"] = actions.cycle_history_next,
+                        ["<S-Up>"] = actions.cycle_history_prev,
+                    }
+                }
+            },
         })
         require("telescope").load_extension("ui-select")
+        require("telescope").load_extension("fzf")
+        require("telescope").load_extension("smart_history")
         local builtin = require("telescope.builtin")
 
         -- search current buffer
@@ -48,5 +65,6 @@ return {
         vim.keymap.set("n", "<leader>hg", function()
             builtin.live_grep({ hidden = true, no_ignore = true })
         end, { desc = "Hidden Live Grep" })
+
     end,
 }
