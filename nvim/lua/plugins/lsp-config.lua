@@ -36,7 +36,6 @@ return {
 					map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Go to type definition")
 					map("<leader>lw", require("telescope.builtin").lsp_workspace_symbols, "Workspace symbols")
 					map("<leader>lr", vim.lsp.buf.rename, "Rename symbol")
-					map("<leader>lf", vim.lsp.buf.references, "Find references")
 					map("<leader>le", vim.diagnostic.open_float, "Show diagnostics")
 					map("<leader>ln", vim.diagnostic.goto_next, "Next diagnostic")
 					map("<leader>lp", vim.diagnostic.goto_prev, "Previous diagnostic")

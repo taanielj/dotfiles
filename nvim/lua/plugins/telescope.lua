@@ -32,8 +32,8 @@ return {
                     i = {
                         ["<S-Down>"] = actions.cycle_history_next,
                         ["<S-Up>"] = actions.cycle_history_prev,
-                    }
-                }
+                    },
+                },
             },
         })
         require("telescope").load_extension("ui-select")
@@ -63,8 +63,7 @@ return {
             builtin.buffers({ show_all_buffers = true, no_ignore = true })
         end, { desc = "Find Hidden Buffers" })
         vim.keymap.set("n", "<leader>hg", function()
-            builtin.live_grep({ hidden = true, no_ignore = true })
+            builtin.live_grep({ additional_args = { "--hidden" } })
         end, { desc = "Hidden Live Grep" })
-
     end,
 }

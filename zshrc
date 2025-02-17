@@ -383,6 +383,10 @@ update_reqs() {
 
     # Replace the old requirements.txt with the updated file
     mv requirements.tmp requirements.txt
+    # if venv then resource
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        source "$VIRTUAL_ENV/bin/activate"
+    fi
 }
 
 nvim() {
