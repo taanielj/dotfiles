@@ -30,7 +30,7 @@ return {
                             filetype = "neo-tree",
                             text = get_neotree_display_name,
                             text_align = "left",
-                            separator = true,
+                            separator = false,
                         },
                     },
                     groups = {
