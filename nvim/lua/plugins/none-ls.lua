@@ -17,7 +17,9 @@ return {
             },
         })
         local function call_formatter()
+            vim.cmd("mkview")
             vim.lsp.buf.format({ timeout_ms = 5000 })
+            vim.cmd("silent! loadview")
         end
         vim.keymap.set("n", "<leader>m", call_formatter, { desc = "Format" })
     end,

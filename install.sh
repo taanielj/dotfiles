@@ -56,7 +56,7 @@ CUSTOM_INSTALL["ubuntu:zoxide"]="install_zoxide"
 CUSTOM_INSTALL["ubuntu:python"]="install_python"
 CUSTOM_INSTALL["ubuntu:go"]="install_go_ubuntu"
 CUSTOM_INSTALL["ubuntu:node"]="curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash"
-CUSTOM_INSTALL["macos:g++"]="true" # installed with Xcode when brew was installed
+CUSTOM_INSTALL["macos:g++"]="true"   # installed with Xcode when brew was installed
 CUSTOM_INSTALL["macos:cmake"]="true" # installed with Xcode when brew was installed
 CUSTOM_INSTALL["macos:fd-find"]="quiet_brew install fd"
 CUSTOM_INSTALL["macos:python"]="quiet_brew install python@3.11"
@@ -127,10 +127,10 @@ quiet_brew() {
 }
 
 install_eza() {
-	$(need_sudo) mkdir -p /etc/apt/keyrings &&
-    $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza.gpg &&
-    $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list &&
-    $(need_sudo) apt update && apt install -y eza
+    $(need_sudo) mkdir -p /etc/apt/keyrings &&
+        $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza.gpg &&
+        $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list &&
+        $(need_sudo) apt update && apt install -y eza
 }
 
 install_go() {
@@ -176,9 +176,8 @@ install_go_ubuntu() {
     grep -qxF 'eval "$(direnv hook zsh)"' "$ZSHRC" || echo 'eval "$(direnv hook zsh)"' >>"$ZSHRC"
 }
 
-
 install_nvim() {
-	wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim
+    wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim
     $(need_sudo) mv /tmp/nvim /usr/local/bin/nvim
     $(need_sudo) chmod +x /usr/local/bin/nvim
 }
@@ -214,20 +213,20 @@ install_brew() {
 }
 
 setup_package_manager() {
-	local os=$1
-	case $os in
-	ubuntu | debian)
-		# if needed, run with sudo
-		$(need_sudo) apt-get update -qq
-		;;
-	macos)
-		install_brew
-		brew update
-		;;
-	termux)
-		pkg update -y
-		;;
-	esac
+    local os=$1
+    case $os in
+    ubuntu | debian)
+        # if needed, run with sudo
+        $(need_sudo) apt-get update -qq
+        ;;
+    macos)
+        install_brew
+        brew update
+        ;;
+    termux)
+        pkg update -y
+        ;;
+    esac
 }
 
 ###########################
@@ -372,23 +371,23 @@ install_packages() {
         fi
     done
 
-	# Batch install non-custom packages
-	if [ "${#to_install[@]}" -gt 0 ]; then
-		case $os in
-		ubuntu | debian)
-			echo "Installing batch packages with apt: ${to_install[*]}"
+    # Batch install non-custom packages
+    if [ "${#to_install[@]}" -gt 0 ]; then
+        case $os in
+        ubuntu | debian)
+            echo "Installing batch packages with apt: ${to_install[*]}"
             $(need_sudo) apt-get install -y "${to_install[@]}"
-			;;
-		macos)
-			echo "Installing batch packages with brew: ${to_install[*]}"
-			quiet_brew install "${to_install[@]}"
-			;;
-		termux)
-			echo "Installing batch packages with pkg: ${to_install[*]}"
-			pkg install -y "${to_install[@]}"
-			;;
-		esac
-	fi
+            ;;
+        macos)
+            echo "Installing batch packages with brew: ${to_install[*]}"
+            quiet_brew install "${to_install[@]}"
+            ;;
+        termux)
+            echo "Installing batch packages with pkg: ${to_install[*]}"
+            pkg install -y "${to_install[@]}"
+            ;;
+        esac
+    fi
 
     # Install custom packages separately
     for package in "${PACKAGES[@]}"; do
@@ -443,7 +442,7 @@ main() {
     fi
 
     echo "Installation completed successfully!"
-    echo "Please restart your terminal or run `exec zsh --login` to apply all changes."
+    echo "Please restart your terminal or run $(exec zsh --login) to apply all changes."
 }
 
 # Run main function

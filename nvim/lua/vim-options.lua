@@ -5,7 +5,8 @@ vim.cmd("set shiftwidth=4")
 vim.cmd("set number")
 vim.cmd("set relativenumber")
 vim.cmd("set clipboard=unnamedplus")
-vim.cmd("set mousemoveevent")
+-- vim.cmd("set mousemoveevent")
+vim.o.mousemoveevent = true
 vim.opt.scrolloff = 10
 -- undo setup
 vim.opt.swapfile = false
@@ -44,4 +45,9 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function()
         vim.highlight.on_yank({ higroup = "Visual", timeout = 200 })
     end,
+})
+
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+    border = "rounded",
+    focusable = false,
 })

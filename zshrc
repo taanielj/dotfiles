@@ -407,6 +407,67 @@ alias dcdv="docker compose down -v"
 alias dcr="docker compose run --rm"
 alias dcrs="docker compose down && docker compose up -d"
 
+reset_repo() {
+    echo -e "\033[1;33mWARNING: This will DELETE and RECLONE the repo!\033[0m"
+
+    # Get root of the repo (ensures we operate from the correct directory)
+    REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [[ -z "$REPO_ROOT" ]]; then
+        echo -e "\033[1;31mError: Not in a git repository. Please navigate to a git repo and try again.\033[0m"
+        return 1
+    fi
+
+    cd "$REPO_ROOT" || return 1  # Move to repo root
+
+    # Get the repo name from git remote
+    GIT_REMOTE=$(git remote get-url origin 2>/dev/null)
+    if [[ -z "$GIT_REMOTE" ]]; then
+        echo -e "\033[1;31mError: No remote repository found. Are you in a git repo?\033[0m"
+        return 1
+    fi
+
+    # Extract repo name from the remote URL
+    REPO_NAME=$(basename -s .git "$GIT_REMOTE")
+    PARENT_DIR=$(dirname "$REPO_ROOT")
+    NEW_REPO_NAME="${REPO_NAME}-vs"
+
+    echo -e "Root Repo Path: \033[1;34m$REPO_ROOT\033[0m"
+    echo -e "Git Remote: \033[1;34m$GIT_REMOTE\033[0m"
+    echo -e "New Clone Path: \033[1;34m$PARENT_DIR/$NEW_REPO_NAME\033[0m"
+
+    # 🚨 Prevent execution if there are uncommitted changes
+    if [[ -n "$(git status --porcelain)" ]]; then
+        echo -e "\033[1;31mError: You have uncommitted changes. Commit or discard them before proceeding.\033[0m"
+        git status --short
+        return 1
+    fi
+
+    # 🚨 Prevent execution if there are stashed changes
+    if [[ -n "$(git stash list)" ]]; then
+        echo -e "\033[1;31mError: You have stashed changes. Apply or drop them before proceeding.\033[0m"
+        git stash list
+        return 1
+    fi
+
+    # Confirm action (zsh-compatible)
+    echo -n "Type YES to confirm: "
+    read CONFIRM
+    if [[ "$CONFIRM" != "YES" ]]; then
+        echo -e "\033[1;31mOperation cancelled.\033[0m"
+        return 1
+    fi
+
+    echo -e "\033[1;33mDeleting and recloning into: $PARENT_DIR/$NEW_REPO_NAME\033[0m"
+
+    # Delete old repo and reclone
+    cd "$PARENT_DIR" || return 1
+    rm -rf "$NEW_REPO_NAME"
+    git clone "$GIT_REMOTE" "$NEW_REPO_NAME"
+    cd "$NEW_REPO_NAME" || return 1
+
+    echo -e "\033[1;32mRepository reset complete.\033[0m"
+}
+
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
