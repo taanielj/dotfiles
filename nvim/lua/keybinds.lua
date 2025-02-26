@@ -6,61 +6,74 @@ vim.g.mapleader = " "
 -- Line movement and indentation
 -- =============================
 
+local map = function(mappings)
+    -- wrap in table if single mapping
+    if mappings[1] == nil or type(mappings[1]) ~= "table" then
+        mappings = { mappings }
+    end
+
+    for _, m in ipairs(mappings) do
+        local modes, keys, cmd, desc = m[1], m[2], m[3], m[4]
+        if type(keys) == "string" then
+            keys = { keys }
+        end
+        for _, key in ipairs(keys) do
+            vim.keymap.set(modes, key, cmd, { noremap = true, silent = true, desc = desc })
+        end
+    end
+end
+
 local move_mappings = {
-	{ "n", "<C-Up>", ":m .-2<CR>==", "Move line up" },
-	{ "n", "<C-Down>", ":m .+1<CR>==", "Move line down" },
-	{ "n", "<C-Left>", "<<hhhh", "Unindent line" },
-	{ "n", "<C-Right>", ">>llll", "Indent line" },
-	{ "v", "<C-Up>", ":m '<-2<CR>gv=gv", "Move line up" },
-	{ "v", "<C-Down>", ":m '>+1<CR>gv=gv", "Move line down" },
-	{ "v", "<C-Left>", "<gvhhhh", "Unindent line" },
-	{ "v", "<C-Right>", ">gvllll", "Indent line" },
+    { "n", "<C-Up>",    ":m .-2<CR>==",     "Move line up" },
+    { "n", "<C-Down>",  ":m .+1<CR>==",     "Move line down" },
+    { "n", "<C-Left>",  "<<hhhh",           "Unindent line" },
+    { "n", "<C-Right>", ">>llll",           "Indent line" },
+    { "v", "<C-Up>",    ":m '<-2<CR>gv=gv", "Move line up" },
+    { "v", "<C-Down>",  ":m '>+1<CR>gv=gv", "Move line down" },
+    { "v", "<C-Left>",  "<gvhhhh",          "Unindent line" },
+    { "v", "<C-Right>", ">gvllll",          "Indent line" },
 }
 
-for _, map in ipairs(move_mappings) do
-	vim.keymap.set(map[1], map[2], map[3], { noremap = true, silent = true, desc = map[4] })
-end
+map(move_mappings)
 
 -- ==============
 -- Selecting text
 -- ==============
 
 local select_mappings = {
-	-- Normal mode
-	-- Normal mode select up down v-block mode
-	-- { "n", "<S-Up>", "<C-v>k", "Select up" },
-	-- { "n", "<S-Down>", "<C-v>j", "Select down" },
-	-- Normal mode select up down regular visual mode
-	{ "n", "<S-Down>", "vj", "Select down" },
-	{ "n", "<S-Up>", "vk", "Select up" },
-	{ "n", "<S-Left>", "vh", "Select left" },
-	{ "n", "<S-Right>", "vl", "Select right" },
-	{ "n", "<S-Home>", "v^", "Select to beginning of line" },
-	{ "n", "<Home>", "^", "Move to beginning of text" }, -- 0 still selects to beginning of line
-	{ "n", "<S-End>", "v$h", "Select to end of line" }, -- without newline, hit S-End again to include newline
-	-- Insert mode
-	{ "i", "<S-Up>", "<Esc>vkl", "Select up" },
-	{ "i", "<S-Down>", "<Esc>lvjh", "Select down" },
-	{ "i", "<S-Left>", "<Esc>v", "Select left" },
-	{ "i", "<S-Right>", "<Esc>lv", "Select right" },
-	{ "i", "<S-Home>", "<Esc>lv", "Select to beginning of line" },
-	{ "i", "<S-End>", "<Esc>lv$h", "Select to end of line" }, -- without newline, hit S-End again to include newline
-	-- Ignore Shift key in visual mode and visual mode home and end keys
-	{ "v", "<S-Up>", "k", "Move up" },
-	{ "v", "<S-Down>", "j", "Move down" },
-	{ "v", "<S-Left>", "h", "Move left" },
-	{ "v", "<S-Right>", "l", "Move right" },
-	{ "v", "<S-Home>", "0", "Move to beginning of line" },
-	{ "v", "<Home>", "^", "Move to beginning of text" },
-	{ "v", "<S-End>", "$", "Move to end of line" }, -- with newline
-	{ "v", "<End>", "$h", "Move to end of line" }, -- without newline
-	-- Select all with Ctrl + A
-	{ { "n", "v", "i" }, "<C-a>", "ggVG", "Select all" },
+    -- Normal mode
+    -- Normal mode select up down v-block mode
+    -- { "n", "<S-Up>", "<C-v>k", "Select up" },
+    -- { "n", "<S-Down>", "<C-v>j", "Select down" },
+    -- Normal mode select up down regular visual mode
+    { "n",               "<S-Down>",  "vj",        "Select down" },
+    { "n",               "<S-Up>",    "vk",        "Select up" },
+    { "n",               "<S-Left>",  "vh",        "Select left" },
+    { "n",               "<S-Right>", "vl",        "Select right" },
+    { "n",               "<S-Home>",  "v^",        "Select to beginning of line" },
+    { "n",               "<Home>",    "^",         "Move to beginning of text" }, -- 0 still selects to beginning of line
+    { "n",               "<S-End>",   "v$h",       "Select to end of line" }, -- without newline, hit S-End again to include newline
+    -- Insert mode
+    { "i",               "<S-Up>",    "<Esc>vkl",  "Select up" },
+    { "i",               "<S-Down>",  "<Esc>lvjh", "Select down" },
+    { "i",               "<S-Left>",  "<Esc>v",    "Select left" },
+    { "i",               "<S-Right>", "<Esc>lv",   "Select right" },
+    { "i",               "<S-Home>",  "<Esc>lv",   "Select to beginning of line" },
+    { "i",               "<S-End>",   "<Esc>lv$h", "Select to end of line" }, -- without newline, hit S-End again to include newline
+    -- Ignore Shift key in visual mode and visual mode home and end keys
+    { "v",               "<S-Up>",    "k",         "Move up" },
+    { "v",               "<S-Down>",  "j",         "Move down" },
+    { "v",               "<S-Left>",  "h",         "Move left" },
+    { "v",               "<S-Right>", "l",         "Move right" },
+    { "v",               "<S-Home>",  "0",         "Move to beginning of line" },
+    { "v",               "<Home>",    "^",         "Move to beginning of text" },
+    { "v",               "<S-End>",   "$",         "Move to end of line" }, -- with newline
+    { "v",               "<End>",     "$h",        "Move to end of line" }, -- without newline
+    -- Select all with Ctrl + A
+    { { "n", "v", "i" }, "<C-a>",     "ggVG",      "Select all" },
 }
 
-for _, map in ipairs(select_mappings) do
-	vim.keymap.set(map[1], map[2], map[3], { noremap = true, silent = true, desc = map[4] })
-end
+map(select_mappings)
 
 -- =============
 -- Deleting text
@@ -68,33 +81,33 @@ end
 -- ctrl backspace in insert delete
 
 vim.keymap.set("i", "<C-H>", function()
-	local col = vim.fn.col(".")
-	if col == 1 then
-		-- Already at start of line, no word to delete
-		return ""
-	end
+    local col = vim.fn.col(".")
+    if col == 1 then
+        -- Already at start of line, no word to delete
+        return ""
+    end
 
-	-- Get the character before the cursor
-	local prev_char = vim.fn.getline("."):sub(col - 1, col - 1)
+    -- Get the character before the cursor
+    local prev_char = vim.fn.getline("."):sub(col - 1, col - 1)
 
-	if prev_char:match("%s") then
-		-- If previous character is whitespace, delete it and previous word
-		return "<C-o>db"
-	else
-		-- Otherwise, delete the previous word
-		return "<C-o>dB"
-	end
+    if prev_char:match("%s") then
+        -- If previous character is whitespace, delete it and previous word
+        return "<C-o>db"
+    else
+        -- Otherwise, delete the previous word
+        return "<C-o>dB"
+    end
 end, { noremap = true, expr = true, silent = true, desc = "Delete previous word consistently" })
 
 -- ctrl delete in insert mode
 vim.keymap.set("i", "<C-Del>", function()
-	local col = vim.api.nvim_win_get_cursor(0)[2]
-	local line = vim.api.nvim_get_current_line()
-	if col >= #line then
-		return "<Del>"
-	else
-		return "<C-o>dw"
-	end
+    local col = vim.api.nvim_win_get_cursor(0)[2]
+    local line = vim.api.nvim_get_current_line()
+    if col >= #line then
+        return "<Del>"
+    else
+        return "<C-o>dw"
+    end
 end, { noremap = true, silent = true, expr = true, desc = "Delete next word, <Del> if end of line" })
 
 -- ==============
@@ -114,10 +127,10 @@ vim.keymap.set("i", "<C-v>", "<C-o>P", { noremap = true, silent = true, desc = "
 -- ==================
 
 vim.keymap.set(
-	"n",
-	"<leader>s",
-	":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>",
-	{ noremap = true, silent = true, desc = "Search and replace" }
+    "n",
+    "<leader>s",
+    ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>",
+    { noremap = true, silent = true, desc = "Search and replace" }
 )
 
 -- clear last search highlight
@@ -133,27 +146,27 @@ vim.keymap.set("i", "<End>", "<Esc>$a", { noremap = true, silent = true, desc = 
 -- turn on wrap and linebreak for current window
 -- function to close no name buffers
 function _G.close_no_name_buffers()
-	local bufnr_list = vim.api.nvim_list_bufs()
-	for _, bufnr in ipairs(bufnr_list) do
-		if vim.api.nvim_buf_get_name(bufnr) == "" then
-			vim.api.nvim_buf_delete(bufnr, { force = true })
-		end
-	end
+    local bufnr_list = vim.api.nvim_list_bufs()
+    for _, bufnr in ipairs(bufnr_list) do
+        if vim.api.nvim_buf_get_name(bufnr) == "" then
+            vim.api.nvim_buf_delete(bufnr, { force = true })
+        end
+    end
 end
 
 vim.keymap.set("n", "<leader>ww", function()
-	vim.wo.wrap = true
-	vim.wo.linebreak = true
-	return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
-		.. (vim.v.count ~= 0 and vim.v.count or 125) -- linewidth is 120, add 5 to account for line numbers
-		.. "|"
+    vim.wo.wrap = true
+    vim.wo.linebreak = true
+    return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
+        .. (vim.v.count ~= 0 and vim.v.count or 125) -- linewidth is 120, add 5 to account for line numbers
+        .. "|"
 end, { expr = true, noremap = true, silent = true, desc = "Wrap current window" })
 
 -- turn off wrap and linebreak for current window, close no name buffers
 vim.keymap.set("n", "<leader>wu", function()
-	vim.wo.wrap = false
-	vim.wo.linebreak = false
-	vim.cmd("lua close_no_name_buffers()")
+    vim.wo.wrap = false
+    vim.wo.linebreak = false
+    vim.cmd("lua close_no_name_buffers()")
 end, { noremap = true, silent = true, desc = "Unwrap current window" })
 
 -- Navigation with wrap enabled:
@@ -168,37 +181,61 @@ vim.keymap.set("n", "<Up>", "gk", { noremap = true })
 vim.keymap.set("n", "<Down>", "gj", { noremap = true })
 vim.keymap.set("x", "<Up>", "gk", { noremap = true })
 vim.keymap.set("x", "<Down>", "gj", { noremap = true })
-vim.keymap.set("i", "<Up>", "<C-o>gk", { noremap = true })
-vim.keymap.set("i", "<Down>", "<C-o>gj", { noremap = true })
+local function move_cursor_visual(lines)
+    local count = math.abs(lines)
+    local key = lines > 0 and "gj" or "gk"
+    vim.cmd.normal({ tostring(count) .. key, bang = true })
+end
+
+vim.keymap.set("i", "<Up>", function()
+    move_cursor_visual(-1)
+end, { noremap = true, silent = true })
+
+vim.keymap.set("i", "<Down>", function()
+    move_cursor_visual(1)
+end, { noremap = true, silent = true })
+
+--vim.keymap.set("i", "<Up>", "<C-o>gk", { noremap = true })
+--vim.keymap.set("i", "<Down>", "<C-o>gj", { noremap = true })
 
 -- ===========================
 -- Surround plugin replacement
 -- ===========================
 
 -- surround with quotes, '''''', brackets, etc. in visual mode (non block, only regular)
-vim.keymap.set("v", "'", "c''<Esc>P", { noremap = true, silent = true, desc = "Add single quotes" })
-vim.keymap.set("v", '"', 'c""<Esc>P', { noremap = true, silent = true, desc = "Add double quotes" })
-vim.keymap.set("v", "`", "c``<Esc>P", { noremap = true, silent = true, desc = "Add backticks" })
-vim.keymap.set("v", "(", "c()<Esc>P", { noremap = true, silent = true, desc = "Add parentheses" })
-vim.keymap.set("v", ")", "c()<Esc>P", { noremap = true, silent = true, desc = "Add parentheses" })
-vim.keymap.set("v", "[", "c[]<Esc>P", { noremap = true, silent = true, desc = "Add brackets" })
-vim.keymap.set("v", "]", "c[]<Esc>P", { noremap = true, silent = true, desc = "Add brackets" })
-vim.keymap.set("v", "{", "c{}<Esc>P", { noremap = true, silent = true, desc = "Add curly braces" })
-vim.keymap.set("v", "}", "c{}<Esc>P", { noremap = true, silent = true, desc = "Add curly braces" })
-vim.keymap.set("v", "<", "c<><Esc>P", { noremap = true, silent = true, desc = "Add angle brackets" })
-vim.keymap.set("v", ">", "c<><Esc>P", { noremap = true, silent = true, desc = "Add angle brackets" })
 
--- surround with triple quotes ('''''', """""", ``````, etc.) in visual mode (non block, only regular)
-vim.keymap.set("v", "<Leader>'", "c''''''<Esc>3hp", { noremap = true, silent = true, desc = "Add triple quotes" })
-vim.keymap.set("v", '<Leader>"', 'c""""""<Esc>3hp', { noremap = true, silent = true, desc = "Add triple quotes" })
-vim.keymap.set("v", "<Leader>`", "c``````<Esc>3hp", { noremap = true, silent = true, desc = "Add triple backticks" })
+local surround_mappings = {
+    { "v", "'",                          "c''<Esc>P",                          "Add single quotes" },
+    { "v", '"',                          'c""<Esc>P',                          "Add double quotes" },
+    { "v", "`",                          "c``<Esc>P",                          "Add backticks" },
+    { "v", { "(", ")" },                 "c()<Esc>P",                          "Add parentheses" },
+    { "v", { "[", "]" },                 "c[]<Esc>P",                          "Add brackets" },
+    { "v", { "{", "}" },                 "c{}<Esc>P",                          "Add curly braces" },
+    { "v", { "<", ">" },                 "c<><Esc>P",                          "Add angle brackets" },
+    -- surround with triple quotes ('''''', """""", ``````, etc.) in visual mode (non block, only regular)
+    { "v", "<Leader>'",                  "c''''''<Left><Left><Left><CR><Esc>p" },
+    { "v", '<Leader>"',                  'c""""""<Left><Left><Left><CR><Esc>p' },
+    { "v", "<Leader>`",                  "c``````<Left><Left><Left><CR><Esc>p" },
+    -- surround with double brackets, double parentheses, double curly braces, etc. in visual mode (non block, only regular)
+    { "v", { "<Leader>(", "<Leader>)" }, "c(())<Esc>2hp",                      "Add double parentheses" },
+    { "v", { "<Leader>[", "<Leader]" },  "c[[]]<Esc>2hp",                      "Add double brackets" },
+    { "v", { "<Leader>{", "<Leader}" },  "c{{}}<Esc>2hp",                      "Add double curly braces" },
+    { "v", { "<Leader><", "<Leader>>" }, "c<<>><Esc>2hp",                      "Add double angle brackets" },
+}
+map(surround_mappings)
+vim.keymap.set("i", "<Esc>", function()
+    -- Get insert-mode cursor position before leaving insert mode
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
--- surround with double brackets, double parentheses, double curly braces, etc. in visual mode (non block, only regular)
-vim.keymap.set("v", "<Leader>(", "c(()))<Esc>2hp", { noremap = true, silent = true, desc = "Add double parentheses" })
-vim.keymap.set("v", "<Leader>)", "c(()))<Esc>2hp", { noremap = true, silent = true, desc = "Add double parentheses" })
-vim.keymap.set("v", "<Leader>[", "c[[]]<Esc>2hp", { noremap = true, silent = true, desc = "Add double brackets" })
-vim.keymap.set("v", "<Leader>]", "c[[]]<Esc>2hp", { noremap = true, silent = true, desc = "Add double brackets" })
-vim.keymap.set("v", "<Leader>{", "c{{}}<Esc>2hp", { noremap = true, silent = true, desc = "Add double curly braces" })
-vim.keymap.set("v", "<Leader>}", "c{{}}<Esc>2hp", { noremap = true, silent = true, desc = "Add double curly braces" })
-vim.keymap.set("v", "<Leader><", "c<<>><Esc>2hp", { noremap = true, silent = true, desc = "Add double angle brackets" })
-vim.keymap.set("v", "<Leader>>", "c<<>><Esc>2hp", { noremap = true, silent = true, desc = "Add double angle brackets" })
+    -- After <Esc>, cursor moves left: compensate by moving right again
+    -- Save a deferred function to run after exiting insert mode
+    vim.schedule(function()
+        local line_length = #vim.api.nvim_get_current_line()
+        if col > 0 and col <= line_length then
+            vim.api.nvim_win_set_cursor(0, { row, col })
+        end
+    end)
+
+    -- Exit insert mode
+    return "<Esc>"
+end, { expr = true, noremap = true })

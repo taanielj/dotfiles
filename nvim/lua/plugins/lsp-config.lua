@@ -41,39 +41,37 @@ return {
                     map("<leader>lp", vim.diagnostic.goto_prev, "Previous diagnostic")
                     map("<leader>lq", require("telescope.builtin").diagnostics, "Search diagnostics")
                     map("gD", vim.lsp.buf.declaration, "Go to declaration")
-                    map("K", vim.lsp.buf.hover, "Show hover doc")
                     map("<leader>la", vim.lsp.buf.code_action, "Code action", { "n", "x" })
 
+                    -- map("K", vim.lsp.buf.hover, "Show hover doc")
+
                     -- Highlight references on cursor hold
-                    -- local client = vim.lsp.get_client_by_id(event.data.client_id)
-                    -- if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-                    --     vim.opt.updatetime = 1000
-                    --     local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
-                    --     vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-                    --         buffer = event.buf,
-                    --         group = highlight_augroup,
-                    --         callback = function()
-                    --             local winid = require("ufo").peekFoldedLinesUnderCursor()
-                    --             if not winid then
-                    --                 vim.lsp.buf.hover()
-                    --             end
-                    --         end,
-                    --     })
-                    --
-                    --     vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-                    --         buffer = event.buf,
-                    --         group = highlight_augroup,
-                    --         callback = vim.lsp.buf.clear_references,
-                    --     })
-                    --
-                    --     vim.api.nvim_create_autocmd("LspDetach", {
-                    --         group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
-                    --         callback = function(event2)
-                    --             vim.lsp.buf.clear_references()
-                    --             vim.api.nvim_clear_autocmds({ group = "lsp-highlight", buffer = event2.buf })
-                    --         end,
-                    --     })
-                    -- end
+                    local client = vim.lsp.get_client_by_id(event.data.client_id)
+                    if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+                        vim.opt.updatetime = 300
+                        local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
+                        vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+                            buffer = event.buf,
+                            group = highlight_augroup,
+                            callback = function()
+                                vim.lsp.buf.document_highlight()
+                            end,
+                        })
+
+                        vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+                            buffer = event.buf,
+                            group = highlight_augroup,
+                            callback = vim.lsp.buf.clear_references,
+                        })
+
+                        vim.api.nvim_create_autocmd("LspDetach", {
+                            group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
+                            callback = function(event2)
+                                vim.lsp.buf.clear_references()
+                                vim.api.nvim_clear_autocmds({ group = "lsp-highlight", buffer = event2.buf })
+                            end,
+                        })
+                    end
 
                     if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                         map("<leader>lh", function()
@@ -137,12 +135,12 @@ return {
             })
 
             -- lspconfig.ruff.setup({ruff
-            -- 	capabilities = capabilities,
-            -- 	settings = {
-            -- 		args = {
-            -- 			"--line-length=120",
-            -- 		},
-            -- 	},
+            --  capabilities = capabilities,
+            --  settings = {
+            --      args = {
+            --          "--line-length=120",
+            --      },
+            --  },
             -- })
             -- docker language server
             lspconfig.dockerls.setup({ capabilities = capabilities })

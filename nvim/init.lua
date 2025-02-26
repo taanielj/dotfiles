@@ -17,6 +17,7 @@ require("vim-options")
 -- Load .lua/keybinds.lua Contains keybinds not related to plugins
 require("keybinds")
 -- load plugins automatically in lua/plugins folder
+require("autocmd")
 require("lazy").setup("plugins")
 
 function ReloadPlugins()

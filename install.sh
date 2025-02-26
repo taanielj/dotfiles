@@ -36,7 +36,7 @@ PACKAGES=(
     # programming languages
     "python"
     "node"
-    "go"
+#   "go"
 )
 
 need_sudo() {
@@ -127,10 +127,10 @@ quiet_brew() {
 }
 
 install_eza() {
-    $(need_sudo) mkdir -p /etc/apt/keyrings &&
-        $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza.gpg &&
-        $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list &&
-        $(need_sudo) apt update && apt install -y eza
+    $(need_sudo) mkdir -p /etc/apt/keyrings 
+    $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza. > /dev/null 2>&1
+    $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list > /dev/null 2>&1
+    $(need_sudo) apt update && $(need_sudo) apt install -y eza > /dev/null 2>&1
 }
 
 install_go() {
@@ -177,7 +177,7 @@ install_go_ubuntu() {
 }
 
 install_nvim() {
-    wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim
+    wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim 
     $(need_sudo) mv /tmp/nvim /usr/local/bin/nvim
     $(need_sudo) chmod +x /usr/local/bin/nvim
 }
@@ -319,12 +319,13 @@ configure_tmux() {
     fi
     # Install TPM
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    rm -f "$HOME/.tmux.conf"
     ln -sf "$REPO_DIR/tmux.conf" "$HOME/.tmux.conf"
 
     # Install plugins
     tmux start-server
     tmux new-session -d
-    "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
+    "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"?
     tmux kill-server
 }
 

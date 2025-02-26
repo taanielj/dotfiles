@@ -10,8 +10,8 @@ return {
                 show_end = false,
             },
             indent = {
-                char = "▏",
-                --highlight = { "CursorColumn", "Whitespace" },
+                char = "",
+                tab_char = "·",
             },
         })
     end,
