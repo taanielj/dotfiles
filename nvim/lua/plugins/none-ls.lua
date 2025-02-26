@@ -1,7 +1,7 @@
 return {
     "nvimtools/none-ls.nvim",
     config = function()
-        local null_ls = require("null-ls")
+        local null_ls = require "null-ls"
         null_ls.setup({
             sources = {
                 null_ls.builtins.formatting.shfmt.with({
@@ -23,6 +23,7 @@ return {
             vim.lsp.buf.format({ timeout_ms = 5000 })
             vim.cmd("retab")
             vim.cmd("silent! loadview")
+            vim.cmd("retab")
         end
         vim.keymap.set("n", "<leader>m", call_formatter, { desc = "Format" })
     end,

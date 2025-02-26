@@ -5,12 +5,12 @@ return {
     config = function()
         require("ibl").setup({
             scope = {
-                char = "▏",
+                char = "▎",
                 show_start = false,
                 show_end = false,
             },
             indent = {
-                char = "",
+                char = "▏",
                 tab_char = "·",
             },
         })

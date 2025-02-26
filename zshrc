@@ -416,9 +416,7 @@ reset_repo() {
         echo -e "\033[1;31mError: Not in a git repository. Please navigate to a git repo and try again.\033[0m"
         return 1
     fi
-
     cd "$REPO_ROOT" || return 1  # Move to repo root
-
     # Get the repo name from git remote
     GIT_REMOTE=$(git remote get-url origin 2>/dev/null)
     if [[ -z "$GIT_REMOTE" ]]; then
@@ -426,14 +424,9 @@ reset_repo() {
         return 1
     fi
 
-    # Extract repo name from the remote URL
-    REPO_NAME=$(basename -s .git "$GIT_REMOTE")
-    PARENT_DIR=$(dirname "$REPO_ROOT")
-    NEW_REPO_NAME="${REPO_NAME}-vs"
-
     echo -e "Root Repo Path: \033[1;34m$REPO_ROOT\033[0m"
     echo -e "Git Remote: \033[1;34m$GIT_REMOTE\033[0m"
-    echo -e "New Clone Path: \033[1;34m$PARENT_DIR/$NEW_REPO_NAME\033[0m"
+    echo -e "New Clone Path: \033[1;34m$REPO_ROOT/\033[0m"
 
     # 🚨 Prevent execution if there are uncommitted changes
     if [[ -n "$(git status --porcelain)" ]]; then
@@ -457,13 +450,13 @@ reset_repo() {
         return 1
     fi
 
-    echo -e "\033[1;33mDeleting and recloning into: $PARENT_DIR/$NEW_REPO_NAME\033[0m"
+    echo -e "\033[1;33mDeleting and recloning into: $REPO_ROOT\033[0m" 
 
     # Delete old repo and reclone
-    cd "$PARENT_DIR" || return 1
-    rm -rf "$NEW_REPO_NAME"
-    git clone "$GIT_REMOTE" "$NEW_REPO_NAME"
-    cd "$NEW_REPO_NAME" || return 1
+    cd $REPO_ROOT && cd .. || return 1
+    rm -rf "$REPO_ROOT" || return 1
+    git clone "$GIT_REMOTE" "$REPO_ROOT" || return 1
+    cd "$REPO_ROOT" || return 1
 
     echo -e "\033[1;32mRepository reset complete.\033[0m"
 }

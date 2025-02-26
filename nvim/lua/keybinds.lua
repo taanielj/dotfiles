@@ -60,6 +60,7 @@ local select_mappings = {
     { "i",               "<S-Right>", "<Esc>lv",   "Select right" },
     { "i",               "<S-Home>",  "<Esc>lv",   "Select to beginning of line" },
     { "i",               "<S-End>",   "<Esc>lv$h", "Select to end of line" }, -- without newline, hit S-End again to include newline
+    { "i",               "<Home>",    "<Esc>^i",   "Move to beginning of text" },
     -- Ignore Shift key in visual mode and visual mode home and end keys
     { "v",               "<S-Up>",    "k",         "Move up" },
     { "v",               "<S-Down>",  "j",         "Move down" },
@@ -79,7 +80,6 @@ map(select_mappings)
 -- Deleting text
 -- =============
 -- ctrl backspace in insert delete
-
 vim.keymap.set("i", "<C-H>", function()
     local col = vim.fn.col(".")
     if col == 1 then
@@ -89,12 +89,10 @@ vim.keymap.set("i", "<C-H>", function()
 
     -- Get the character before the cursor
     local prev_char = vim.fn.getline("."):sub(col - 1, col - 1)
-
     if prev_char:match("%s") then
         -- If previous character is whitespace, delete it and previous word
         return "<C-o>db"
     else
-        -- Otherwise, delete the previous word
         return "<C-o>dB"
     end
 end, { noremap = true, expr = true, silent = true, desc = "Delete previous word consistently" })
@@ -136,8 +134,6 @@ vim.keymap.set(
 -- clear last search highlight
 vim.keymap.set("n", "<Esc>", ":let @/=''<CR>", { noremap = true, silent = true, desc = "Clear search highlight" })
 -- home and end in insert mode
-vim.keymap.set("i", "<Home>", "<Esc>0i", { noremap = true, silent = true, desc = "Move to beginning of line" })
-vim.keymap.set("i", "<End>", "<Esc>$a", { noremap = true, silent = true, desc = "Move to end of line" })
 
 -- ===============
 -- Wrap and unwrap
@@ -239,3 +235,11 @@ vim.keymap.set("i", "<Esc>", function()
     -- Exit insert mode
     return "<Esc>"
 end, { expr = true, noremap = true })
+
+-- been using vs-code again, adding ctrl-s to save in all modes:
+map {
+    { "n", "<C-s>", "<Cmd>w<CR>", "Save file" },
+    { "i", "<C-s>", "<Cmd>w<CR>", "Save file" },
+    { "v", "<C-s>", "<Cmd>w<CR>", "Save file" },
+}
+

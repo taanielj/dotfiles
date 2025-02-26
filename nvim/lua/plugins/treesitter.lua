@@ -3,6 +3,7 @@ return {
 	build = ":TSUpdate",
 	config = function()
 		local config = require("nvim-treesitter.configs")
+		---@diagnostic disable-next-line
 		config.setup({
 			auto_install = true,
 			highlight = { enable = true },
