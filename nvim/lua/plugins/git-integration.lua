@@ -80,5 +80,7 @@ return {
             "nvim-telescope/telescope.nvim",
         },
         config = true,
+
+        vim.keymap.set("n", "<leader>gn", "<Cmd>Neogit kind=floating<CR>", { desc = "Open Neogit" }),
     },
 }
