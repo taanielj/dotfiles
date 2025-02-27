@@ -7,7 +7,7 @@
 ####################
 
 # Repository directory
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(git rev-parse --show-toplevel)"
 
 # Define packages that should be installed across all environments
 PACKAGES=(
@@ -313,20 +313,29 @@ configure_tmux() {
         return 1
     fi
 
-    if [ -n "$TMUX" ]; then
-        echo "Re-run this script outside of tmux to update tmux configuration. Skipping."
-        return 0
-    fi
     # Install TPM
     git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+
     rm -f "$HOME/.tmux.conf"
     ln -sf "$REPO_DIR/tmux.conf" "$HOME/.tmux.conf"
 
+    # Ensure tmux is running before installing plugins
+    if ! tmux list-sessions &>/dev/null; then
+        tmux start-server
+        tmux new-session -d
+    fi
+
     # Install plugins
-    tmux start-server
-    tmux new-session -d
-    "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"?
-    tmux kill-server
+    "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
+
+    # Source new configuration
+    tmux source-file ~/.tmux.conf
+    echo "Tmux configuration updated."
+
+    # Cleanup: If we started tmux, kill it (but only if no real sessions exist)
+    if ! tmux list-sessions &>/dev/null; then
+        tmux kill-server
+    fi
 }
 
 configure_nvim() {
@@ -377,15 +386,15 @@ install_packages() {
         case $os in
         ubuntu | debian)
             echo "Installing batch packages with apt: ${to_install[*]}"
-            $(need_sudo) apt-get install -y "${to_install[@]}"
+            $(need_sudo) apt-get install -y "${to_install[@]}" -qq
             ;;
         macos)
             echo "Installing batch packages with brew: ${to_install[*]}"
-            quiet_brew install "${to_install[@]}"
+            quiet_brew install "${to_install[@]}" >/dev/null
             ;;
         termux)
             echo "Installing batch packages with pkg: ${to_install[*]}"
-            pkg install -y "${to_install[@]}"
+            pkg install -y "${to_install[@]}" >/dev/null
             ;;
         esac
     fi
