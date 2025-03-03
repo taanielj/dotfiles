@@ -201,24 +201,24 @@ end, { noremap = true, silent = true })
 -- surround with quotes, '''''', brackets, etc. in visual mode (non block, only regular)
 
 local surround_mappings = {
-    { "v", "'",                          "c''<Esc>P",                          "Add single quotes" },
-    { "v", '"',                          'c""<Esc>P',                          "Add double quotes" },
-    { "v", "`",                          "c``<Esc>P",                          "Add backticks" },
-    { "v", { "(", ")" },                 "c()<Esc>P",                          "Add parentheses" },
-    { "v", { "[", "]" },                 "c[]<Esc>P",                          "Add brackets" },
-    { "v", { "{", "}" },                 "c{}<Esc>P",                          "Add curly braces" },
-    { "v", { "<", ">" },                 "c<><Esc>P",                          "Add angle brackets" },
+    { "v", "'",                          "c''<Esc>P",       "Add single quotes" },
+    { "v", '"',                          'c""<Esc>P',       "Add double quotes" },
+    { "v", "`",                          "c``<Esc>P",       "Add backticks" },
+    { "v", { "(", ")" },                 "c()<Esc>P",       "Add parentheses" },
+    { "v", { "[", "]" },                 "c[]<Esc>P",       "Add brackets" },
+    { "v", { "{", "}" },                 "c{}<Esc>P",       "Add curly braces" },
+    { "v", { "<", ">" },                 "c<><Esc>P",       "Add angle brackets" },
     -- surround with triple quotes ('''''', """""", ``````, etc.) in visual mode (non block, only regular)
-    { "v", "<Leader>'",                  "c''''''<Left><Left><Left><CR><Esc>p" },
-    { "v", '<Leader>"',                  'c""""""<Left><Left><Left><CR><Esc>p' },
-    { "v", "<Leader>`",                  "c``````<Left><Left><Left><CR><Esc>p" },
+    { "v", "<Leader>'",                  "c''''''<Esc>2hp", "Add triple single quotes" },
+    { "v", '<Leader>"',                  'c""""""<Esc>2hp', "Add triple double quotes" },
+    { "v", "<Leader>`",                  "c``````<Esc>2hp", "Add triple backticks" },
     -- surround with double brackets, double parentheses, double curly braces, etc. in visual mode (non block, only regular)
-    { "v", { "<Leader>(", "<Leader>)" }, "c(())<Esc>2hp",                      "Add double parentheses" },
-    { "v", { "<Leader>[", "<Leader]" },  "c[[]]<Esc>2hp",                      "Add double brackets" },
-    { "v", { "<Leader>{", "<Leader}" },  "c{{}}<Esc>2hp",                      "Add double curly braces" },
-    { "v", { "<Leader><", "<Leader>>" }, "c<<>><Esc>2hp",                      "Add double angle brackets" },
+    { "v", { "<Leader>(", "<Leader>)" }, "c(())<Esc>2hp",   "Add double parentheses" },
+    { "v", { "<Leader>[", "<Leader]" },  "c[[]]<Esc>2hp",   "Add double brackets" },
+    { "v", { "<Leader>{", "<Leader}" },  "c{{}}<Esc>2hp",   "Add double curly braces" },
+    { "v", { "<Leader><", "<Leader>>" }, "c<<>><Esc>2hp",   "Add double angle brackets" },
 }
-map(surround_mappings)
+
 vim.keymap.set("i", "<Esc>", function()
     -- Get insert-mode cursor position before leaving insert mode
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -237,9 +237,8 @@ vim.keymap.set("i", "<Esc>", function()
 end, { expr = true, noremap = true })
 
 -- been using vs-code again, adding ctrl-s to save in all modes:
-map {
+map({
     { "n", "<C-s>", "<Cmd>w<CR>", "Save file" },
     { "i", "<C-s>", "<Cmd>w<CR>", "Save file" },
     { "v", "<C-s>", "<Cmd>w<CR>", "Save file" },
-}
-
+})
