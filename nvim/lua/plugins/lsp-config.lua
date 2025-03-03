@@ -15,7 +15,7 @@ return {
         "neovim/nvim-lspconfig",
         dependencies = {
             { "williamboman/mason.nvim", opts = {} },
-            { "j-hui/fidget.nvim",       opt = true },
+            { "j-hui/fidget.nvim", opt = true },
             "hrsh7th/cmp-nvim-lsp",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -133,18 +133,6 @@ return {
                     },
                 },
             })
-
-            -- lspconfig.ruff.setup({ruff
-            --  capabilities = capabilities,
-            --  settings = {
-            --      args = {
-            --          "--line-length=120",
-            --      },
-            --  },
-            -- })
-            -- docker language server
-            lspconfig.dockerls.setup({ capabilities = capabilities })
-            -- html-lsp
             lspconfig.html.setup({
                 capabilities = capabilities,
                 configurationSection = { "html", "css", "javascript" },
@@ -154,15 +142,13 @@ return {
                 },
                 provideFormatter = true,
             })
-            -- eslint language server
+            lspconfig.marksman.setup({ capabilities = capabilities })
+            lspconfig.dockerls.setup({ capabilities = capabilities })
+            lspconfig.gopls.setup({ capabilities = capabilities })
             lspconfig.eslint.setup({ capabilities = capabilities })
-            -- css language server
             lspconfig.cssls.setup({ capabilities = capabilities })
-            -- terraform language server
             lspconfig.terraformls.setup({ capabilities = capabilities })
-            -- sql language server
             lspconfig.sqlls.setup({ capabilities = capabilities })
-            -- bash language server
             lspconfig.bashls.setup({
                 filetypes = { "sh", "zsh", "bash" },
                 capabilities = capabilities,
@@ -171,8 +157,6 @@ return {
                 capabilities = capabilities,
                 filetypes = { "yaml", "yml" },
             })
-            -- go language server
-            lspconfig.gopls.setup({ capabilities = capabilities })
             require("mason-lspconfig").setup({
                 automatic_installation = true,
                 ensure_installed = {
@@ -188,6 +172,7 @@ return {
                     "bashls",
                     "gopls",
                     "hydra_lsp",
+                    "marksman",
                 },
             })
             vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")
