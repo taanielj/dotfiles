@@ -36,7 +36,7 @@ PACKAGES=(
     # programming languages
     "python"
     "node"
-#   "go"
+    #   "go"
 )
 
 need_sudo() {
@@ -127,10 +127,10 @@ quiet_brew() {
 }
 
 install_eza() {
-    $(need_sudo) mkdir -p /etc/apt/keyrings 
-    $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza. > /dev/null 2>&1
-    $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list > /dev/null 2>&1
-    $(need_sudo) apt update && $(need_sudo) apt install -y eza > /dev/null 2>&1
+    $(need_sudo) mkdir -p /etc/apt/keyrings
+    $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza. >/dev/null 2>&1
+    $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list >/dev/null 2>&1
+    $(need_sudo) apt update && $(need_sudo) apt install -y eza >/dev/null 2>&1
 }
 
 install_go() {
@@ -177,7 +177,7 @@ install_go_ubuntu() {
 }
 
 install_nvim() {
-    wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim 
+    wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim
     $(need_sudo) mv /tmp/nvim /usr/local/bin/nvim
     $(need_sudo) chmod +x /usr/local/bin/nvim
 }
@@ -295,15 +295,18 @@ configure_zsh() {
     rm -rf "$HOME/.oh-my-zsh"
 
     # Install oh-my-zsh
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
+    rm ~$HOME/.zshrc.pre-oh-my-zsh # no need for backup, we have git
     # Install plugins and theme
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-    git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions >/dev/null
+    # git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+    git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab >/dev/null
     # Create symlinks
-    ln -sf "$REPO_DIR/zshrc" "$HOME/.zshrc"
-    ln -sf "$REPO_DIR/p10k.zsh" "$HOME/.p10k.zsh"
+    ln -sf "$REPO_DIR/zsh/zshrc" "$HOME/.zshrc"
+    ln -sf "$REPO_DIR/zsh/p10k.zsh" "$HOME/.p10k.zsh"
+    # Modules
+    ln -sf "$REPO_DIR/zsh/python.zsh" "$HOME/.zshrc.python"
+    ln -sf "$REPO_DIR/zsh/git.zsh" "$HOME/.zshrc.git"
 }
 
 configure_tmux() {
