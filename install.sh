@@ -295,18 +295,19 @@ configure_zsh() {
     rm -rf "$HOME/.oh-my-zsh"
 
     # Install oh-my-zsh
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
-    rm ~$HOME/.zshrc.pre-oh-my-zsh # no need for backup, we have git
-    # Install plugins and theme
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions >/dev/null
-    # git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-    git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab >/dev/null
+    {
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended 
+        rm ~$HOME/.zshrc.pre-oh-my-zsh # no need for backup, we have git
+        # Install plugins and theme
+        git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+        git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab
+    } >/dev/null
     # Create symlinks
     ln -sf "$REPO_DIR/zsh/zshrc" "$HOME/.zshrc"
     ln -sf "$REPO_DIR/zsh/p10k.zsh" "$HOME/.p10k.zsh"
     # Modules
     ln -sf "$REPO_DIR/zsh/python.zsh" "$HOME/.zshrc.python"
-    ln -sf "$REPO_DIR/zsh/git.zsh" "$HOME/.zshrc.git"
 }
 
 configure_tmux() {
