@@ -227,3 +227,4 @@ update_reqs() {
     fi
 }
 
+alias pipr='pip install -r <(printf "%s\n" "$@" | tee -a requirements.txt)'
