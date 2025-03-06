@@ -453,7 +453,7 @@ main() {
     fi
 
     echo "Installation completed successfully!"
-    echo "Please restart your terminal or run $(exec zsh --login) to apply all changes."
+    echo "Please restart your terminal or run exec zsh to apply all changes."
 }
 
 # Run main function
