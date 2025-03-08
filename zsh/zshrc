@@ -239,6 +239,25 @@ reset_repo() {
     echo -e "\033[1;32mRepository reset complete.\033[0m"
 }
 
+tmux() {
+    # If arguments are provided, run tmux normally
+    [[ $# -ne 0 ]] && command tmux "$@" && return
+
+    # If already inside tmux, create a new window and switch to it
+    [[ -n "$TMUX" ]] && command tmux new-window && return
+
+    # If session 0 exists and is detached, attach to it
+    if tmux has-session -t 0 2>/dev/null; then
+        if [[ $(tmux list-sessions -F '#{session_name} #{session_attached}' | awk '$1 == "0" {print $2}') -eq 0 ]]; then
+            command tmux attach-session -t 0
+            return
+        fi
+    fi
+
+    # Otherwise, start a new tmux session
+    command tmux
+}
+
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
