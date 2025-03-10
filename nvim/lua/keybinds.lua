@@ -219,6 +219,16 @@ local surround_mappings = {
     { "v", { "<Leader><", "<Leader>>" }, "c<<>><Esc>2hp",                      "Add double angle brackets" },
 }
 
+for _, m in ipairs(surround_mappings) do
+    local modes, keys, cmd, desc = m[1], m[2], m[3], m[4]
+    if type(keys) == "string" then
+        keys = { keys }
+    end
+    for _, key in ipairs(keys) do
+        vim.keymap.set(modes, key, cmd, { noremap = true, silent = true, desc = desc })
+    end
+end
+
 vim.keymap.set("i", "<Esc>", function()
     -- Get insert-mode cursor position before leaving insert mode
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
