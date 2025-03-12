@@ -12,11 +12,34 @@ vim.api.nvim_create_autocmd({ "InsertLeave" }, {
     end,
 })
 
-vim.api.nvim_create_autocmd("FileType", {
+vim.api.nvim_create_autocmd({ "FileType" }, {
     group = vim.api.nvim_create_augroup("NeotreeNoFoldColumn", { clear = true }),
     pattern = { "neo-tree", "neotree" },
     callback = function()
+        vim.cmd([[
+            aunmenu PopUp
+            anoremenu PopUp.Open   <cmd>lua require('neotree').open()<CR>
+        ]])
         require("ufo").detach()
         vim.opt_local.foldenable = false
+    end,
+})
+
+-- Highlight on yank
+vim.api.nvim_create_autocmd("TextYankPost", {
+    desc = "Highlight on yank",
+    group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
+    callback = function()
+        vim.highlight.on_yank({ higroup = "Visual", timeout = 200 })
+    end,
+})
+
+vim.api.nvim_create_autocmd({ "FileType" }, {
+    group = vim.api.nvim_create_augroup("NeotreeNoFoldColumn", { clear = true }),
+    pattern = { "markdown" },
+    callback = function()
+        -- set tabstop=2
+        vim.cmd("setlocal tabstop=2")
+        vim.cmd("setlocal shiftwidth=2")
     end,
 })

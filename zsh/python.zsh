@@ -1,4 +1,3 @@
-
 __check_python_env() {
     # Set preferred Python version/command
     declare -a python_versions=(
@@ -64,7 +63,7 @@ __resolve_venv_path() {
         done
     fi
 
-    venv_dir="${venv_dir:-.venv}"  # Default to .venv if nothing found
+    venv_dir="${venv_dir:-.venv}" # Default to .venv if nothing found
 
     # If the path is already absolute, return it
     if [[ "$venv_dir" == /* ]]; then
@@ -104,7 +103,7 @@ __require_reqs() {
 }
 
 venv() {
-    if [[ -n "$VIRTUAL_ENV" && -x "$VIRTUAL_ENV/bin/python" ]]; then        
+    if [[ -n "$VIRTUAL_ENV" && -x "$VIRTUAL_ENV/bin/python" ]]; then
         echo "Virtual environment already activated: $VIRTUAL_ENV"
         echo "Options: rm_venv to remove, reset_venv to recreate, deactivate to close venv."
         return
@@ -127,7 +126,7 @@ venv() {
     source "$venv_path/bin/activate"
     python -m pip install --upgrade pip
     echo "Virtual environment created and activated: $VIRTUAL_ENV"
-    
+
     if __require_reqs &>/dev/null; then
         if __confirm_action "Would you like to install the requirements?"; then
             reqs
@@ -152,8 +151,6 @@ rm_venv() {
     rm -rf "$venv_path"
     echo "Virtual environment removed: $venv_path"
 }
-
-
 
 reset_venv() {
     local venv_path
@@ -194,7 +191,8 @@ update_reqs() {
         sed -i 's/==.*//g' requirements.txt
     fi
 
-    # Step 2: Install all packages from requirements.txt
+    # Step 2: Update pip and install the latest versions of packages from requirements.txt
+    python -m pip install --upgrade pip
     python -m pip install --upgrade -r requirements.txt
 
     # Step 3: Get the installed package versions from pip freeze
@@ -206,18 +204,18 @@ update_reqs() {
             # Preserve empty lines and comments as is
             echo "$line"
         else
-            base_req=$(echo "$line" | sed 's/\[.*\]//')  # Strip extras to match pip freeze
+            base_req=$(echo "$line" | sed 's/\[.*\]//') # Strip extras to match pip freeze
             # Perform a case-insensitive match against pip freeze
             frozen_line=$(echo "$frozen_reqs" | grep -i -m 1 "^${base_req}==")
             if [[ -n $frozen_line ]]; then
                 # Append the version to the existing line
-                echo "${line}==${frozen_line##*==}"  # Extract and append version
+                echo "${line}==${frozen_line##*==}" # Extract and append version
             else
                 # If no version is found, keep the line unchanged
                 echo "$line"
             fi
         fi
-    done < requirements.txt > requirements.tmp
+    done <requirements.txt >requirements.tmp
 
     # Replace the old requirements.txt with the updated file
     mv requirements.tmp requirements.txt

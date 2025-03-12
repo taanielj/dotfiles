@@ -177,9 +177,10 @@ install_go_ubuntu() {
 }
 
 install_nvim() {
-    wget https://github.com/neovim/neovim-releases/releases/latest/download/nvim-linux-x86_64.appimage -O /tmp/nvim
-    $(need_sudo) mv /tmp/nvim /usr/local/bin/nvim
-    $(need_sudo) chmod +x /usr/local/bin/nvim
+    echo "Installing Neovim stable..."
+    $(need_sudo) add-apt-repository ppa:neovim-ppa/stablesudo add-apt-repository ppa:neovim-ppa/stable
+    $(need_sudo) apt-get update -qq
+    $(need_sudo) apt-get install neovim -y -qq
 }
 
 install_lazygit() {
@@ -297,14 +298,12 @@ configure_zsh() {
     # Install oh-my-zsh
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
     rm ~$HOME/.zshrc.pre-oh-my-zsh # no need for backup, we have git
-        # Install plugins and theme
+    # Install plugins and theme
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
     # Create symlinks
-    ln -sf "$REPO_DIR/zsh/zshrc" "$HOME/.zshrc"
-    ln -sf "$REPO_DIR/zsh/p10k.zsh" "$HOME/.p10k.zsh"
-    ln -sf "$REPO_DIR/zsh/oh-my-posh-taaniel.omp.json" "$HOME/.oh-my-posh.omp.json"
-    # Modules
-    ln -sf "$REPO_DIR/zsh/python.zsh" "$HOME/.zshrc.python"
+    ln -sf "$REPO_DIR/zsh/zshrc.zsh" "$HOME/.zshrc"
+    rm -rf "$HOME/.config/zsh"
+    ln -sf "$REPO_DIR/zsh" "$HOME/.config/zsh"
 }
 
 configure_tmux() {

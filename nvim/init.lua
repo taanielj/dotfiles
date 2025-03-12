@@ -12,12 +12,11 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Load ./lua/vim-options.lua Options such as tabstop, linenumbers etc
-require("vim-options")
--- Load .lua/keybinds.lua Contains keybinds not related to plugins
-require("keybinds")
+require("vim-options") -- Basic vim options
+require("keybinds") -- Keybinds
+require("autocmd") -- Autocommands
+require("mouse") -- Mouse, don't judge me
 -- load plugins automatically in lua/plugins folder
-require("autocmd")
 require("lazy").setup("plugins")
 
 function ReloadPlugins()
@@ -31,8 +30,14 @@ function ReloadPlugins()
 		end
 	end
 end
-
-vim.keymap.set("n", "<leader>R", ReloadPlugins, { noremap = true, silent = true, desc = "Reload Lazy Plugins" })
+function LoadConfig()
+    require("vim-options")
+    require("keybinds")
+    require("autocmd")
+    require("mouse")
+    ReloadPlugins()
+end
+vim.keymap.set("n", "<leader>R", LoadConfig, { noremap = true, silent = true, desc = "Reload Config" })
 -- nvim/init.lua (if your color scheme does not already provide these highlight groups)
 
 vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75", })

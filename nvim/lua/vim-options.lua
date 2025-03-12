@@ -38,14 +38,7 @@ vim.opt.undofile = true
 vim.opt.undolevels = 1000
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
--- Highlight on yank
-vim.api.nvim_create_autocmd("TextYankPost", {
-    desc = "Highlight on yank",
-    group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
-    callback = function()
-        vim.highlight.on_yank({ higroup = "Visual", timeout = 200 })
-    end,
-})
+
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
     border = "rounded",
