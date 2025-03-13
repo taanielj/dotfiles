@@ -86,6 +86,10 @@ if [ -d ~/.config/zsh ]; then
         source $file
     done
 fi
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 eval "$(direnv hook zsh)"
+# BEGIN ZDI
+export DOCKER_FOR_MAC_ENABLED=true
+source /Users/taaniel.jakobson/git/Zendesk/zdi/dockmaster/zdi.sh
+# END ZDI

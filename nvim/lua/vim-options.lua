@@ -5,9 +5,9 @@ vim.cmd("set shiftwidth=4")
 vim.cmd("set number")
 vim.cmd("set relativenumber")
 vim.cmd("set clipboard=unnamedplus")
--- vim.cmd("set mousemoveevent")
+vim.cmd("set scroll=5")
 vim.o.mousemoveevent = true
-vim.opt.scrolloff = 10
+vim.opt.scroll = 5
 -- undo setup
 vim.opt.swapfile = false
 vim.opt.backup = false

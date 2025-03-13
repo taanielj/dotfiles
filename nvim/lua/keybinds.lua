@@ -23,7 +23,7 @@ local map = function(mappings)
     end
 end
 
-local move_mappings = {
+local move_line_mappings = {
     { "n", "<C-Up>",    ":m .-2<CR>==",     "Move line up" },
     { "n", "<C-Down>",  ":m .+1<CR>==",     "Move line down" },
     { "n", "<C-Left>",  "<<hhhh",           "Unindent line" },
@@ -34,7 +34,7 @@ local move_mappings = {
     { "v", "<C-Right>", ">gvllll",          "Indent line" },
 }
 
-map(move_mappings)
+map(move_line_mappings)
 
 -- ==============
 -- Selecting text
@@ -190,9 +190,6 @@ end, { noremap = true, silent = true })
 vim.keymap.set("i", "<Down>", function()
     move_cursor_visual(1)
 end, { noremap = true, silent = true })
-
---vim.keymap.set("i", "<Up>", "<C-o>gk", { noremap = true })
---vim.keymap.set("i", "<Down>", "<C-o>gj", { noremap = true })
 
 -- ===========================
 -- Surround plugin replacement

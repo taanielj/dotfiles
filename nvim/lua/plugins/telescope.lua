@@ -63,7 +63,7 @@ return {
             builtin.buffers({ show_all_buffers = true, no_ignore = true })
         end, { desc = "Find Hidden Buffers" })
         vim.keymap.set("n", "<leader>hg", function()
-            builtin.live_grep({ additional_args = { "--hidden" } })
+            builtin.live_grep({ additional_args = { "--hidden --no-ignore" } })
         end, { desc = "Hidden Live Grep" })
     end,
 }
