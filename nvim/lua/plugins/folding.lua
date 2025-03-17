@@ -47,9 +47,9 @@ return {
             vim.o.fillchars = table.concat({
                 "eob:" .. " ",
                 "fold:" .. ".",
-                "foldopen:" .. "",
+                "foldopen:" .. "",
                 "foldsep:" .. " ",
-                "foldclose:" .. "",
+                "foldclose:" .. "",
             }, ",")
 
             vim.cmd("highlight Folded ctermbg=NONE guibg=NONE")

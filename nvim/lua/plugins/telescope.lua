@@ -49,12 +49,12 @@ return {
             )
         end, { desc = "Find in current buffer" })
         vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find Buffers" })
-        vim.keymap.set("n", "<leader>fg", function()
+        vim.keymap.set("n", "<leader>fG", function()
             builtin.live_grep({
                 grep_open_files = true,
             })
         end, { desc = "Find in Open Files" })
-        vim.keymap.set("n", "<leader>fG", builtin.live_grep, { desc = "Find in Project" })
+        vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Find in Project" })
         -- find (in) hidden files:
         vim.keymap.set("n", "<leader>hf", function()
             builtin.find_files({ hidden = true, no_ignore = true })

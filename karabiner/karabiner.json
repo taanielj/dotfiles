@@ -14,7 +14,23 @@
                                         "optional": ["caps_lock"]
                                     }
                                 },
-                                "to": [{ "shell_command": "open -a Kitty ~" }],
+                                "to": [{ "shell_command": "open /Applications/Kitty.app/" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Open Opera with Ctrl-Alt-O",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "o",
+                                    "modifiers": {
+                                        "mandatory": ["command", "option"],
+                                        "optional": ["caps_lock"]
+                                    }
+                                },
+                                "to": [{ "shell_command": "open /Applications/Opera.app/" }],
                                 "type": "basic"
                             }
                         ]
