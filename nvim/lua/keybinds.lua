@@ -150,18 +150,33 @@ function _G.close_no_name_buffers()
     end
 end
 
+local original_columns = vim.o.columns
+
 vim.keymap.set("n", "<leader>ww", function()
+    vim.wo.wrap = true
+    vim.wo.linebreak = true
+    vim.opt.breakindent = true
+    vim.opt.breakindentopt = "list:2"
+    -- return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
+    --     .. (vim.v.count ~= 0 and vim.v.count or 125) -- linewidth is 120, add 5 to account for line numbers
+    --     .. "|"
+    local window_start_col = vim.fn.win_screenpos(0)[2]
+    vim.cmd("set columns=" .. (window_start_col + 125))
+end, { expr = true, noremap = true, silent = true, desc = "Wrap by setting columns" })
+vim.keymap.set("n", "<leader>wW", function()
     vim.wo.wrap = true
     vim.wo.linebreak = true
     return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
         .. (vim.v.count ~= 0 and vim.v.count or 125) -- linewidth is 120, add 5 to account for line numbers
         .. "|"
-end, { expr = true, noremap = true, silent = true, desc = "Wrap current window" })
+end, { expr = true, noremap = true, silent = true, desc = "Wrap by opening new window" })
+
 
 -- turn off wrap and linebreak for current window, close no name buffers
 vim.keymap.set("n", "<leader>wu", function()
     vim.wo.wrap = false
-    vim.wo.linebreak = false
+    vim.wo.linebreak = true
+    vim.cmd("set columns=" .. original_columns)
     vim.cmd("lua close_no_name_buffers()")
 end, { noremap = true, silent = true, desc = "Unwrap current window" })
 
