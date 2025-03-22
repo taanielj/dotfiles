@@ -35,6 +35,7 @@ zinit light romkatv/powerlevel10k
 ## Plugin configuration
 plugins=(
     git
+    git-auto-fetch
 )
 
 ## Autocomplete configuration
