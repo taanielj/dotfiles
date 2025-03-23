@@ -72,10 +72,9 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/taaniel.jakobson/google-cloud-sdk/path.zsh.inc'; fi
-
+if [ -f '$HOME/google-cloud-sdk/path.zsh.inc' ]; then . '$HOME/google-cloud-sdk/path.zsh.inc'; fi
 # The next line enables shell command completion for gcloud.
-if [ -f '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/taaniel.jakobson/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f '$HOME/google-cloud-sdk/completion.zsh.inc' ]; then . '$HOME/google-cloud-sdk/completion.zsh.inc'; fi
 
 
 if [ -d ~/.config/zsh ]; then
@@ -91,6 +90,8 @@ fi
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 eval "$(direnv hook zsh)"
 # BEGIN ZDI
-export DOCKER_FOR_MAC_ENABLED=true
-source /Users/taaniel.jakobson/git/Zendesk/zdi/dockmaster/zdi.sh
-# END ZDI
+# So what the hell, ZDI actually installed this to my .zshrc?? not cool, didn't even use -f flag to check if it exists 
+# And to top it all of, used absolute path to my home directory, not even $HOME smh, clown-shoes, expected better from
+# a company like Zendesk
+export DOCKER_FOR_MAC_ENABLED=true # WTF is this doing here??? thanks zendesk, very cool, tbf, I should have checked what files were changed before commiting this to my dotfiles, fair play
+[[ -f $HOME/.zdi/zdi.sh ]] && source $HOME/.zdi/zdi.sh # should really be in ~/.zshrc.local... leaving here for now 
