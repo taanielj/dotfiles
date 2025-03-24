@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 
 # Install minimal tools needed to bootstrap
-RUN apt-get update && \
+RUN apt-get update --no-install-recommends && \
     apt-get upgrade -y && \
     apt-get install -y git sudo && \
     apt-get clean
@@ -14,7 +14,7 @@ RUN useradd -m -s /bin/bash test && \
 USER test
 
 # Clone dotfiles
-RUN git clone https://github.com/taanielj/dotfiles /home/test/dotfiles
+COPY --chown=test:test . /home/test/dotfiles
 WORKDIR /home/test/dotfiles
 ENV TERM=xterm-256color
 
