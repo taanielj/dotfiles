@@ -153,10 +153,10 @@ return {
                 filetypes = { "sh", "zsh", "bash" },
                 capabilities = capabilities,
             })
-            lspconfig.hydra_lsp.setup({
-                capabilities = capabilities,
-                filetypes = { "yaml", "yml" },
-            })
+            -- lspconfig.hydra_lsp.setup({
+            --     capabilities = capabilities,
+            --     filetypes = { "yaml", "yml" },
+            -- })
             require("mason-lspconfig").setup({
                 automatic_installation = true,
                 ensure_installed = {
@@ -171,7 +171,7 @@ return {
                     "cssls",
                     "bashls",
                     "gopls",
-                    "hydra_lsp",
+                    -- "hydra_lsp",
                     "marksman",
                 },
             })
