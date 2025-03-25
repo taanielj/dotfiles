@@ -339,13 +339,14 @@ configure_tmux() {
 }
 
 configure_nvim() {
-    echo "Configuring Neovim..."
+    echo "Installing Neovim configuration to $HOME/.config/nvim..."
     if ! command -v nvim &>/dev/null; then
         echo "Neovim is not installed. Installation failed."
         return 1
     fi
 
     mkdir -p "$HOME/.config"
+    mkdir -p "$HOME/.local/share/nvim/databases" # Needed by telescope history to store SQLite database file
     ln -sfn "$REPO_DIR/nvim" "$HOME/.config/nvim"
 }
 
