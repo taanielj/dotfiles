@@ -22,5 +22,10 @@ error() {
     echo -e "${RED}$*${RESET}"
 }
 success() {
-    echo "${GREEN}$*${RESET}"
+    if [[ "$1" == "-n" ]]; then
+        shift
+        echo -ne "${GREEN}$*${RESET}"
+    else
+        echo -e "${GREEN}$*${RESET}"
+    fi
 }

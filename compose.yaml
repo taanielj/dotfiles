@@ -3,3 +3,6 @@ services:
     build: .
     container_name: ubuntu-dev
     entrypoint: tail -f /dev/null
+    volumes:
+      - .:/home/ubuntu-dev/dotfiles
+    working_dir: /home/ubuntu-dev

@@ -7,7 +7,7 @@ zstyle ':completion:*' completer _expand _complete _ignored _correct _approximat
 zstyle ':completion:*' completions 1
 zstyle ':completion:*' glob 1
 zstyle ':completion:*' substitute 1
-zstyle :compinstall filename '~/.zshrc'
+zstyle :compinstall filename '$HOME/.zshrc'
 
 autoload -Uz compinit
 compinit
@@ -20,7 +20,7 @@ export ZSH="$HOME/.oh-my-zsh"
 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
-[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://Github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
 autoload -Uz _zinit
@@ -57,7 +57,7 @@ export COLORTERM=truecolor
 if command -v zoxide &> /dev/null; then
     eval "$(zoxide init --cmd cd zsh)"
 fi
-# eval "$(oh-my-posh init zsh --config ~/.oh-my-posh.omp.json)"
+# eval "$(oh-my-posh init zsh --config $HOME/.oh-my-posh.omp.json)"
 
 setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
@@ -77,21 +77,25 @@ if [ -f '$HOME/google-cloud-sdk/path.zsh.inc' ]; then . '$HOME/google-cloud-sdk/
 if [ -f '$HOME/google-cloud-sdk/completion.zsh.inc' ]; then . '$HOME/google-cloud-sdk/completion.zsh.inc'; fi
 
 
-if [ -d ~/.config/zsh ]; then
-    for file in ~/.config/zsh/*.zsh; do
-        # skip current file (zshrc.zsh is symlinked to ~/.zshrc)
+if [ -d $HOME/.config/zsh ]; then
+    for file in $HOME/.config/zsh/*.zsh; do
+        # skip current file (zshrc.zsh is symlinked to $HOME/.zshrc)
         if [ $(basename $file) = "zshrc.zsh" ]; then
         continue
         fi
         source $file
     done
 fi
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
-[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+[[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
+[[ -f $HOME/.fzf.zsh ]] && source $HOME/.fzf.zsh
+# asdf:
+[[ -f $HOME/.asdf/asdf.sh ]] && source $HOME/.asdf/asdf.sh
+[[ -d $HOME/.asdf/completions ]] && fpath=($HOME/.asdf/completions $fpath)
+
 eval "$(direnv hook zsh)"
 # BEGIN ZDI
 # So what the hell, ZDI actually installed this to my .zshrc?? not cool, didn't even use -f flag to check if it exists 
 # And to top it all of, used absolute path to my home directory, not even $HOME smh, clown-shoes, expected better from
 # a company like Zendesk
 export DOCKER_FOR_MAC_ENABLED=true # WTF is this doing here??? thanks zendesk, very cool, tbf, I should have checked what files were changed before commiting this to my dotfiles, fair play
-[[ -f $HOME/.zdi/zdi.sh ]] && source $HOME/.zdi/zdi.sh # should really be in ~/.zshrc.local... leaving here for now 
+[[ -f $HOME/.zdi/zdi.sh ]] && source $HOME/.zdi/zdi.sh # should really be in $HOME/.zshrc.local... leaving here for now 
