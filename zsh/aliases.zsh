@@ -51,5 +51,6 @@ alias dcd="docker compose down"
 alias dcdv="docker compose down -v"
 alias dcr="docker compose run --rm"
 alias dcrs="docker compose down && docker compose up -d"
+alias de="docker exec -it -e TERM=xterm-256color"
 
 alias cl="clear && printf '\e[3J'"
