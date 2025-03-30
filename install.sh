@@ -344,7 +344,6 @@ configure_nvim() {
         echo "Neovim is not installed. Installation failed."
         return 1
     fi
-
     mkdir -p "$HOME/.config"
     mkdir -p "$HOME/.local/share/nvim/databases" # Needed by telescope history to store SQLite database file
     ln -sfn "$REPO_DIR/nvim" "$HOME/.config/nvim"

@@ -48,6 +48,7 @@ fi
 alias dc="docker compose"
 alias dcu="docker compose up -d"
 alias dcd="docker compose down"
+alias dcdu="docker compose down && docker compose up -d"
 alias dcdv="docker compose down -v"
 alias dcr="docker compose run --rm"
 alias dcrs="docker compose down && docker compose up -d"
