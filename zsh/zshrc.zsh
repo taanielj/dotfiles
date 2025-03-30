@@ -99,3 +99,4 @@ eval "$(direnv hook zsh)"
 # a company like Zendesk
 export DOCKER_FOR_MAC_ENABLED=true # WTF is this doing here??? thanks zendesk, very cool, tbf, I should have checked what files were changed before commiting this to my dotfiles, fair play
 [[ -f $HOME/.zdi/zdi.sh ]] && source $HOME/.zdi/zdi.sh # should really be in $HOME/.zshrc.local... leaving here for now 
+[[ -f $HOME/.cargo/env ]] && source $HOME/.cargo/env

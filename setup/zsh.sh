@@ -23,6 +23,9 @@ configure_zsh() {
     # Install plugins and theme
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
     # Create symlinks
+    if [[ -f "$HOME/.zshrc" ]]; then
+        mv "$HOME/.zshrc" "$HOME/.zshrc.pre-oh-my-zsh"
+    fi
     ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
     rm -rf "$HOME/.config/zsh"
     ln -sf "$REPO_ROOT/zsh" "$HOME/.config/zsh"
