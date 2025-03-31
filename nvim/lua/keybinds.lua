@@ -229,6 +229,10 @@ local surround_mappings = {
     { "v", { "<Leader>[", "<Leader]" },  "c[[]]<Esc>2hp",                      "Add double brackets" },
     { "v", { "<Leader>{", "<Leader}" },  "c{{}}<Esc>2hp",                      "Add double curly braces" },
     { "v", { "<Leader><", "<Leader>>" }, "c<<>><Esc>2hp",                      "Add double angle brackets" },
+    -- markdown bold(**), italic(_), strikethrough(~~) in visual mode (non block, only regular)
+    { "v", { "<Leader>b", "<Leader>*" }, "c****<Esc>2hp",                      "Add bold" },
+    { "v", { "<Leader>i", "<Leader>_" }, "c__<Esc>2hp",                        "Add italic" },
+    { "v", "<Leader>s",                  "c~~~~<Esc>2hp",                      "Add strikethrough" },
 }
 
 for _, m in ipairs(surround_mappings) do
