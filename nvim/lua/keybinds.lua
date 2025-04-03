@@ -3,31 +3,29 @@ vim.g.mapleader = " "
 
 -- Define the mapping function
 local map = function(mappings)
-    -- wrap in table if single mapping
     if mappings[1] == nil or type(mappings[1]) ~= "table" then
         mappings = { mappings }
     end
 
     for _, m in ipairs(mappings) do
-        local modes, keys, cmd, desc = m[1], m[2], m[3], m[4]
-
-        -- Convert keys to array if it's a string
-        if type(keys) == "string" then
-            keys = { keys }
-        end
-
-        -- Convert modes to array if it's a string (already an array otherwise)
-        if type(modes) == "string" then
-            modes = { modes }
-        end
+        local modes, keys, cmd, desc, expr = m[1], m[2], m[3], m[4], m[5]
+        if type(keys) == "string" then keys = { keys } end
+        if type(modes) == "string" then modes = { modes } end
 
         for _, key in ipairs(keys) do
-            vim.keymap.set(modes, key, cmd, { noremap = true, silent = true, desc = desc })
+            vim.keymap.set(modes, key, cmd, {
+                noremap = true,
+                silent = true,
+                desc = desc,
+                expr = expr,
+            })
         end
     end
 end
 
+
 -- Store all mappings in a single table, grouped by functionality
+-- Supply the mode(s), key(s), command and description
 local all_mappings = {
     -- ====================
     -- Common functionality
@@ -100,10 +98,10 @@ local all_mappings = {
     -- ============================
     -- Navigation with wrap enabled
     -- ============================
-    { "n", "j", 'v:count ? "j" : "gj"', "Move down (smart)" },
-    { "n", "k", 'v:count ? "k" : "gk"', "Move up (smart)" },
-    { "x", "j", 'v:count ? "j" : "gj"', "Move down (smart)" },
-    { "x", "k", 'v:count ? "k" : "gk"', "Move up (smart)" },
+    { "n", "j", 'v:count ? "j" : "gj"', "Move down (smart)", true },
+    { "n", "k", 'v:count ? "k" : "gk"', "Move up (smart)" ,true },
+    { "x", "j", 'v:count ? "j" : "gj"', "Move down (smart)", true },
+    { "x", "k", 'v:count ? "k" : "gk"', "Move up (smart)", true },
     { "n", "<Up>", "gk", "Move up (visual line)" },
     { "n", "<Down>", "gj", "Move down (visual line)" },
     { "x", "<Up>", "gk", "Move up (visual line)" },
