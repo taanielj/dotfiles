@@ -68,7 +68,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
+# export SDKMAN_DIR="$HOME/.sdkman"
+[[ -d "$HOME/.sdkman" ]] && export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 # The next line updates PATH for the Google Cloud SDK.
@@ -89,8 +90,10 @@ fi
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 [[ -f $HOME/.fzf.zsh ]] && source $HOME/.fzf.zsh
 # asdf:
-[[ -f $HOME/.asdf/asdf.sh ]] && source $HOME/.asdf/asdf.sh
-[[ -d $HOME/.asdf/completions ]] && fpath=($HOME/.asdf/completions $fpath)
+# [[ -f $HOME/.asdf/asdf.sh ]] && source $HOME/.asdf/asdf.sh
+# [[ -d $HOME/.asdf/completions ]] && fpath=($HOME/.asdf/completions $fpath)
+# mise
+[[ -f $HOME/.local/bin/mise ]] && eval "$($HOME/.local/bin/mise activate zsh)"
 
 eval "$(direnv hook zsh)"
 # BEGIN ZDI

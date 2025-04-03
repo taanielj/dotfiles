@@ -20,8 +20,17 @@ echo ""
 
 main_system
 
+files=(
+    setup/system.sh
+    # setup/asdf.sh
+    # setup/rust.sh
+    setup/mise.sh
+    setup/zsh.sh
+    setup/tmux.sh
+    setup/nvim.sh
+)
 
-for file in setup/*.sh; do
+for file in files; do
     if [[ "$file" == "setup/system.sh" || "$file" == "setup/utils.sh" ]]; then
         continue
     fi

@@ -141,6 +141,9 @@ get_uninstalled_packages() {
             pkg list-installed "$package" &>/dev/null || not_installed+=("$package")
             ;;
         darwin)
+            [[ "$package" == "fd-find" ]] && package="fd"
+            local skip_list=("g++" "tar")
+            [[ " ${skip_list[@]} " =~ " ${package} " ]] && continue
             [[ -z $(brew ls --versions "$package") ]] && not_installed+=("$package")
             ;;
         esac

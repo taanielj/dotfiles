@@ -4,7 +4,7 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
 declare -A ASDF_PLUGINS
-
+OS=$(uname -s)
 main_asdf() {
     parse_tool_versions
     install_asdf
@@ -32,6 +32,10 @@ parse_tool_versions() {
 }
 
 install_asdf() {
+    if [[ "$OS" == "Darwin" && -f "/opt/homebrew/bin/asdf" ]]; then
+        success "asdf already installed"
+        return
+    fi
     local version="v0.16.0"
     local asdf_dir="$HOME/.asdf"
 
@@ -53,12 +57,20 @@ install_asdf() {
 
 install_asdf_plugins_from_file() {
     log "Installing asdf plugins..."
+    _check_alternatives  # Call this function to populate the alternatives array
     for plugin in "${!ASDF_PLUGINS[@]}"; do
         local alternative="${alternatives[$plugin]}"
         if [[ -n "$alternative" ]] && command -v "$alternative" &>/dev/null; then
             success "    [$plugin] already installed via $alternative"
             continue
         fi
+        
+        # Skip installing Java if SDKMAN is detected
+        if [[ "$plugin" == "java" && command -v sdk &>/dev/null ]]; then
+            success "    [$plugin] already installed via SDKMAN, skipping installation."
+            continue
+        fi
+        
         _install_asdf_plugin "$plugin"
         _install_asdf_tool "$plugin" "${ASDF_PLUGINS[$plugin]}"
     done
@@ -121,12 +133,11 @@ _add_asdf_path_to_shell_rc() {
 }
 
 _check_alternatives() {
-    local plugin=$1
-    declare -A alternatives
-    alternatives["java"]="sdk"
-    alternatives["python"]="pyenv"
-    alternatives["ruby"]="rbenv"
-    alternatives["nodejs"]="nvm"
+    declare -gA alternatives  # Declare alternatives as a global associative array
+    alternatives["java"]="sdk"  # Check for SDKMAN for Java
+    alternatives["python"]="pyenv"  # Check for pyenv for Python
+    alternatives["ruby"]="rbenv"  # Check for rbenv for Ruby
+    alternatives["nodejs"]="nvm"  # Check for nvm for Node.js
 }
 
 _install_asdf_plugin() {
@@ -142,12 +153,15 @@ _install_asdf_tool() {
     local plugin=$1
     local version=$2
     if ! asdf list "$plugin" 2>&1 | grep -q "$version" &>/dev/null 2>&1; then
-        run_quiet "    Installing [$plugin $version"] asdf install "$plugin" "$version"
+        run_quiet "    Installing [$plugin $version]" asdf install "$plugin" "$version"
     else
         success "    [$plugin:$version] already installed"
     fi
 
-    run_quiet "    Setting [$plugin $version] as global" asdf global "$plugin" "$version"
+    # Ensure the command is formatted correctly
+    if ! run_quiet "    Setting [$plugin $version] as global" asdf global "$plugin" "$version"; then
+        error "Failed to set [$plugin $version] as global. Please check if 'asdf' is properly installed."
+    fi
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
