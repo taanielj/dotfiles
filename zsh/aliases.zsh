@@ -52,9 +52,24 @@ alias dcdu="docker compose down && docker compose up -d"
 alias dcdv="docker compose down -v"
 alias dcr="docker compose run --rm"
 alias dcrs="docker compose down && docker compose up -d"
-alias de="docker exec -it -e TERM=xterm-256color"
 
-alias cl="clear && printf '\e[3J'"
+de() {
+    local container
+    [ $# -gt 0 ] && container="$1" && shift
+    container=$(docker ps --format '{{.Names}}' | grep -i "${container:-}" | fzf --select-1 --exit-0)
+
+    [[ -z "$container" ]] && echo "No container selected" && return 1
+
+    local cmd=(docker exec -it -e TERM=xterm-256color "$container")
+
+    [ $# -gt 0 ] && "${cmd[@]}" "$@" && return
+    s
+    "${cmd[@]}" bash 2>/dev/null ||
+        "${cmd[@]}" sh 2>/dev/null ||
+        echo "No suitable shell found in container: $container"
+    }
+
+    alias cl="clear && printf '\e[3J'"
 
 # ----------------------------
 # Basic Aliases
@@ -115,6 +130,7 @@ kp() {
     # If passed --all or -a, re-select context and namespace
     if [[ "$all" == "--all" || "$all" == "-a" ]]; then
         kcn
+        shift
     fi
 
     # Ensure context is set
@@ -127,7 +143,7 @@ kp() {
         kn
     fi
 
-    kubectl get pods
+    kubectl get pods "$@"
 }
 
 kd() {
@@ -255,3 +271,77 @@ sselect() {
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+
+# TMUX sessions
+default_sessions=(
+    "notes"
+    "shell"
+)
+# if macOS append zqa and zendesk to default sessions
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    default_sessions+=(
+    "zqa"
+    "zendesk"
+)
+fi
+
+default_sessions=(
+    "zqa"
+    "zendesk"
+    "shell"
+    "notes"
+)
+
+# Helper: Start all sessions if not already started
+start_all_sessions() {
+    for session in "${default_sessions[@]}"; do
+        if ! tmux has-session -t "$session" 2>/dev/null; then
+            [[ "$OSTYPE" != "darwin"* && "$session" =~ ^(zqa|zendesk)$ ]] && continue
+            tmux new-session -d -s "$session"
+        fi
+    done
+}
+
+# Main entry: attach to first available session (default: notes)
+ts() {
+    start_all_sessions
+
+    for session in "${default_sessions[@]}"; do
+        if ! tmux list-clients -t "$session" 2>/dev/null | grep -q '^'; then
+            tmux attach-session -t "$session"
+            return
+        fi
+    done
+
+    echo "You have shells attached to all sessions."
+    return 1
+}
+
+# Attach helpers
+tsn() {
+    start_all_sessions
+    tmux attach-session -t notes
+}
+
+tss() {
+    start_all_sessions
+    tmux attach-session -t shell
+}
+
+tsz() {
+    if [[ "$(uname)" != "Darwin" ]]; then
+        echo "🧘 Relax, you're not at work (not on macOS)."
+        return 0
+    fi
+    start_all_sessions
+    tmux attach-session -t zendesk
+}
+
+tsq() {
+    if [[ "$(uname)" != "Darwin" ]]; then
+        echo "🧘 Relax, you're not at work (not on macOS)."
+        return 0
+    fi
+    start_all_sessions
+    tmux attach-session -t zqa
+}

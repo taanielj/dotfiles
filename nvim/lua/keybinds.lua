@@ -133,6 +133,9 @@ local all_mappings = {
     { "v", {"<Leader>b", "<Leader>*"}, "\"zc****<Esc>2h\"zp", "Add bold" },
     { "v", {"<Leader>i", "<Leader>_"}, "\"zc__<Esc>h\"zp", "Add italic" },
     { "v", "<Leader>s", "\"zc~~<Esc>h\"zp", "Add strikethrough" },
+    -- Resize window left right
+    { {"n", "i", "x"}, "<C-S-Left>", "<C-w>h", "Resize window left" },
+    { {"n", "i", "x"}, "<C-S-Right>", "<C-w>l", "Resize window right" },
 }
 
 -- Apply all the mappings
