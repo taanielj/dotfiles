@@ -59,24 +59,25 @@ if command -v zoxide &> /dev/null; then
 fi
 # eval "$(oh-my-posh init zsh --config $HOME/.oh-my-posh.omp.json)"
 
+HISTSIZE=100000
+SAVEHIST=100000
+HISTFILE=~/.zsh_history
+
+setopt APPEND_HISTORY
 setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_SAVE_NO_DUPS
 export FZF_DEFAULT_COMMAND='fd --hidden'
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-# export SDKMAN_DIR="$HOME/.sdkman"
-[[ -d "$HOME/.sdkman" ]] && export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '$HOME/google-cloud-sdk/path.zsh.inc' ]; then . '$HOME/google-cloud-sdk/path.zsh.inc'; fi
-# The next line enables shell command completion for gcloud.
-if [ -f '$HOME/google-cloud-sdk/completion.zsh.inc' ]; then . '$HOME/google-cloud-sdk/completion.zsh.inc'; fi
-
+# The next lines update PATH for the Google Cloud SDK and enable shell command completion for gcloud.
+[[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
+[[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
 
 if [ -d $HOME/.config/zsh ]; then
     for file in $HOME/.config/zsh/*.zsh; do
@@ -89,17 +90,8 @@ if [ -d $HOME/.config/zsh ]; then
 fi
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 [[ -f $HOME/.fzf.zsh ]] && source $HOME/.fzf.zsh
-# asdf:
-# [[ -f $HOME/.asdf/asdf.sh ]] && source $HOME/.asdf/asdf.sh
-# [[ -d $HOME/.asdf/completions ]] && fpath=($HOME/.asdf/completions $fpath)
 # mise
 [[ -f $HOME/.local/bin/mise ]] && eval "$($HOME/.local/bin/mise activate zsh)"
+[[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="never"
 
 eval "$(direnv hook zsh)"
-# BEGIN ZDI
-# So what the hell, ZDI actually installed this to my .zshrc?? not cool, didn't even use -f flag to check if it exists 
-# And to top it all of, used absolute path to my home directory, not even $HOME smh, clown-shoes, expected better from
-# a company like Zendesk
-export DOCKER_FOR_MAC_ENABLED=true # WTF is this doing here??? thanks zendesk, very cool, tbf, I should have checked what files were changed before commiting this to my dotfiles, fair play
-[[ -f $HOME/.zdi/zdi.sh ]] && source $HOME/.zdi/zdi.sh # should really be in $HOME/.zshrc.local... leaving here for now 
-[[ -f $HOME/.cargo/env ]] && source $HOME/.cargo/env

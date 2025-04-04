@@ -21,19 +21,13 @@ echo ""
 main_system
 
 files=(
-    setup/system.sh
-    # setup/asdf.sh
-    # setup/rust.sh
-    setup/mise.sh
-    setup/zsh.sh
-    setup/tmux.sh
-    setup/nvim.sh
+    setup/system.sh # only one that needs sudo, supports ubuntu, debian, termux, darwin
+    setup/zsh.sh    # no sudo, platform agnostic
+    setup/tmux.sh   # no sudo, platform agnostic
+    setup/nvim.sh   # no sudo, platform agnostic
 )
 
 for file in files; do
-    if [[ "$file" == "setup/system.sh" || "$file" == "setup/utils.sh" ]]; then
-        continue
-    fi
     divider
     title "Running [$(basename "$file" .sh)] setup script"
     divider
