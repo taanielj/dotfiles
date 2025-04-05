@@ -18,30 +18,51 @@ install_nvim() {
     elif [[ "$OS" == "Linux" ]]; then
         archive_name="nvim-linux-x86_64.tar.gz"
     fi
-    [[ "$archive_name" == "" ]] && echo "Unsupported architecture: $(uname -m)" && return 1
+    [[ -z "$archive_name" ]] && echo "Unsupported architecture: $(uname -m)" && return 1
+
+    local tmp_dir
     tmp_dir=$(mktemp -d)
     curl -Lo "$tmp_dir/nvim.tar.gz" "$github_url$archive_name"
-    mkdir -p $HOME/.local
-    tar -C $HOME/.local -xzf "$tmp_dir/nvim.tar.gz"
-    rm -rf "$tmp_dir"
-    local nvim_path=$(find $HOME/.local -type d -name "nvim-*")
+
+    tar -C "$tmp_dir" -xzf "$tmp_dir/nvim.tar.gz"
+    local nvim_path
+    nvim_path=$(find "$tmp_dir" -type d -name "nvim-*")
+
+    mkdir -p "$HOME/.local"
+    rm -rf "$HOME/.local/nvim"
     mv "$nvim_path" "$HOME/.local/nvim"
-    for rc in $HOME/.bashrc $HOME/.zshrc; do
-        grep -q "/.local/nvim/bin" "$rc" || echo "export PATH=\$HOME/.local/nvim/bin:\$PATH" >>"$rc"
+    rm -rf "$tmp_dir"
+
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+        grep -q "/.local/nvim/bin" "$rc" || echo 'export PATH=$HOME/.local/nvim/bin:$PATH' >>"$rc"
     done
-    export PATH=$HOME/.local/nvim/bin:$PATH
+    export PATH="$HOME/.local/nvim/bin:$PATH"
 }
 
 configure_nvim() {
-    echo "Installing Neovim configuration to $HOME/.config/nvim..."
+    log "Installing Neovim configuration to $HOME/.config/nvim..."
+
     if ! command -v nvim &>/dev/null; then
-        echo "Neovim is not installed. Installation failed."
+        echo "❌ Neovim is not installed. Installation failed."
         return 1
     fi
+
     mkdir -p "$HOME/.config"
-    mkdir -p "$HOME/.local/share/nvim/databases" # Needed by telescope history to store SQLite database file
+
+    local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+    mkdir -p "$data_home/nvim/databases"
+
+    if [[ -e "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
+        echo "⚠️  Backing up existing Neovim config..."
+        mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup.$(date +%s)"
+    fi
+
     ln -sfn "$REPO_ROOT/nvim" "$HOME/.config/nvim"
+
+    echo "✅ Neovim config linked. Syncing plugins..."
+    nvim --headless "+Lazy! sync" +qa
 }
+
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_nvim "$@"

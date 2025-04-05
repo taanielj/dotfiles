@@ -95,3 +95,4 @@ fi
 [[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="never"
 
 eval "$(direnv hook zsh)"
+export PATH=$HOME/.local/nvim/bin:$PATH
