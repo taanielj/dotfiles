@@ -39,16 +39,21 @@ main_system() {
 
 detect_os() {
     OS=$(uname -s)
+    if [[ "$PREFIX" == *com.termux* ]]; then
+        DISTRO="termux"
+        return
+    fi
     if [[ "$OS" == "Linux" ]]; then
         [[ -f /etc/os-release ]] && DISTRO=$(awk -F= '/^ID=/{gsub(/"/, "", $2); print $2}' /etc/os-release)
     elif [[ "$OS" == "Darwin" ]]; then
         DISTRO="Darwin"
     else
-        error "Unsupported OS: "$OS
+        error "Unsupported OS: $OS"
         exit 1
     fi
     DISTRO=$(echo "$DISTRO" | tr '[:upper:]' '[:lower:]')
 }
+
 
 check_permissions() {
     # Prevent running as root
