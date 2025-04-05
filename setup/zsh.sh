@@ -26,6 +26,7 @@ configure_zsh() {
     if [[ -f "$HOME/.zshrc" ]]; then
         mv "$HOME/.zshrc" "$HOME/.zshrc.pre-oh-my-zsh"
     fi
+    mkdir -p $HOME/.config
     ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
     rm -rf "$HOME/.config/zsh"
     ln -sf "$REPO_ROOT/zsh" "$HOME/.config/zsh"

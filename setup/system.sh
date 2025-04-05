@@ -195,7 +195,7 @@ install_lazygit() {
         sudo install "$0/lazygit" -D -t /usr/local/bin
     ' "$tmp_dir" "$LAZYGIT_URL"
 
-    'rm -rf "$tmp_dir"'
+    rm -rf "$tmp_dir"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

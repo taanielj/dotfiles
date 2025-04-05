@@ -60,7 +60,7 @@ configure_nvim() {
     ln -sfn "$REPO_ROOT/nvim" "$HOME/.config/nvim"
 
     echo "✅ Neovim config linked. Syncing plugins..."
-    nvim --headless "+Lazy! sync" +qa
+    run_quiet "Updating Lazy packages" nvim --headless "+Lazy! sync" +qa
 }
 
 

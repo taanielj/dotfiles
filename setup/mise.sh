@@ -29,7 +29,7 @@ install_tools() {
         tool=$(echo "$line" | cut -d' ' -f1)
         version=$(echo "$line" | cut -d' ' -f2)
         mise config set "tools.$tool" "$version"
-    done <.tool-versions
+    done <"$REPO_ROOT/.tool-versions"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
