@@ -79,17 +79,21 @@ check_permissions() {
 
 install_build_tools() {
     if [[ $OS == "Linux" ]]; then
-        build_deps=(
+        local build_deps=(
             "build-essential" "libssl-dev" "zlib1g-dev" "libbz2-dev" "libreadline-dev" "libsqlite3-dev" "curl" "git"
             "libncursesw5-dev" "xz-utils" "tk-dev" "libxml2-dev" "libxmlsec1-dev" "libffi-dev" "liblzma-dev"
             "libyaml-dev" "libffi-dev"
         )
+        local build_deps_termux=(
+            "clang" "make" "openssl" "libffi" "zlib" "libbz2" "readline" "sqlite" "ncurses" "libcrypt"
+            )
+       
         case "$DISTRO" in
         ubuntu | debian)
             run_quiet "Installing build dependencies" sudo apt-get install -y "${build_deps[@]}"
             ;;
         termux)
-            run_quiet "Installing build dependencies" pkg install -y "${build_deps[@]}"
+            run_quiet "Installing build dependencies" pkg install -y "${build_deps_termux[@]}"
             ;;
         darwin)
             return
@@ -144,7 +148,12 @@ get_uninstalled_packages() {
             dpkg -s "$package" &>/dev/null || not_installed+=("$package")
             ;;
         termux)
-            pkg list-installed "$package" &>/dev/null || not_installed+=("$package")
+            local_skip_list=("gcc" "g++")
+            [[ " ${local_skip_list[@]} " =~ " ${package} " ]] && continue
+            if [[ "$package" == "fd-find" ]]; then
+                package="fd"
+            fi
+            pkg list-installed | grep -q "^$package/" || not_installed+=("$package")
             ;;
         darwin)
             [[ "$package" == "fd-find" ]] && package="fd"
