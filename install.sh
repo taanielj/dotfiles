@@ -126,12 +126,7 @@ quiet_brew() {
     brew install "$1" >/dev/null 2>&1 | grep -Ev "$grep_list"
 }
 
-install_eza() {
-    $(need_sudo) mkdir -p /etc/apt/keyrings
-    $(need_sudo) wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | $(need_sudo) gpg --dearmor -o /etc/apt/keyrings/eza. >/dev/null 2>&1
-    $(need_sudo) echo 'deb [signed-by=/etc/apt/keyrings/eza.gpg] http://deb.gierens.de stable main' | $(need_sudo) tee /etc/apt/sources.list.d/eza.list >/dev/null 2>&1
-    $(need_sudo) apt update && $(need_sudo) apt install -y eza >/dev/null 2>&1
-}
+
 
 install_go() {
     quiet_brew install go

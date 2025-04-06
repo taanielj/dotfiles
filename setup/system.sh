@@ -3,38 +3,67 @@
 REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
-PACKAGES=(
-    # basic requirements, probably already installed, but just in case, for example bare docker image doesn't have even git or sudo, not to mention curl or wget
-    "curl" # apt, brew, pre-installed in wsl ubuntu, not in docker
-    "wget" # apt, brew, pre-installed in wsl ubuntu, not in docker
-    "git"  # apt, brew, pre-installed in wsl ubuntu, not in docker
-    #build tools, possibly xcode installs some of these..
-    "cmake" # apt, brew
-    "gcc"   # apt, brew
-    "g++"   # apt, brew, possibly x
-    # shell and multiplexer
-    "zsh"  # apt, pre-installed on mac now-a-days,
-    "tmux" # apt, brew
-    # modern CLI tools
-    "bat"       # apt, brew
-    "ripgrep"   # apt, brew
-    "fd-find"   # apt, brew
-    "fzf"       # apt, brew
-    "fastfetch" # available in brew, need to add ppa:zhangsongcui3371/fastfetch for ubuntu
-    # general utilities
-    "unzip" # apt, brew
-    "zip"   # apt, brew
-    "tar"   # apt, brew
+COMMON_PACKAGES=(
+    "curl" "wget" "git"     # General tools
+    "zsh" "tmux" "fzf" "jq" # Shell and tools
+    "unzip" "zip"           # Compression and archiving
 )
 
+DEBIAN_PACKAGES=(
+    "${COMMON_PACKAGES[@]}"
+    "build-essential" "gcc" "g++" "make" "cmake"                  # General compilation tools
+    "zlib1g-dev" "libbz2-dev" "liblzma-dev" "xz-utils" "tar"      # Compression and archiving
+    "libreadline-dev" "libsqlite3-dev" "libffi-dev" "libyaml-dev" # Language runtime dependencies
+    "libncursesw5-dev" "tk-dev"                                   # Terminal and UI libraries
+    "libssl-dev" "libxml2-dev" "libxmlsec1-dev"                   # Networking and XML libraries
+)
+
+UBUNTU_PACKAGES=(
+    "${DEBIAN_PACKAGES[@]}"
+    "software-properties-common" # for add-apt-repository
+    "fastfetch"                  # requires PPA
+)
+UBUNTU_PPA_REPOSITORIES=(
+    "ppa:zhangsongcui3371/fastfetch"
+)
+
+TERMUX_PACKAGES=(
+    "${COMMON_PACKAGES[@]}"
+    "fastfetch" # available in pkg
+    "clang" "make" "openssl" "libffi" "zlib" "libbz2" "readline" "sqlite" "ncurses" "libcrypt"
+)
+
+MACOS_PACKAGES=(
+    "${COMMON_PACKAGES[@]}"
+    "fastfetch" # available in brew
+    # General Build dependencies are already installed with Xcode which gets installed with brew
+)
 
 main_system() {
-    check_permissions
+    local update=false
+
+    for arg in "$@"; do
+        case "$arg" in
+        --update) update=true ;;
+        esac
+    done
+
     detect_os
-    setup_package_manager
-    install_build_tools
+    check_permissions
+    setup_package_manager "$update"
+
+    case "$DISTRO" in
+    ubuntu) PACKAGES=("${UBUNTU_PACKAGES[@]}") ;;
+    debian) PACKAGES=("${DEBIAN_PACKAGES[@]}") ;;
+    termux) PACKAGES=("${TERMUX_PACKAGES[@]}") ;;
+    darwin) PACKAGES=("${MACOS_PACKAGES[@]}") ;;
+    *)
+        error "Unsupported distro: $DISTRO"
+        exit 1
+        ;;
+    esac
+
     install_packages "${PACKAGES[@]}"
-    install_lazygit
 }
 
 detect_os() {
@@ -46,14 +75,13 @@ detect_os() {
     if [[ "$OS" == "Linux" ]]; then
         [[ -f /etc/os-release ]] && DISTRO=$(awk -F= '/^ID=/{gsub(/"/, "", $2); print $2}' /etc/os-release)
     elif [[ "$OS" == "Darwin" ]]; then
-        DISTRO="Darwin"
+        DISTRO="darwin"
     else
         error "Unsupported OS: $OS"
         exit 1
     fi
     DISTRO=$(echo "$DISTRO" | tr '[:upper:]' '[:lower:]')
 }
-
 
 check_permissions() {
     # Prevent running as root
@@ -64,7 +92,7 @@ check_permissions() {
 
     # Prevent using sudo to invoke the script
     if [[ -n "$SUDO_USER" ]]; then
-        error "❌ Do not run this script with 'sudo'. Just run it normally."
+        error "❌ Do not run this script with 'sudo'"
         exit 1
     fi
 
@@ -77,41 +105,25 @@ check_permissions() {
     fi
 }
 
-install_build_tools() {
-    if [[ $OS == "Linux" ]]; then
-        local build_deps=(
-            "build-essential" "libssl-dev" "zlib1g-dev" "libbz2-dev" "libreadline-dev" "libsqlite3-dev" "curl" "git"
-            "libncursesw5-dev" "xz-utils" "tk-dev" "libxml2-dev" "libxmlsec1-dev" "libffi-dev" "liblzma-dev"
-            "libyaml-dev" "libffi-dev"
-        )
-        local build_deps_termux=(
-            "clang" "make" "openssl" "libffi" "zlib" "libbz2" "readline" "sqlite" "ncurses" "libcrypt"
-            )
-       
-        case "$DISTRO" in
-        ubuntu | debian)
-            run_quiet "Installing build dependencies" sudo apt-get install -y "${build_deps[@]}"
-            ;;
-        termux)
-            run_quiet "Installing build dependencies" pkg install -y "${build_deps_termux[@]}"
-            ;;
-        darwin)
-            return
-            ;;
-        esac
-    fi
-}
-
 setup_package_manager() {
+    local update_requested="$1"
+
     case "$DISTRO" in
-    ubuntu | debian)
-        setup_apt
+    ubuntu)
+        setup_apt "$update_requested"
+        add_apt_repositories "${UBUNTU_PPA_REPOSITORIES[@]}"
+        ;;
+    debian)
+        setup_apt "$update_requested"
         ;;
     termux)
-        run_quiet "Updating pkg for termux" pkg update -y -qq
+        run_quiet "Updating pkg" pkg update -y -qq
+        if [[ "$update_requested" == true ]]; then
+            run_quiet "Upgrading pkg packages" pkg upgrade -y
+        fi
         ;;
     darwin)
-        setup_brew
+        setup_brew "$update_requested"
         ;;
     *)
         error "Unsupported OS: $DISTRO"
@@ -121,95 +133,52 @@ setup_package_manager() {
 }
 
 setup_apt() {
-    run_quiet "Setting up apt for $DISTRO" bash -c '
+    local update_requested="$1"
+
+    run_quiet "Preparing apt" bash -c '
         export DEBIAN_FRONTEND=noninteractive
-        sudo ln -sf /usr/share/zoneinfo/UTC /etc/localtime &&
-        sudo apt-get -y update &&
-        sudo apt-get -y install software-properties-common &&
-        sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch &&
-        sudo apt-get -y update
+        sudo ln -sf /usr/share/zoneinfo/UTC /etc/localtime
     '
+    if [[ "$update_requested" == true ]]; then
+        run_quiet "Upgrading apt packages" sudo apt-get -y upgrade
+    fi
+}
+
+add_apt_repositories() {
+    local repos=("$@")
+    for repo in "${repos[@]}"; do
+        run_quiet "Adding PPA: $repo" sudo add-apt-repository -y "$repo"
+    done
+    [[ "${#repos[@]}" -gt 0 ]] && run_quiet "Refreshing apt after adding PPAs" sudo apt-get -y update
 }
 
 setup_brew() {
     if ! command -v brew &>/dev/null; then
-        run_quiet "Installing brew" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        run_quiet "Updating brew" brew update
+        run_quiet "Installing Homebrew" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
-}
 
-get_uninstalled_packages() {
-    local packages=("$@")
-    local not_installed=()
-
-    for package in "${packages[@]}"; do
-        case "$DISTRO" in
-        ubuntu | debian)
-            dpkg -s "$package" &>/dev/null || not_installed+=("$package")
-            ;;
-        termux)
-            local_skip_list=("gcc" "g++")
-            [[ " ${local_skip_list[@]} " =~ " ${package} " ]] && continue
-            if [[ "$package" == "fd-find" ]]; then
-                package="fd"
-            fi
-            pkg list-installed | grep -q "^$package/" || not_installed+=("$package")
-            ;;
-        darwin)
-            [[ "$package" == "fd-find" ]] && package="fd"
-            local skip_list=("g++" "tar")
-            [[ " ${skip_list[@]} " =~ " ${package} " ]] && continue
-            [[ -z $(brew ls --versions "$package") ]] && not_installed+=("$package")
-            ;;
-        esac
-    done
-    echo "${not_installed[@]}"
+    if [[ "$1" == true ]]; then
+        run_quiet "Updating & upgrading Homebrew" bash -c "brew update && brew upgrade"
+    else
+        run_quiet "Updating Homebrew" brew update
+    fi
 }
 
 install_packages() {
     local packages=("$@")
-    local not_installed=()
-    not_installed=($(get_uninstalled_packages "${packages[@]}"))
-    [[ ${#not_installed[@]} -eq 0 ]] && return
+    [[ ${#packages[@]} -eq 0 ]] && return
+
     case "$DISTRO" in
     ubuntu | debian)
-        run_quiet "Installing packages" sudo apt-get install -y "${not_installed[@]}"
+        run_quiet "Installing apt packages" sudo apt-get install -y "${packages[@]}"
         ;;
     termux)
-        run_quiet "Installing packages" pkg install -y "${not_installed[@]}"
+        run_quiet "Installing pkg packages" pkg install -y "${packages[@]}"
         ;;
     darwin)
-        run_quiet "Installing packages" brew install "${not_installed[@]}"
+        run_quiet "Installing brew packages" brew install "${packages[@]}"
         ;;
     esac
-}
-
-install_lazygit() {
-    if [[ "$OS" != "Linux" ]]; then
-        return
-    fi
-
-    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": *"v\K[^"]*')
-    LAZYGIT_URL="https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-
-    if command -v lazygit &>/dev/null; then
-        current_version=$(lazygit -v | grep -Po -m 1 'version=\K[^,]*' | head -1)
-        if [[ "$LAZYGIT_VERSION" == "$current_version" ]]; then
-            log "Already have the latest version of lazygit: $LAZYGIT_VERSION"
-            return
-        fi
-    fi
-
-    tmp_dir=$(mktemp -d)
-
-    run_quiet "Installing lazygit $LAZYGIT_VERSION" bash -c '
-        set -e
-        curl -Lo "$0/lazygit.tar.gz" "$1" &&
-        tar -xzf "$0/lazygit.tar.gz" -C "$0" &&
-        sudo install "$0/lazygit" -D -t /usr/local/bin
-    ' "$tmp_dir" "$LAZYGIT_URL"
-
-    rm -rf "$tmp_dir"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

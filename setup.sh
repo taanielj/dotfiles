@@ -29,15 +29,3 @@ for file in "${files[@]}"; do
     eval "main_$(basename "$file" .sh)"
 done
 
-cargo_tools=(
-    "eza"
-    "zoxide"
-)
-
-[[ $(command -v cargo) ]] && {
-    for tool in "${cargo_tools[@]}"; do
-        if ! command -v "$tool" &>/dev/null; then
-            run_quiet "Installing $tool" cargo install "$tool"    
-        fi
-    done
-}
