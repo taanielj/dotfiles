@@ -47,8 +47,12 @@ install_mise_termux() {
         rc="${rc_files[$shell]}"
         grep -q "mise activate $shell" "$rc" 2>/dev/null ||
             echo "eval \"\$($HOME/.local/bin/mise activate $shell)\"" >>"$rc"
-        grep -q "proot -b" "$rc" 2>/dev/null ||
-            echo "mise() { proot -b $PREFIX/etc/resolv.conf" -b "$PREFIX/etc/tls:/etc/ssl" mise "$@"; }" >>"$rc"
+
+        grep -q "proot -b" "$rc" 2>/dev/null || cat <<EOF >>"$rc"
+    mise() {
+        proot -b $PREFIX/etc/resolv.conf -b $PREFIX/etc/tls:/etc/ssl mise "\$@"
+    }
+    EOF
     done
 }
 
