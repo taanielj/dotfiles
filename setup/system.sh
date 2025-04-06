@@ -7,6 +7,7 @@ COMMON_PACKAGES=(
     "curl" "wget" "git"     # General tools
     "zsh" "tmux" "fzf" "jq" # Shell and tools
     "unzip" "zip"           # Compression and archiving
+    "direnv"
 )
 
 DEBIAN_PACKAGES=(
@@ -138,6 +139,7 @@ setup_apt() {
     run_quiet "Preparing apt" bash -c '
         export DEBIAN_FRONTEND=noninteractive
         sudo ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+        sudo apt-get update -y
     '
     if [[ "$update_requested" == true ]]; then
         run_quiet "Upgrading apt packages" sudo apt-get -y upgrade

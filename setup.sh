@@ -18,6 +18,8 @@ files=(
     "$REPO_ROOT/setup/tmux.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/mise.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/nvim.sh"   # no sudo, platform agnostic
+    "$REPO_ROOT/setup/lazygit.sh" # no sudo, platform agnostic
+    "$REPO_ROOT/setup/cargo.sh"  # no sudo, platform agnostic
 )
 
 for file in "${files[@]}"; do

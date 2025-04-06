@@ -9,25 +9,35 @@ main_mise() {
 }
 
 install_mise() {
-    # mise's install script is idempotent, so no need to check if it's already installed
     run_quiet "Installing mise" bash -c "curl https://mise.run | sh"
-    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        shell_name=$(basename "$rc" | cut -d. -f2)
-        grep -q 'mise activate' "$rc" || echo "eval \"\$($HOME/.local/bin/mise activate $shell_name)\"" >>"$rc"
+    declare -A rc_files=(
+        [bash]="$HOME/.bashrc"
+        [zsh]="$HOME/.zshrc"
+    )
+    for shell in "${!rc_files[@]}"; do
+        rc="${rc_files[$shell]}"
+        grep -q "mise activate $shell" "$rc" 2>/dev/null ||
+            echo "eval \"\$($HOME/.local/bin/mise activate $shell)\"" >>"$rc"
     done
-    # activate for current shell
-    eval "$($HOME/.local/bin/mise activate bash)"
+    current_shell=$(basename "$SHELL")
+    eval "$($HOME/.local/bin/mise activate "$current_shell")"
 }
 
 install_tools() {
     cd "$REPO_ROOT" || return 1
-    run_quiet "Installing tools" mise install
+
     mkdir -p "$HOME/.config/mise"
-    touch $HOME/.config/mise/config.toml
+    touch "$HOME/.config/mise/config.toml"
+
+    log "Installing tools from .tool-versions"
     while IFS= read -r line; do
         [[ -z "$line" || "$line" =~ ^# ]] && continue
-        tool=$(echo "$line" | cut -d' ' -f1)
-        version=$(echo "$line" | cut -d' ' -f2)
+
+        tool=$(echo "$line" | awk '{print $1}')
+        version=$(echo "$line" | awk '{print $2}')
+
+        run_quiet "📦 Installing $tool@$version" mise install "$tool"
+
         mise config set "tools.$tool" "$version"
     done <"$REPO_ROOT/.tool-versions"
 }

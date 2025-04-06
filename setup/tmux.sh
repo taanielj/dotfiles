@@ -8,9 +8,9 @@ main_tmux() {
 }
 
 configure_tmux() {
-    echo "Configuring tmux..."
+    log "Configuring tmux..."
     if ! command -v tmux &>/dev/null; then
-        echo "Tmux is not installed. Installation failed."
+        warn "Tmux is not installed. Installation failed."
         return 1
     fi
 
@@ -18,7 +18,7 @@ configure_tmux() {
     if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
         git -C "$HOME/.tmux/plugins/tpm" pull &>/dev/null
     else
-        git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+        run_quiet "Cloning tpm" git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
     fi
 
     rm -f "$HOME/.tmux.conf"
