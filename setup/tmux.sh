@@ -30,17 +30,14 @@ configure_tmux() {
         tmux new-session -d
     fi
 
-    # Install plugins
-    "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh" >/dev/null
-
+    run_quiet "Installing tmux plugins" "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
     # Source new configuration
     tmux source-file ~/.tmux.conf
-    echo "Tmux configuration updated."
-
     # Cleanup: If we started tmux, kill it (but only if no real sessions exist)
     if ! tmux list-sessions &>/dev/null; then
         tmux kill-server
     fi
+    success "Tmux configuration completed."
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

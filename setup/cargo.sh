@@ -8,7 +8,7 @@ TOOLS=(
     "zoxide"
     "bat"
     "ripgrep"
-    "fd"
+    "fd-find"
 )
 
 main_cargo() {
