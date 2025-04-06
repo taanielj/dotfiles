@@ -29,32 +29,35 @@ install_mise() {
 }
 
 install_mise_termux() {
-    # curl https://mise.jdx.dev/mise-latest-linux-arm64-musl > $HOME/.local/bin/mise
     run_quiet "Installing musl version of mise" bash -c "curl https://mise.jdx.dev/mise-latest-linux-arm64-musl > $HOME/.local/bin/mise"
-    chmod +x $HOME/.local/bin/mise
+    chmod +x "$HOME/.local/bin/mise"
     mkdir -p "$HOME/.config/mise"
+
     declare -A rc_files=(
         [bash]="$HOME/.bashrc"
         [zsh]="$HOME/.zshrc"
     )
 
     local certs_dir="$PREFIX/etc/tls/certs"
-    # mkdir -p "$PREFIX/etc/tls/certs"
     mkdir -p "$certs_dir"
-    ln -s "$PREFIX/etc/tls/cert.pem" "$PREFIX/etc/tls/certs.pem"
-    ln -s "$PREFIX/etc/tls/cert.pem" "$certs_dir/ca-certificates.crt" 
+    ln -sf "$PREFIX/etc/tls/cert.pem" "$PREFIX/etc/tls/certs.pem"
+    ln -sf "$PREFIX/etc/tls/cert.pem" "$certs_dir/ca-certificates.crt"
+
     for shell in "${!rc_files[@]}"; do
         rc="${rc_files[$shell]}"
+
         grep -q "mise activate $shell" "$rc" 2>/dev/null ||
             echo "eval \"\$($HOME/.local/bin/mise activate $shell)\"" >>"$rc"
 
         grep -q "proot -b" "$rc" 2>/dev/null || cat <<EOF >>"$rc"
-    mise() {
-        proot -b $PREFIX/etc/resolv.conf -b $PREFIX/etc/tls:/etc/ssl mise "\$@"
-    }
-    EOF
-    done
+mise() {
+    proot -b $PREFIX/etc/resolv.conf -b $PREFIX/etc/tls:/etc/ssl mise "\$@"
 }
+EOF
+    done
+    eval "$($HOME/.local/bin/mise activate "$current_shell")"
+}
+
 
 install_tools() {
     cd "$REPO_ROOT" || return 1
