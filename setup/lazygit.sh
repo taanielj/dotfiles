@@ -15,7 +15,7 @@ install_lazygit() {
     mkdir -p "$HOME/.local/bin"
 
     if command -v lazygit &>/dev/null; then
-        current_version=$("$LAZYGIT_BIN" -v 2>/dev/null | grep -Po 'version=\K[^, ]+')
+        current_version=$("$LAZYGIT_BIN" -v 2>/dev/null | grep -oE 'version=[^,]+' | cut -d= -f2 | head -n 1)
         if [[ "$current_version" == "$LAZYGIT_VERSION" ]]; then
             log "✅ lazygit is already up to date (v$current_version)"
             return
@@ -37,8 +37,6 @@ install_lazygit() {
     log "✅ lazygit v$LAZYGIT_VERSION installed to $LAZYGIT_BIN"
 }
 
-
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_lazygit "$@"
 fi
-
