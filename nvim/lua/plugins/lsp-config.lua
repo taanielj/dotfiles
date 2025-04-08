@@ -15,7 +15,7 @@ return {
         "neovim/nvim-lspconfig",
         dependencies = {
             { "williamboman/mason.nvim", opts = {} },
-            { "j-hui/fidget.nvim", opt = true },
+            { "j-hui/fidget.nvim",       opt = true },
             "hrsh7th/cmp-nvim-lsp",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -212,30 +212,22 @@ return {
         config = function()
             local lint = require("lint")
             lint.linters_by_ft = {
-                go = { "golangcilint" },
-                dockerfile = { "hadolint" },
+                -- go = { "golangcilint" },
+                -- dockerfile = { "hadolint" },
                 -- python = { "ruff" },
             }
-            local golangcilint = lint.linters.golangcilint
-            golangcilint.env = { "GOGC+off" }
-            golangcilint.args = {
-                "run",
-                "--config",
-                function()
-                    local path = vim.fn.expand("./lqt-go-linter/.golangci.yml")
-                    -- file readable expects abs path
-                    if vim.fn.filereadable(path) == 1 then
-                        return path
-                    else
-                        return ".golangci.yml"
-                    end
-                end,
-                "--out-format",
-                "json",
-                function()
-                    return vim.fn.getcwd() .. "/..."
-                end,
-            }
+            -- local golangcilint = lint.linters.golangcilint
+            -- golangcilint.args = {
+            --     "run",
+            --     "--output.json.path=stdout",
+            --     "--issues-exit-code=0",
+            --     "--show-stats=false",
+            --     "--output.text.print-issued-lines=false",
+            --     "--output.text.print-linter-name=false",
+            --     function()
+            --         return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":h")
+            --     end,
+            -- }
 
             local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
             vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
@@ -254,8 +246,8 @@ return {
             require("mason-nvim-lint").setup({
                 automatic_installation = true,
                 ensure_installed = {
-                    "golangci-lint",
-                    "hadolint",
+                    -- "golangci-lint",
+                    -- "hadolint",
                     -- "ruff",
                 },
                 ignore_install = { "custom-linter" },
