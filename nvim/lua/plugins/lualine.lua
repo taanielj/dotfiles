@@ -13,9 +13,9 @@ return {
                 lualine_a = {
                     {
                         "mode",
-                        icons_enabled = true, -- Enable icons
-                        icon = { "", align = "left" }, -- Icon to the right
-                        separator = nil, -- Optional: Define separator if needed
+                        icons_enabled = true,
+                        icon = { "", align = "left" },
+                        separator = nil,
                     },
                 },
                 lualine_b = {
@@ -27,13 +27,13 @@ return {
                     "diagnostics",
                 },
                 lualine_c = {
-                	{
-                		"filename",
-                		file_status = true, -- Display file status
-                		path = 1, -- 0 = just filename, 1 = relative path, 2 = absolute path
-                		shortin_target = 40,
-                		symbols = { modified = "", readonly = "", unnamed = "[No Name]", newfile = "[New]" }, -- Icons
-                	}
+                    {
+                        "filename",
+                        file_status = true, -- Display file status
+                        path = 1, -- 0 = just filename, 1 = relative path, 2 = absolute path
+                        shortin_target = 40,
+                        symbols = { modified = "", readonly = "", unnamed = "[No Name]", newfile = "[New]" }, -- Icons
+                    },
                 },
             },
         })

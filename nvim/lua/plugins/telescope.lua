@@ -44,9 +44,24 @@ return {
         -- search current buffer
         vim.keymap.set("n", "<leader> ", builtin.find_files, { desc = "Find Files" })
         vim.keymap.set("n", "<leader>/", function()
-            builtin.current_buffer_fuzzy_find(
-                require("telescope.themes").get_dropdown({ winblend = 10, previewer = false })
-            )
+            local dropdown = require("telescope.themes").get_dropdown({
+                winblend = 10,
+                previewer = false,
+            })
+
+            local original = dropdown.attach_mappings or function()
+                return true
+            end
+
+            dropdown.attach_mappings = function(prompt_bufnr, map)
+                vim.schedule(function()
+                    local winid = vim.api.nvim_get_current_win()
+                    vim.wo[winid].scrolloff = 8
+                end)
+                return original(prompt_bufnr, map)
+            end
+
+            require("telescope.builtin").current_buffer_fuzzy_find()
         end, { desc = "Find in current buffer" })
         vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find Buffers" })
         vim.keymap.set("n", "<leader>fG", function()

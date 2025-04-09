@@ -79,18 +79,17 @@ return {
                 quit = true,
             })
             local bufdel_mappings = {
-                { "n", "ZZ", ":BufDel<CR>", "Save and close buffer" },
-                { "n", "<leader>bq", ":BufDel<CR>", "Save and close buffer" },
-                { "n", "<leader>qb", ":BufDel<CR>", "Save and close buffer" },
-                { "n", "<leader>q!", ":BufDel!<CR>", "Close buffer without saving" },
-                { "n", "<Leader>qa", ":wa<CR>:qa<CR>", "Quit and save all" },
-                { "n", "<Leader>qfy", ":qa!<CR>", "Quit without saving?" },
+                { "n", "ZZ",          ":BufDel<CR>",    "Save and close buffer" },
+                { "n", "<leader>bq",  ":BufDel<CR>",    "Save and close buffer" },
+                { "n", "<leader>qb",  ":BufDel<CR>",    "Save and close buffer" },
+                { "n", "<leader>q!",  ":BufDel!<CR>",   "Close buffer without saving" },
+                { "n", "<Leader>qa",  ":wa<CR>:qa<CR>", "Quit and save all" },
+                { "n", "<Leader>qfy", ":qa!<CR>",       "Quit without saving?" },
             }
 
             for _, map in ipairs(bufdel_mappings) do
                 vim.keymap.set(map[1], map[2], map[3], { desc = map[4], silent = true })
             end
-
         end,
     },
 }

@@ -54,7 +54,7 @@ return {
                     else
                         vim.cmd("Neotree")
                     end
-                end
+                end,
             },
             pre_delete_cmds = {
                 "Neotree action=close",
@@ -68,8 +68,8 @@ return {
                         vim.cmd("Alpha"),
                         vim.cmd("bd#"),
                     }
-                end
-            }
+                end,
+            },
         })
     end,
 }
