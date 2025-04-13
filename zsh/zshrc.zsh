@@ -1,8 +1,12 @@
-if [[ -r "$XDG_CONFIG_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "$XDG_CONFIG_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+### ────────────────────────────────
+###  Instant Prompt (Powerlevel10k)
+### ────────────────────────────────
 
-### The following lines were added by compinstall
+[[ -r ${p10k_prompt:="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"} ]] && source "$p10k_prompt"
+
+### ────────────────────────────────
+###  Completion System (compinstall)
+### ────────────────────────────────
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' completions 1
 zstyle ':completion:*' glob 1
@@ -13,16 +17,36 @@ autoload -Uz compinit
 compinit
 
 export PATH="$PATH:/snap/bin"
-### End of lines added by compinstall
 
-# Path to your oh-my-zsh installation.
+### ────────────────────────────────
+###  Oh My Zsh Setup
+### ────────────────────────────────
 export ZSH="$HOME/.oh-my-zsh"
 
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
-[ ! -d $ZINIT_HOME/.git ] && git clone https://Github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-source "${ZINIT_HOME}/zinit.zsh"
+plugins=(
+    git
+    git-auto-fetch
+)
 
+## Autocomplete config
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+CASE_SENSITIVE="true"
+
+## Update config
+zstyle ':omz:update' mode auto
+zstyle ':omz:update' frequency 13
+
+source $ZSH/oh-my-zsh.sh
+
+### ────────────────────────────────
+###  Zinit Plugin Manager
+### ────────────────────────────────
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+[ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
+[ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+
+source "${ZINIT_HOME}/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
@@ -31,34 +55,9 @@ zinit light zsh-users/zsh-completions
 zinit light Aloxaf/fzf-tab
 zinit light romkatv/powerlevel10k
 
-
-## Plugin configuration
-plugins=(
-    git
-    git-auto-fetch
-)
-
-## Autocomplete configuration
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-# Uncomment the following line to use case-sensitive completion.
-CASE_SENSITIVE="true"
-
-## Update configuration
-zstyle ':omz:update' mode auto      # update automatically without asking
-zstyle ':omz:update' frequency 13
-
-## Source the Oh My Zsh script
-source $ZSH/oh-my-zsh.sh
-
-## Enable true color support - needed for tmux and nvim
-export COLORTERM=truecolor
-
-# Initialize zoxide
-if command -v zoxide &> /dev/null; then
-    eval "$(zoxide init --cmd cd zsh)"
-fi
-# eval "$(oh-my-posh init zsh --config $HOME/.oh-my-posh.omp.json)"
-
+### ────────────────────────────────
+###  History Settings
+### ────────────────────────────────
 HISTSIZE=100000
 SAVEHIST=100000
 HISTFILE=~/.zsh_history
@@ -69,30 +68,54 @@ setopt SHARE_HISTORY
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt HIST_SAVE_NO_DUPS
-export FZF_DEFAULT_COMMAND='fd --hidden'
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+### ────────────────────────────────
+###  Environment / UI Settings
+### ────────────────────────────────
 
-# The next lines update PATH for the Google Cloud SDK and enable shell command completion for gcloud.
+# ----------------------------
+# FZF Defaults (recommended)
+# ----------------------------
+export COLORTERM=truecolor
+export PATH=$HOME/.local/nvim/bin:$PATH
+
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+
+### ────────────────────────────────
+###  Optional Tools (zoxide, direnv, mise, fzf)
+### ────────────────────────────────
+
+# fzf
+[[ -f $HOME/.fzf.zsh ]] && source "$HOME/.fzf.zsh"
+# mise
+[[ -x $HOME/.local/bin/mise ]] && eval "$($HOME/.local/bin/mise activate zsh)"
+[[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="never"
+
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)" # zoxide
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)" # direnv
+# command -v oh-my-posh >/dev/null 2>&1 && eval "$(oh-my-posh init zsh --config "$HOME/.oh-my-posh.omp.json")"
+
+### ────────────────────────────────
+###  Google Cloud SDK Integration
+### ────────────────────────────────
 [[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
 [[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
 
-if [ -d $HOME/.config/zsh ]; then
-    for file in $HOME/.config/zsh/*.zsh; do
-        # skip current file (zshrc.zsh is symlinked to $HOME/.zshrc)
-        if [ $(basename $file) = "zshrc.zsh" ]; then
-        continue
-        fi
-        source $file
-    done
-fi
-[[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
-[[ -f $HOME/.fzf.zsh ]] && source $HOME/.fzf.zsh
-# mise
-[[ -f $HOME/.local/bin/mise ]] && eval "$($HOME/.local/bin/mise activate zsh)"
-[[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="never"
+### ────────────────────────────────
+###  User Configuration Files
+### ────────────────────────────────
+for file in "$HOME"/.config/zsh/*.zsh "$HOME/.zshrc.local"; do
+    [[ ! -f "$file" ]] && continue
+    [[ "$(basename "$file")" == "zshrc.zsh" ]] && continue
+    source "$file"
+done
 
-eval "$(direnv hook zsh)"
-export PATH=$HOME/.local/nvim/bin:$PATH
+[[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
+
+### ────────────────────────────────
+### Everything after this line is added by any automatic script, move them above to organize if you want
+### ────────────────────────────────
+
+

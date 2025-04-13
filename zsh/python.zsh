@@ -186,9 +186,12 @@ update_reqs() {
 
     # Step 1: Strip version numbers from requirements.txt in-place
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' 's/==.*//g' requirements.txt
+        sed -i '' -E 's/(==[^#[:space:]]+)//' requirements.txt  # handles extras better
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        sed -i 's/==.*//g' requirements.txt
+        sed -i -E 's/(==[^#[:space:]]+)//' requirements.txt
+    else
+        echo "Unsupported OS type: $OSTYPE"
+        return 1
     fi
 
     # Step 2: Update pip and install the latest versions of packages from requirements.txt
@@ -225,4 +228,114 @@ update_reqs() {
     fi
 }
 
-alias pipr='pip install -r <(printf "%s\n" "$@" | tee -a requirements.txt)'
+
+pipr() {
+    [[ $# -eq 0 ]] && {
+        echo "Usage: pipr <package...>"
+        return 1
+    }
+
+    local reqfile="requirements.txt"
+    [[ ! -f "$reqfile" ]] && {
+        echo "📝 Creating $reqfile"
+        touch "$reqfile"
+    }
+
+    for input_pkg in "$@"; do
+        echo "📦 Installing $input_pkg..."
+        if ! python -m pip install --quiet "$input_pkg"; then
+            echo "❌ Failed to install $input_pkg"
+            continue
+        fi
+
+        # Get installed canonical name + version
+        local versioned
+        versioned=$(python -m pip show "$input_pkg" 2>/dev/null | awk '
+            BEGIN { name=""; version="" }
+            /^Name:/    { name=tolower($2) }
+            /^Version:/ { version=$2 }
+            END {
+                if (name && version)
+                    print name "==" version
+            }' | xargs)
+
+        if [[ -z "$versioned" ]]; then
+            echo "⚠️  Could not resolve version for $input_pkg"
+            continue
+        fi
+
+        # If input_pkg included [extra], preserve it
+        if [[ "$input_pkg" == *"["*"]"* ]]; then
+            versioned="${input_pkg%%=*}==${versioned#*==}"
+        fi
+
+        # Normalize and check if already in file
+        local safe_pkg_line
+        safe_pkg_line=$(echo "$versioned" | tr '[:upper:]' '[:lower:]' | tr '._-' '-')
+
+        if grep -iEq "^${safe_pkg_line%%==*}(==|\[|\s|$)" <(tr '[:upper:]' '[:lower:]' <"$reqfile" | tr '._-' '-'); then
+            echo "✅ ${versioned%%==*} already listed in $reqfile"
+        else
+            echo "➕ Adding $versioned to $reqfile"
+            echo "$versioned" >> "$reqfile"
+        fi
+    done
+}
+
+poetry_refresh() {
+  local do_main=false
+  local do_dev=false
+  local confirm=true
+  local pyproject="pyproject.toml"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --main) do_main=true ;;
+      --dev)  do_dev=true ;;
+      --all)  do_main=true; do_dev=true ;;
+      --yes|-y) confirm=false ;;
+      *) echo "Usage: poetry_refresh [--main] [--dev] [--all] [--yes]"; return 1 ;;
+    esac
+    shift
+  done
+
+  [[ "$do_main" == false && "$do_dev" == false ]] && do_main=true
+
+  [[ ! -f "$pyproject" ]] && { echo "❌ No $pyproject found."; return 1; }
+
+  for group in main dev; do
+    local section flag
+    if [[ "$group" == "main" && "$do_main" == true ]]; then
+      section="tool.poetry.dependencies"
+      flag=""
+    elif [[ "$group" == "dev" && "$do_dev" == true ]]; then
+      section="tool.poetry.group.dev.dependencies"
+      flag="-D"
+    else
+      continue
+    fi
+
+    local packages
+    packages=$(awk -v section="\[$section\]" '
+      $0 == section { f=1; next }
+      /^\[/ { f=0 }
+      f && /^[^#]/ { sub(/ =.*/, ""); if ($0 != "python") print }
+    ' "$pyproject")
+
+    [[ -z "$packages" ]] && { echo "⚠️  No $group dependencies found."; continue; }
+
+    echo "🔄 Refreshing [$group] dependencies:"
+    echo "$packages" | sed 's/^/   • /'
+
+    if $confirm; then
+      echo -n "❓ Refresh $group packages to latest and pin? (y/n): "
+      read -r input
+      input=$(echo "$input" | tr '[:upper:]' '[:lower:]')
+      [[ "$input" != "y" ]] && { echo "🚫 Skipped $group."; continue; }
+    fi
+
+    poetry remove $(echo $packages)
+    poetry add $flag $(echo $packages)
+    echo "✅ [$group] dependencies refreshed."
+  done
+}
