@@ -62,21 +62,38 @@ EOF
 install_tools() {
     cd "$REPO_ROOT" || return 1
 
+    local toolfile="$REPO_ROOT/.tool-versions"
+    [[ ! -f "$toolfile" ]] && error "Missing .tool-versions file" && exit 1
+
     mkdir -p "$HOME/.config/mise"
     touch "$HOME/.config/mise/config.toml"
 
-    log "Installing tools from .tool-versions"
-    while IFS= read -r line; do
-        [[ -z "$line" || "$line" =~ ^# ]] && continue
+    log "Parsing .tool-versions for available tools..."
 
-        tool=$(echo "$line" | awk '{print $1}')
-        version=$(echo "$line" | awk '{print $2}')
+    mapfile -t all_tools < <(awk '!/^#/ && NF { print $1 }' "$toolfile")
 
-        run_quiet "📦 Installing $tool@$version" mise install "$tool"
+    if ! command -v fzf &>/dev/null; then
+        error "fzf not found. Please install it to use interactive tool selection."
+        exit 1
+    fi
 
-        mise config set "tools.$tool" "$version"
-    done <"$REPO_ROOT/.tool-versions"
+    log "📦 Select tools to install (use TAB to mark multiple, ENTER to confirm)"
+    selected_tools=$(printf "%s\n" "${all_tools[@]}" | fzf --multi --prompt="Select tools: " --header="Use TAB to select, ENTER to confirm")
+
+    if [[ -z "$selected_tools" ]]; then
+        warn "⚠️  No tools selected. Skipping tool installation."
+        return
+    fi
+
+    while IFS= read -r selected_tool; do
+        version=$(awk -v tool="$selected_tool" '$1 == tool { print $2 }' "$toolfile")
+        [[ -z "$version" ]] && warn "⚠️  Version not found for $selected_tool" && continue
+
+        run_quiet "📦 Installing $selected_tool@$version" mise install "$selected_tool"
+        mise config set "tools.$selected_tool" "$version"
+    done <<<"$selected_tools"
 }
+
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_mise "$@"

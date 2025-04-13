@@ -79,7 +79,13 @@ setopt HIST_SAVE_NO_DUPS
 export COLORTERM=truecolor
 export PATH=$HOME/.local/nvim/bin:$PATH
 
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+if command -v fdfind >/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'
+elif command -v fd >/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+else
+    export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.*"'
+fi
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
@@ -106,7 +112,7 @@ command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)" # direnv
 ### ────────────────────────────────
 ###  User Configuration Files
 ### ────────────────────────────────
-for file in "$HOME"/.config/zsh/*.zsh "$HOME/.zshrc.local"; do
+for file in "$HOME"/.config/zsh/*.zsh; do
     [[ ! -f "$file" ]] && continue
     [[ "$(basename "$file")" == "zshrc.zsh" ]] && continue
     source "$file"
