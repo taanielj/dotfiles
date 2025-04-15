@@ -6,6 +6,7 @@ source "$REPO_ROOT/setup/utils.sh"
 main_mise() {
     if [[ "$OSTYPE" == "linux-android" ]]; then
         install_mise_termux
+        return 0
     else
         install_mise
     fi
@@ -29,6 +30,9 @@ install_mise() {
 }
 
 install_mise_termux() {
+    # WIP, does not work yet properly
+    warn "Use asdf for now, mise is not fully supported on termux yet"
+    return 0
     run_quiet "Installing musl version of mise" bash -c "curl https://mise.jdx.dev/mise-latest-linux-arm64-musl > $HOME/.local/bin/mise"
     chmod +x "$HOME/.local/bin/mise"
     mkdir -p "$HOME/.config/mise"

@@ -6,6 +6,8 @@
 # Global variables #
 ####################
 
+echo "Deprecated, use setup.sh instead" && exit 1
+
 # Repository directory
 REPO_DIR="$(git rev-parse --show-toplevel)"
 

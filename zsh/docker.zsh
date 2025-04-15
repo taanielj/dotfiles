@@ -17,7 +17,7 @@ _docker_compose() {
         [[ "$arg" == "-f" || "$arg" == "--find" ]] && find_mode=1 || args+=("$arg")
     done
 
-    if (( find_mode )); then
+    if ((find_mode)); then
         compose_file=$(_find_compose_file)
         [[ -z "$compose_file" ]] && echo "No compose file selected" && return 1
         docker compose -f "$compose_file" "${args[@]}"
@@ -27,13 +27,13 @@ _docker_compose() {
 }
 
 # Basic aliases
-dc()    { _docker_compose "$@"; }
-dcu()   { _docker_compose up -d "$@"; }
-dcd()   { _docker_compose down "$@"; }
-dcdu()  { dcd && dcu "$@"; }
-dcdv()  { _docker_compose down -v "$@"; }
-dcr()   { dcd && dcu "$@"; }
-dcR()   { dcdv && dcu "$@"; }
+dc() { _docker_compose "$@"; }
+dcu() { _docker_compose up -d "$@"; }
+dcd() { _docker_compose down "$@"; }
+dcdu() { dcd && dcu "$@"; }
+dcdv() { _docker_compose down -v "$@"; }
+dcr() { dcd && dcu "$@"; }
+dcR() { dcdv && dcu "$@"; }
 
 # ─────────────────────────────────────────────────────────────
 # Container FZF Picker
@@ -93,26 +93,53 @@ de() {
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
     local cmd=(docker exec -it -e TERM=xterm-256color "$container")
-    (( $# )) && "${cmd[@]}" "$@" && return
+    (($#)) && "${cmd[@]}" "$@" && return
 
     "${cmd[@]}" bash 2>/dev/null ||
-    "${cmd[@]}" sh 2>/dev/null ||
-    echo "No suitable shell found in container: $container"
+        "${cmd[@]}" sh 2>/dev/null ||
+        echo "No suitable shell found in container: $container"
 }
 
 # ─────────────────────────────────────────────────────────────
 # Docker Logs (interactive or static if not running)
 # ─────────────────────────────────────────────────────────────
 
+_pipe_json_if_valid() {
+    while IFS= read -r line; do
+        # Strip leading timestamp if present
+        content=$(echo "$line" | sed -E 's/^[0-9T:.Z-]+ //')
+        
+        # Check if the content is a JSON object
+        if [[ "$content" =~ ^\{.*\}$ ]]; then
+            # Test if it's valid JSON and pretty print with color
+            if echo "$content" | jq empty &>/dev/null 2>&1; then
+                # Use bat for syntax highlighting if available
+                if command -v bat &>/dev/null; then
+                    echo "$content" | jq . | bat --color=always --language=json --style=plain
+                else
+                    echo "$content" | jq .
+                fi
+                continue
+            fi
+        fi
+        
+        # Otherwise, print the original line
+        echo "$line"
+    done
+}
+
+# Modified dl function with color support
 dl() {
     local container="$(_select_container)"
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
+    # Set environment variable to ensure color output
+    export CLICOLOR_FORCE=1
+    
     if docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null | grep -q true; then
-        docker logs -f --tail 1000 --timestamps --details "$container" "$@"
+        docker logs -f --tail 1000 "$container" "$@" | _pipe_json_if_valid
     else
         echo "Container $container is not running — showing full logs"
-        docker logs --timestamps --details "$container" "$@" | cat
+        docker logs "$container" "$@" | _pipe_json_if_valid
     fi
 }
-
