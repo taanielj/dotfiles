@@ -6,6 +6,7 @@ vim.cmd("set number")
 vim.cmd("set relativenumber")
 vim.cmd("set clipboard=unnamedplus")
 vim.cmd("set scroll=5")
+vim.cmd("set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175")
 vim.o.mousemoveevent = true
 vim.opt.scroll = 5
 -- undo setup

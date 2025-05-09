@@ -71,6 +71,10 @@ return {
                         ".env*",
                         ".*ignore",
                     },
+                    never_show = {
+                        ".DS_Store",
+                        "__pycache__",
+                    },
                 },
             },
         })

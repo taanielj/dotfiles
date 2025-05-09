@@ -81,11 +81,54 @@ kd() {
     [ -n "$pod" ] && kubectl describe pod "$pod"
 }
 
-kl() {
-    kp >/dev/null
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -n "$pod" ] && kubectl logs "$pod" -f
+_pipe_json_if_valid() {
+    while IFS= read -r line; do
+        # Strip leading timestamp if present (ISO 8601 + space)
+        content="${line##+([0-9T:.Z-]) }"
+
+        # Fast path: skip lines that don't look like JSON objects
+        [[ "$content" =~ ^\{.*\}$ ]] || { echo "$line"; continue; }
+
+        # Try to parse with jq
+        if parsed=$(echo "$content" | jq . 2>/dev/null); then
+            if command -v bat &>/dev/null; then
+                echo "$parsed" | bat --color=always --language=json --style=plain --paging=never
+            else
+                echo "$parsed"
+            fi
+        else
+            # Fallback: print original if jq fails
+            echo "$line"
+        fi
+    done
 }
+
+kl() {
+    kp >/dev/null || return
+
+    local query pod
+    if [[ $# -gt 0 ]]; then
+        query="$1"
+        shift
+
+        local matches
+        matches=$(kubectl get pods -o name | grep "$query" || true)
+
+        if [[ $(echo "$matches" | wc -l) -eq 1 ]]; then
+            pod=$(echo "$matches" | cut -d'/' -f2)
+        else
+            pod=$(kubectl get pods -o name | fzf --query="$query" --select-1 --exit-0 | cut -d'/' -f2)
+        fi
+    else
+        pod=$(kubectl get pods -o name | fzf --select-1 --exit-0 | cut -d'/' -f2)
+    fi
+
+    [[ -z "$pod" ]] && echo "No pod selected" && return 1
+
+    kubectl logs "$pod" -f "$@" | _pipe_json_if_valid
+}
+
+
 
 kauth() {
     local verb="$1"

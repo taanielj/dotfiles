@@ -42,7 +42,7 @@ source $ZSH/oh-my-zsh.sh
 ###  Zinit Plugin Manager
 ### ────────────────────────────────
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-
+# Load zinit
 [ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
 [ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 
@@ -50,10 +50,38 @@ source "${ZINIT_HOME}/zinit.zsh"
 autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 
-zinit light zsh-users/zsh-autosuggestions
-zinit light zsh-users/zsh-completions
-zinit light Aloxaf/fzf-tab
-zinit light romkatv/powerlevel10k
+# Check if zmodule is installed and built
+# zmodload zdharma/zplugin 2>/dev/null || zinit module build
+
+load=light
+
+# or specify a delay in seconds 
+zinit ice wait blockf lucid
+zinit $load zsh-users/zsh-completions
+zinit ice depth=1
+zinit $load romkatv/powerlevel10k
+
+# zinit ice wait lucid
+zinit $load zsh-users/zsh-autosuggestions
+
+# zinit ice wait lucid
+zinit $load Aloxaf/fzf-tab
+
+# Oh-my-zsh plugins with zinit, use zinit for faster loading
+# OMZ:  shorthand for https://github.com/ohmyzsh/ohmyzsh/blob/master
+# OMZL: shorthand for OMZ::lib/ 
+# OMZP: shorthand for OMZ::plugins/ 
+# OMZT: shorthand for OMZ::themes/
+setopt promptsubst #required to support most themes
+
+# git.zsh must be loaded
+# zinit snippet OMZL::git.zsh
+# zinit snippet OMZL::clipboard.zsh
+# zinit snippet https:://github.com/ohmyzsh/ohmyzsh/blob/master/lib/clipboard.zsh
+# zinit snippet OMZL::termsupport.zsh
+# zinit snippet https:://github.com/ohmyzsh/ohmyzsh/blob/master/lib/termsupport.zsh 
+# zinit snippet OMZP::git
+# zinit snippet OMZP::git-auto-fetch
 
 ### ────────────────────────────────
 ###  History Settings
@@ -125,3 +153,7 @@ done
 ### ────────────────────────────────
 
 
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

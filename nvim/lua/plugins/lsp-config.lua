@@ -188,6 +188,13 @@ return {
                     [vim.diagnostic.severity.HINT] = { "󰌵", texthl = "DiagnosticSignHint" },
                     [vim.diagnostic.severity.WARN] = { "󰅙", texthl = "DiagnosticSignWarn" },
                 },
+                virtual_text = {
+                    prefix = "●",
+                    source = "if_many",
+                    format = function(diagnostic)
+                        return string.format("%s %s", diagnostic.source, diagnostic.message)
+                    end,
+                },
             })
         end,
     },

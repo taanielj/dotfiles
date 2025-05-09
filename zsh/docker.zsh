@@ -28,12 +28,13 @@ _docker_compose() {
 
 # Basic aliases
 dc() { _docker_compose "$@"; }
-dcu() { _docker_compose up -d "$@"; }
+dcu() { _docker_compose up -d --build "$@"; }
 dcd() { _docker_compose down "$@"; }
 dcdu() { dcd && dcu "$@"; }
-dcdv() { _docker_compose down -v "$@"; }
+dcD() { _docker_compose down -v "$@"; }
+dcDu() { dcD && dcu "$@"; }
 dcr() { dcd && dcu "$@"; }
-dcR() { dcdv && dcu "$@"; }
+dcR() { dcD && dcu "$@"; }
 
 # ─────────────────────────────────────────────────────────────
 # Container FZF Picker
@@ -93,11 +94,27 @@ de() {
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
     local cmd=(docker exec -it -e TERM=xterm-256color "$container")
-    (($#)) && "${cmd[@]}" "$@" && return
 
-    "${cmd[@]}" bash 2>/dev/null ||
-        "${cmd[@]}" sh 2>/dev/null ||
+    # If additional arguments are passed, try to validate the command exists first
+    if (($#)); then
+        if "${cmd[@]}" sh -c "command -v $1" &>/dev/null; then
+            "${cmd[@]}" "$@"
+        else
+            echo "Command '$1' not found in container: $container"
+            return 127
+        fi
+        return
+    fi
+
+    # Interactive shell fallback, preferring bash
+    if "${cmd[@]}" sh -c 'command -v bash' &>/dev/null; then
+        "${cmd[@]}" bash
+    elif "${cmd[@]}" sh -c 'command -v sh' &>/dev/null; then
+        "${cmd[@]}" sh
+    else
         echo "No suitable shell found in container: $container"
+        return 1
+    fi
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -106,36 +123,48 @@ de() {
 
 _pipe_json_if_valid() {
     while IFS= read -r line; do
-        # Strip leading timestamp if present
-        content=$(echo "$line" | sed -E 's/^[0-9T:.Z-]+ //')
-        
-        # Check if the content is a JSON object
-        if [[ "$content" =~ ^\{.*\}$ ]]; then
-            # Test if it's valid JSON and pretty print with color
-            if echo "$content" | jq empty &>/dev/null 2>&1; then
-                # Use bat for syntax highlighting if available
-                if command -v bat &>/dev/null; then
-                    echo "$content" | jq . | bat --color=always --language=json --style=plain
-                else
-                    echo "$content" | jq .
-                fi
-                continue
+        # Strip leading timestamp if present (ISO 8601 + space)
+        content="${line##+([0-9T:.Z-]) }"
+
+        # Fast path: skip lines that don't look like JSON objects
+        [[ "$content" =~ ^\{.*\}$ ]] || { echo "$line"; continue; }
+
+        # Try to parse with jq
+        if parsed=$(echo "$content" | jq . 2>/dev/null); then
+            if command -v bat &>/dev/null; then
+                echo "$parsed" | bat --color=always --language=json --style=plain --paging=never
+            else
+                echo "$parsed"
             fi
+        else
+            # Fallback: print original if jq fails
+            echo "$line"
         fi
-        
-        # Otherwise, print the original line
-        echo "$line"
     done
 }
 
-# Modified dl function with color support
 dl() {
-    local container="$(_select_container)"
+    local query="$1"
+    shift || true
+
+    local container=""
+    if [[ -n "$query" ]]; then
+        # Try to find exact match first
+        if docker ps -a --format '{{.Names}}' | grep -Fxq "$query"; then
+            container="$query"
+        else
+            # Fuzzy search with pre-filled input
+            container=$(docker ps -a --format '{{.Names}} {{.Status}}' | fzf --query="$query" --select-1 --exit-0 | awk '{print $1}')
+        fi
+    else
+        container="$(_select_container)"
+    fi
+
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
-    # Set environment variable to ensure color output
+    # Always force color, just in case
     export CLICOLOR_FORCE=1
-    
+
     if docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null | grep -q true; then
         docker logs -f --tail 1000 "$container" "$@" | _pipe_json_if_valid
     else
