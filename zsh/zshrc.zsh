@@ -125,7 +125,7 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 [[ -f $HOME/.fzf.zsh ]] && source "$HOME/.fzf.zsh"
 # mise
 [[ -x $HOME/.local/bin/mise ]] && eval "$($HOME/.local/bin/mise activate zsh)"
-[[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="never"
+[[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="always"
 
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)" # zoxide
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)" # direnv

@@ -15,7 +15,7 @@ return {
         "neovim/nvim-lspconfig",
         dependencies = {
             { "williamboman/mason.nvim", opts = {} },
-            { "j-hui/fidget.nvim",       opt = true },
+            { "j-hui/fidget.nvim", opt = true },
             "hrsh7th/cmp-nvim-lsp",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -207,6 +207,7 @@ return {
                 ensure_installed = {
                     "stylua",
                     "black",
+                    "isort",
                     --"sqlfmt",
                     "shfmt",
                 },
