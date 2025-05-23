@@ -4,6 +4,7 @@
 
 [[ -r ${p10k_prompt:="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"} ]] && source "$p10k_prompt"
 
+
 ### ────────────────────────────────
 ###  Completion System (compinstall)
 ### ────────────────────────────────
@@ -13,30 +14,25 @@ zstyle ':completion:*' glob 1
 zstyle ':completion:*' substitute 1
 zstyle :compinstall filename '$HOME/.zshrc'
 
+export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+export CASE_SENSITIVE="true"
+
+# Initialize the completion system
 autoload -Uz compinit
 compinit
 
-export PATH="$PATH:/snap/bin"
+# Set select-word-style to bash
+autoload -U select-word-style
+select-word-style bash
 
-### ────────────────────────────────
-###  Oh My Zsh Setup
-### ────────────────────────────────
-export ZSH="$HOME/.oh-my-zsh"
+# Make zsh autocomplete with up arrow
+autoload -Uz history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+bindkey "$terminfo[kcuu1]" history-beginning-search-backward-end
+bindkey "$terminfo[kcud1]" history-beginning-search-forward-end
 
-plugins=(
-    git
-    git-auto-fetch
-)
-
-## Autocomplete config
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-CASE_SENSITIVE="true"
-
-## Update config
-zstyle ':omz:update' mode auto
-zstyle ':omz:update' frequency 13
-
-source $ZSH/oh-my-zsh.sh
 
 ### ────────────────────────────────
 ###  Zinit Plugin Manager
@@ -80,7 +76,7 @@ setopt promptsubst #required to support most themes
 # zinit snippet https:://github.com/ohmyzsh/ohmyzsh/blob/master/lib/clipboard.zsh
 # zinit snippet OMZL::termsupport.zsh
 # zinit snippet https:://github.com/ohmyzsh/ohmyzsh/blob/master/lib/termsupport.zsh 
-# zinit snippet OMZP::git
+zinit snippet OMZP::git
 # zinit snippet OMZP::git-auto-fetch
 
 ### ────────────────────────────────
@@ -154,6 +150,8 @@ done
 
 
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+
+
+
+
