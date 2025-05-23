@@ -21,6 +21,7 @@ files=(
     "$REPO_ROOT/setup/lazygit.sh" # no sudo, platform agnostic
     "$REPO_ROOT/setup/cargo.sh"  # no sudo, platform agnostic
 )
+[[ "$OSTYPE" == "darwin"* ]] && files+=("$REPO_ROOT/setup/kitty.sh")
 
 for file in "${files[@]}"; do
     divider

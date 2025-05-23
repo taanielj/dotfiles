@@ -13,20 +13,34 @@ main_mise() {
     install_tools
 }
 
+activate_mise() {
+    # More robust shell detection
+    current_shell=$(ps -p $$ -ocomm= | sed 's/^-//')
+    if [[ -z "$current_shell" ]]; then
+        error "Could not detect current shell for mise activation"
+        exit 1
+    fi
+
+    eval "$("$HOME/.local/bin/mise" activate "$current_shell")"
+}
+
 install_mise() {
-    # Works on Linux and MacOS, NOT termux
+    # Works on Linux and macOS, not Termux
     run_quiet "Installing mise" bash -c "curl https://mise.run | sh"
+
     declare -A rc_files=(
         [bash]="$HOME/.bashrc"
         [zsh]="$HOME/.zshrc"
     )
+
     for shell in "${!rc_files[@]}"; do
         rc="${rc_files[$shell]}"
-        grep -q "mise activate $shell" "$rc" 2>/dev/null ||
+        grep -q "mise activate $shell" "$rc" 2>/dev/null || {
             echo "eval \"\$($HOME/.local/bin/mise activate $shell)\"" >>"$rc"
+        }
     done
-    current_shell=$(basename "$SHELL")
-    eval "$($HOME/.local/bin/mise activate "$current_shell")"
+
+    activate_mise
 }
 
 install_mise_termux() {
@@ -59,9 +73,8 @@ mise() {
 }
 EOF
     done
-    eval "$($HOME/.local/bin/mise activate "$current_shell")"
+    activate_mise
 }
-
 
 install_tools() {
     cd "$REPO_ROOT" || return 1
@@ -97,7 +110,6 @@ install_tools() {
         mise config set "tools.$selected_tool" "$version"
     done <<<"$selected_tools"
 }
-
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_mise "$@"
