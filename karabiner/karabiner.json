@@ -385,6 +385,11 @@
                                             "^com.apple.finder"
                                         ],
                                         "type": "frontmost_application_if"
+                                    },
+                                    {
+                                        "name": "is_spotlight_active",
+                                        "type": "variable_if",
+                                        "value": false
                                     }
                                 ],
                                 "from": { "key_code": "delete_or_backspace" },
@@ -408,6 +413,11 @@
                                             "^com.apple.finder"
                                         ],
                                         "type": "frontmost_application_if"
+                                    },
+                                    {
+                                        "name": "is_spotlight_active",
+                                        "type": "variable_if",
+                                        "value": false
                                     }
                                 ],
                                 "from": {
@@ -434,6 +444,11 @@
                                             "^com.apple.finder"
                                         ],
                                         "type": "frontmost_application_if"
+                                    },
+                                    {
+                                        "name": "is_spotlight_active",
+                                        "type": "variable_if",
+                                        "value": false
                                     }
                                 ],
                                 "from": { "key_code": "delete_forward" },
@@ -481,6 +496,11 @@
                                             "^com.apple.finder"
                                         ],
                                         "type": "frontmost_application_if"
+                                    },
+                                    {
+                                        "name": "is_spotlight_active",
+                                        "type": "variable_if",
+                                        "value": false
                                     }
                                 ],
                                 "from": { "key_code": "f2" },
@@ -528,7 +548,7 @@
                                 ],
                                 "from": {
                                     "key_code": "spacebar",
-                                    "modifiers": { "mandatory": ["control"] }
+                                    "modifiers": { "mandatory": ["command"] }
                                 },
                                 "to": [
                                     {
@@ -539,7 +559,7 @@
                                     },
                                     {
                                         "key_code": "spacebar",
-                                        "modifiers": ["control"]
+                                        "modifiers": ["command"]
                                     }
                                 ],
                                 "type": "basic"
@@ -554,7 +574,7 @@
                                 ],
                                 "from": {
                                     "key_code": "spacebar",
-                                    "modifiers": { "mandatory": ["control"] }
+                                    "modifiers": { "mandatory": ["command"] }
                                 },
                                 "to": [
                                     {
@@ -565,7 +585,7 @@
                                     },
                                     {
                                         "key_code": "spacebar",
-                                        "modifiers": ["control"]
+                                        "modifiers": ["command"]
                                     }
                                 ],
                                 "type": "basic"
