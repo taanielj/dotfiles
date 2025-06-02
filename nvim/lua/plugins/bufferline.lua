@@ -22,8 +22,12 @@ return {
             require("bufferline").setup({
                 highlights = require("catppuccin.groups.integrations.bufferline").get(),
                 options = {
-                    middle_mouse_command = "BufDel",
-                    right_mouse_command = "BufferLineTogglePin",
+                    middle_mouse_command = "BufDel %d",
+                    close_command = "BufDel %d",
+
+                    right_mouse_command = function(bufnr)
+                        require("menu").open_buffer_menu(bufnr)
+                    end,
                     diagnostics = "nvim_lsp",
                     offsets = {
                         {

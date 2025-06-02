@@ -23,6 +23,11 @@ local map = function(mappings)
     end
 end
 
+vim.keymap.set("n", "i", function()
+    vim.wo.relativenumber = false
+    return "i"
+end, { noremap = true, expr = true, silent = true, desc = "Insert mode without relative number" })
+
 
 -- Store all mappings in a single table, grouped by functionality
 -- Supply the mode(s), key(s), command and description

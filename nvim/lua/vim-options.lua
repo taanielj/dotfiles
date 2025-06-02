@@ -41,7 +41,15 @@ vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
 
 
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+vim.lsp.handlers["textDocument/hover"] = function(err, result, _, config)
+  if err or not result or not result.contents then return end
+
+  local lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
+  if vim.tbl_isempty(lines) then return end
+
+  return vim.lsp.util.open_floating_preview(lines, "markdown", vim.tbl_deep_extend("force", config or {}, {
     border = "rounded",
     focusable = false,
-})
+  }))
+end
+

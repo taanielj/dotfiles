@@ -15,7 +15,6 @@ vim.opt.rtp:prepend(lazypath)
 require("vim-options") -- Basic vim options
 require("keybinds")    -- Keybinds
 require("autocmd")     -- Autocommands
-require("mouse")       -- Mouse, don't judge me
 -- load plugins automatically in lua/plugins folder
 require("lazy").setup("plugins")
 

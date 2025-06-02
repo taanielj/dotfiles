@@ -2,18 +2,14 @@ local function augroup(name)
     return vim.api.nvim_create_augroup("user_" .. name, { clear = true })
 end
 
--- Relative number toggle on insert
-vim.api.nvim_create_autocmd("InsertEnter", {
-    group = augroup("number_toggle"),
-    callback = function()
-        vim.opt.relativenumber = false
-    end,
-})
+
 
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = augroup("number_toggle"),
     callback = function()
-        vim.opt.relativenumber = true
+        if vim.bo.filetype ~= "neo-tree" then
+            vim.wo.relativenumber = true
+        end
     end,
 })
 
