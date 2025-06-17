@@ -147,8 +147,12 @@ rm_venv() {
         return
     fi
 
-    [[ -n "$VIRTUAL_ENV" && "$VIRTUAL_ENV" == "$venv_path" ]] && deactivate
+    [[ -n "$VIRTUAL_ENV" && "$VIRTUAL_ENV" == "$venv_path" && -x "$venv_path/bin/deactivate" ]] && {
+        deactivate
+    }
+    
     rm -rf "$venv_path"
+    unset VIRTUAL_ENV
     echo "Virtual environment removed: $venv_path"
 }
 

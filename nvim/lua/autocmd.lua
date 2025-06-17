@@ -13,6 +13,15 @@ vim.api.nvim_create_autocmd("InsertLeave", {
     end,
 })
 
+-- disable conceallevel for json
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup("json_conceal"),
+    pattern = "json",
+    callback = function()
+        vim.opt_local.conceallevel = 0
+    end,
+})
+
 -- Neotree special behavior
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("neotree"),
