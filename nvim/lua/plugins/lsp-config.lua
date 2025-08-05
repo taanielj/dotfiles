@@ -20,7 +20,13 @@ return {
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
         },
+        opts = {
+            servers = {
+                sqlls = { mason = false }, -- disable mason for this server
+            },
+        },
         config = function()
+
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
                 callback = function(event)
@@ -148,7 +154,6 @@ return {
             lspconfig.eslint.setup({ capabilities = capabilities })
             lspconfig.cssls.setup({ capabilities = capabilities })
             lspconfig.terraformls.setup({ capabilities = capabilities })
-            lspconfig.sqlls.setup({ capabilities = capabilities })
             lspconfig.bashls.setup({
                 filetypes = { "sh", "zsh", "bash" },
                 capabilities = capabilities,
@@ -165,7 +170,6 @@ return {
                     -- "ruff",
                     "dockerls",
                     "terraformls",
-                    "sqlls",
                     "html",
                     "eslint",
                     "cssls",

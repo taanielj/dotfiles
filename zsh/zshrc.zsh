@@ -82,17 +82,20 @@ zinit snippet OMZP::git
 ### ────────────────────────────────
 ###  History Settings
 ### ────────────────────────────────
-HISTSIZE=100000
-SAVEHIST=100000
+HISTSIZE=1000000
+SAVEHIST=1000000
 HISTFILE=~/.zsh_history
 
 setopt APPEND_HISTORY
 setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_REDUCE_BLANKS
-setopt HIST_SAVE_NO_DUPS
-
+setopt HIST_EXPIRE_DUPS_FIRST  # Expire dup event first when trimming hist
+setopt HIST_FIND_NO_DUPS       # Do not display previously found event
+setopt HIST_IGNORE_ALL_DUPS    # Delete old event if new is dup
+setopt HIST_IGNORE_DUPS        # Do not record consecutive dup events
+setopt HIST_IGNORE_SPACE       # Do not record event starting with a space
+setopt HIST_REDUCE_BLANKS      # Remove extra blanks from each event
+setopt HIST_SAVE_NO_DUPS       # Do not write dup event to hist file
 ### ────────────────────────────────
 ###  Environment / UI Settings
 ### ────────────────────────────────
