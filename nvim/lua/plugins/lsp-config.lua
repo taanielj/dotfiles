@@ -132,7 +132,7 @@ return {
                             -- https://github.com/microsoft/pyright/blob/main/docs/configuration.md#diagnostic-settings-defaults
                             typeCheckingMode = "basic", -- "off" | "basic" | "standard" | "strict"
                             diagnosticSeverityOverrides = {
-                                -- reportUnusedFunction = "none",
+                                reportUnusedFunction = "information",
                                 -- reportUnusedExpression = "none",
                             },
                         },

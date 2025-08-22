@@ -17,15 +17,37 @@ return {
     },
     config = function()
         local actions = require("telescope.actions")
+        -- make sure databases directory exists
+        local database_dir = vim.fn.expand("~/.local/share/nvim/databases")
+        if not vim.fn.isdirectory(database_dir) then
+            vim.fn.mkdir(database_dir, "p")
+        end
         require("telescope").setup({
+            pickers = {
+                live_grep = {
+                    mappings = {
+                        i = { ["<c-f>"] = require("telescope.actions").to_fuzzy_refine },
+                    },
+                },
+            },
             extensions = {
                 ["ui-select"] = {
                     require("telescope.themes").get_dropdown({}),
                 },
             },
             defaults = {
+                vimmgrep_arguments = {
+                    "rg",
+                    "--color=never",
+                    "--no-heading",
+                    "--with-filename",
+                    "--line-number",
+                    "--column",
+                    "--smart-case",
+                    "-u",
+                },
                 history = {
-                    path = "~/.local/share/nvim/databases/telescope_history.sqlite3",
+                    path = database_dir .. "/telescope_history.sqlite3",
                     limit = 100,
                 },
                 mappings = {
@@ -42,7 +64,9 @@ return {
         local builtin = require("telescope.builtin")
 
         -- search current buffer
+        -- Find all files in current working directory:
         vim.keymap.set("n", "<leader> ", builtin.find_files, { desc = "Find Files" })
+        -- Find all open buffers:
         vim.keymap.set("n", "<leader>/", function()
             local dropdown = require("telescope.themes").get_dropdown({
                 winblend = 10,
@@ -70,6 +94,7 @@ return {
             })
         end, { desc = "Find in Open Files" })
         vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Find in Project" })
+        -- Fuzzy find in current working directory:
         -- find (in) hidden files:
         vim.keymap.set("n", "<leader>hf", function()
             builtin.find_files({ hidden = true, no_ignore = true })
@@ -78,7 +103,12 @@ return {
             builtin.buffers({ show_all_buffers = true, no_ignore = true })
         end, { desc = "Find Hidden Buffers" })
         vim.keymap.set("n", "<leader>hg", function()
-            builtin.live_grep({ additional_args = { "--hidden --no-ignore" } })
-        end, { desc = "Hidden Live Grep" })
+            builtin.live_grep({
+                file_ignore_patterns = { ".venv", ".idea", ".git" },
+                additional_args = function()
+                    return { "--hidden" }
+                end,
+            })
+        end, { desc = "Find in Hidden Files" })
     end,
 }

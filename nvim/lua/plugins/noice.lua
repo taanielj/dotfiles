@@ -32,7 +32,7 @@ return {
             },
             messages = {
                 view = "mini",
-                view_error = "popup",
+                -- view_error = "popup",
             }
         })
     end,

@@ -15,7 +15,14 @@ return {
                 null_ls.builtins.formatting.black.with({
                     extra_args = { "--line-length", "120" },
                 }),
-                null_ls.builtins.formatting.isort,
+                null_ls.builtins.formatting.isort.with({
+                    extra_args = {
+                        "--line-length",
+                        "120",
+                        "--profile",
+                        "black",
+                    },
+                }),
                 null_ls.builtins.formatting.sqlfmt,
             },
         })
