@@ -37,9 +37,7 @@ vim.cmd("set colorcolumn=121")
 -- set persistent undo
 vim.opt.undofile = true
 vim.opt.undolevels = 1000
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
-
-
+vim.opt.undodir = os.getenv("HOME") .. "/.local/state/nvim/undodir"
 
 vim.lsp.handlers["textDocument/hover"] = function(err, result, _, config)
   if err or not result or not result.contents then return end

@@ -151,3 +151,6 @@ done
 ### Everything after this line is added by any automatic script, move them above to organize if you want
 ### ────────────────────────────────
 
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+export KITTY_DISABLE_WAYLAND=1
