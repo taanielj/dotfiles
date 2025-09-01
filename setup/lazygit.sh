@@ -8,8 +8,10 @@ main_lazygit() {
 }
 
 install_lazygit() {
-    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" |
-        grep -Po '"tag_name": *"v\K[^"]*')
+    LAZYGIT_VERSION=$(
+        curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" |
+            sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
+    )
     LAZYGIT_BIN="$HOME/.local/bin/lazygit"
 
     mkdir -p "$HOME/.local/bin"

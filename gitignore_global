@@ -15,7 +15,7 @@ Session.vim
 # Python specific
 __pycache__/
 *.pyc
-*.pyo
+*.coverage
 
 # Claude Code
 CLAUDE.md

@@ -1,19 +1,20 @@
-__check_python_env() {
-    # Set preferred Python version/command
-    declare -a python_versions=(
-        "python3.12"
-        "python3.11"
-        "python3.10"
-        "python3.9"
-        "python3.8"
-        "python3.7"
-        "python3.6"
-        "python3"
-        "python"
-    )
+__detect_tools() {
+    if command -v uv >/dev/null 2>&1; then
+        export USE_UV=1
+    else
+        unset USE_UV
+    fi
+}
 
+__check_python_env() {
+    __detect_tools
+
+    # If uv is present, we still try to discover Python for non-uv paths and messages
+    declare -a python_versions=(
+        "python3.12" "python3.11" "python3.10" "python3.9" "python3.8" "python3.7" "python3.6" "python3" "python"
+    )
     for version in "${python_versions[@]}"; do
-        if command -v "$version" &>/dev/null; then
+        if command -v "$version" >/dev/null 2>&1; then
             PYTHON_EXEC="$version"
             break
         fi
@@ -26,27 +27,57 @@ __check_python_env() {
         export PYTHON_EXEC
     fi
 
-    # Check for pip
-    if ! $PYTHON_EXEC -m pip -V &>/dev/null; then
+    if [[ -n "$USE_UV" ]]; then
+        # With uv available we don't need to manage pip/ensurepip here.
+        export VENV_MODULE="uv"   # marker for our create helper below
+        return 0
+    fi
+
+    # Fallback: stock pip/venv path
+    if ! "$PYTHON_EXEC" -m pip -V >/dev/null 2>&1; then
         echo "pip not found. Installing pip..."
-        if ! $PYTHON_EXEC -m ensurepip &>/dev/null; then
+        if ! "$PYTHON_EXEC" -m ensurepip >/dev/null 2>&1; then
             echo "Failed to install pip. Please install pip manually."
             return 1
         fi
-        $PYTHON_EXEC -m pip install --upgrade pip
+        "$PYTHON_EXEC" -m pip install --upgrade pip
     fi
 
-    # Check for venv
-    if $PYTHON_EXEC -m venv --help &>/dev/null; then
+    if "$PYTHON_EXEC" -m venv --help >/dev/null 2>&1; then
         export VENV_MODULE="venv"
-    elif $PYTHON_EXEC -m virtualenv --help &>/dev/null; then
+    elif "$PYTHON_EXEC" -m virtualenv --help >/dev/null 2>&1; then
         export VENV_MODULE="virtualenv"
     else
         echo "Warning: venv or virtualenv not found. Installing virtualenv..."
-        if ! $PYTHON_EXEC -m pip install virtualenv &>/dev/null; then
+        if ! "$PYTHON_EXEC" -m pip install virtualenv >/dev/null 2>&1; then
             echo "Failed to install virtualenv. Please install a virtual environment manager manually."
             return 1
         fi
+        export VENV_MODULE="virtualenv"
+    fi
+}
+
+# Wrapper to run pip-like commands via uv if available, else python -m pip
+__pip() {
+    if [[ -n "$USE_UV" ]]; then
+        uv pip "$@"
+    else
+        "$PYTHON_EXEC" -m pip "$@"
+    fi
+}
+
+# Create a venv using uv (preferred) or Python's venv/virtualenv
+__venv_create() {
+    local venv_path="$1"
+    if [[ -n "$USE_UV" ]]; then
+        # uv will choose an interpreter; prefer the discovered one if possible
+        if [[ -n "$PYTHON_EXEC" ]]; then
+            UV_PYTHON="$PYTHON_EXEC" uv venv "$venv_path"
+        else
+            uv venv "$venv_path"
+        fi
+    else
+        "$PYTHON_EXEC" -m "$VENV_MODULE" "$venv_path"
     fi
 }
 

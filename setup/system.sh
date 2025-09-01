@@ -36,8 +36,10 @@ TERMUX_PACKAGES=(
 
 MACOS_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
+    "lazygit"   # available in brew
     "fastfetch" # available in brew
-    # General Build dependencies are already installed with Xcode which gets installed with brew
+    "mise"      # available in brew
+    # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
 )
 
 main_system() {

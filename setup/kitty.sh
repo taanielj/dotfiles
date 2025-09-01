@@ -10,7 +10,7 @@ main_kitty() {
         exit 1
     fi
 
-    run_quiet brew install --cask kitty
+    run_quiet "Installing Kitty" brew install --cask kitty
 
     ln -sf "$REPO_ROOT/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
     ln -sf "$REPO_ROOT/kitty/kitty-dark.icns" "$HOME/.config/kitty/kitty-dark.icns"

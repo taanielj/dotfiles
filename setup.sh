@@ -18,10 +18,10 @@ files=(
     "$REPO_ROOT/setup/tmux.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/mise.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/nvim.sh"   # no sudo, platform agnostic
-    "$REPO_ROOT/setup/lazygit.sh" # no sudo, platform agnostic
     "$REPO_ROOT/setup/cargo.sh"  # no sudo, platform agnostic
 )
 [[ "$OSTYPE" == "darwin"* ]] && files+=("$REPO_ROOT/setup/kitty.sh")
+[[ "$OSTYPE" == "linux-gnu"* ]] && files+=("$REPO_ROOT/setup/lazygit.sh")
 
 for file in "${files[@]}"; do
     divider

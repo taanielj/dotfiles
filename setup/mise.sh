@@ -4,13 +4,25 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
 main_mise() {
+    install_mise
+    unset mise
+    mise_binary=$(which mise 2>/dev/null || echo "$HOME/.local/bin/mise")
+    add_mise_to_shell_rc
+    install_tools
+}
+
+install_mise() {
+    # Check if mise is already installed
+    if command -v mise &>/dev/null; then
+        log "mise is already installed, skipping installation."
+        return 0
+    fi
     if [[ "$OSTYPE" == "linux-android" ]]; then
         install_mise_termux
         return 0
     else
-        install_mise
+        install_mise_from_script
     fi
-    install_tools
 }
 
 activate_mise() {
@@ -21,13 +33,15 @@ activate_mise() {
         exit 1
     fi
 
-    eval "$("$HOME/.local/bin/mise" activate "$current_shell")"
+    eval "$("$mise_binary" activate "$current_shell")"
 }
 
-install_mise() {
+install_mise_from_script() {
     # Works on Linux and macOS, not Termux
     run_quiet "Installing mise" bash -c "curl https://mise.run | sh"
+}
 
+add_mise_to_shell_rc() {
     declare -A rc_files=(
         [bash]="$HOME/.bashrc"
         [zsh]="$HOME/.zshrc"
@@ -35,13 +49,21 @@ install_mise() {
 
     for shell in "${!rc_files[@]}"; do
         rc="${rc_files[$shell]}"
-        grep -q "mise activate $shell" "$rc" 2>/dev/null || {
-            echo "eval \"\$($HOME/.local/bin/mise activate $shell)\"" >>"$rc"
-        }
+
+        # Remove any existing lines mentioning mise activate
+        tmp="$(mktemp)"
+        grep -v "mise activate $shell" "$rc" >"$tmp" || true
+        mv "$tmp" "$rc"
+
+        # Append the correct line
+        log "Using $mise_binary for $shell in $rc"
+        echo "eval \"\$($mise_binary activate $shell)\"" >>"$rc"
     done
 
     activate_mise
 }
+
+
 
 install_mise_termux() {
     # WIP, does not work yet properly

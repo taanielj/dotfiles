@@ -130,10 +130,10 @@ return {
                         analysis = {
                             -- See here for defaults:
                             -- https://github.com/microsoft/pyright/blob/main/docs/configuration.md#diagnostic-settings-defaults
-                            typeCheckingMode = "basic", -- "off" | "basic" | "standard" | "strict"
+                            typeCheckingMode = "standard", -- "off" | "basic" | "standard" | "strict"
                             diagnosticSeverityOverrides = {
                                 reportUnusedFunction = "information",
-                                -- reportUnusedExpression = "none",
+                                reportUnusedExpression = "information", -- maybe in correct?
                             },
                         },
                     },
