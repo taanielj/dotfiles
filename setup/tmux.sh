@@ -40,6 +40,23 @@ configure_tmux() {
     success "Tmux configuration completed."
 }
 
+teardown_tmux() {
+    log "Removing tmux configuration..."
+
+    # Remove tmux.conf symlink
+    if [[ -L "$HOME/.tmux.conf" && "$(readlink "$HOME/.tmux.conf")" == "$REPO_ROOT/tmux.conf" ]]; then
+        rm -f "$HOME/.tmux.conf"
+    fi
+
+    # Remove TPM and plugins
+    if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
+        log "Removing tmux plugin manager and plugins"
+        rm -rf "$HOME/.tmux/plugins"
+    fi
+
+    success "Tmux configuration removed."
+}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_tmux "$@"
 fi

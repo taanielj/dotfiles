@@ -31,6 +31,3 @@ for file in "${files[@]}"; do
     source "$file"
     eval "main_$(basename "$file" .sh)"
 done
-
-
-

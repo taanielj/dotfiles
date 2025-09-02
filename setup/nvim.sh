@@ -36,7 +36,7 @@ install_nvim() {
     rm -rf "$tmp_dir"
 
     for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        grep -q "/.local/nvim/bin" "$rc" || echo 'export PATH=$HOME/.local/nvim/bin:$PATH' >> "$rc"
+        grep -q "/.local/nvim/bin" "$rc" || echo 'export PATH=$HOME/.local/nvim/bin:$PATH' >>"$rc"
     done
     export PATH="$HOME/.local/nvim/bin:$PATH"
 
@@ -66,7 +66,40 @@ configure_nvim() {
     success "Neovim configuration completed."
 }
 
+teardown_nvim() {
+    log "Removing Neovim configuration..."
+
+    # Remove nvim config symlink and restore backup if exists
+    if [[ -L "$HOME/.config/nvim" && "$(readlink -f "$HOME/.config/nvim")" == "$(readlink -f "$REPO_ROOT/nvim")" ]]; then
+        rm -f "$HOME/.config/nvim"
+
+        # Find the latest backup and restore it
+        local latest_backup
+        latest_backup=$(ls -td "$HOME/.config/nvim.backup."* 2>/dev/null | head -n1)
+        if [[ -d "$latest_backup" ]]; then
+            log "Restoring Neovim configuration from backup: $latest_backup"
+            mv "$latest_backup" "$HOME/.config/nvim"
+        fi
+    fi
+
+    # Remove Neovim binary
+    if [[ -d "$HOME/.local/nvim" ]]; then
+        log "Removing Neovim installation from ~/.local/nvim"
+        rm -rf "$HOME/.local/nvim"
+    fi
+
+    # Clean up PATH in rc files
+    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+        if [[ -f "$rc" ]]; then
+            log "Removing Neovim path from $rc"
+            sed -i.bak '/\.local\/nvim\/bin/d' "$rc"
+            rm -f "$rc.bak"
+        fi
+    done
+
+    success "Neovim configuration and installation removed."
+}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_nvim "$@"
 fi
-

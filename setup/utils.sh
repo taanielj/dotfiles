@@ -75,4 +75,3 @@ run_quiet() {
         success " Done"
     fi
 }
-

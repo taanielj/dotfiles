@@ -22,6 +22,27 @@ main_kitty() {
         "$HOME/.config/kitty/kitty-dark.icns"
 }
 
+teardown_kitty() {
+    log "Removing Kitty configuration..."
+
+    # Remove symlinks
+    if [[ -L "$HOME/.config/kitty/kitty.conf" ]]; then
+        rm -f "$HOME/.config/kitty/kitty.conf"
+    fi
+
+    if [[ -L "$HOME/.config/kitty/kitty-dark.icns" ]]; then
+        rm -f "$HOME/.config/kitty/kitty-dark.icns"
+    fi
+
+    # Optionally uninstall kitty using brew
+    if command -v brew >/dev/null 2>&1 && brew list --cask | grep -q "^kitty$"; then
+        log "Uninstalling Kitty via Homebrew"
+        brew uninstall --cask kitty
+    fi
+
+    success "Kitty configuration removed."
+}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_kitty "$@"
 fi

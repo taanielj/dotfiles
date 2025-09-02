@@ -11,6 +11,39 @@ main_mise() {
     install_tools
 }
 
+teardown_mise() {
+    log "Removing mise configuration..."
+
+    # Clean up mise activation from shell rc files
+    declare -A rc_files=(
+        [bash]="$HOME/.bashrc"
+        [zsh]="$HOME/.zshrc"
+    )
+
+    for shell in "${!rc_files[@]}"; do
+        rc="${rc_files[$shell]}"
+        if [[ -f "$rc" ]]; then
+            log "Removing mise activation from $rc"
+            grep -v "mise activate $shell" "$rc" >"$rc.tmp" || true
+            mv "$rc.tmp" "$rc"
+        fi
+    done
+
+    # Remove mise config directory
+    if [[ -d "$HOME/.config/mise" ]]; then
+        log "Removing mise config directory"
+        rm -rf "$HOME/.config/mise"
+    fi
+
+    # Remove mise binary if installed locally
+    if [[ -f "$HOME/.local/bin/mise" ]]; then
+        log "Removing mise binary from ~/.local/bin"
+        rm -f "$HOME/.local/bin/mise"
+    fi
+
+    success "Mise configuration removed."
+}
+
 install_mise() {
     # Check if mise is already installed
     if command -v mise &>/dev/null; then
@@ -62,8 +95,6 @@ add_mise_to_shell_rc() {
 
     activate_mise
 }
-
-
 
 install_mise_termux() {
     # WIP, does not work yet properly

@@ -39,6 +39,18 @@ install_lazygit() {
     log "✅ lazygit v$LAZYGIT_VERSION installed to $LAZYGIT_BIN"
 }
 
+teardown_lazygit() {
+    LAZYGIT_BIN="$HOME/.local/bin/lazygit"
+
+    if [[ -f "$LAZYGIT_BIN" ]]; then
+        log "Removing lazygit installation from $LAZYGIT_BIN"
+        rm -f "$LAZYGIT_BIN"
+        success "Lazygit uninstalled."
+    else
+        log "Lazygit is not installed at $LAZYGIT_BIN. Nothing to do."
+    fi
+}
+
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_lazygit "$@"
 fi
