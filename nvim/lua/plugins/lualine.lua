@@ -35,6 +35,13 @@ return {
                         symbols = { modified = "", readonly = "", unnamed = "[No Name]", newfile = "[New]" }, -- Icons
                     },
                 },
+                lualine_x = {
+                    {
+                        require("noice").api.statusline.mode.get,
+                        cond = require("noice").api.statusline.mode.has,
+                        color = { fg = "#ff9e64" },
+                    },
+                },
             },
         })
         vim.o.laststatus = 3 -- Ensure statusline is always shown

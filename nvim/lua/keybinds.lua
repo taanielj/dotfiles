@@ -9,8 +9,12 @@ local map = function(mappings)
 
     for _, m in ipairs(mappings) do
         local modes, keys, cmd, desc, expr = m[1], m[2], m[3], m[4], m[5]
-        if type(keys) == "string" then keys = { keys } end
-        if type(modes) == "string" then modes = { modes } end
+        if type(keys) == "string" then
+            keys = { keys }
+        end
+        if type(modes) == "string" then
+            modes = { modes }
+        end
 
         for _, key in ipairs(keys) do
             vim.keymap.set(modes, key, cmd, {
@@ -28,126 +32,125 @@ vim.keymap.set("n", "i", function()
     return "i"
 end, { noremap = true, expr = true, silent = true, desc = "Insert mode without relative number" })
 
-
 -- Store all mappings in a single table, grouped by functionality
 -- Supply the mode(s), key(s), command and description
 local all_mappings = {
     -- ====================
     -- Common functionality
     -- ====================
-    { {"n", "i", "v"}, "<C-s>", "<Cmd>w<CR>", "Save file" },
-    { "n", "<C-q>", "<C-v>", "Visual block" },
+    { { "n", "i", "v" }, "<C-s>",                      "<Cmd>w<CR>",                                    "Save file" },
+    { "n",               "<C-q>",                      "<C-v>",                                         "Visual block" },
 
     -- =============================
     -- Line movement and indentation
     -- =============================
-    { "n", "<C-Up>", ":m .-2<CR>==", "Move line up" },
-    { "n", "<C-Down>", ":m .+1<CR>==", "Move line down" },
-    { "n", "<C-Left>", "<<hhhh", "Unindent line" },
-    { "n", "<C-Right>", ">>llll", "Indent line" },
-    { "v", "<C-Up>", ":m '<-2<CR>gv=gv", "Move line up" },
-    { "v", "<C-Down>", ":m '>+1<CR>gv=gv", "Move line down" },
-    { "v", "<C-Left>", "<gvhhhh", "Unindent line" },
-    { "v", "<C-Right>", ">gvllll", "Indent line" },
+    { "n",               "<C-Up>",                     ":m .-2<CR>==",                                  "Move line up" },
+    { "n",               "<C-Down>",                   ":m .+1<CR>==",                                  "Move line down" },
+    { "n",               "<C-Left>",                   "<<hhhh",                                        "Unindent line" },
+    { "n",               "<C-Right>",                  ">>llll",                                        "Indent line" },
+    { "v",               "<C-Up>",                     ":m '<-2<CR>gv=gv",                              "Move line up" },
+    { "v",               "<C-Down>",                   ":m '>+1<CR>gv=gv",                              "Move line down" },
+    { "v",               "<C-Left>",                   "<gvhhhh",                                       "Unindent line" },
+    { "v",               "<C-Right>",                  ">gvllll",                                       "Indent line" },
 
     -- ==============
     -- Selecting text
     -- ==============
     -- Normal mode
-    { "n", "<S-Down>", "vj", "Select down" },
-    { "n", "<S-Up>", "vk", "Select up" },
-    { "n", "<S-Left>", "vh", "Select left" },
-    { "n", "<S-Right>", "vl", "Select right" },
-    { "n", "<S-Home>", "v^", "Select to beginning of line" },
-    { "n", "<Home>", "^", "Move to beginning of text" },
-    { "n", "<S-End>", "v$h", "Select to end of line" },
+    { "n",               "<S-Down>",                   "vj",                                            "Select down" },
+    { "n",               "<S-Up>",                     "vk",                                            "Select up" },
+    { "n",               "<S-Left>",                   "vh",                                            "Select left" },
+    { "n",               "<S-Right>",                  "vl",                                            "Select right" },
+    { "n",               "<S-Home>",                   "v^",                                            "Select to beginning of line" },
+    { "n",               "<Home>",                     "^",                                             "Move to beginning of text" },
+    { "n",               "<S-End>",                    "v$h",                                           "Select to end of line" },
 
     -- Insert mode
-    { "i", "<S-Up>", "<Esc>vkl", "Select up" },
-    { "i", "<S-Down>", "<Esc>lvjh", "Select down" },
-    { "i", "<S-Left>", "<Esc>v", "Select left" },
-    { "i", "<S-Right>", "<Esc>lv", "Select right" },
-    { "i", "<S-Home>", "<Esc>lv", "Select to beginning of line" },
-    { "i", "<S-End>", "<Esc>lv$h", "Select to end of line" },
-    { "i", "<Home>", "<Esc>^i", "Move to beginning of text" },
+    { "i",               "<S-Up>",                     "<Esc>vkl",                                      "Select up" },
+    { "i",               "<S-Down>",                   "<Esc>lvjh",                                     "Select down" },
+    { "i",               "<S-Left>",                   "<Esc>v",                                        "Select left" },
+    { "i",               "<S-Right>",                  "<Esc>lv",                                       "Select right" },
+    { "i",               "<S-Home>",                   "<Esc>lv",                                       "Select to beginning of line" },
+    { "i",               "<S-End>",                    "<Esc>lv$h",                                     "Select to end of line" },
+    { "i",               "<Home>",                     "<Esc>^i",                                       "Move to beginning of text" },
 
     -- Visual mode
-    { "v", "<S-Up>", "k", "Move up" },
-    { "v", "<S-Down>", "j", "Move down" },
-    { "v", "<S-Left>", "h", "Move left" },
-    { "v", "<S-Right>", "l", "Move right" },
-    { "v", "<S-Home>", "0", "Move to beginning of line" },
-    { "v", "<Home>", "^", "Move to beginning of text" },
-    { "v", "<S-End>", "$", "Move to end of line" },
-    { "v", "<End>", "$h", "Move to end of line" },
+    { "v",               "<S-Up>",                     "k",                                             "Move up" },
+    { "v",               "<S-Down>",                   "j",                                             "Move down" },
+    { "v",               "<S-Left>",                   "h",                                             "Move left" },
+    { "v",               "<S-Right>",                  "l",                                             "Move right" },
+    { "v",               "<S-Home>",                   "0",                                             "Move to beginning of line" },
+    { "v",               "<Home>",                     "^",                                             "Move to beginning of text" },
+    { "v",               "<S-End>",                    "$",                                             "Move to end of line" },
+    { "v",               "<End>",                      "$h",                                            "Move to end of line" },
 
     -- Select all with Ctrl + A
-    { "n", "<C-a>", "ggVG", "Select all" },
-    { "v", "<C-a>", "ggVG", "Select all" },
-    { "i", "<C-a>", "<Esc>ggVG", "Select all" },
+    { "n",               "<C-a>",                      "ggVG",                                          "Select all" },
+    { "v",               "<C-a>",                      "ggVG",                                          "Select all" },
+    { "i",               "<C-a>",                      "<Esc>ggVG",                                     "Select all" },
 
     -- ==============
     -- Copy and paste
     -- ==============
-    { "v", "<C-c>", '"+y', "Copy" },
-    { "v", "<C-x>", '"+x', "Cut" },
-    { "x", "<C-v>", '"0dP', "Paste without overwriting unnamed reg" },
-    { "i", "<C-v>", "<C-o>P", "Paste" },
+    { "v",               "<C-c>",                      '"+y',                                           "Copy" },
+    { "v",               "<C-x>",                      '"+x',                                           "Cut" },
+    { "x",               "<C-v>",                      '"0dP',                                          "Paste without overwriting unnamed reg" },
+    { "i",               "<C-v>",                      "<C-o>P",                                        "Paste" },
 
     -- ==================
     -- Search and replace
     -- ==================
-    { "n", "<leader>s", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
-    { "n", "<Esc>", ":let @/=''<CR>", "Clear search highlight" },
+    { "n",               "<leader>s",                  ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
+    { "n",               "<Esc>",                      ":let @/=''<CR>",                                "Clear search highlight" },
 
     -- ============================
     -- Navigation with wrap enabled
     -- ============================
-    { "n", "j", 'v:count ? "j" : "gj"', "Move down (smart)", true },
-    { "n", "k", 'v:count ? "k" : "gk"', "Move up (smart)" ,true },
-    { "x", "j", 'v:count ? "j" : "gj"', "Move down (smart)", true },
-    { "x", "k", 'v:count ? "k" : "gk"', "Move up (smart)", true },
-    { "n", "<Up>", "gk", "Move up (visual line)" },
-    { "n", "<Down>", "gj", "Move down (visual line)" },
-    { "x", "<Up>", "gk", "Move up (visual line)" },
-    { "x", "<Down>", "gj", "Move down (visual line)" },
+    { "n",               "j",                          'v:count ? "j" : "gj"',                          "Move down (smart)",                    true },
+    { "n",               "k",                          'v:count ? "k" : "gk"',                          "Move up (smart)",                      true },
+    { "x",               "j",                          'v:count ? "j" : "gj"',                          "Move down (smart)",                    true },
+    { "x",               "k",                          'v:count ? "k" : "gk"',                          "Move up (smart)",                      true },
+    { "n",               "<Up>",                       "gk",                                            "Move up (visual line)" },
+    { "n",               "<Down>",                     "gj",                                            "Move down (visual line)" },
+    { "x",               "<Up>",                       "gk",                                            "Move up (visual line)" },
+    { "x",               "<Down>",                     "gj",                                            "Move down (visual line)" },
 
     -- ====================
     -- Surround replacement
     -- ====================
-    { "v", "'", "\"zc''<Esc>\"zP", "Add single quotes" },
-    { "v", '"', '"zc""<Esc>"zP', "Add double quotes" },
-    { "v", "`", "\"zc``<Esc>\"zP", "Add backticks" },
-    { "v", {"(", ")"}, "\"zc()<Esc>\"zP", "Add parentheses" },
-    { "v", {"[", "]"}, "\"zc[]<Esc>\"zP", "Add brackets" },
-    { "v", {"{", "}"}, "\"zc{}<Esc>\"zP", "Add curly braces" },
-    { "v", {"<", ">"}, "\"zc<><Esc>\"zP", "Add angle brackets" },
+    { "v",               "'",                          "\"zc''<Esc>\"zP",                               "Add single quotes" },
+    { "v",               '"',                          '"zc""<Esc>"zP',                                 "Add double quotes" },
+    { "v",               "`",                          '"zc``<Esc>"zP',                                 "Add backticks" },
+    { "v",               { "(", ")" },                 '"zc()<Esc>"zP',                                 "Add parentheses" },
+    { "v",               { "[", "]" },                 '"zc[]<Esc>"zP',                                 "Add brackets" },
+    { "v",               { "{", "}" },                 '"zc{}<Esc>"zP',                                 "Add curly braces" },
+    { "v",               { "<", ">" },                 '"zc<><Esc>"zP',                                 "Add angle brackets" },
 
     -- Triple quotes
-    { "v", "<Leader>'", "\"zc''''''<Esc>2h\"zP", "Add triple single quotes" },
-    { "v", '<Leader>"', '"zc""""""<Esc>2h"zP', "Add triple double quotes" },
-    { "v", "<Leader>`", "\"zc``````<Esc>2h\"zP", "Add triple backticks" },
+    { "v",               "<Leader>'",                  "\"zc''''''<Esc>2h\"zP",                         "Add triple single quotes" },
+    { "v",               '<Leader>"',                  '"zc""""""<Esc>2h"zP',                           "Add triple double quotes" },
+    { "v",               "<Leader>`",                  '"zc``````<Esc>2h"zP',                           "Add triple backticks" },
 
     -- Double brackets
-    { "v", {"<Leader>(", "<Leader>)"}, "\"zc(())<Esc>2h\"zp", "Add double parentheses" },
-    { "v", {"<Leader>[", "<Leader>]"}, "\"zc[[]]<Esc>2h\"zp", "Add double brackets" },
-    { "v", {"<Leader>{", "<Leader>}"}, "\"zc{{}}<Esc>2h\"zp", "Add double curly braces" },
-    { "v", {"<Leader><", "<Leader>>"}, "\"zc<<>><Esc>2h\"zp", "Add double angle brackets" },
+    { "v",               { "<Leader>(", "<Leader>)" }, '"zc(())<Esc>2h"zp',                             "Add double parentheses" },
+    { "v",               { "<Leader>[", "<Leader>]" }, '"zc[[]]<Esc>2h"zp',                             "Add double brackets" },
+    { "v",               { "<Leader>{", "<Leader>}" }, '"zc{{}}<Esc>2h"zp',                             "Add double curly braces" },
+    { "v",               { "<Leader><", "<Leader>>" }, '"zc<<>><Esc>2h"zp',                             "Add double angle brackets" },
 
     -- Markdown formatting
-    { "v", {"<Leader>b", "<Leader>*"}, "\"zc****<Esc>2h\"zp", "Add bold" },
-    { "v", {"<Leader>i", "<Leader>_"}, "\"zc__<Esc>h\"zp", "Add italic" },
-    { "v", "<Leader>s", "\"zc~~<Esc>h\"zp", "Add strikethrough" },
+    { "v",               { "<Leader>b", "<Leader>*" }, '"zc****<Esc>2h"zp',                             "Add bold" },
+    { "v",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
+    { "v",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
     -- Resize window left right
-    { {"n", "i", "x"}, "<C-S-Left>", "<C-w>h", "Resize window left" },
-    { {"n", "i", "x"}, "<C-S-Right>", "<C-w>l", "Resize window right" },
+    { { "n", "i", "x" }, "<C-S-Left>",                 "<C-w>h",                                        "Resize window left" },
+    { { "n", "i", "x" }, "<C-S-Right>",                "<C-w>l",                                        "Resize window right" },
 }
 
 -- Apply all the mappings
 map(all_mappings)
 
 -- =================
--- Function mappings 
+-- Function mappings
 -- ================
 
 -- Wrap and unwrap functions
@@ -244,3 +247,56 @@ vim.keymap.set("i", "<Esc>", function()
     end)
     return "<Esc>"
 end, { expr = true, noremap = true, desc = "Exit insert mode preserving cursor position" })
+
+local _zen_mode_active = false
+local _neotree_was_open = false
+
+local function is_neo_tree_open()
+  -- Checks whether any window has a filetype of "neo-tree"
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+    if ft == "neo-tree" then
+      return true
+    end
+  end
+  return false
+end
+
+
+local function toggle_zen_mode()
+    _zen_mode_active = not _zen_mode_active
+    _neotree_was_open = is_neo_tree_open()
+    if _zen_mode_active then
+        vim.wo.number = false
+        vim.wo.relativenumber = false
+        vim.wo.signcolumn = "no"
+        vim.wo.cursorline = false
+        vim.wo.colorcolumn = ""
+        vim.o.laststatus = 0
+        vim.o.showtabline = 0
+        os.execute("tmux set status off >/dev/null 2>&1 || true")
+        os.execute("tmux resize-pane -Z >/dev/null 2>&1 || true")
+        require("lualine").hide({ unhide = false, place = {"statusline", "tabline", "winbar"} })
+        if _neotree_was_open then
+            vim.cmd("Neotree close")
+        end
+    else
+        vim.wo.number = true
+        vim.wo.relativenumber = true
+        vim.wo.signcolumn = "yes"
+        vim.wo.cursorline = true
+        vim.wo.colorcolumn = "80"
+        require("lualine").hide({ unhide = true , place = {"statusline", "tabline", "winbar"} })
+        vim.o.laststatus = 3
+        vim.o.showtabline = 2
+        os.execute("tmux set status on >/dev/null 2>&1 || true")
+        os.execute("tmux resize-pane -Z >/dev/null 2>&1 || true")
+        if _neotree_was_open then
+            vim.cmd("Neotree reveal")
+        end
+    end
+end
+
+vim.keymap.set("n", "<leader>z", toggle_zen_mode, { noremap = true, silent = true, desc = "Toggle zen mode" })
+
