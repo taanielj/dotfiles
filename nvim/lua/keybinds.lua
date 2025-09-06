@@ -163,17 +163,6 @@ function _G.close_no_name_buffers()
     end
 end
 
-local original_columns = vim.o.columns
-
--- Wrap functionality
--- vim.keymap.set("n", "<leader>ww", function()
---     vim.wo.wrap = true
---     vim.wo.linebreak = true
---     vim.opt.breakindent = true
---     vim.opt.breakindentopt = "list:2"
---     local window_start_col = vim.fn.win_screenpos(0)[2]
---     vim.cmd("set columns=" .. (window_start_col + 125))
--- end, { expr = true, noremap = true, silent = true, desc = "Wrap by setting columns" })
 
 vim.keymap.set("n", "<leader>ww", function()
     vim.wo.wrap = true
@@ -191,7 +180,6 @@ vim.keymap.set("n", "<leader>wu", function()
     vim.wo.linebreak = false
     vim.wo.breakindent = false
     vim.wo.breakindentopt = ""
-    vim.cmd("set columns=" .. original_columns)
     vim.cmd("lua close_no_name_buffers()")
 end, { noremap = true, silent = true, desc = "Unwrap current window" })
 
@@ -210,31 +198,18 @@ vim.keymap.set("i", "<Down>", function()
     move_cursor_visual(1)
 end, { noremap = true, silent = true, desc = "Move down in insert mode (visual line)" })
 
--- Ctrl backspace in insert mode
-vim.keymap.set("i", "<C-H>", function()
-    local col = vim.fn.col(".")
-    if col == 1 then
-        return ""
-    end
+vim.keymap.set("i", "<C-w>", "<C-o>dv<Plug>WordMotion_b", {
+  noremap = false,  -- needed so <Plug> expands
+  silent = true,
+  desc = "Delete previous word (wordmotion-aware)",
+})
+vim.keymap.set("i", "<C-Del>", "<C-o>d<Plug>WordMotion_e", {
+  noremap = false,
+  silent = true,
+  desc = "Ctrl-Delete = delete next word (wordmotion-aware)",
+})
 
-    local prev_char = vim.fn.getline("."):sub(col - 1, col - 1)
-    if prev_char:match("%s") then
-        return "<C-o>db"
-    else
-        return "<C-o>dB"
-    end
-end, { noremap = true, expr = true, silent = true, desc = "Delete previous word consistently" })
 
--- Ctrl delete in insert mode
-vim.keymap.set("i", "<C-Del>", function()
-    local col = vim.api.nvim_win_get_cursor(0)[2]
-    local line = vim.api.nvim_get_current_line()
-    if col >= #line then
-        return "<Del>"
-    else
-        return "<C-o>dw"
-    end
-end, { noremap = true, silent = true, expr = true, desc = "Delete next word, <Del> if end of line" })
 
 -- Fix cursor position when exiting insert mode
 vim.keymap.set("i", "<Esc>", function()
@@ -247,56 +222,4 @@ vim.keymap.set("i", "<Esc>", function()
     end)
     return "<Esc>"
 end, { expr = true, noremap = true, desc = "Exit insert mode preserving cursor position" })
-
-local _zen_mode_active = false
-local _neotree_was_open = false
-
-local function is_neo_tree_open()
-  -- Checks whether any window has a filetype of "neo-tree"
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    local buf = vim.api.nvim_win_get_buf(win)
-    local ft = vim.api.nvim_buf_get_option(buf, "filetype")
-    if ft == "neo-tree" then
-      return true
-    end
-  end
-  return false
-end
-
-
-local function toggle_zen_mode()
-    _zen_mode_active = not _zen_mode_active
-    _neotree_was_open = is_neo_tree_open()
-    if _zen_mode_active then
-        vim.wo.number = false
-        vim.wo.relativenumber = false
-        vim.wo.signcolumn = "no"
-        vim.wo.cursorline = false
-        vim.wo.colorcolumn = ""
-        vim.o.laststatus = 0
-        vim.o.showtabline = 0
-        os.execute("tmux set status off >/dev/null 2>&1 || true")
-        os.execute("tmux resize-pane -Z >/dev/null 2>&1 || true")
-        require("lualine").hide({ unhide = false, place = {"statusline", "tabline", "winbar"} })
-        if _neotree_was_open then
-            vim.cmd("Neotree close")
-        end
-    else
-        vim.wo.number = true
-        vim.wo.relativenumber = true
-        vim.wo.signcolumn = "yes"
-        vim.wo.cursorline = true
-        vim.wo.colorcolumn = "80"
-        require("lualine").hide({ unhide = true , place = {"statusline", "tabline", "winbar"} })
-        vim.o.laststatus = 3
-        vim.o.showtabline = 2
-        os.execute("tmux set status on >/dev/null 2>&1 || true")
-        os.execute("tmux resize-pane -Z >/dev/null 2>&1 || true")
-        if _neotree_was_open then
-            vim.cmd("Neotree reveal")
-        end
-    end
-end
-
-vim.keymap.set("n", "<leader>z", toggle_zen_mode, { noremap = true, silent = true, desc = "Toggle zen mode" })
 
