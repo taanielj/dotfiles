@@ -77,6 +77,7 @@ setopt promptsubst #required to support most themes
 # zinit snippet OMZL::termsupport.zsh
 # zinit snippet https:://github.com/ohmyzsh/ohmyzsh/blob/master/lib/termsupport.zsh 
 zinit snippet OMZP::git
+zinit light zsh-users/zsh-syntax-highlighting
 # zinit snippet OMZP::git-auto-fetch
 
 ### ────────────────────────────────
