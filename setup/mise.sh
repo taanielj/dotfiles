@@ -5,9 +5,9 @@ source "$REPO_ROOT/setup/utils.sh"
 
 main_mise() {
     install_mise
+    activate_mise
     unset mise
     mise_binary=$(which mise 2>/dev/null || echo "$HOME/.local/bin/mise")
-    add_mise_to_shell_rc
     install_tools
 }
 
@@ -74,27 +74,7 @@ install_mise_from_script() {
     run_quiet "Installing mise" bash -c "curl https://mise.run | sh"
 }
 
-add_mise_to_shell_rc() {
-    declare -A rc_files=(
-        [bash]="$HOME/.bashrc"
-        [zsh]="$HOME/.zshrc"
-    )
 
-    for shell in "${!rc_files[@]}"; do
-        rc="${rc_files[$shell]}"
-
-        # Remove any existing lines mentioning mise activate
-        tmp="$(mktemp)"
-        grep -v "mise activate $shell" "$rc" >"$tmp" || true
-        mv "$tmp" "$rc"
-
-        # Append the correct line
-        log "Using $mise_binary for $shell in $rc"
-        echo "eval \"\$($mise_binary activate $shell)\"" >>"$rc"
-    done
-
-    activate_mise
-}
 
 install_mise_termux() {
     # WIP, does not work yet properly

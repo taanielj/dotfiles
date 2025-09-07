@@ -150,5 +150,9 @@ done
 ### ────────────────────────────────
 ### Everything after this line is added by any automatic script, move them above to organize if you want
 ### ────────────────────────────────
-eval "$(/Users/taaniel.jakobson/.local/bin/mise activate zsh)"
-eval "$(/Users/taaniel.jakobson/.local/bin/mise activate zsh)"
+
+{ command -v /opt/homebrew/bin/mise >/dev/null 2>&1 && eval "$(/opt/homebrew/bin/mise activate zsh)"; } || \
+{ command -v ~/.local/bin/mise  >/dev/null 2>&1 && eval "$(~/.local/bin/mise activate zsh)"; } || \
+echo "mise not found"
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit
