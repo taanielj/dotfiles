@@ -7,10 +7,10 @@ return {
         { "<leader>cs", "<cmd>CodeSnapSave<cr>", mode = "x", desc = "Save selected code snapshot in " .. save_path },
     },
     opts = {
-        save_path = save_path,
-        has_breadcrumbs = true,
-        bg_theme = "summer",
-        editor_font_family = "JetBrainsMono Nerd Font",
-        watermark = "",
+        -- save_path = save_path,
+        -- has_breadcrumbs = true,
+        -- bg_theme = "summer",
+        -- font_family = "JetBrainsMono Nerd Font",
+        -- watermark = "",
     },
 }

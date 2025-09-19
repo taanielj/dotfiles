@@ -7,7 +7,7 @@ end
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = augroup("number_toggle"),
     callback = function()
-        if vim.bo.filetype ~= "neo-tree" then
+        if vim.bo.filetype ~= "neo-tree" and not require("zen").is_active() then
             vim.wo.relativenumber = true
         end
     end,

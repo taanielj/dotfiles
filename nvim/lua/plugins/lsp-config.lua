@@ -15,7 +15,7 @@ return {
         "neovim/nvim-lspconfig",
         dependencies = {
             { "williamboman/mason.nvim", opts = {} },
-            { "j-hui/fidget.nvim", opt = true },
+            { "j-hui/fidget.nvim",       opt = true },
             "hrsh7th/cmp-nvim-lsp",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -180,10 +180,6 @@ return {
             })
             vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")
 
-            vim.fn.sign_define("DiagnosticSignError", { text = "󰅙", texthl = "DiagnosticSignError" })
-            vim.fn.sign_define("DiagnosticSignInfo", { text = "󰋼", texthl = "DiagnosticSignInfo" })
-            vim.fn.sign_define("DiagnosticSignHint", { text = "󰌵", textxl = "DiagnosticSignHint" })
-            vim.fn.sign_define("DiagnosticSignWarn", { text = "󰅙", texthl = "DiagnosticSignWarn" })
             vim.diagnostic.config({
                 signs = {
                     [vim.diagnostic.severity.ERROR] = { "󰅙", texthl = "DiagnosticSignError" },
