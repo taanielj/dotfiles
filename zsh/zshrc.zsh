@@ -2,7 +2,7 @@
 ###  Instant Prompt (Powerlevel10k)
 ### ────────────────────────────────
 # This slows down shell startup by... it runs as fast as p10k itself, no benefit
-# [[ -r ${p10k_prompt:="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"} ]] && source "$p10k_prompt"
+[[ -r ${p10k_prompt:="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"} ]] && source "$p10k_prompt"
 
 
 ### ────────────────────────────────
@@ -59,9 +59,12 @@ setopt promptsubst
 zinit ice depth=1 lucid
 zinit light romkatv/powerlevel10k
 
-# Core plugins — lazy load
+# Core plugins — autosuggestions loads immediately for better UX
+zinit ice lucid
+zinit light zsh-users/zsh-autosuggestions
+
+# Other core plugins — lazy load
 zinit wait lucid for \
-  zsh-users/zsh-autosuggestions \
   Aloxaf/fzf-tab \
   zsh-users/zsh-syntax-highlighting
 
@@ -119,8 +122,11 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 [[ -f $HOME/.fzf.zsh ]] && source "$HOME/.fzf.zsh"
 [[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="always"
 
-command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"
+command -v zoxide >/dev/null 2>&1 && [[ -o interactive ]] && eval "$(zoxide init --cmd cd zsh)"
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+
+
+
 
 
 ### ────────────────────────────────
@@ -142,11 +148,17 @@ done
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 
 
-### ────────────────────────────────
-### Everything after this line is added by any automatic script
-### ────────────────────────────────
+### ──────────────
+### Mise Config
+### ──────────────
 { command -v /opt/homebrew/bin/mise >/dev/null 2>&1 && eval "$(/opt/homebrew/bin/mise activate zsh)"; } || \
 { command -v ~/.local/bin/mise  >/dev/null 2>&1 && eval "$(~/.local/bin/mise activate zsh)"; } || \
 echo "mise not found"
+export MISE_POETRY_AUTO_INSTALL=1
+export MISE_POETRY_VENV_AUTO=1
 
-
+### ──────────────────────────────── 
+### compinit compilation for custom functions
+### ────────────────────────────────
+fpath+=~/.zfunc; autoload -Uz compinit; compinit
+echo -ne '\033[5 q' # Set blinking bar cursor

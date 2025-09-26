@@ -35,13 +35,17 @@ if command -v eza &>/dev/null; then
 
         eza --group-directories-first --icons --color=always --git -h "$@"
     }
-    # Use aliases to redirect to the wrapper function
-    alias ls="_eza_wrapper"
+    # Use aliases to redirect to the wrapper function (only when interactive)
+    if [[ -o interactive ]]; then
+        alias ls="_eza_wrapper"
+    fi
     alias la="_eza_wrapper -l -a"
     alias tree="eza --tree"
 else
     alias l="ls"
-    alias ls="ls --color=auto"
+    if [[ -o interactive ]]; then
+        alias ls="ls --color=auto"
+    fi
     alias la="ls -la --color=auto"
     alias tree="tree"
 fi
@@ -181,6 +185,8 @@ reset_repo() {
 
 # Neovim
 nvim() {
+    # set term to xterm-kitty just for nvim, for better blinking cursor support
+    export TERM="xterm-kitty"
     [[ $# -ne 0 ]] && command nvim "$@" && return
 
     local venv_path=$(__resolve_venv_path)
