@@ -27,14 +27,37 @@ _docker_compose() {
 }
 
 # Basic aliases
-dc() { _docker_compose "$@"; }
-dcu() { _docker_compose up -d --build "$@"; }
-dcd() { _docker_compose down "$@"; }
-dcdu() { dcd && dcu "$@"; }
-dcD() { _docker_compose down -v "$@"; }
-dcDu() { dcD && dcu "$@"; }
-dcr() { dcd && dcu "$@"; }
-dcR() { dcD && dcu "$@"; }
+dc() { _docker_compose "$@"; }                    # docker compose
+dcu() { _docker_compose up -d --build "$@"; }     # compose up detached with build
+dcd() { _docker_compose down "$@"; }              # compose down
+dcr() { dcd && dcu "$@"; }                        # compose restart (down + up)
+dcD() { _docker_compose down -v "$@"; }           # compose down with volumes
+dcR() { dcD && dcu "$@"; }                        # compose restart with volumes
+ds() { docker ps "$@"; }                          # list containers
+di() { docker images "$@"; }                      # list images
+
+# Remove images with fzf selection
+drmi() {
+    if [[ $# -gt 0 ]]; then
+        docker rmi "$@"
+        return
+    fi
+
+    local images
+    images=$(docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}" | fzf --multi --header-lines=1 --prompt="Select images to remove: " --header="Use TAB to select multiple, ENTER to confirm")
+
+    [[ -z "$images" ]] && echo "No images selected" && return 1
+
+    # Extract image IDs from the selected lines
+    local image_ids
+    image_ids=$(echo "$images" | awk '{print $3}')
+
+    [[ -z "$image_ids" ]] && echo "No valid image IDs found" && return 1
+
+    echo "Removing selected images..."
+    echo "$image_ids" | xargs docker rmi
+}
+dprune() { docker system prune "$@"; }            # cleanup unused resources
 
 # ─────────────────────────────────────────────────────────────
 # Container FZF Picker
@@ -144,10 +167,13 @@ _pipe_json_if_valid() {
 }
 
 dl() {
-    local query="$1"
-    shift || true
+    local query container=""
 
-    local container=""
+    if [[ $# -gt 0 ]]; then
+        query="$1"
+        shift
+    fi
+
     if [[ -n "$query" ]]; then
         # Try to find exact match first
         if docker ps -a --format '{{.Names}}' | grep -Fxq "$query"; then

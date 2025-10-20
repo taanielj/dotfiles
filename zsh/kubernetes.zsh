@@ -4,18 +4,16 @@
 
 [[ -z "$(command -v kubectl)" ]] && return
 
-function k() { if [[ $2 = -* ]]; then kubectl --context "$1" "${@:2}"; else kubectl "$2" --context "$1" "${@:3}"; fi; }
-function ka() { if [[ $2 = -* ]]; then kubectl --as admin --as-group system:masters --context "$1" "${@:2}"; else kubectl "$2" --as admin --as-group system:masters --context "$1" "${@:3}"; fi; }
-source <(kubectl completion zsh)
-compdef _kubectl k
-alias s="stern --context"
-alias kx="kubectl exec -it --stdin --tty"
+alias k="kubectl"                                                    # kubectl shorthand
+ka() { kubectl --as admin --as-group system:masters "$@"; }        # kubectl with admin privileges
+source <(kubectl completion zsh)                                   # enable kubectl completion
+compdef _kubectl k                                                 # enable completion for k alias
 
 # ----------------------------
 # Context and Namespace Selectors
 # ----------------------------
 
-kc() {
+kc() {                                                              # switch context (with fzf if no arg)
     local context="$1"
     if [ -z "$context" ]; then
         context=$(kubectl config get-contexts -o name | fzf)
@@ -23,7 +21,7 @@ kc() {
     [ -n "$context" ] && kubectl config use-context "$context"
 }
 
-kn() {
+kn() {                                                              # switch namespace (with fzf if no arg)
     local namespace="$1"
     if [ -z "$(kubectl config current-context 2>/dev/null)" ]; then
         kc
@@ -34,18 +32,18 @@ kn() {
     [ -n "$namespace" ] && kubectl config set-context --current --namespace "$namespace"
 }
 
-kcn() {
+kcn() {                                                             # switch context and namespace
     kc "$1"
     kn "$2"
 }
 
-kcnp() {
+kcnp() {                                                            # switch context, namespace, show pods
     kc "$1"
     kn "$2"
     kp
 }
 
-kcl() {
+kcl() {                                                             # clear all kubectl config
     kubectl config unset current-context
     kubectl config unset contexts
     kubectl config unset users
@@ -56,7 +54,7 @@ kcl() {
 # Pod Utils (context-aware)
 # ----------------------------
 
-kp() {
+kp() {                                                              # list pods (context-aware)
     local all="$1"
 
     # If passed --all or -a, re-select context and namespace
@@ -78,7 +76,7 @@ kp() {
     kubectl get pods "$@"
 }
 
-kd() {
+kd() {                                                              # describe pod (with fzf selection)
     kp >/dev/null
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
     [ -n "$pod" ] && kubectl describe pod "$pod"
@@ -106,7 +104,7 @@ _pipe_json_if_valid() {
     done
 }
 
-kl() {
+kl() {                                                              # tail pod logs (with fzf selection)
     kp >/dev/null || return
 
     local query pod
@@ -133,7 +131,7 @@ kl() {
 
 
 
-kauth() {
+kauth() {                                                           # check kubernetes permissions
     local verb="$1"
     local resource="$2"
     [ -z "$verb" ] && read -p "Verb (e.g. get): " verb
@@ -145,97 +143,66 @@ kauth() {
 # Exec with fuzzy pod/container pick
 # ----------------------------
 
-kxe() {
-    kp >/dev/null
+kxe() {                                                             # exec into pod with admin (fzf selection)
+    kp >/dev/null || return
 
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -z "$pod" ] && return
+    [[ -z "$pod" ]] && echo "No pod selected" && return 1
 
     local container=$(kubectl get pod "$pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | fzf)
-    [ -z "$container" ] && return
+    [[ -z "$container" ]] && echo "No container selected" && return 1
 
-    local original_context=$(kubectl config current-context)
-    local original_namespace=$(kubectl config view --minify -o jsonpath='{..namespace}')
-
-    local admin_context="$original_context"
-    if [[ "$original_context" != *"-admin" ]]; then
-        admin_context="${original_context}-admin"
-        kubectl config use-context "$admin_context" >/dev/null
-        kubectl config set-context --current --namespace "$original_namespace" >/dev/null
-    fi
-
-    kubectl exec -it "$pod" -c "$container" -- bash ||
-        kubectl exec -it "$pod" -c "$container" -- sh
-
-    # Restore original context and namespace if switched
-    if [[ "$original_context" != *"-admin" ]]; then
-        kubectl config use-context "$original_context" >/dev/null
-        kubectl config set-context --current --namespace "$original_namespace" >/dev/null
-    fi
+    # Try bash first, then sh
+    kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- bash || \
+        kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- sh
 }
 
 # ----------------------------
 # Stern (log tailing) with helpers
 # ----------------------------
 [[ -z "$(command -v stern)" ]] && return
-alias s="stern"
-sp() {
-    local context="$(kubectl config current-context 2>/dev/null)"
-    if [ -z "$context" ]; then
-        context=$(kubectl config get-contexts -o name | fzf)
-        [ -n "$context" ] && kubectl config use-context "$context"
+
+s() {                                                               # stern logs (with fzf if no args)
+    if [[ $# -gt 0 ]]; then
+        stern "$@"
+        return
     fi
-    local namespace="$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)"
-    if [ -z "$namespace" ]; then
-        namespace=$(kubectl get namespaces -o name | fzf | cut -d'/' -f2)
-        [ -n "$namespace" ] && kubectl config set-context --current --namespace "$namespace"
-    fi
+
+    kp >/dev/null || return
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -n "$pod" ] && stern --context "$context" --namespace "$namespace" "$pod"
+    [[ -n "$pod" ]] && stern "$pod"
 }
 
-sl() {
-    kp >/dev/null
+sj() {                                                              # stern logs with pretty JSON output
+    if [[ $# -gt 0 ]]; then
+        stern --output ppextjson "$@"
+        return
+    fi
+
+    kp >/dev/null || return
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -n "$pod" ] && stern "$pod"
+    [[ -n "$pod" ]] && stern --output ppextjson "$pod"
 }
 
-slg() {
-    kp >/dev/null
+sg() {                                                              # stern logs with grep pattern
+    kp >/dev/null || return
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -z "$pod" ] && return
-    read -rp "Search term (ripgrep): " pattern
+    [[ -z "$pod" ]] && return
+    read -rp "Search pattern: " pattern
     stern "$pod" | rg --color=always "$pattern"
 }
 
-slog() {
-    kp >/dev/null
+sd() {                                                              # stern logs for deployment
+    kp >/dev/null || return
     local deployment=$(kubectl get deploy -o name | fzf | cut -d'/' -f2)
-    [ -n "$deployment" ] && stern "$deployment"
+    [[ -n "$deployment" ]] && stern "$deployment"
 }
 
-slogg() {
-    kp >/dev/null
-    local deployment=$(kubectl get deploy -o name | fzf | cut -d'/' -f2)
-    [ -z "$deployment" ] && return
-    read -rp "Search term (ripgrep): " pattern
-    stern "$deployment" | rg --color=always "$pattern"
-}
-
-spg() {
-    kp >/dev/null
+sc() {                                                              # stern logs with container selection
+    kp >/dev/null || return
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -z "$pod" ] && return
-    read -rp "Search term (ripgrep): " pattern
-    stern "$pod" | rg --color=always "$pattern"
-}
-
-sselect() {
-    kp >/dev/null
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -z "$pod" ] && return
+    [[ -z "$pod" ]] && return
     local container=$(kubectl get pod "$pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | fzf)
-    [ -z "$container" ] && return
-    read -rp "Pattern to grep: " pattern
-    stern "$pod" -c "$container" | rg --color=always "$pattern"
+    [[ -z "$container" ]] && return
+    stern "$pod" -c "$container"
 }

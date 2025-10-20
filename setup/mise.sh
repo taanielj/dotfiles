@@ -5,9 +5,9 @@ source "$REPO_ROOT/setup/utils.sh"
 
 main_mise() {
     install_mise
+    mise_binary=$(which mise 2>/dev/null || echo "$HOME/.local/bin/mise")
     activate_mise
     unset mise
-    mise_binary=$(which mise 2>/dev/null || echo "$HOME/.local/bin/mise")
     install_tools
 }
 
@@ -120,7 +120,8 @@ install_tools() {
 
     log "Parsing .tool-versions for available tools..."
 
-    mapfile -t all_tools < <(awk '!/^#/ && NF { print $1 }' "$toolfile")
+    # Create array of tool@version entries
+    mapfile -t all_tools < <(awk '!/^#/ && NF { print $1 "@" $2 }' "$toolfile")
 
     if ! command -v fzf &>/dev/null; then
         error "fzf not found. Please install it to use interactive tool selection."
@@ -135,12 +136,14 @@ install_tools() {
         return
     fi
 
-    while IFS= read -r selected_tool; do
-        version=$(awk -v tool="$selected_tool" '$1 == tool { print $2 }' "$toolfile")
-        [[ -z "$version" ]] && warn "⚠️  Version not found for $selected_tool" && continue
+    while IFS= read -r selected_tool_version; do
+        # Extract tool name and version from tool@version format
+        tool_name=${selected_tool_version%@*}
+        version=${selected_tool_version#*@}
 
-        run_quiet "📦 Installing $selected_tool@$version" mise install "$selected_tool"
-        mise config set "tools.$selected_tool" "$version"
+        [[ -z "$version" ]] && warn "⚠️  Version not found for $tool_name" && continue
+
+        run_quiet "📦 Installing $tool_name@$version" mise install "$tool_name@$version"
     done <<<"$selected_tools"
 }
 

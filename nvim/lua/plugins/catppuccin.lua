@@ -6,7 +6,6 @@ return {
     term_colors = false,
     config = function()
         require("catppuccin").setup({
-            flavour = "macchiato",
             integrations = {
                 neotree = {
                     enabled = true,
@@ -23,6 +22,6 @@ return {
                 percentage = 0.25,
             },
         })
-        vim.cmd.colorscheme("catppuccin-macchiato")
+        vim.cmd.colorscheme("catppuccin-macchiato") -- -latte, -frappe, -macchiato, -mocha
     end,
 }

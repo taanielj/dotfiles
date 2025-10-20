@@ -182,10 +182,18 @@ return {
 
             vim.diagnostic.config({
                 signs = {
-                    [vim.diagnostic.severity.ERROR] = { "󰅙", texthl = "DiagnosticSignError" },
-                    [vim.diagnostic.severity.INFO] = { "󰋼", texthl = "DiagnosticSignInfo" },
-                    [vim.diagnostic.severity.HINT] = { "󰌵", texthl = "DiagnosticSignHint" },
-                    [vim.diagnostic.severity.WARN] = { "󰅙", texthl = "DiagnosticSignWarn" },
+                    text = {
+                        [vim.diagnostic.severity.ERROR] = " ",
+                        [vim.diagnostic.severity.WARN] = " ",
+                        [vim.diagnostic.severity.INFO] = "󰋼 ",
+                        [vim.diagnostic.severity.HINT] = "󰌵 ",
+                    },
+                    numhl = {
+                        [vim.diagnostic.severity.ERROR] = "",
+                        [vim.diagnostic.severity.WARN] = "",
+                        [vim.diagnostic.severity.HINT] = "",
+                        [vim.diagnostic.severity.INFO] = "",
+                    },
                 },
                 virtual_text = {
                     prefix = "●",
