@@ -17,24 +17,56 @@ configure_zsh() {
 
     # Symlink .zshrc
     if [[ -L "$HOME/.zshrc" && "$(readlink "$HOME/.zshrc")" == "$REPO_ROOT/zsh/zshrc.zsh" ]]; then
-        log ".zshrc is already linked to the repository. Skipping."
-        return 0
+        log ".zshrc is already linked to the repository. Skipping symlink setup."
     elif [[ -f "$HOME/.zshrc" && ! -f !"$HOME/.zshrc.pre-taaniel-dotfiles" ]]; then
         log "Backing up existing .zshrc to .zshrc.pre-taaniel-dotfiles"
         mv "$HOME/.zshrc" "$HOME/.zshrc.pre-taaniel-dotfiles"
+        ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
     elif [[ -f "$HOME/.zshrc" && -f "$HOME/.zshrc.pre-taaniel-dotfiles" ]]; then
         log "Both .zshrc and .zshrc.pre-taaniel-dotfiles exist. Please resolve this manually."
         return 1
+    else
+        ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
     fi
 
-    ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
+    # Link config dir (always run)
+    if [[ ! -L "$HOME/.config/zsh" || "$(readlink "$HOME/.config/zsh")" != "$REPO_ROOT/zsh" ]]; then
+        rm -rf "$HOME/.config/zsh"
+        mkdir -p "$HOME/.config"
+        ln -sf "$REPO_ROOT/zsh" "$HOME/.config/zsh"
+    fi
 
-    # Link config dir
-    rm -rf "$HOME/.config/zsh"
-    mkdir -p "$HOME/.config"
-    ln -sf "$REPO_ROOT/zsh" "$HOME/.config/zsh"
+    # Set DOTFILES_ROOT in .zshrc.local (idempotent)
+    set_dotfiles_root
 
     success "Zsh configuration completed."
+}
+
+set_dotfiles_root() {
+    local zshrc_local="$HOME/.zshrc.local"
+    local dotfiles_line="DOTFILES_ROOT=\"$REPO_ROOT\""
+
+    # Create .zshrc.local if it doesn't exist
+    touch "$zshrc_local"
+
+    # Check if the exact line already exists
+    if grep -Fxq "$dotfiles_line" "$zshrc_local" 2>/dev/null; then
+        return 0  # Already correct, no logging
+    fi
+
+    # Check if any DOTFILES_ROOT line exists
+    if grep -q "^DOTFILES_ROOT=" "$zshrc_local" 2>/dev/null; then
+        log "Updating DOTFILES_ROOT in .zshrc.local"
+        # Update the existing line in place using sed
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s|^DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
+        else
+            sed -i "s|^DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
+        fi
+    else
+        log "Adding DOTFILES_ROOT to .zshrc.local"
+        echo "$dotfiles_line" >> "$zshrc_local"
+    fi
 }
 
 teardown_zsh() {

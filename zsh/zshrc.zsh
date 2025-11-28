@@ -1,8 +1,11 @@
+# zmodload zsh/zprof
+
 ### ────────────────────────────────
-###  Instant Prompt (Powerlevel10k)
+###  Powerlevel10k Setup
 ### ────────────────────────────────
-# This slows down shell startup by... it runs as fast as p10k itself, no benefit
-[[ -r ${p10k_prompt:="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"} ]] && source "$p10k_prompt"
+# Pre-set SSH detection to skip expensive 'who' command in _p9k_init_ssh
+typeset -gix P9K_SSH=0
+typeset -gx _P9K_SSH_TTY=$TTY
 
 
 ### ────────────────────────────────
@@ -19,14 +22,12 @@ zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcach
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 export CASE_SENSITIVE="true"
 
-# Use a cache dir (adjust path as you like)
 ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
-# Autoload compinit if not compiled yet
-autoload -Uz compinit
 
-# Compile if needed
-if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP -ot $ZSH_COMPDUMP ]]; then
+# Smart compinit - rebuild cache when needed, skip security check when cached
+autoload -Uz compinit
+if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP.zwc -ot $ZSH_COMPDUMP ]]; then
   compinit -d "$ZSH_COMPDUMP"
   zcompile "$ZSH_COMPDUMP"
 else
@@ -149,16 +150,88 @@ done
 
 
 ### ──────────────
-### Mise Config
+### Mise Config (Smart Lazy Loading)
 ### ──────────────
-{ command -v /opt/homebrew/bin/mise >/dev/null 2>&1 && eval "$(/opt/homebrew/bin/mise activate zsh)"; } || \
-{ command -v ~/.local/bin/mise  >/dev/null 2>&1 && eval "$(~/.local/bin/mise activate zsh)"; } || \
-echo "mise not found"
 export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
-### ──────────────────────────────── 
-### compinit compilation for custom functions
+# Tool command aliases - map tool names to their commands
+declare -A _mise_tool_aliases=(
+    ["golang"]="go"
+    ["nodejs"]="node npm npx"
+    ["python"]="python python3 pip pip3"
+    ["ruby"]="ruby gem"
+    ["rust"]="cargo rustc"
+    ["java"]="java javac"
+)
+
+# Lazy initialization function
+_mise_lazy_init() {
+    # Find mise binary
+    local mise_bin
+    if command -v /opt/homebrew/bin/mise >/dev/null 2>&1; then
+        mise_bin="/opt/homebrew/bin/mise"
+    elif command -v ~/.local/bin/mise >/dev/null 2>&1; then
+        mise_bin="~/.local/bin/mise"
+    else
+        echo "mise not found" >&2
+        return 1
+    fi
+
+    # Activate mise
+    eval "$($mise_bin activate zsh)"
+
+    # Remove all lazy stubs
+    for _tool in "${_mise_lazy_tools[@]}" mise; do
+        unset -f $_tool 2>/dev/null
+    done
+    unset _mise_lazy_tools _mise_tool_aliases
+}
+
+# Parse .tool-versions and create lazy stubs
+if [[ -n "$DOTFILES_ROOT" && -f "$DOTFILES_ROOT/.tool-versions" ]]; then
+    _mise_lazy_tools=()
+
+    while IFS= read -r line; do
+        # Skip empty lines and comments
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+
+        # Extract tool name (first word)
+        local tool_name=$(echo "$line" | awk '{print $1}')
+        [[ -z "$tool_name" ]] && continue
+
+        # Add primary tool
+        _mise_lazy_tools+=($tool_name)
+
+        # Add aliases if they exist
+        if [[ -n "${_mise_tool_aliases[$tool_name]}" ]]; then
+            # Split aliases by space and add them one by one
+            for alias_tool in ${=_mise_tool_aliases[$tool_name]}; do
+                _mise_lazy_tools+=($alias_tool)
+            done
+        fi
+    done < "$DOTFILES_ROOT/.tool-versions"
+
+    # Create lazy stubs for all tools + mise command itself
+    for _tool in "${_mise_lazy_tools[@]}" mise; do
+        eval "$_tool() { _mise_lazy_init && $_tool \"\$@\"; }"
+    done
+
+    unset _tool line tool_name aliases
+fi
+
 ### ────────────────────────────────
-fpath+=~/.zfunc; autoload -Uz compinit; compinit
-echo -ne '\033[5 q' # Set blinking bar cursor
+### Final Setup
+### ────────────────────────────────
+fpath+=~/.zfunc
+
+# Set blinking bar cursor - defer to avoid breaking instant prompt
+if [[ $- == *i* ]]; then
+  precmd_functions+=(set_cursor_shape)
+  set_cursor_shape() {
+    echo -ne '\033[5 q'
+    precmd_functions=(${precmd_functions:#set_cursor_shape})
+  }
+fi
+
+# zprof
