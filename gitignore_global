@@ -22,3 +22,5 @@ CLAUDE.md
 .claude/
 
 .mise.toml
+# manually add tool-versions by default
+.tool-versions

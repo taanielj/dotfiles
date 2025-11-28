@@ -15,7 +15,7 @@ return {
         "neovim/nvim-lspconfig",
         dependencies = {
             { "williamboman/mason.nvim", opts = {} },
-            { "j-hui/fidget.nvim",       opt = true },
+            { "j-hui/fidget.nvim", opt = true },
             "hrsh7th/cmp-nvim-lsp",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -157,6 +157,16 @@ return {
                 filetypes = { "sh", "zsh", "bash" },
                 capabilities = capabilities,
             })
+            lspconfig.ruby_lsp.setup({
+                capabilities = capabilities,
+                init_options = {
+                    addonSettings = {
+                        RubyLSPRails = {
+                            enablePendingMigrationsPrompt = false,
+                        },
+                    },
+                },
+            })
             -- lspconfig.hydra_lsp.setup({
             --     capabilities = capabilities,
             --     filetypes = { "yaml", "yml" },
@@ -176,6 +186,7 @@ return {
                     "gopls",
                     -- "hydra_lsp",
                     "marksman",
+                    "ruby_lsp",
                 },
             })
             vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")

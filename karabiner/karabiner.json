@@ -4,6 +4,37 @@
             "complex_modifications": {
                 "rules": [
                     {
+                        "description": "Snip Screenshot Control+F12",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "f12",
+                                    "modifiers": { "mandatory": ["control"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "3",
+                                        "modifiers": ["shift", "command"]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Open Finder with Ctrl+E",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "e",
+                                    "modifiers": { "mandatory": ["control"] }
+                                },
+                                "to": [{ "shell_command": "open ~" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Open Zoom with Ctrl-Alt-Z",
                         "manipulators": [
                             {
@@ -784,11 +815,32 @@
                     },
                     "simple_modifications": [
                         {
+                            "from": { "key_code": "left_command" },
+                            "to": [{ "key_code": "left_control" }]
+                        },
+                        {
+                            "from": { "key_code": "left_control" },
+                            "to": [{ "key_code": "left_command" }]
+                        }
+                    ]
+                },
+                {
+                    "identifiers": {
+                        "is_keyboard": true,
+                        "product_id": 20536,
+                        "vendor_id": 12625
+                    },
+                    "simple_modifications": [
+                        {
+                            "from": { "key_code": "left_command" },
+                            "to": [{ "key_code": "left_option" }]
+                        },
+                        {
                             "from": { "key_code": "left_control" },
                             "to": [{ "key_code": "left_command" }]
                         },
                         {
-                            "from": { "key_code": "left_command" },
+                            "from": { "key_code": "left_option" },
                             "to": [{ "key_code": "left_control" }]
                         }
                     ]
