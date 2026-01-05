@@ -51,23 +51,12 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     end,
 })
 
--- Markdown tab width
+local indent_filetypes = { "yaml", "html", "css", "json", "markdown" }
 vim.api.nvim_create_autocmd("FileType", {
-    group = augroup("markdown"),
-    pattern = "markdown",
+    group = augroup("indent_filetypes"),
+    pattern = indent_filetypes,
     callback = function()
-        vim.cmd("setlocal tabstop=2")
         vim.cmd("setlocal shiftwidth=2")
+        vim.cmd("setlocal tabstop=2")
     end,
 })
-
--- YAML tab width
-vim.api.nvim_create_autocmd("FileType", {
-    group = augroup("yaml"),
-    pattern = "yaml",
-    callback = function()
-        vim.cmd("setlocal tabstop=2")
-        vim.cmd("setlocal shiftwidth=2")
-    end,
-})
-
