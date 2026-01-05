@@ -150,75 +150,12 @@ done
 
 
 ### ──────────────
-### Mise Config (Smart Lazy Loading)
+### Mise Config
 ### ──────────────
 export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
-# Tool command aliases - map tool names to their commands
-declare -A _mise_tool_aliases=(
-    ["golang"]="go"
-    ["nodejs"]="node npm npx"
-    ["python"]="python python3 pip pip3"
-    ["ruby"]="ruby gem"
-    ["rust"]="cargo rustc"
-    ["java"]="java javac"
-)
-
-# Lazy initialization function
-_mise_lazy_init() {
-    # Find mise binary
-    local mise_bin
-    if command -v /opt/homebrew/bin/mise >/dev/null 2>&1; then
-        mise_bin="/opt/homebrew/bin/mise"
-    elif command -v ~/.local/bin/mise >/dev/null 2>&1; then
-        mise_bin="~/.local/bin/mise"
-    else
-        echo "mise not found" >&2
-        return 1
-    fi
-
-    # Activate mise
-    eval "$($mise_bin activate zsh)"
-
-    # Remove all lazy stubs
-    for _tool in "${_mise_lazy_tools[@]}" mise; do
-        unset -f $_tool 2>/dev/null
-    done
-    unset _mise_lazy_tools _mise_tool_aliases
-}
-
-# Parse .tool-versions and create lazy stubs
-if [[ -n "$DOTFILES_ROOT" && -f "$DOTFILES_ROOT/.tool-versions" ]]; then
-    _mise_lazy_tools=()
-
-    while IFS= read -r line; do
-        # Skip empty lines and comments
-        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-
-        # Extract tool name (first word)
-        local tool_name=$(echo "$line" | awk '{print $1}')
-        [[ -z "$tool_name" ]] && continue
-
-        # Add primary tool
-        _mise_lazy_tools+=($tool_name)
-
-        # Add aliases if they exist
-        if [[ -n "${_mise_tool_aliases[$tool_name]}" ]]; then
-            # Split aliases by space and add them one by one
-            for alias_tool in ${=_mise_tool_aliases[$tool_name]}; do
-                _mise_lazy_tools+=($alias_tool)
-            done
-        fi
-    done < "$DOTFILES_ROOT/.tool-versions"
-
-    # Create lazy stubs for all tools + mise command itself
-    for _tool in "${_mise_lazy_tools[@]}" mise; do
-        eval "$_tool() { _mise_lazy_init && $_tool \"\$@\"; }"
-    done
-
-    unset _tool line tool_name aliases
-fi
+command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 
 ### ────────────────────────────────
 ### Final Setup
@@ -235,3 +172,6 @@ if [[ $- == *i* ]]; then
 fi
 
 # zprof
+
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit

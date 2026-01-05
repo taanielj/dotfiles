@@ -17,6 +17,13 @@ kc() {                                                              # switch con
     local context="$1"
     if [ -z "$context" ]; then
         context=$(kubectl config get-contexts -o name | fzf)
+    else
+        # Try to use the provided context, fallback to fzf with query if it fails
+        if ! kubectl config use-context "$context" 2>/dev/null; then
+            context=$(kubectl config get-contexts -o name | fzf --query="$context")
+        else
+            return 0
+        fi
     fi
     [ -n "$context" ] && kubectl config use-context "$context"
 }
@@ -28,6 +35,13 @@ kn() {                                                              # switch nam
     fi
     if [ -z "$namespace" ]; then
         namespace=$(kubectl get namespaces -o name | fzf | cut -d'/' -f2)
+    else
+        # Try to set the namespace, fallback to fzf with query if it fails
+        if ! kubectl config set-context --current --namespace "$namespace" 2>/dev/null; then
+            namespace=$(kubectl get namespaces -o name | fzf --query="$namespace" | cut -d'/' -f2)
+        else
+            return 0
+        fi
     fi
     [ -n "$namespace" ] && kubectl config set-context --current --namespace "$namespace"
 }

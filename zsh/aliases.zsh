@@ -2,12 +2,13 @@
 if command -v nvim &>/dev/null; then
     alias vim=nvim
 fi
-if command -v bat &>/dev/null; then
-    alias cat="bat -p --paging=never"
-elif command -v batcat &>/dev/null; then
-    alias cat="batcat -p --paging=never"
-else
-    alias cat="cat"
+# Only alias cat to bat in interactive shells to avoid cache issues in scripts/hooks
+if [[ -o interactive ]]; then
+    if command -v bat &>/dev/null; then
+        alias cat="bat -p --paging=never"
+    elif command -v batcat &>/dev/null; then
+        alias cat="batcat -p --paging=never"
+    fi
 fi
 
 if command -v fd &>/dev/null; then
@@ -203,4 +204,3 @@ nvimf() {
         nvim $(fd --type f --hidden | fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}')
     fi
 }
-
