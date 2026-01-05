@@ -2,7 +2,17 @@ local function augroup(name)
     return vim.api.nvim_create_augroup("user_" .. name, { clear = true })
 end
 
-
+-- Remove indentkeys that trigger while typing (keeps o,O for new line indent)
+vim.api.nvim_create_autocmd("InsertEnter", {
+    group = augroup("indentkeys"),
+    pattern = "*",
+    callback = function()
+        vim.cmd("setlocal indentkeys-=<:>")
+        vim.cmd("setlocal indentkeys-=0}")
+        vim.cmd("setlocal indentkeys-=0]")
+        vim.cmd("setlocal indentkeys-=0-")
+    end,
+})
 
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = augroup("number_toggle"),
@@ -60,3 +70,4 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.cmd("setlocal shiftwidth=2")
     end,
 })
+

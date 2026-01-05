@@ -98,10 +98,9 @@ return {
                     },
                 },
             })
-            local lspconfig = require("lspconfig")
-            ---- Language server configurations:
+            ---- Language server configurations (new vim.lsp.config API):
             -- lua language server
-            lspconfig.lua_ls.setup({
+            vim.lsp.config("lua_ls", {
                 capabilities = capabilities,
                 settings = {
                     Lua = {
@@ -121,24 +120,27 @@ return {
                     },
                 },
             })
+            vim.lsp.enable("lua_ls")
+
             -- python language server
-            lspconfig.pyright.setup({
+            vim.lsp.config("pyright", {
                 capabilities = capabilities,
                 settings = {
                     python = {
                         analysis = {
-                            -- See here for defaults:
-                            -- https://github.com/microsoft/pyright/blob/main/docs/configuration.md#diagnostic-settings-defaults
-                            typeCheckingMode = "standard", -- "off" | "basic" | "standard" | "strict"
+                            typeCheckingMode = "standard",
                             diagnosticSeverityOverrides = {
                                 reportUnusedFunction = "information",
-                                reportUnusedExpression = "information", -- maybe in correct?
+                                reportUnusedExpression = "information",
                             },
                         },
                     },
                 },
             })
-            lspconfig.html.setup({
+            vim.lsp.enable("pyright")
+
+            -- html language server
+            vim.lsp.config("html", {
                 capabilities = capabilities,
                 configurationSection = { "html", "css", "javascript" },
                 embeddedLanguages = {
@@ -147,17 +149,17 @@ return {
                 },
                 provideFormatter = true,
             })
-            lspconfig.marksman.setup({ capabilities = capabilities })
-            lspconfig.dockerls.setup({ capabilities = capabilities })
-            lspconfig.gopls.setup({ capabilities = capabilities })
-            lspconfig.eslint.setup({ capabilities = capabilities })
-            lspconfig.cssls.setup({ capabilities = capabilities })
-            lspconfig.terraformls.setup({ capabilities = capabilities })
-            lspconfig.bashls.setup({
+            vim.lsp.enable("html")
+
+            -- bash language server
+            vim.lsp.config("bashls", {
                 filetypes = { "sh", "zsh", "bash" },
                 capabilities = capabilities,
             })
-            lspconfig.ruby_lsp.setup({
+            vim.lsp.enable("bashls")
+
+            -- ruby language server with custom init_options
+            vim.lsp.config("ruby_lsp", {
                 capabilities = capabilities,
                 init_options = {
                     addonSettings = {
@@ -167,6 +169,17 @@ return {
                     },
                 },
             })
+            vim.lsp.enable("ruby_lsp")
+
+            -- Other language servers with default config
+            local servers = {
+                "marksman", "dockerls", "gopls", "eslint",
+                "cssls", "terraformls"
+            }
+            for _, server in ipairs(servers) do
+                vim.lsp.config(server, { capabilities = capabilities })
+                vim.lsp.enable(server)
+            end
             -- lspconfig.hydra_lsp.setup({
             --     capabilities = capabilities,
             --     filetypes = { "yaml", "yml" },
