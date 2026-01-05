@@ -123,18 +123,29 @@ install_tools() {
     # Create array of tool@version entries
     mapfile -t all_tools < <(awk '!/^#/ && NF { print $1 "@" $2 }' "$toolfile")
 
-    if ! command -v fzf &>/dev/null; then
-        error "fzf not found. Please install it to use interactive tool selection."
-        exit 1
-    fi
+    # Ask user what they want to do
+    log "📦 Install tools from .tool-versions?"
+    install_mode=$(interactive_choice "Choose action: " "All" "Custom" "Skip")
 
-    log "📦 Select tools to install (use TAB to mark multiple, ENTER to confirm)"
-    selected_tools=$(printf "%s\n" "${all_tools[@]}" | fzf --multi --prompt="Select tools: " --header="Use TAB to select, ENTER to confirm")
+    case "$install_mode" in
+    "Skip")
+        warn "⚠️  Skipping tool installation."
+        return 0
+        ;;
+    "All")
+        log "📦 Installing all tools..."
+        selected_tools=$(printf "%s\n" "${all_tools[@]}")
+        ;;
+    "Custom")
+        log "📦 Select tools to install:"
+        selected_tools=$(interactive_multi_choice "Select tools: " "${all_tools[@]}")
 
-    if [[ -z "$selected_tools" ]]; then
-        warn "⚠️  No tools selected. Skipping tool installation."
-        return
-    fi
+        if [[ -z "$selected_tools" ]]; then
+            warn "⚠️  No tools selected. Skipping tool installation."
+            return 0
+        fi
+        ;;
+    esac
 
     while IFS= read -r selected_tool_version; do
         # Extract tool name and version from tool@version format

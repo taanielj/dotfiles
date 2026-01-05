@@ -75,3 +75,51 @@ run_quiet() {
         success " Done"
     fi
 }
+
+# Interactive single selection with fzf or bash fallback
+# Usage: interactive_choice "prompt" "option1" "option2" "option3" ...
+interactive_choice() {
+    local prompt="$1"
+    shift
+    local options=("$@")
+
+    if command -v fzf &>/dev/null; then
+        printf "%s\n" "${options[@]}" | fzf --height=40% --prompt="$prompt"
+    else
+        echo "$prompt"
+        select choice in "${options[@]}"; do
+            [[ -n "$choice" ]] && echo "$choice" && break
+        done
+    fi
+}
+
+# Interactive multi-selection with fzf or bash fallback
+# Usage: interactive_multi_choice "prompt" "${array[@]}"
+interactive_multi_choice() {
+    local prompt="$1"
+    shift
+    local options=("$@")
+
+    if command -v fzf &>/dev/null; then
+        printf "%s\n" "${options[@]}" | fzf --multi --prompt="$prompt" --header="TAB to select, ENTER to confirm"
+    else
+        echo "$prompt"
+        echo "Enter numbers separated by spaces (e.g., '1 3 5'), or 'all' for everything:"
+
+        for i in "${!options[@]}"; do
+            echo "$((i+1))) ${options[$i]}"
+        done
+
+        echo -n "Selection: "
+        read -r input
+
+        if [[ "$input" == "all" ]]; then
+            printf "%s\n" "${options[@]}"
+        else
+            for num in $input; do
+                idx=$((num - 1))
+                [[ $idx -ge 0 && $idx -lt ${#options[@]} ]] && echo "${options[$idx]}"
+            done
+        fi
+    fi
+}

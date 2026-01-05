@@ -40,6 +40,7 @@ MACOS_PACKAGES=(
     "lazygit"   # available in brew
     "fastfetch" # available in brew
     "mise"      # available in brew
+    "kitty"     # needed for tmux setup on macOS
     # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
 )
 
