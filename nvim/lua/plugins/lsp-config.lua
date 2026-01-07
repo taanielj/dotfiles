@@ -99,7 +99,7 @@ return {
                 },
             })
             ---- Language server configurations (new vim.lsp.config API):
-            -- lua language server
+            -- Lua language server
             vim.lsp.config("lua_ls", {
                 capabilities = capabilities,
                 settings = {
@@ -122,7 +122,7 @@ return {
             })
             vim.lsp.enable("lua_ls")
 
-            -- python language server
+            -- Python language server
             vim.lsp.config("pyright", {
                 capabilities = capabilities,
                 settings = {
@@ -139,7 +139,7 @@ return {
             })
             vim.lsp.enable("pyright")
 
-            -- html language server
+            -- HTML language server
             vim.lsp.config("html", {
                 capabilities = capabilities,
                 configurationSection = { "html", "css", "javascript" },
@@ -151,14 +151,14 @@ return {
             })
             vim.lsp.enable("html")
 
-            -- bash language server
+            -- Bash/Zsh language server
             vim.lsp.config("bashls", {
                 filetypes = { "sh", "zsh", "bash" },
                 capabilities = capabilities,
             })
             vim.lsp.enable("bashls")
 
-            -- ruby language server with custom init_options
+            -- Ruby language server
             vim.lsp.config("ruby_lsp", {
                 capabilities = capabilities,
                 init_options = {
@@ -173,8 +173,13 @@ return {
 
             -- Other language servers with default config
             local servers = {
-                "marksman", "dockerls", "gopls", "eslint",
-                "cssls", "terraformls"
+                "marksman",    -- Markdown
+                "dockerls",    -- Dockerfile
+                "gopls",       -- Go
+                "eslint",      -- JavaScript/TypeScript
+                "cssls",       -- CSS
+                "terraformls", -- Terraform
+                "metals"       -- Scala
             }
             for _, server in ipairs(servers) do
                 vim.lsp.config(server, { capabilities = capabilities })
@@ -187,19 +192,20 @@ return {
             require("mason-lspconfig").setup({
                 automatic_installation = true,
                 ensure_installed = {
-                    "lua_ls",
-                    "pyright",
-                    -- "ruff",
-                    "dockerls",
-                    "terraformls",
-                    "html",
-                    "eslint",
-                    "cssls",
-                    "bashls",
-                    "gopls",
-                    -- "hydra_lsp",
-                    "marksman",
-                    "ruby_lsp",
+                    "lua_ls",      -- Lua
+                    "pyright",     -- Python
+                    -- "ruff",     -- Python linter
+                    "dockerls",    -- Dockerfile
+                    "terraformls", -- Terraform
+                    "html",        -- HTML
+                    "eslint",      -- JavaScript/TypeScript
+                    "cssls",       -- CSS
+                    "bashls",      -- Bash/Zsh
+                    "gopls",       -- Go
+                    -- "hydra_lsp", -- YAML
+                    "marksman",    -- Markdown
+                    "ruby_lsp",    -- Ruby
+                    "metals",      -- Scala
                 },
             })
             vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")
@@ -241,6 +247,7 @@ return {
                     "isort",
                     --"sqlfmt",
                     "shfmt",
+                    "scalafmt",
                 },
                 automatic_installation = true,
             })
