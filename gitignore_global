@@ -24,3 +24,8 @@ CLAUDE.md
 .mise.toml
 # manually add tool-versions by default
 .tool-versions
+
+# scala
+.bloop/
+metals.sbt
+

@@ -170,6 +170,10 @@ return {
                 },
             })
             vim.lsp.enable("ruby_lsp")
+            vim.lsp.enable("metals")
+            -- vim.lsp.config("metals", {
+            --     capabilities = capabilities,
+            -- })
 
             -- Other language servers with default config
             local servers = {
@@ -179,7 +183,6 @@ return {
                 "eslint",      -- JavaScript/TypeScript
                 "cssls",       -- CSS
                 "terraformls", -- Terraform
-                "metals"       -- Scala
             }
             for _, server in ipairs(servers) do
                 vim.lsp.config(server, { capabilities = capabilities })
@@ -205,7 +208,7 @@ return {
                     -- "hydra_lsp", -- YAML
                     "marksman",    -- Markdown
                     "ruby_lsp",    -- Ruby
-                    "metals",      -- Scala
+                    -- Note: Scala LSP (metals) requires nvim-metals plugin, not available via mason-lspconfig
                 },
             })
             vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")

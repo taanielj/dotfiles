@@ -24,7 +24,6 @@ return {
                     },
                 }),
                 null_ls.builtins.formatting.sqlfmt,
-                null_ls.builtins.formatting.scalafmt,
                 null_ls.builtins.formatting.rubocop,
             },
         })
