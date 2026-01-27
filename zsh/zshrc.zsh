@@ -171,7 +171,8 @@ if [[ $- == *i* ]]; then
   }
 fi
 
-# zprof
-
-
 fpath+=~/.zfunc; autoload -Uz compinit; compinit
+
+command -v nvim >/dev/null 2>&1 && export EDITOR='nvim'
+
+# zprof

@@ -75,19 +75,74 @@ default_sessions=(
     "notes"
 )
 
+# Helper: Create tmux session with optional directory
+_tmux_new_session_maybe_dir() {
+    local session="$1"
+    local window_name="$2"
+    local dir="$3"
+
+    if [[ -n "$dir" && -d "$dir" ]]; then
+        tmux new-session -d -s "$session" -n "$window_name" -c "$dir"
+    else
+        tmux new-session -d -s "$session" -n "$window_name"
+    fi
+}
+
+# Helper: Create tmux window with optional directory
+_tmux_new_window_maybe_dir() {
+    local session="$1"
+    local window_name="$2"
+    local dir="$3"
+
+    if [[ -n "$dir" && -d "$dir" ]]; then
+        tmux new-window -t "$session" -n "$window_name" -c "$dir"
+    else
+        tmux new-window -t "$session" -n "$window_name"
+    fi
+}
+
 # Helper: Start all sessions if not already started
-start_all_sessions() {
+_start_all_sessions() {
     for session in "${default_sessions[@]}"; do
         if ! tmux has-session -t "$session" 2>/dev/null; then
             [[ "$OSTYPE" != "darwin"* && "$session" =~ ^(zqa|zendesk)$ ]] && continue
-            tmux new-session -d -s "$session"
+
+            case "$session" in
+                zendesk)
+                    # Skip if ZENDESK_CODE_DIR is not set
+                    [[ -z "$ZENDESK_CODE_DIR" ]] && continue
+
+                    _tmux_new_session_maybe_dir zendesk zig "${ZENDESK_CODE_DIR}/zendesk-identity-governance"
+                    _tmux_new_window_maybe_dir zendesk proto "${ZENDESK_CODE_DIR}/zendesk_protobuf_schemas"
+                    ;;
+                zqa)
+                    # Skip if ZENDESK_CODE_DIR is not set
+                    [[ -z "$ZENDESK_CODE_DIR" ]] && continue
+
+                    _tmux_new_session_maybe_dir zqa publ "${ZENDESK_CODE_DIR}/zqa-analytics-publisher"
+                    _tmux_new_window_maybe_dir zqa etl "${ZENDESK_CODE_DIR}/zqa-etl-pipelines"
+                    _tmux_new_window_maybe_dir zqa dbt_klaus "${ZENDESK_CODE_DIR}/zdp_dbt_regional_klaus"
+                    ;;
+                notes)
+                    _tmux_new_session_maybe_dir notes notes "$HOME/Code/notes"
+                    _tmux_new_window_maybe_dir notes dotfiles "$HOME/Code/dotfiles"
+                    ;;
+                shell)
+                    # Create shell session (no special setup)
+                    tmux new-session -d -s shell
+                    ;;
+                *)
+                    # Default: create session without special setup
+                    tmux new-session -d -s "$session"
+                    ;;
+            esac
         fi
     done
 }
 
 # Main entry: attach to first available session (default: notes)
 ts() {
-    start_all_sessions
+    _start_all_sessions
 
     for session in "${default_sessions[@]}"; do
         if ! tmux list-clients -t "$session" 2>/dev/null | grep -q '^'; then
@@ -102,30 +157,30 @@ ts() {
 
 # Attach helpers
 tsn() {
-    start_all_sessions
+    _start_all_sessions
     tmux attach-session -t notes
 }
 
 tss() {
-    start_all_sessions
+    _start_all_sessions
     tmux attach-session -t shell
 }
 
 tsz() {
-    if [[ "$(uname)" != "Darwin" ]]; then
-        echo "🧘 Relax, you're not at work (not on macOS)."
+    if [[ -z "$ZENDESK_CODE_DIR" ]]; then
+        echo "🧘 Relax, you're not at work."
         return 0
     fi
-    start_all_sessions
+    _start_all_sessions
     tmux attach-session -t zendesk
 }
 
 tsq() {
-    if [[ "$(uname)" != "Darwin" ]]; then
-        echo "🧘 Relax, you're not at work (not on macOS)."
+    if [[ -z "$ZENDESK_CODE_DIR" ]]; then
+        echo "🧘 Relax, you're not at work."
         return 0
     fi
-    start_all_sessions
+    _start_all_sessions
     tmux attach-session -t zqa
 }
 

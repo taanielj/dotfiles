@@ -175,6 +175,12 @@ return {
             --     capabilities = capabilities,
             -- })
 
+            -- Makefile linter
+            vim.lsp.config("checkmake", {
+                capabilities = capabilities,
+            })
+            vim.lsp.enable("checkmake")
+
             -- Other language servers with default config
             local servers = {
                 "marksman",    -- Markdown
@@ -245,12 +251,13 @@ return {
         config = function()
             require("mason-null-ls").setup({
                 ensure_installed = {
-                    "stylua",
-                    "black",
-                    "isort",
-                    --"sqlfmt",
-                    "shfmt",
-                    "scalafmt",
+                    "stylua",     -- Lua
+                    "black",      -- Python code formatter
+                    "isort",      -- Python import sorter
+                    --"sqlfmt",   -- SQL
+                    "shfmt",      -- Shell
+                    "scalafmt",   -- Scala
+                    "checkmake",  -- Makefile linter
                 },
                 automatic_installation = true,
             })

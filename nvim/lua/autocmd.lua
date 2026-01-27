@@ -60,3 +60,12 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.cmd("setlocal tabstop=2")
     end,
 })
+
+-- Use real tabs for Makefiles
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup("makefile_tabs"),
+    pattern = "make",
+    callback = function()
+        vim.cmd("setlocal noexpandtab")
+    end,
+})
