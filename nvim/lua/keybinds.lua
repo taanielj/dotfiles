@@ -141,9 +141,11 @@ local all_mappings = {
     { "v",               { "<Leader>b", "<Leader>*" }, '"zc****<Esc>2h"zp',                             "Add bold" },
     { "v",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
     { "v",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
-    -- Resize window left right
-    { { "n", "i", "x" }, "<C-S-Left>",                 "<C-w>h",                                        "Resize window left" },
-    { { "n", "i", "x" }, "<C-S-Right>",                "<C-w>l",                                        "Resize window right" },
+    -- Resize splits (Alt+h/j/k/l, repeatable)
+    { "n",               "<M-h>",                       "2<C-w>>",                                       "Resize split left" },
+    { "n",               "<M-l>",                       "2<C-w><",                                       "Resize split right" },
+    { "n",               "<M-j>",                       "2<C-w>+",                                       "Resize split down" },
+    { "n",               "<M-k>",                       "2<C-w>-",                                       "Resize split up" },
 }
 
 -- Apply all the mappings
@@ -198,16 +200,32 @@ vim.keymap.set("i", "<Down>", function()
     move_cursor_visual(1)
 end, { noremap = true, silent = true, desc = "Move down in insert mode (visual line)" })
 
-vim.keymap.set("i", "<C-w>", "<C-o>dv<Plug>WordMotion_b", {
-  noremap = false,  -- needed so <Plug> expands
-  silent = true,
-  desc = "Delete previous word (wordmotion-aware)",
-})
-vim.keymap.set("i", "<C-Del>", "<C-o>d<Plug>WordMotion_e", {
-  noremap = false,
-  silent = true,
-  desc = "Ctrl-Delete = delete next word (wordmotion-aware)",
-})
+vim.keymap.set("i", "<C-w>", function()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  if col == 0 then return end
+  local line = vim.api.nvim_get_current_line()
+
+  -- Position cursor for normal-mode wordmotion (at EOL, back up one)
+  vim.api.nvim_win_set_cursor(0, { row, math.min(col, #line - 1) })
+  vim.fn["wordmotion#motion"](1, "n", "b", 0, {})
+  local _, target = unpack(vim.api.nvim_win_get_cursor(0))
+
+  vim.api.nvim_buf_set_text(0, row - 1, target, row - 1, col, { "" })
+  vim.api.nvim_win_set_cursor(0, { row, target })
+end, { silent = true, desc = "Delete previous word (wordmotion-aware)" })
+
+vim.keymap.set("i", "<C-Del>", function()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local line = vim.api.nvim_get_current_line()
+  if col >= #line then return end
+
+  vim.api.nvim_win_set_cursor(0, { row, col })
+  vim.fn["wordmotion#motion"](1, "n", "e", 0, {})
+  local _, target = unpack(vim.api.nvim_win_get_cursor(0))
+
+  vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, target + 1, { "" })
+  vim.api.nvim_win_set_cursor(0, { row, col })
+end, { silent = true, desc = "Ctrl-Delete = delete next word (wordmotion-aware)" })
 
 
 
@@ -222,4 +240,32 @@ vim.keymap.set("i", "<Esc>", function()
     end)
     return "<Esc>"
 end, { expr = true, noremap = true, desc = "Exit insert mode preserving cursor position" })
+
+-- Wildmenu pum: swap Up/Down (dir nav) with Left/Right (list nav)
+vim.keymap.set("c", "<Up>", function()
+    return vim.fn.pumvisible() == 1 and "<Left>" or "<Up>"
+end, { expr = true })
+
+vim.keymap.set("c", "<Down>", function()
+    return vim.fn.pumvisible() == 1 and "<Right>" or "<Down>"
+end, { expr = true })
+
+vim.keymap.set("c", "<Left>", function()
+    return vim.fn.pumvisible() == 1 and "<Up>" or "<Left>"
+end, { expr = true })
+
+vim.keymap.set("c", "<Right>", function()
+    return vim.fn.pumvisible() == 1 and "<Down>" or "<Right>"
+end, { expr = true })
+
+-- Ctrl+Shift+Arrow = word-by-word selection (wordmotion-aware)
+vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word forward" })
+vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })
+vim.keymap.set("x", "<C-S-Right>", "e", { remap = true, desc = "Extend selection word forward" })
+vim.keymap.set("x", "<C-S-Left>", "b", { remap = true, desc = "Extend selection word backward" })
+vim.keymap.set("i", "<C-S-Left>", function()
+    vim.cmd("stopinsert")
+    vim.cmd("normal! v")
+    vim.fn["wordmotion#motion"](1, "v", "b", 0, {})
+end, { silent = true, desc = "Select word backward" })
 
