@@ -23,7 +23,7 @@ echo ""
 files=()
 
 # Add platform-specific files
-[[ "$OSTYPE" == "darwin"* ]] && files+=("$REPO_ROOT/setup/kitty.sh")
+[[ "$OSTYPE" == "darwin"* ]] && files+=("$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/kitty.sh")
 [[ "$OSTYPE" == "linux-gnu"* ]] && files+=("$REPO_ROOT/setup/lazygit.sh")
 
 # Add common files in reverse order of setup.sh

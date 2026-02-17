@@ -27,7 +27,7 @@ log "  • Terminal multiplexer (tmux with plugins)"
 log "  • Version manager (mise with language runtimes)"
 log "  • Text editor (neovim with plugins)"
 log "  • Rust tools (cargo packages like eza, ripgrep, bat)"
-[[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulator (kitty)"
+[[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, wezterm)"
 [[ "$OSTYPE" == "linux-gnu"* ]] && log "  • Git TUI (lazygit)"
 echo ""
 
@@ -40,7 +40,7 @@ files=(
     "$REPO_ROOT/setup/nvim.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/cargo.sh"  # no sudo, platform agnostic
 )
-[[ "$OSTYPE" == "darwin"* ]] && files+=("$REPO_ROOT/setup/kitty.sh")
+[[ "$OSTYPE" == "darwin"* ]] && files+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh")
 [[ "$OSTYPE" == "linux-gnu"* ]] && files+=("$REPO_ROOT/setup/lazygit.sh")
 
 # Ask user what they want to do
