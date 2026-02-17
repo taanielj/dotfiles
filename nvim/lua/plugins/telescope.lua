@@ -20,6 +20,7 @@ return {
         -- make sure databases directory exists
         local database_dir = vim.fn.expand("~/.local/share/nvim/databases")
         if not vim.fn.isdirectory(database_dir) then
+            print("Creating database directory at " .. database_dir)
             vim.fn.mkdir(database_dir, "p")
         end
         require("telescope").setup({

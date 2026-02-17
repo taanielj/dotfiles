@@ -86,6 +86,67 @@ return {
                     -- Toggles
                     map("n", "<leader>gB", gitsigns.toggle_current_line_blame, { desc = "Toggle git blame line" })
                     map("n", "<leader>gD", gitsigns.toggle_linehl, { desc = "Diff line highlighting" })
+
+                    -- Open current line in browser (GitHub/GitLab/Bitbucket)
+                    map({ "n", "v" }, "<leader>go", function()
+                        local function run_cmd(cmd)
+                            local handle = io.popen(cmd)
+                            local result = handle and handle:read("*a") or ""
+                            if handle then handle:close() end
+                            return vim.trim(result)
+                        end
+
+                        local remote_url = run_cmd("git remote get-url origin 2>/dev/null")
+                        if remote_url == "" then
+                            vim.notify("No git remote found", vim.log.levels.ERROR)
+                            return
+                        end
+
+                        local branch = run_cmd("git rev-parse --abbrev-ref HEAD 2>/dev/null")
+                        local repo_root = run_cmd("git rev-parse --show-toplevel 2>/dev/null")
+                        local file_path = vim.fn.expand("%:p")
+                        local relative_path = file_path:sub(#repo_root + 2)
+
+                        local line_start, line_end
+                        local mode = vim.fn.mode()
+                        if mode == "v" or mode == "V" or mode == "\22" then
+                            line_start = vim.fn.line("v")
+                            line_end = vim.fn.line(".")
+                            if line_start > line_end then
+                                line_start, line_end = line_end, line_start
+                            end
+                        else
+                            line_start = vim.fn.line(".")
+                            line_end = line_start
+                        end
+
+                        -- Convert remote URL to HTTPS base
+                        local base_url = remote_url
+                            :gsub("git@([^:]+):", "https://%1/")
+                            :gsub("%.git$", "")
+
+                        -- Detect platform and build URL
+                        local url
+                        if base_url:match("gitlab") then
+                            url = string.format("%s/-/blob/%s/%s#L%d", base_url, branch, relative_path, line_start)
+                            if line_end ~= line_start then
+                                url = url .. "-" .. line_end
+                            end
+                        elseif base_url:match("bitbucket") then
+                            url = string.format("%s/src/%s/%s#lines-%d", base_url, branch, relative_path, line_start)
+                            if line_end ~= line_start then
+                                url = url .. ":" .. line_end
+                            end
+                        else
+                            -- Default to GitHub format
+                            url = string.format("%s/blob/%s/%s#L%d", base_url, branch, relative_path, line_start)
+                            if line_end ~= line_start then
+                                url = url .. "-L" .. line_end
+                            end
+                        end
+
+                        vim.ui.open(url)
+                    end, { desc = "Open line in browser" })
                 end,
             })
         end,

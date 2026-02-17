@@ -16,7 +16,6 @@ require("vim-options") -- Basic vim options
 require("keybinds")    -- Keybinds
 require("zen")         -- Zen mode
 require("autocmd")     -- Autocommands
--- load plugins automatically in lua/plugins folder
 require("lazy").setup("plugins")
 
 function ReloadPlugins()

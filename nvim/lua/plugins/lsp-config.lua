@@ -256,7 +256,6 @@ return {
                     "isort",      -- Python import sorter
                     --"sqlfmt",   -- SQL
                     "shfmt",      -- Shell
-                    "scalafmt",   -- Scala
                     "checkmake",  -- Makefile linter
                 },
                 automatic_installation = true,
