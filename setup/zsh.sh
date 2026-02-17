@@ -51,7 +51,7 @@ set_dotfiles_root() {
 
     # Check if the exact line already exists
     if grep -Fxq "$dotfiles_line" "$zshrc_local" 2>/dev/null; then
-        return 0  # Already correct, no logging
+        return 0 # Already correct, no logging
     fi
 
     # Check if any DOTFILES_ROOT line exists
@@ -65,7 +65,7 @@ set_dotfiles_root() {
         fi
     else
         log "Adding DOTFILES_ROOT to .zshrc.local"
-        echo "$dotfiles_line" >> "$zshrc_local"
+        echo "$dotfiles_line" >>"$zshrc_local"
     fi
 }
 

@@ -39,8 +39,9 @@ install_nvim() {
         grep -q "/.local/nvim/bin" "$rc" || echo 'export PATH=$HOME/.local/nvim/bin:$PATH' >>"$rc"
     done
     export PATH="$HOME/.local/nvim/bin:$PATH"
-
-    success "Neovim installed to ~/.local/nvim"
+    local nvim_version
+    nvim_version=$(nvim --version | head -n1)
+    success "Installed Neovim: $nvim_version"
 }
 
 configure_nvim() {
@@ -52,8 +53,10 @@ configure_nvim() {
     fi
 
     mkdir -p "$HOME/.config"
-    local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
-    mkdir -p "$data_home/nvim/databases"
+    # local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+    # mkdir -p "$data_home/nvim/databases"
+    [[ -d "$HOME/.local/share/nvim/databases" ]] || mkdir -p "$HOME/.local/share/nvim/databases"
+    [[ -d "$HOME/.local/share/nvim/databases" ]] || error "❌ Failed to create Neovim databases directory." && return 1
 
     if [[ -e "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
         warn "⚠️ Backing up existing Neovim config..."
