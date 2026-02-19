@@ -4,6 +4,22 @@
             "complex_modifications": {
                 "rules": [
                     {
+                        "description": "Open WezTerm with Ctrl-Alt-W",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "w",
+                                    "modifiers": {
+                                        "mandatory": ["command", "option"],
+                                        "optional": ["caps_lock"]
+                                    }
+                                },
+                                "to": [{ "shell_command": "open /Applications/WezTerm.app/" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Snip Screenshot Control+F12",
                         "manipulators": [
                             {
