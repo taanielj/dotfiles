@@ -41,6 +41,9 @@ vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 
 
 
+vim.keymap.set({"n","i","v","c","t","o"}, "<Find>",   "<Home>", { remap = true })
+vim.keymap.set({"n","i","v","c","t","o"}, "<Select>", "<End>",  { remap = true })
+
 vim.lsp.handlers["textDocument/hover"] = function(err, result, _, config)
   if err or not result or not result.contents then return end
 

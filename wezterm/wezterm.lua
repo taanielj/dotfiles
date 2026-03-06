@@ -19,6 +19,7 @@ config.window_decorations = "RESIZE | MACOS_FORCE_SQUARE_CORNERS"
 config.window_background_opacity = 0.8
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 config.enable_tab_bar = false
+config.enable_kitty_keyboard = true
 
 -- macOS-specific settings
 if wezterm.target_triple:find("darwin") then
@@ -89,12 +90,13 @@ if wezterm.target_triple:find("darwin") then
 		cmd_to_ctrl("9"),
 		cmd_to_ctrl("0"),
 
-		-- Cmd+Shift+letter → Ctrl+Shift+letter
-		{ key = "f", mods = "CMD|SHIFT", action = act.SendKey({ key = "f", mods = "CTRL|SHIFT" }) },
-		cmd_shift_to_ctrl_shift("h"),
-		cmd_shift_to_ctrl_shift("j"),
-		cmd_shift_to_ctrl_shift("k"),
-		cmd_shift_to_ctrl_shift("l"),
+		-- Cmd+Shift+letter → Ctrl+Shift+letter (CSI u encoding: ESC[keycode;6u)
+		-- SendString bypasses wezterm's legacy key encoding which can't distinguish Ctrl+Shift+letter from Ctrl+letter
+		{ key = "f", mods = "CMD|SHIFT", action = act.SendString("\x1b[102;6u") },
+		{ key = "h", mods = "CMD|SHIFT", action = act.SendString("\x1b[104;6u") },
+		{ key = "j", mods = "CMD|SHIFT", action = act.SendString("\x1b[106;6u") },
+		{ key = "k", mods = "CMD|SHIFT", action = act.SendString("\x1b[107;6u") },
+		{ key = "l", mods = "CMD|SHIFT", action = act.SendString("\x1b[108;6u") },
 
 		-- Cmd+arrows → Ctrl+arrows
 		cmd_to_ctrl("LeftArrow"),
@@ -161,5 +163,14 @@ if wezterm.target_triple:find("darwin") then
 		{ key = "Tab", mods = "CTRL|SHIFT", action = act.DisableDefaultAssignment },
 	}
 end
+
+-- Copy on select (matches kitty copy_on_select clipboard)
+config.mouse_bindings = {
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "NONE",
+		action = act.CompleteSelection("ClipboardAndPrimarySelection"),
+	},
+}
 
 return config

@@ -258,6 +258,15 @@ vim.keymap.set("c", "<Right>", function()
     return vim.fn.pumvisible() == 1 and "<Down>" or "<Right>"
 end, { expr = true })
 
+-- Yank buffer absolute path
+vim.keymap.set("n", "<leader>yb", function()
+    if vim.bo.modifiable then
+        local path = vim.fn.expand("%:p")
+        vim.fn.setreg("+", path)
+        vim.notify(path, vim.log.levels.INFO, { title = "Yanked path" })
+    end
+end, { noremap = true, silent = true, desc = "Yank buffer absolute path" })
+
 -- Ctrl+Shift+Arrow = word-by-word selection (wordmotion-aware)
 vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word forward" })
 vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })

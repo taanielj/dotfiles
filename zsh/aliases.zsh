@@ -20,6 +20,15 @@ else
 fi
 
 alias x="exit"
+envload() {
+    if [[ ! -f .env ]]; then
+        echo "No .env file in $(pwd)"
+        return 1
+    fi
+    local vars=($(grep -v '^#' .env | grep -v '^\s*$' | xargs))
+    export "${vars[@]}"
+    echo "Loaded ${#vars[@]} var(s) from .env"
+}
 
 # exa is nolonger maintained, using eza instead, a maintained fork
 if command -v eza &>/dev/null; then
@@ -242,7 +251,7 @@ reset_repo() {
 # Neovim
 nvim() {
     # set term to xterm-kitty just for nvim, for better blinking cursor support
-    export TERM="xterm-kitty"
+    [[ "$TERM_PROGRAM" == "kitty" ]] && export TERM="xterm-kitty"
     [[ $# -ne 0 ]] && command nvim "$@" && return
 
     local venv_path=$(__resolve_venv_path)

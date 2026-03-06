@@ -7,10 +7,12 @@ zle -N edit-command-line
 bindkey '^x^e' edit-command-line
 
 ## Home and End
-bindkey "^[OH" beginning-of-line    # Home (application mode)
-bindkey "^[OF" end-of-line          # End (application mode)
-bindkey "^[[H" beginning-of-line    # Home (normal mode)
-bindkey "^[[F" end-of-line          # End (normal mode)
+bindkey "^[OH" beginning-of-line    # Home (application mode / SS3)
+bindkey "^[OF" end-of-line          # End (application mode / SS3)
+bindkey "^[[H" beginning-of-line    # Home (xterm normal mode)
+bindkey "^[[F" end-of-line          # End (xterm normal mode)
+bindkey "^[[1~" beginning-of-line   # Home (vt / tmux-256color)
+bindkey "^[[4~" end-of-line         # End (vt / tmux-256color)
 
 ## ctrl up and down do nothing
 bindkey "^[[1;5A" up-line-or-history

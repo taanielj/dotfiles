@@ -88,25 +88,52 @@ return {
                     map("n", "<leader>gD", gitsigns.toggle_linehl, { desc = "Diff line highlighting" })
 
                     -- Open current line in browser (GitHub/GitLab/Bitbucket)
-                    map({ "n", "v" }, "<leader>go", function()
-                        local function run_cmd(cmd)
-                            local handle = io.popen(cmd)
-                            local result = handle and handle:read("*a") or ""
-                            if handle then handle:close() end
-                            return vim.trim(result)
+                    local function run_cmd(cmd)
+                        local handle = io.popen(cmd)
+                        local result = handle and handle:read("*a") or ""
+                        if handle then
+                            handle:close()
                         end
-
+                        return vim.trim(result)
+                    end
+                    local function is_git_repo()
                         local remote_url = run_cmd("git remote get-url origin 2>/dev/null")
                         if remote_url == "" then
                             vim.notify("No git remote found", vim.log.levels.ERROR)
-                            return
+                            return false
                         end
+                        return true
+                    end
 
+                    local function get_remote_url(line_start, line_end)
+                        -- Detect platform and build URL
                         local branch = run_cmd("git rev-parse --abbrev-ref HEAD 2>/dev/null")
                         local repo_root = run_cmd("git rev-parse --show-toplevel 2>/dev/null")
                         local file_path = vim.fn.expand("%:p")
                         local relative_path = file_path:sub(#repo_root + 2)
-
+                        local remote_url = run_cmd("git remote get-url origin 2>/dev/null")
+                        local url
+                        if remote_url:match("gitlab") then
+                            url = string.format("%s/-/blob/%s/%s#L%d", remote_url, branch, relative_path, line_start)
+                            if line_end ~= line_start then
+                                url = url .. "-" .. line_end
+                            end
+                        elseif remote_url:match("bitbucket") then
+                            url = string.format("%s/src/%s/%s#lines-%d", remote_url, branch, relative_path, line_start)
+                            if line_end ~= line_start then
+                                url = url .. ":" .. line_end
+                            end
+                        else
+                            -- Default to GitHub format
+                            url = string.format("%s/blob/%s/%s#L%d", remote_url, branch, relative_path, line_start)
+                            if line_end ~= line_start then
+                                url = url .. "-L" .. line_end
+                            end
+                        end
+                        -- return url
+                        return url:gsub("git@([^:]+):", "https://%1/"):gsub("%.git$", "")
+                    end
+                    local function get_line_range()
                         local line_start, line_end
                         local mode = vim.fn.mode()
                         if mode == "v" or mode == "V" or mode == "\22" then
@@ -119,34 +146,26 @@ return {
                             line_start = vim.fn.line(".")
                             line_end = line_start
                         end
+                        return line_start, line_end
+                    end
 
-                        -- Convert remote URL to HTTPS base
-                        local base_url = remote_url
-                            :gsub("git@([^:]+):", "https://%1/")
-                            :gsub("%.git$", "")
-
-                        -- Detect platform and build URL
-                        local url
-                        if base_url:match("gitlab") then
-                            url = string.format("%s/-/blob/%s/%s#L%d", base_url, branch, relative_path, line_start)
-                            if line_end ~= line_start then
-                                url = url .. "-" .. line_end
-                            end
-                        elseif base_url:match("bitbucket") then
-                            url = string.format("%s/src/%s/%s#lines-%d", base_url, branch, relative_path, line_start)
-                            if line_end ~= line_start then
-                                url = url .. ":" .. line_end
-                            end
-                        else
-                            -- Default to GitHub format
-                            url = string.format("%s/blob/%s/%s#L%d", base_url, branch, relative_path, line_start)
-                            if line_end ~= line_start then
-                                url = url .. "-L" .. line_end
-                            end
+                    map({ "n", "v" }, "<leader>go", function()
+                        if not is_git_repo() then
+                            return
                         end
-
+                        local line_start, line_end = get_line_range()
+                        local url = get_remote_url(line_start, line_end)
                         vim.ui.open(url)
                     end, { desc = "Open line in browser" })
+                    map({ "n", "v" }, "<leader>yg", function()
+                        if not is_git_repo() then
+                            return
+                        end
+                        local line_start, line_end = get_line_range()
+                        local url = get_remote_url(line_start, line_end)
+                        vim.fn.setreg("+", url)
+                        vim.notify("Copied URL to clipboard: " .. url, vim.log.levels.INFO)
+                    end, { desc = "Copy line URL to clipboard" })
                 end,
             })
         end,
