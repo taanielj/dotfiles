@@ -18,6 +18,7 @@ DEBIAN_PACKAGES=(
     "libreadline-dev" "libsqlite3-dev" "libffi-dev" "libyaml-dev" # Language runtime dependencies
     "libncursesw5-dev" "tk-dev"                                   # Terminal and UI libraries
     "libssl-dev" "libxml2-dev" "libxmlsec1-dev"                   # Networking and XML libraries
+    "clang" "libclang-dev"
 )
 
 UBUNTU_PACKAGES=(

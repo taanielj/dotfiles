@@ -1,9 +1,11 @@
 java zulu-21
 java zulu-23
 golang 1.24.1
-nodejs 22.1.0
 python 3.12
 poetry 2.1.1
 rust 1.92.0
 ruby 3.3
-uv 0.7
+uv 0.10
+deno 2.7
+cargo 0.95
+node 22.1

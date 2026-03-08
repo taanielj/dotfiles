@@ -5,10 +5,20 @@ source "$REPO_ROOT/setup/utils.sh"
 
 main_mise() {
     install_mise
-    mise_binary=$(which mise 2>/dev/null || echo "$HOME/.local/bin/mise")
+    mise_binary=$(resolve_mise)
     activate_mise
     unset mise
     install_tools
+}
+
+resolve_mise() {
+    local path
+    if command -v mise >/dev/null 2>&1; then
+        path=$(command -v mise)
+    else
+        path="$HOME/.local/bin/mise"
+    fi
+    echo "$path"
 }
 
 teardown_mise() {
@@ -35,7 +45,6 @@ teardown_mise() {
         rm -rf "$HOME/.config/mise"
     fi
 
-    # Remove mise binary if installed locally
     if [[ -f "$HOME/.local/bin/mise" ]]; then
         log "Removing mise binary from ~/.local/bin"
         rm -f "$HOME/.local/bin/mise"
@@ -59,7 +68,6 @@ install_mise() {
 }
 
 activate_mise() {
-    # More robust shell detection
     current_shell=$(ps -p $$ -ocomm= | sed 's/^-//')
     if [[ -z "$current_shell" ]]; then
         error "Could not detect current shell for mise activation"
@@ -73,8 +81,6 @@ install_mise_from_script() {
     # Works on Linux and macOS, not Termux
     run_quiet "Installing mise" bash -c "curl https://mise.run | sh"
 }
-
-
 
 install_mise_termux() {
     # WIP, does not work yet properly
@@ -147,17 +153,16 @@ install_tools() {
         ;;
     esac
 
+    # Resolve binary path locally
+    local mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise")
+
     while IFS= read -r selected_tool_version; do
-        # Extract tool name and version from tool@version format
-        tool_name=${selected_tool_version%@*}
-        version=${selected_tool_version#*@}
+        [[ -z "$selected_tool_version" ]] && continue
 
-        [[ -z "$version" ]] && warn "⚠️  Version not found for $tool_name" && continue
-
-        run_quiet "📦 Installing $tool_name@$version" mise install "$tool_name@$version"
+        # Changed 'install' to 'use --global' to populate ~/.config/mise/config.toml
+        run_quiet "📦 Installing $selected_tool_version" "$mise_bin" use --global "$selected_tool_version"
     done <<<"$selected_tools"
 }
-
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main_mise "$@"
 fi

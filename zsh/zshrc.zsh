@@ -155,7 +155,7 @@ done
 export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
-command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
+mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
 
 ### ────────────────────────────────
 ### Final Setup
