@@ -36,11 +36,6 @@ fi
 autoload -U select-word-style
 select-word-style bash
 
-autoload -Uz history-search-end
-zle -N history-beginning-search-backward-end history-search-end
-zle -N history-beginning-search-forward-end history-search-end
-bindkey "^[[A" history-beginning-search-backward-end
-bindkey "^[[B" history-beginning-search-forward-end
 
 
 ### ────────────────────────────────
@@ -158,21 +153,14 @@ export MISE_POETRY_VENV_AUTO=1
 mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
 
 ### ────────────────────────────────
-### Final Setup
+
+### ────────────────────────────────
+###  Final Setup & Keybindings
 ### ────────────────────────────────
 fpath+=~/.zfunc
+command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-# Set blinking bar cursor - defer to avoid breaking instant prompt
-if [[ $- == *i* ]]; then
-  precmd_functions+=(set_cursor_shape)
-  set_cursor_shape() {
-    echo -ne '\033[5 q'
-    precmd_functions=(${precmd_functions:#set_cursor_shape})
-  }
-fi
 
-fpath+=~/.zfunc; autoload -Uz compinit; compinit
 
-command -v nvim >/dev/null 2>&1 && export EDITOR='nvim'
-
-# zprof
+bindkey "^?" backward-delete-char

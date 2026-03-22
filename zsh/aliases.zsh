@@ -268,3 +268,6 @@ nvimf() {
         nvim $(fd --type f --hidden | fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}')
     fi
 }
+
+# Git file history log
+alias gflog='git log --follow --stat --date=format:'%Y-%m-%d' --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
