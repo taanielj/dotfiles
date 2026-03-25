@@ -7,7 +7,6 @@
 typeset -gix P9K_SSH=0
 typeset -gx _P9K_SSH_TTY=$TTY
 
-
 ### ────────────────────────────────
 ###  Completion System
 ### ────────────────────────────────
@@ -28,15 +27,13 @@ mkdir -p "$(dirname "$ZSH_COMPDUMP")"
 # Smart compinit - rebuild cache when needed, skip security check when cached
 autoload -Uz compinit
 if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP.zwc -ot $ZSH_COMPDUMP ]]; then
-  compinit -d "$ZSH_COMPDUMP"
-  zcompile "$ZSH_COMPDUMP"
+    compinit -d "$ZSH_COMPDUMP"
+    zcompile "$ZSH_COMPDUMP"
 else
-  compinit -C -d "$ZSH_COMPDUMP"
+    compinit -C -d "$ZSH_COMPDUMP"
 fi
 autoload -U select-word-style
 select-word-style bash
-
-
 
 ### ────────────────────────────────
 ###  Zinit Plugin Manager
@@ -47,7 +44,7 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 source "${ZINIT_HOME}/zinit.zsh"
 autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
+((${+_comps})) && _comps[zinit]=_zinit
 
 setopt promptsubst
 
@@ -61,8 +58,8 @@ zinit light zsh-users/zsh-autosuggestions
 
 # Other core plugins — lazy load
 zinit wait lucid for \
-  Aloxaf/fzf-tab \
-  zsh-users/zsh-syntax-highlighting
+    Aloxaf/fzf-tab \
+    zsh-users/zsh-syntax-highlighting
 
 # Completions — reload after plugin is added
 zinit ice wait'1' blockf lucid atload'compinit -u'
@@ -74,7 +71,6 @@ zinit snippet OMZP::git
 
 # Precompile plugins once in a while (manual: `zinit compile`)
 # zinit compile
-
 
 ### ────────────────────────────────
 ###  History Settings
@@ -94,7 +90,6 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 setopt HIST_SAVE_NO_DUPS
 
-
 ### ────────────────────────────────
 ###  Environment / UI Settings
 ### ────────────────────────────────
@@ -111,7 +106,6 @@ fi
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
-
 ### ────────────────────────────────
 ###  Optional Tools (zoxide, direnv, mise, fzf)
 ### ────────────────────────────────
@@ -121,16 +115,11 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 command -v zoxide >/dev/null 2>&1 && [[ -o interactive ]] && eval "$(zoxide init --cmd cd zsh)"
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
-
-
-
-
 ### ────────────────────────────────
 ###  Google Cloud SDK Integration
 ### ────────────────────────────────
 [[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
 [[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
-
 
 ### ────────────────────────────────
 ###  User Configuration Files
@@ -142,7 +131,6 @@ for file in "$HOME"/.config/zsh/*.zsh; do
 done
 
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
-
 
 ### ──────────────
 ### Mise Config
@@ -159,8 +147,8 @@ mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" 
 ### ────────────────────────────────
 fpath+=~/.zfunc
 command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-
+## enable brew on linux if installed
+test -d "/home/linuxbrew/.linuxbrew" && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 bindkey "^?" backward-delete-char
