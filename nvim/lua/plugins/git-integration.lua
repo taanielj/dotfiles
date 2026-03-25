@@ -112,6 +112,7 @@ return {
                         local file_path = vim.fn.expand("%:p")
                         local relative_path = file_path:sub(#repo_root + 2)
                         local remote_url = run_cmd("git remote get-url origin 2>/dev/null")
+                        remote_url = remote_url:gsub("git@([^:]+):", "https://%1/"):gsub("%.git$", "")
                         local url
                         if remote_url:match("gitlab") then
                             url = string.format("%s/-/blob/%s/%s#L%d", remote_url, branch, relative_path, line_start)
@@ -130,8 +131,7 @@ return {
                                 url = url .. "-L" .. line_end
                             end
                         end
-                        -- return url
-                        return url:gsub("git@([^:]+):", "https://%1/"):gsub("%.git$", "")
+                        return url
                     end
                     local function get_line_range()
                         local line_start, line_end

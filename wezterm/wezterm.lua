@@ -166,10 +166,16 @@ end
 
 -- Copy on select (matches kitty copy_on_select clipboard)
 config.mouse_bindings = {
+	-- Matches default but ensures copy-on-select works alongside link opening
 	{
 		event = { Up = { streak = 1, button = "Left" } },
 		mods = "NONE",
-		action = act.CompleteSelection("ClipboardAndPrimarySelection"),
+		action = act.CompleteSelectionOrOpenLinkAtMouseCursor("ClipboardAndPrimarySelection"),
+	},
+	{
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "SHIFT",
+		action = act.CompleteSelectionOrOpenLinkAtMouseCursor("ClipboardAndPrimarySelection"),
 	},
 }
 
