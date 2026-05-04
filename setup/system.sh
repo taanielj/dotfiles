@@ -90,19 +90,17 @@ detect_os() {
 }
 
 check_permissions() {
-    # Prevent running as root
     if [[ "$EUID" -eq 0 ]]; then
-        error "❌ Do not run this script as root. Use a regular user with sudo."
+        error "❌ Do not run as root. It will prompt you for sudo when needed."
         exit 1
     fi
 
-    # Prevent using sudo to invoke the script
+    # SUDO_USER is set even when EUID != 0 if invoked via `sudo -u $USER`
     if [[ -n "$SUDO_USER" ]]; then
         error "❌ Do not run this script with 'sudo'"
         exit 1
     fi
 
-    # Detect OS early for sudo check
     if [[ "$OS" != "darwin" ]]; then
         if ! command -v sudo &>/dev/null; then
             error "❌ 'sudo' is required but not found. Please install it and try again."

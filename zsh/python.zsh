@@ -1,3 +1,5 @@
+VENV_DIRS=(".venv" "venv" "env")
+
 __detect_tools() {
     if command -v uv >/dev/null 2>&1; then
         export USE_UV=1
@@ -57,7 +59,6 @@ __check_python_env() {
     fi
 }
 
-# Wrapper to run pip-like commands via uv if available, else python -m pip
 __pip() {
     if [[ -n "$USE_UV" ]]; then
         uv pip "$@"
@@ -66,7 +67,6 @@ __pip() {
     fi
 }
 
-# Create a venv using uv (preferred) or Python's venv/virtualenv
 __venv_create() {
     local venv_path="$1"
     if [[ -n "$USE_UV" ]]; then
@@ -82,11 +82,11 @@ __venv_create() {
 }
 
 __resolve_venv_path() {
+    # Resolves to absolute path: explicit arg → $VIRTUAL_ENV → first existing VENV_DIRS entry → VENV_DIRS[0]
     local venv_dir="${1:-$VIRTUAL_ENV}"
 
-    # If no explicit name or $VIRTUAL_ENV is not set, try to find a common venv directory
     if [[ -z "$venv_dir" ]]; then
-        for dir in ".venv" "venv" "env"; do
+        for dir in "${VENV_DIRS[@]}"; do
             if [[ -d "$dir" ]]; then
                 venv_dir="$dir"
                 break
@@ -94,19 +94,16 @@ __resolve_venv_path() {
         done
     fi
 
-    venv_dir="${venv_dir:-.venv}" # Default to .venv if nothing found
+    venv_dir="${venv_dir:-${VENV_DIRS[0]}}"
 
-    # If the path is already absolute, return it
     if [[ "$venv_dir" == /* ]]; then
         echo "$venv_dir"
         return
     fi
 
-    # If the directory exists, get its absolute path
     if [[ -d "$venv_dir" ]]; then
         (cd "$venv_dir" && pwd)
     else
-        # If the directory doesn't exist, construct the absolute path manually
         echo "$(pwd)/$venv_dir"
     fi
 }
@@ -145,7 +142,6 @@ venv() {
     local venv_path
     venv_path=$(__resolve_venv_path "$1")
 
-    # Activate existing virtual environment if found
     if [[ -d "$venv_path" ]]; then
         source "$venv_path/bin/activate"
         echo "Virtual environment activated: $VIRTUAL_ENV"
@@ -213,13 +209,14 @@ reqs() {
 }
 
 update_reqs() {
+    # Strips pinned versions, upgrades all packages to latest, then re-pins from pip freeze.
     __require_reqs || return 1
     __require_venv || return 1
     if ! __confirm_action "This will update all packages to latest and freeze versions. Continue?"; then
         return
     fi
 
-    # Step 1: Strip version numbers from requirements.txt in-place
+    # macOS sed -i requires '' arg, GNU sed doesn't
     if [[ "$OSTYPE" == "darwin"* ]]; then
         sed -i '' -E 's/(==[^#[:space:]]+)//' requirements.txt  # handles extras better
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -229,33 +226,25 @@ update_reqs() {
         return 1
     fi
 
-    # Step 2: Update pip and install the latest versions of packages from requirements.txt
     python -m pip install --upgrade pip
     python -m pip install --upgrade -r requirements.txt
 
-    # Step 3: Get the installed package versions from pip freeze
     frozen_reqs=$(pip freeze)
 
-    # Step 4: Add version numbers back in-place, preserving comments and blank lines
     while IFS= read -r line; do
         if [[ -z "$line" || "$line" =~ ^# ]]; then
-            # Preserve empty lines and comments as is
             echo "$line"
         else
-            base_req=$(echo "$line" | sed 's/\[.*\]//') # Strip extras to match pip freeze
-            # Perform a case-insensitive match against pip freeze
+            base_req=$(echo "$line" | sed 's/\[.*\]//')
             frozen_line=$(echo "$frozen_reqs" | grep -i -m 1 "^${base_req}==")
             if [[ -n $frozen_line ]]; then
-                # Append the version to the existing line
-                echo "${line}==${frozen_line##*==}" # Extract and append version
+                echo "${line}==${frozen_line##*==}"
             else
-                # If no version is found, keep the line unchanged
                 echo "$line"
             fi
         fi
     done <requirements.txt >requirements.tmp
 
-    # Replace the old requirements.txt with the updated file
     mv requirements.tmp requirements.txt
     # if venv then resource
     if [[ -n "$VIRTUAL_ENV" ]]; then
@@ -265,6 +254,7 @@ update_reqs() {
 
 
 pipr() {
+    # Installs packages, resolves their canonical name+version via pip show, and pins them to requirements.txt.
     [[ $# -eq 0 ]] && {
         echo "Usage: pipr <package...>"
         return 1
@@ -283,7 +273,6 @@ pipr() {
             continue
         fi
 
-        # Get installed canonical name + version
         local versioned
         versioned=$(python -m pip show "$input_pkg" 2>/dev/null | awk '
             BEGIN { name=""; version="" }
@@ -304,7 +293,6 @@ pipr() {
             versioned="${input_pkg%%=*}==${versioned#*==}"
         fi
 
-        # Normalize and check if already in file
         local safe_pkg_line
         safe_pkg_line=$(echo "$versioned" | tr '[:upper:]' '[:lower:]' | tr '._-' '-')
 
@@ -318,6 +306,7 @@ pipr() {
 }
 
 poetry_refresh() {
+  # Removes and re-adds poetry dependencies to force upgrade to latest and re-pin.
   local do_main=false
   local do_dev=false
   local confirm=true

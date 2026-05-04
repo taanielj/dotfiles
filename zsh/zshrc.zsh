@@ -152,3 +152,5 @@ command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
 test -d "/home/linuxbrew/.linuxbrew" && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 bindkey "^?" backward-delete-char
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit

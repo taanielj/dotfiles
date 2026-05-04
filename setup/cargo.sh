@@ -16,7 +16,7 @@ main_cargo() {
 }
 
 install_cargo_tools() {
-    # Ensure ~/.cargo/bin is in PATH
+    # PATH check needed because cargo may be installed but not yet in this shell's PATH
     case ":$PATH:" in
     *":$HOME/.cargo/bin:"*) ;;
     *) export PATH="$HOME/.cargo/bin:$PATH" ;;
@@ -36,14 +36,12 @@ install_cargo_tools() {
 teardown_cargo() {
     local remove_cargo=false
 
-    # Parse arguments
     for arg in "$@"; do
         case "$arg" in
         --remove-cargo) remove_cargo=true ;;
         esac
     done
 
-    # Ensure ~/.cargo/bin is in PATH
     case ":$PATH:" in
     *":$HOME/.cargo/bin:"*) ;;
     *) export PATH="$HOME/.cargo/bin:$PATH" ;;
@@ -65,20 +63,17 @@ teardown_cargo() {
         fi
     done
 
-    # Optionally remove cargo itself
     if [[ "$remove_cargo" == true ]]; then
         if [[ -d "$HOME/.cargo" ]]; then
             log "Removing cargo installation directory"
             rm -rf "$HOME/.cargo"
         fi
 
-        # Clean up rustup if it exists
         if command -v rustup &>/dev/null; then
             log "Removing rustup installation"
             rustup self uninstall -y
         fi
 
-        # Remove PATH entries from shell rc files
         for rc_file in "$HOME/.bashrc" "$HOME/.zshrc"; do
             if [[ -f "$rc_file" ]]; then
                 log "Removing cargo PATH entries from $rc_file"

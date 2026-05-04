@@ -17,12 +17,9 @@ return {
     },
     config = function()
         local actions = require("telescope.actions")
-        -- make sure databases directory exists
-        local database_dir = vim.fn.expand("~/.local/share/nvim/databases")
-        if not vim.fn.isdirectory(database_dir) then
-            print("Creating database directory at " .. database_dir)
-            vim.fn.mkdir(database_dir, "p")
-        end
+        local history_dir = vim.fn.stdpath("data") .. "/databases"
+        local history_file = history_dir .. "/telescope_history.sqlite3"
+        vim.fn.mkdir(history_dir, "p")
         require("telescope").setup({
             pickers = {
                 live_grep = {
@@ -48,7 +45,7 @@ return {
                     "-u",
                 },
                 history = {
-                    path = database_dir .. "/telescope_history.sqlite3",
+                    path = history_file,
                     limit = 100,
                 },
                 mappings = {

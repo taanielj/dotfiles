@@ -117,33 +117,38 @@ _start_all_sessions() {
             [[ "$OSTYPE" != "darwin"* && "$session" =~ ^(zqa|zendesk)$ ]] && continue
 
             case "$session" in
-                zendesk)
-                    # Skip if ZENDESK_CODE_DIR is not set
-                    [[ -z "$ZENDESK_CODE_DIR" ]] && continue
+            zendesk)
+                # Skip if ZENDESK_CODE_DIR is not set
+                [[ -z "$ZENDESK_CODE_DIR" ]] && continue
 
-                    _tmux_new_session_maybe_dir zendesk zig "${ZENDESK_CODE_DIR}/zendesk-identity-governance"
-                    _tmux_new_window_maybe_dir zendesk proto "${ZENDESK_CODE_DIR}/zendesk_protobuf_schemas"
-                    ;;
-                zqa)
-                    # Skip if ZENDESK_CODE_DIR is not set
-                    [[ -z "$ZENDESK_CODE_DIR" ]] && continue
+                _tmux_new_session_maybe_dir zendesk zig "${ZENDESK_CODE_DIR}/zendesk-identity-governance"
+                _tmux_new_window_maybe_dir zendesk proto "${ZENDESK_CODE_DIR}/zendesk_protobuf_schemas"
+                ;;
+            zqa)
+                # Skip if ZENDESK_CODE_DIR is not set
+                [[ -z "$ZENDESK_CODE_DIR" ]] && continue
 
-                    _tmux_new_session_maybe_dir zqa publ "${ZENDESK_CODE_DIR}/zqa-analytics-publisher"
-                    _tmux_new_window_maybe_dir zqa etl "${ZENDESK_CODE_DIR}/zqa-etl-pipelines"
-                    _tmux_new_window_maybe_dir zqa dbt_klaus "${ZENDESK_CODE_DIR}/zdp_dbt_regional_klaus"
-                    ;;
-                notes)
-                    _tmux_new_session_maybe_dir notes notes "$HOME/Code/notes"
-                    _tmux_new_window_maybe_dir notes dotfiles "$HOME/Code/dotfiles"
-                    ;;
-                shell)
-                    # Create shell session (no special setup)
-                    tmux new-session -d -s shell
-                    ;;
-                *)
-                    # Default: create session without special setup
-                    tmux new-session -d -s "$session"
-                    ;;
+                _tmux_new_session_maybe_dir zqa publ "${ZENDESK_CODE_DIR}/zqa-analytics-publisher"
+                _tmux_new_window_maybe_dir zqa etl "${ZENDESK_CODE_DIR}/zqa-etl-pipelines"
+                _tmux_new_window_maybe_dir zqa dbt_klaus "${ZENDESK_CODE_DIR}/zdp_dbt_regional_klaus"
+                ;;
+            claude)
+                command -v claude &>/dev/null || continue
+                _tmux_new_session_maybe_dir claude publ "${ZENDESK_CODE_DIR}/zqa-analytics-publisher"
+                _tmux_new_window_maybe_dir claude dbt_klaus "${ZENDESK_CODE_DIR}/zdp_dbt_regional_klaus"
+                ;;
+            notes)
+                _tmux_new_session_maybe_dir notes notes "$HOME/Code/notes"
+                _tmux_new_window_maybe_dir notes dotfiles "$HOME/Code/dotfiles"
+                ;;
+            shell)
+                # Create shell session (no special setup)
+                tmux new-session -d -s shell
+                ;;
+            *)
+                # Default: create session without special setup
+                tmux new-session -d -s "$session"
+                ;;
             esac
         fi
     done
@@ -182,6 +187,19 @@ tsz() {
     fi
     _start_all_sessions
     tmux attach-session -t zendesk
+}
+
+tsc() {
+    command -v claude &>/dev/null || {
+        echo "Claude CLI not found. Please install it to use this session."
+        return 1
+    }
+    if [[ -z "$ZENDESK_CODE_DIR" ]]; then
+        echo "🧘 Relax, you're not at work."
+        return 0
+    fi
+    _start_all_sessions
+    tmux attach-session -t claude
 }
 
 tsq() {
@@ -271,3 +289,11 @@ nvimf() {
 
 # Git file history log
 alias gflog='git log --follow --stat --date=format:'%Y-%m-%d' --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
+
+if command -v claude &>/dev/null; then
+    alias clask='claude -p'
+    clmd() {
+        claude -p --model haiku "Output ONLY a single bash command, no explanation, no markdown, no backticks. Task: $*" | pbcopy
+        echo "copied"
+    }
+fi

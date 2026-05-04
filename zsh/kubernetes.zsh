@@ -18,7 +18,6 @@ kc() {                                                              # switch con
     if [ -z "$context" ]; then
         context=$(kubectl config get-contexts -o name | fzf)
     else
-        # Try to use the provided context, fallback to fzf with query if it fails
         if ! kubectl config use-context "$context" 2>/dev/null; then
             context=$(kubectl config get-contexts -o name | fzf --query="$context")
         else
@@ -36,7 +35,6 @@ kn() {                                                              # switch nam
     if [ -z "$namespace" ]; then
         namespace=$(kubectl get namespaces -o name | fzf | cut -d'/' -f2)
     else
-        # Try to set the namespace, fallback to fzf with query if it fails
         if ! kubectl config set-context --current --namespace "$namespace" 2>/dev/null; then
             namespace=$(kubectl get namespaces -o name | fzf --query="$namespace" | cut -d'/' -f2)
         else
@@ -71,18 +69,15 @@ kcl() {                                                             # clear all 
 kp() {                                                              # list pods (context-aware)
     local all="$1"
 
-    # If passed --all or -a, re-select context and namespace
     if [[ "$all" == "--all" || "$all" == "-a" ]]; then
         kcn
         shift
     fi
 
-    # Ensure context is set
     if [ -z "$(kubectl config current-context 2>/dev/null)" ]; then
         kc
     fi
 
-    # Ensure namespace is set
     if [ -z "$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)" ]; then
         kn
     fi
@@ -97,6 +92,7 @@ kd() {                                                              # describe p
 }
 
 _pipe_json_if_valid() {
+    # Streams stdin, pretty-printing JSON lines (with bat if available) and passing others through.
     while IFS= read -r line; do
         # Strip leading timestamp if present (ISO 8601 + space)
         content="${line##+([0-9T:.Z-]) }"
@@ -104,7 +100,6 @@ _pipe_json_if_valid() {
         # Fast path: skip lines that don't look like JSON objects
         [[ "$content" =~ ^\{.*\}$ ]] || { echo "$line"; continue; }
 
-        # Try to parse with jq
         if parsed=$(echo "$content" | jq . 2>/dev/null); then
             if command -v bat &>/dev/null; then
                 echo "$parsed" | bat --color=always --language=json --style=plain --paging=never
@@ -112,7 +107,6 @@ _pipe_json_if_valid() {
                 echo "$parsed"
             fi
         else
-            # Fallback: print original if jq fails
             echo "$line"
         fi
     done

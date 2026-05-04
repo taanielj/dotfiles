@@ -53,10 +53,6 @@ configure_nvim() {
     fi
 
     mkdir -p "$HOME/.config"
-    # local data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
-    # mkdir -p "$data_home/nvim/databases"
-    [[ -d "$HOME/.local/share/nvim/databases" ]] || mkdir -p "$HOME/.local/share/nvim/databases"
-    [[ -d "$HOME/.local/share/nvim/databases" ]] || error "❌ Failed to create Neovim databases directory." && return 1
 
     if [[ -e "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
         warn "⚠️ Backing up existing Neovim config..."
@@ -72,11 +68,9 @@ configure_nvim() {
 teardown_nvim() {
     log "Removing Neovim configuration..."
 
-    # Remove nvim config symlink and restore backup if exists
     if [[ -L "$HOME/.config/nvim" && "$(readlink -f "$HOME/.config/nvim")" == "$(readlink -f "$REPO_ROOT/nvim")" ]]; then
         rm -f "$HOME/.config/nvim"
 
-        # Find the latest backup and restore it
         local latest_backup
         latest_backup=$(ls -td "$HOME/.config/nvim.backup."* 2>/dev/null | head -n1)
         if [[ -d "$latest_backup" ]]; then
@@ -85,13 +79,11 @@ teardown_nvim() {
         fi
     fi
 
-    # Remove Neovim binary
     if [[ -d "$HOME/.local/nvim" ]]; then
         log "Removing Neovim installation from ~/.local/nvim"
         rm -rf "$HOME/.local/nvim"
     fi
 
-    # Clean up PATH in rc files
     for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
         if [[ -f "$rc" ]]; then
             log "Removing Neovim path from $rc"

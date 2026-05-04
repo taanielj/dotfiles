@@ -24,7 +24,6 @@ resolve_mise() {
 teardown_mise() {
     log "Removing mise configuration..."
 
-    # Clean up mise activation from shell rc files
     declare -A rc_files=(
         [bash]="$HOME/.bashrc"
         [zsh]="$HOME/.zshrc"
@@ -39,7 +38,6 @@ teardown_mise() {
         fi
     done
 
-    # Remove mise config directory
     if [[ -d "$HOME/.config/mise" ]]; then
         log "Removing mise config directory"
         rm -rf "$HOME/.config/mise"
@@ -54,7 +52,6 @@ teardown_mise() {
 }
 
 install_mise() {
-    # Check if mise is already installed
     if command -v mise &>/dev/null; then
         log "mise is already installed, skipping installation."
         return 0
@@ -126,10 +123,8 @@ install_tools() {
 
     log "Parsing .tool-versions for available tools..."
 
-    # Create array of tool@version entries
     mapfile -t all_tools < <(awk '!/^#/ && NF { print $1 "@" $2 }' "$toolfile")
 
-    # Ask user what they want to do
     log "📦 Install tools from .tool-versions?"
     install_mode=$(interactive_choice "Choose action: " "All" "Custom" "Skip")
 
@@ -153,7 +148,6 @@ install_tools() {
         ;;
     esac
 
-    # Resolve binary path locally
     local mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise")
 
     while IFS= read -r selected_tool_version; do
