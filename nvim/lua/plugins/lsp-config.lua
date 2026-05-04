@@ -139,6 +139,12 @@ return {
             })
             vim.lsp.enable("pyright")
 
+            -- Python linter (formatting handled by black + isort via none-ls)
+            vim.lsp.config("ruff", {
+                capabilities = capabilities,
+            })
+            vim.lsp.enable("ruff")
+
             -- HTML language server
             vim.lsp.config("html", {
                 capabilities = capabilities,
@@ -203,7 +209,7 @@ return {
                 ensure_installed = {
                     "lua_ls",      -- Lua
                     "pyright",     -- Python
-                    -- "ruff",     -- Python linter
+                    "ruff",        -- Python linter
                     "dockerls",    -- Dockerfile
                     "terraformls", -- Terraform
                     "html",        -- HTML
@@ -214,6 +220,7 @@ return {
                     -- "hydra_lsp", -- YAML
                     "marksman",    -- Markdown
                     "ruby_lsp",    -- Ruby
+                    "jdtls",       -- Java
                     -- Note: Scala LSP (metals) requires nvim-metals plugin, not available via mason-lspconfig
                 },
             })
@@ -251,12 +258,13 @@ return {
         config = function()
             require("mason-null-ls").setup({
                 ensure_installed = {
-                    "stylua",     -- Lua
-                    "black",      -- Python code formatter
-                    "isort",      -- Python import sorter
-                    --"sqlfmt",   -- SQL
-                    "shfmt",      -- Shell
-                    "checkmake",  -- Makefile linter
+                    "stylua",                    -- Lua
+                    "black",                     -- Python code formatter
+                    "isort",                     -- Python import sorter
+                    --"sqlfmt",                  -- SQL
+                    "shfmt",                     -- Shell
+                    "checkmake",                 -- Makefile linter
+                    "sonarlint-language-server", -- SonarLint
                 },
                 automatic_installation = true,
             })

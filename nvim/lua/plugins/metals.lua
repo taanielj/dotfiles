@@ -42,6 +42,7 @@ return {
         "mfussenegger/nvim-dap",
         config = function(self, opts)
           -- Debug settings if you're using nvim-dap
+          local _ = self; _ = opts
           local dap = require("dap")
 
           dap.configurations.scala = {
@@ -172,7 +173,10 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         pattern = self.ft,
         callback = function()
-          require("metals").initialize_or_attach(metals_config)
+          local root = vim.fs.root(0, { "build.sbt", "build.sc", ".scala-build" })
+          if root then
+            require("metals").initialize_or_attach(metals_config)
+          end
         end,
         group = nvim_metals_group,
       })

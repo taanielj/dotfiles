@@ -20,6 +20,7 @@ config.window_background_opacity = 0.8
 config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 config.enable_tab_bar = false
 config.enable_kitty_keyboard = true
+config.default_cursor_style = "BlinkingBar"
 
 -- macOS-specific settings
 if wezterm.target_triple:find("darwin") then

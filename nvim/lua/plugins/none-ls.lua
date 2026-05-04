@@ -44,7 +44,10 @@ return {
 
         local function call_formatter()
             vim.cmd("mkview")
-            vim.lsp.buf.format({ timeout_ms = 5000 })
+            vim.lsp.buf.format({
+                timeout_ms = 5000,
+                filter = function(client) return client.name ~= "ruff" end,
+            })
             vim.cmd("retab")
             vim.cmd("silent! loadview")
             vim.cmd("retab")
