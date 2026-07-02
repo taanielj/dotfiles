@@ -31,7 +31,7 @@ return {
                 callback = function(event)
                     local map = function(keys, func, desc, mode)
                         mode = mode or "n"
-                        vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+                        vim.keymap.set(mode, keys, func, { buf = event.buf, desc = "LSP: " .. desc })
                     end
                     ---- Keymaps:
                     map("gd", require("telescope.builtin").lsp_definitions, "Go to definition")
@@ -42,8 +42,12 @@ return {
                     map("<leader>lw", require("telescope.builtin").lsp_workspace_symbols, "Workspace symbols")
                     map("<leader>lr", vim.lsp.buf.rename, "Rename symbol")
                     map("<leader>le", vim.diagnostic.open_float, "Show diagnostics")
-                    map("<leader>ln", vim.diagnostic.goto_next, "Next diagnostic")
-                    map("<leader>lp", vim.diagnostic.goto_prev, "Previous diagnostic")
+                    map("<leader>ln", function()
+                        vim.diagnostic.jump({ count = 1, float = true })
+                    end, "Next diagnostic")
+                    map("<leader>lp", function()
+                        vim.diagnostic.jump({ count = -1, float = true })
+                    end, "Previous diagnostic")
                     map("<leader>lq", require("telescope.builtin").diagnostics, "Search diagnostics")
                     map("gD", vim.lsp.buf.declaration, "Go to declaration")
                     map("<leader>la", vim.lsp.buf.code_action, "Code action", { "n", "x" })
@@ -52,7 +56,7 @@ return {
 
                     -- Highlight references on cursor hold
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
-                    if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+                    if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
                         vim.opt.updatetime = 300
                         local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
                         vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
@@ -78,7 +82,7 @@ return {
                         })
                     end
 
-                    if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+                    if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                         map("<leader>lh", function()
                             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
                         end, "[T]oggle Inlay [H]ints")
@@ -181,12 +185,6 @@ return {
             --     capabilities = capabilities,
             -- })
 
-            -- Makefile linter
-            vim.lsp.config("checkmake", {
-                capabilities = capabilities,
-            })
-            vim.lsp.enable("checkmake")
-
             -- Other language servers with default config
             local servers = {
                 "marksman",    -- Markdown
@@ -263,6 +261,7 @@ return {
                     "isort",                     -- Python import sorter
                     --"sqlfmt",                  -- SQL
                     "shfmt",                     -- Shell
+                    "buf",                       -- Protobuf
                     "checkmake",                 -- Makefile linter
                     "sonarlint-language-server", -- SonarLint
                 },

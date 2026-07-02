@@ -3,11 +3,10 @@ return {
     opts = {
         easing = "quadratic",
         duration_multiplier = 1,
+        hide_cursor = true,
     },
-    config = function()
-        require("neoscroll").setup({
-            hide_cursor = true,
-        })
+    config = function(_, opts)
+        require("neoscroll").setup(opts)
         local neoscroll = require("neoscroll")
         local keymap = {
             ["<C-y>"] = function() neoscroll.scroll(-0.2, { move_cursor = false; duration = 100 }) end,

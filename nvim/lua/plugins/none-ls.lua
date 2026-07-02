@@ -31,14 +31,14 @@ return {
                         "black",
                     },
                 }),
+                -- Protobuf
+                null_ls.builtins.formatting.buf,
                 -- SQL
                 null_ls.builtins.formatting.sqlfmt,
                 -- Ruby
                 null_ls.builtins.formatting.rubocop,
                 -- Makefile linter
-                null_ls.builtins.diagnostics.checkmake.with({
-                    extra_args = { "--maxbodylength=100" },
-                }),
+                null_ls.builtins.diagnostics.checkmake,
             },
         })
 
@@ -58,7 +58,7 @@ return {
             callback = function(args)
                 if args.match ~= "neo-tree" and args.match ~= "neotree" then
                     vim.keymap.set("n", "<leader>m", call_formatter, {
-                        buffer = args.buf,
+                        buf = args.buf,
                         desc = "Format",
                     })
                 end

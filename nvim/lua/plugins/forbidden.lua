@@ -7,10 +7,18 @@ return {
         title = "",
         improved_markdown = true,
     },
-    vim.keymap.set("n", "K", function()
-        local winid = require("ufo").peekFoldedLinesUnderCursor()
-        if not winid then
-            vim.cmd("EagleWin")
-        end
-    end, { noremap = true, silent = true }),
+    keys = {
+        {
+            "K",
+            function()
+                local winid = require("ufo").peekFoldedLinesUnderCursor()
+                if not winid then
+                    vim.cmd("EagleWin")
+                end
+            end,
+            mode = "n",
+            noremap = true,
+            silent = true,
+        },
+    },
 }

@@ -5,8 +5,11 @@ return {
         "nvim-lua/plenary.nvim",
         "nvim-tree/nvim-web-devicons",
         "MunifTanjim/nui.nvim",
+        "s1n7ax/nvim-window-picker",
     },
     config = function()
+        require("window-picker").setup()
+
         vim.keymap.set(
             "n",
             "<leader>e",

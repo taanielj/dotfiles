@@ -1,14 +1,13 @@
-vim.cmd("set expandtab")
-vim.cmd("set tabstop=4")
-vim.cmd("set softtabstop=4")
-vim.cmd("set shiftwidth=4")
-vim.cmd("set number")
-vim.cmd("set relativenumber")
-vim.cmd("set clipboard=unnamedplus")
-vim.cmd("set scroll=5")
-vim.cmd("set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175")
-vim.o.mousemoveevent = true
+vim.opt.expandtab = true
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.clipboard = "unnamedplus"
 vim.opt.scroll = 5
+vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
+vim.o.mousemoveevent = true
 -- undo setup
 vim.opt.swapfile = false
 vim.opt.backup = false
@@ -32,7 +31,7 @@ vim.opt.inccommand = "split" -- show live preview of substitution
 -- colorscheme support (for true color in kitty/tmux/windows terminal)
 vim.opt.termguicolors = true
 
-vim.cmd("set colorcolumn=121")
+vim.opt.colorcolumn = "121"
 
 -- set persistent undo
 vim.opt.undofile = true

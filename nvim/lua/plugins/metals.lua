@@ -1,37 +1,5 @@
 return {
   {
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
-    dependencies = {
-      { "hrsh7th/cmp-nvim-lsp" },
-      { "hrsh7th/cmp-vsnip" },
-      { "hrsh7th/vim-vsnip" }
-    },
-    opts = function()
-      local cmp = require("cmp")
-      local conf = {
-        sources = {
-          { name = "nvim_lsp" },
-          { name = "vsnip" },
-        },
-        snippet = {
-          expand = function(args)
-            -- Comes from vsnip
-            fn["vsnip#anonymous"](args.body)
-          end,
-        },
-        mapping = cmp.mapping.preset.insert({
-          -- None of this made sense to me when first looking into this since there
-          -- is no vim docs, but you can't have select = true here _unless_ you are
-          -- also using the snippet stuff. So keep in mind that if you remove
-          -- snippets you need to remove this select
-          ["<CR>"] = cmp.mapping.confirm({ select = true })
-        })
-      }
-      return conf
-    end
-  },
-  {
     "scalameta/nvim-metals",
     dependencies = {
       {
@@ -94,6 +62,10 @@ return {
       metals_config.on_attach = function(client, bufnr)
         require("metals").setup_dap()
 
+        local function map(mode, lhs, rhs)
+          vim.keymap.set(mode, lhs, rhs, { buf = bufnr })
+        end
+
         -- LSP mappings
         map("n", "gD", vim.lsp.buf.definition)
         map("n", "K", vim.lsp.buf.hover)
@@ -128,11 +100,11 @@ return {
         map("n", "<leader>d", vim.diagnostic.setloclist)
 
         map("n", "[c", function()
-          vim.diagnostic.goto_prev({ wrap = false })
+          vim.diagnostic.jump({ count = -1, float = true })
         end)
 
         map("n", "]c", function()
-          vim.diagnostic.goto_next({ wrap = false })
+          vim.diagnostic.jump({ count = 1, float = true })
         end)
 
         -- Example mappings for usage with nvim-dap. If you don't use that, you can

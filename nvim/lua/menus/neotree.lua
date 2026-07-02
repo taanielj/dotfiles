@@ -28,19 +28,6 @@ local function copy_path(how)
   end
 end
 
--- Open the path to currently selected item in the terminal.
--- local function open_in_terminal()
---   return function()
---     local node = get_state().tree:get_node()
---     if node.type == "message" then return end
---     local path = node.path
---     local node_type = vim.uv.fs_stat(path).type
---     local dir = node_type == "directory" and path or vim.fn.fnamemodify(path, ":h")
---     vim.cmd "enew"
---     vim.fn.termopen { vim.o.shell, "-c", "cd " .. dir .. " ; " .. vim.o.shell }
---   end
--- end
-
 return {
   -- NAVIGATION
   { name = "  Open", cmd = call "open", rtxt = "return" },

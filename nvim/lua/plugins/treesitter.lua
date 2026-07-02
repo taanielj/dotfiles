@@ -52,7 +52,7 @@ return {
                 vim.api.nvim_create_autocmd({ "FileType" }, {
                     pattern = filetypes,
                     callback = function(event)
-                        vim.treesitter.start(event.buf, parser)
+                        pcall(vim.treesitter.start, event.buf, parser)
                     end,
                 })
             end
@@ -100,7 +100,7 @@ return {
 
                 if parser_installed then
                     -- Start treesitter for this buffer
-                    vim.treesitter.start(bufnr, parser_name)
+                    pcall(vim.treesitter.start, bufnr, parser_name)
                 end
             end,
         })

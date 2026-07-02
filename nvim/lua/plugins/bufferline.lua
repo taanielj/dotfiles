@@ -65,9 +65,9 @@ return {
                 { "n", "<Tab>",       ":BufferLineCycleNext<CR>",       "Next Buffer" },
                 { "n", "<S-Tab>",     ":BufferLineCyclePrev<CR>",       "Previous Buffer" },
                 -- pick buffer
-                { "n", "<leader>bp",  ":BufferLinePick<CR>",            "Pick Buffer" },
+                { "n", "<leader>bP",  ":BufferLinePick<CR>",            "Pick Buffer" },
                 -- pin buffer
-                { "n", "<leader>bn",  ":BufferLineTogglePin<CR>",       "Pin Buffer" },
+                { "n", "<leader>bt",  ":BufferLineTogglePin<CR>",       "Pin Buffer" },
             }
             -- set keymaps
             for _, map in ipairs(bufferline_mappings) do

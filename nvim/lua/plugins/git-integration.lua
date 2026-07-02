@@ -17,7 +17,7 @@ return {
 
                     local function map(mode, l, r, opts)
                         opts = opts or {}
-                        opts.buffer = bufnr
+                        opts.buf = bufnr
                         vim.keymap.set(mode, l, r, opts)
                     end
 
