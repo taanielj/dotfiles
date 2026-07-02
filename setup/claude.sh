@@ -15,7 +15,7 @@ main_claude() {
 configure_claude() {
     log "Configuring Claude Code..."
 
-    mkdir -p "$CLAUDE_DEST"
+    ensure_real_dir "$CLAUDE_DEST"
 
     link_file "$CLAUDE_SRC/CLAUDE.md" "$CLAUDE_DEST/CLAUDE.md"
     link_file "$CLAUDE_SRC/hooks/comment-lint.sh" "$CLAUDE_DEST/hooks/comment-lint.sh"
@@ -29,7 +29,7 @@ configure_claude() {
 
 # Link commands; a same-named notes command wins over the dotfiles default.
 link_commands() {
-    mkdir -p "$CLAUDE_DEST/commands"
+    ensure_real_dir "$CLAUDE_DEST/commands"
 
     local name src
     for src in "$CLAUDE_SRC/commands"/*.md; do

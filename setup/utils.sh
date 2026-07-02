@@ -47,6 +47,14 @@ title() {
     echo -e "${GREEN}$(printf "%${title_padding}s" | tr ' ' '-') $title $(printf "%${title_padding}s" | tr ' ' '-')${RESET}"
 }
 
+# Usage: ensure_real_dir <path>
+# Real dir, not a symlink (children of a dir-symlink tunnel into its target).
+ensure_real_dir() {
+    local d="$1"
+    [[ -L "$d" ]] && rm -f "$d"
+    mkdir -p "$d"
+}
+
 # Usage: link_file <source-in-repo> <dest-path>
 # Idempotent symlink; backs up a real dest to <dest>.backup.<epoch> first.
 link_file() {
