@@ -20,11 +20,6 @@ return {
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",
         },
-        opts = {
-            servers = {
-                sqlls = { mason = false }, -- disable mason for this server
-            },
-        },
         config = function()
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
@@ -33,46 +28,42 @@ return {
                         mode = mode or "n"
                         vim.keymap.set(mode, keys, func, { buf = event.buf, desc = "LSP: " .. desc })
                     end
-                    ---- Keymaps:
-                    map("gd", require("telescope.builtin").lsp_definitions, "Go to definition")
-                    map("gi", require("telescope.builtin").lsp_implementations, "Go to implementation")
-                    map("gr", require("telescope.builtin").lsp_references, "Find references")
-                    map("gs", require("telescope.builtin").lsp_document_symbols, "Document symbols")
-                    map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Go to type definition")
-                    map("<leader>lw", require("telescope.builtin").lsp_workspace_symbols, "Workspace symbols")
+
+                    local builtin = require("telescope.builtin")
+                    map("gd", builtin.lsp_definitions, "Go to definition")
+                    map("gi", builtin.lsp_implementations, "Go to implementation")
+                    map("gr", builtin.lsp_references, "Find references")
+                    map("gs", builtin.lsp_document_symbols, "Document symbols")
+                    map("<leader>D", builtin.lsp_type_definitions, "Go to type definition")
+                    map("<leader>lw", builtin.lsp_workspace_symbols, "Workspace symbols")
+                    map("<leader>lq", builtin.diagnostics, "Search diagnostics")
+                    map("gD", vim.lsp.buf.declaration, "Go to declaration")
                     map("<leader>lr", vim.lsp.buf.rename, "Rename symbol")
                     map("<leader>le", vim.diagnostic.open_float, "Show diagnostics")
+                    map("<leader>la", vim.lsp.buf.code_action, "Code action", { "n", "x" })
                     map("<leader>ln", function()
                         vim.diagnostic.jump({ count = 1, float = true })
                     end, "Next diagnostic")
                     map("<leader>lp", function()
                         vim.diagnostic.jump({ count = -1, float = true })
                     end, "Previous diagnostic")
-                    map("<leader>lq", require("telescope.builtin").diagnostics, "Search diagnostics")
-                    map("gD", vim.lsp.buf.declaration, "Go to declaration")
-                    map("<leader>la", vim.lsp.buf.code_action, "Code action", { "n", "x" })
 
-                    -- map("K", vim.lsp.buf.hover, "Show hover doc")
+                    local client = vim.lsp.get_client_by_id(event.data.client_id)
 
                     -- Highlight references on cursor hold
-                    local client = vim.lsp.get_client_by_id(event.data.client_id)
                     if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
                         vim.opt.updatetime = 300
                         local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
                         vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
                             buffer = event.buf,
                             group = highlight_augroup,
-                            callback = function()
-                                vim.lsp.buf.document_highlight()
-                            end,
+                            callback = vim.lsp.buf.document_highlight,
                         })
-
                         vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
                             buffer = event.buf,
                             group = highlight_augroup,
                             callback = vim.lsp.buf.clear_references,
                         })
-
                         vim.api.nvim_create_autocmd("LspDetach", {
                             group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
                             callback = function(event2)
@@ -85,150 +76,97 @@ return {
                     if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                         map("<leader>lh", function()
                             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-                        end, "[T]oggle Inlay [H]ints")
+                        end, "Toggle inlay hints")
                     end
                 end,
             })
 
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-            capabilities = vim.tbl_deep_extend("force", capabilities, {
-                textDocument = {
-                    textDocument = {
-                        foldingRange = {
-                            dynamicRegistration = true,
-                            lineFoldingOnly = true,
-                        },
-                    },
-                },
-            })
-            ---- Language server configurations (new vim.lsp.config API):
-            -- Lua language server
-            vim.lsp.config("lua_ls", {
-                capabilities = capabilities,
-                settings = {
-                    Lua = {
-                        format_on_save = false,
-                        formatter = nil,
-                        runtime = { version = "LuaJIT" },
-                        workspace = {
-                            checkThirdParty = false,
-                            library = {
-                                "${3rd}/luv/library",
-                                unpack(vim.api.nvim_get_runtime_file("", true)),
-                            },
-                        },
-                        completion = {
-                            callSnippet = "Replace",
-                        },
-                    },
-                },
-            })
-            vim.lsp.enable("lua_ls")
-
-            -- Python language server
-            vim.lsp.config("pyright", {
-                capabilities = capabilities,
-                settings = {
-                    python = {
-                        analysis = {
-                            typeCheckingMode = "standard",
-                            diagnosticSeverityOverrides = {
-                                reportUnusedFunction = "information",
-                                reportUnusedExpression = "information",
-                            },
-                        },
-                    },
-                },
-            })
-            vim.lsp.enable("pyright")
-
-            -- Python linter (formatting handled by black + isort via none-ls)
-            vim.lsp.config("ruff", {
-                capabilities = capabilities,
-            })
-            vim.lsp.enable("ruff")
-
-            -- HTML language server
-            vim.lsp.config("html", {
-                capabilities = capabilities,
-                configurationSection = { "html", "css", "javascript" },
-                embeddedLanguages = {
-                    css = true,
-                    javascript = true,
-                },
-                provideFormatter = true,
-            })
-            vim.lsp.enable("html")
-
-            -- Bash/Zsh language server
-            vim.lsp.config("bashls", {
-                filetypes = { "sh", "zsh", "bash" },
-                capabilities = capabilities,
-            })
-            vim.lsp.enable("bashls")
-
-            -- Ruby language server
-            vim.lsp.config("ruby_lsp", {
-                capabilities = capabilities,
-                init_options = {
-                    addonSettings = {
-                        RubyLSPRails = {
-                            enablePendingMigrationsPrompt = false,
-                        },
-                    },
-                },
-            })
-            vim.lsp.enable("ruby_lsp")
-            vim.lsp.enable("metals")
-            -- vim.lsp.config("metals", {
-            --     capabilities = capabilities,
-            -- })
-
-            -- Other language servers with default config
-            local servers = {
-                "marksman",    -- Markdown
-                "dockerls",    -- Dockerfile
-                "gopls",       -- Go
-                "eslint",      -- JavaScript/TypeScript
-                "cssls",       -- CSS
-                "terraformls", -- Terraform
+            -- nvim-ufo folding: Neovim doesn't advertise foldingRange by default.
+            capabilities.textDocument.foldingRange = {
+                dynamicRegistration = true,
+                lineFoldingOnly = true,
             }
-            for _, server in ipairs(servers) do
-                vim.lsp.config(server, { capabilities = capabilities })
-                vim.lsp.enable(server)
+
+            -- Server configs. Empty table = defaults; capabilities are applied below.
+            local servers = {
+                lua_ls = {
+                    settings = {
+                        Lua = {
+                            format_on_save = false,
+                            formatter = nil,
+                            runtime = { version = "LuaJIT" },
+                            workspace = {
+                                checkThirdParty = false,
+                                library = {
+                                    "${3rd}/luv/library",
+                                    unpack(vim.api.nvim_get_runtime_file("", true)),
+                                },
+                            },
+                            completion = { callSnippet = "Replace" },
+                        },
+                    },
+                },
+                pyright = {
+                    settings = {
+                        python = {
+                            analysis = {
+                                typeCheckingMode = "standard",
+                                diagnosticSeverityOverrides = {
+                                    reportUnusedFunction = "information",
+                                    reportUnusedExpression = "information",
+                                },
+                            },
+                        },
+                    },
+                },
+                ruff = {}, -- Python linter (formatting via black + isort in none-ls)
+                html = {
+                    configurationSection = { "html", "css", "javascript" },
+                    embeddedLanguages = { css = true, javascript = true },
+                    provideFormatter = true,
+                },
+                bashls = { filetypes = { "sh", "zsh", "bash" } },
+                ruby_lsp = {
+                    init_options = {
+                        addonSettings = {
+                            RubyLSPRails = { enablePendingMigrationsPrompt = false },
+                        },
+                    },
+                },
+                marksman = {},    -- Markdown
+                dockerls = {},    -- Dockerfile
+                gopls = {},       -- Go
+                eslint = {},      -- JavaScript/TypeScript
+                cssls = {},       -- CSS
+                terraformls = {}, -- Terraform
+            }
+
+            for name, cfg in pairs(servers) do
+                cfg.capabilities = cfg.capabilities or capabilities
+                vim.lsp.config(name, cfg)
+                vim.lsp.enable(name)
             end
-            -- lspconfig.hydra_lsp.setup({
-            --     capabilities = capabilities,
-            --     filetypes = { "yaml", "yml" },
-            -- })
+            -- Scala; config comes from the nvim-metals plugin, not here.
+            vim.lsp.enable("metals")
+
+            -- Ensure every managed server plus Java is installed via mason.
+            -- (metals is not available through mason-lspconfig.)
+            local ensure_installed = vim.tbl_keys(servers)
+            table.insert(ensure_installed, "jdtls")
             require("mason-lspconfig").setup({
                 automatic_installation = true,
-                ensure_installed = {
-                    "lua_ls",      -- Lua
-                    "pyright",     -- Python
-                    "ruff",        -- Python linter
-                    "dockerls",    -- Dockerfile
-                    "terraformls", -- Terraform
-                    "html",        -- HTML
-                    "eslint",      -- JavaScript/TypeScript
-                    "cssls",       -- CSS
-                    "bashls",      -- Bash/Zsh
-                    "gopls",       -- Go
-                    -- "hydra_lsp", -- YAML
-                    "marksman",    -- Markdown
-                    "ruby_lsp",    -- Ruby
-                    "jdtls",       -- Java
-                    -- Note: Scala LSP (metals) requires nvim-metals plugin, not available via mason-lspconfig
-                },
+                ensure_installed = ensure_installed,
             })
+
             vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")
 
             vim.diagnostic.config({
                 signs = {
                     text = {
-                        [vim.diagnostic.severity.ERROR] = " ",
-                        [vim.diagnostic.severity.WARN] = " ",
+                        [vim.diagnostic.severity.ERROR] = " ",
+                        [vim.diagnostic.severity.WARN] = " ",
                         [vim.diagnostic.severity.INFO] = "󰋼 ",
                         [vim.diagnostic.severity.HINT] = "󰌵 ",
                     },
@@ -246,74 +184,6 @@ return {
                         return string.format("%s %s", diagnostic.source, diagnostic.message)
                     end,
                 },
-            })
-        end,
-    },
-    {
-        "jay-babu/mason-null-ls.nvim",
-        dependencies = { "nvimtools/none-ls.nvim", "williamboman/mason.nvim" },
-        event = { "BufReadPre", "BufNewFile" },
-        config = function()
-            require("mason-null-ls").setup({
-                ensure_installed = {
-                    "stylua",                    -- Lua
-                    "black",                     -- Python code formatter
-                    "isort",                     -- Python import sorter
-                    --"sqlfmt",                  -- SQL
-                    "shfmt",                     -- Shell
-                    "buf",                       -- Protobuf
-                    "checkmake",                 -- Makefile linter
-                    "sonarlint-language-server", -- SonarLint
-                },
-                automatic_installation = true,
-            })
-        end,
-    },
-    {
-        "mfussenegger/nvim-lint",
-        config = function()
-            local lint = require("lint")
-            lint.linters_by_ft = {
-                -- go = { "golangcilint" },
-                -- dockerfile = { "hadolint" },
-                -- python = { "ruff" },
-            }
-            -- local golangcilint = lint.linters.golangcilint
-            -- golangcilint.args = {
-            --     "run",
-            --     "--output.json.path=stdout",
-            --     "--issues-exit-code=0",
-            --     "--show-stats=false",
-            --     "--output.text.print-issued-lines=false",
-            --     "--output.text.print-linter-name=false",
-            --     function()
-            --         return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":h")
-            --     end,
-            -- }
-
-            local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
-            vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
-                group = lint_augroup,
-                callback = function()
-                    if vim.opt_local.modifiable:get() then
-                        lint.try_lint()
-                    end
-                end,
-            })
-        end,
-    },
-    {
-        "rshkarin/mason-nvim-lint",
-        config = function()
-            require("mason-nvim-lint").setup({
-                automatic_installation = true,
-                ensure_installed = {
-                    -- "golangci-lint",
-                    -- "hadolint",
-                    -- "ruff",
-                },
-                ignore_install = { "custom-linter" },
-                quiet_mode = true,
             })
         end,
     },
