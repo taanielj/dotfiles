@@ -11,10 +11,9 @@ main_kitty() {
 
     run_quiet "Installing Kitty" brew install --cask kitty
 
-    mkdir -p "$HOME/.config/kitty"
-    ln -sf "$REPO_ROOT/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
+    link_file "$REPO_ROOT/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
     # Must be named kitty.app.icns for kitty to pick it up at startup
-    ln -sf "$REPO_ROOT/kitty/kitty-dark.icns" "$HOME/.config/kitty/kitty.app.icns"
+    link_file "$REPO_ROOT/kitty/kitty-dark.icns" "$HOME/.config/kitty/kitty.app.icns"
 
     rm /var/folders/*/*/*/com.apple.dock.iconcache 2>/dev/null || true
     killall Dock 2>/dev/null || true
@@ -23,13 +22,8 @@ main_kitty() {
 teardown_kitty() {
     log "Removing Kitty configuration..."
 
-    if [[ -L "$HOME/.config/kitty/kitty.conf" ]]; then
-        rm -f "$HOME/.config/kitty/kitty.conf"
-    fi
-
-    if [[ -L "$HOME/.config/kitty/kitty.app.icns" ]]; then
-        rm -f "$HOME/.config/kitty/kitty.app.icns"
-    fi
+    unlink_file "$REPO_ROOT/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
+    unlink_file "$REPO_ROOT/kitty/kitty-dark.icns" "$HOME/.config/kitty/kitty.app.icns"
 
     if command -v brew >/dev/null 2>&1 && brew list --cask | grep -q "^kitty$"; then
         log "Uninstalling Kitty via Homebrew"

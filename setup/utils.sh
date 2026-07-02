@@ -47,6 +47,46 @@ title() {
     echo -e "${GREEN}$(printf "%${title_padding}s" | tr ' ' '-') $title $(printf "%${title_padding}s" | tr ' ' '-')${RESET}"
 }
 
+# Usage: link_file <source-in-repo> <dest-path>
+# Idempotent symlink; backs up a real dest to <dest>.backup.<epoch> first.
+link_file() {
+    local src="$1" dest="$2"
+
+    if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$dest")"
+
+    if [[ -e "$dest" && ! -L "$dest" ]]; then
+        local backup="$dest.backup.$(date +%s)"
+        warn "Backing up existing $dest to $backup"
+        mv "$dest" "$backup"
+    fi
+
+    rm -rf "$dest"
+    ln -s "$src" "$dest"
+}
+
+# Usage: unlink_file <source-in-repo> <dest-path>
+# Removes our symlink, then restores the newest <dest>.backup.<epoch> if present.
+unlink_file() {
+    local src="$1" dest="$2"
+
+    if [[ ! -L "$dest" || "$(readlink "$dest")" != "$src" ]]; then
+        return 0
+    fi
+
+    rm -f "$dest"
+
+    local latest_backup
+    latest_backup=$(ls -td "$dest.backup."* 2>/dev/null | head -n1)
+    if [[ -e "$latest_backup" ]]; then
+        log "Restoring $dest from $latest_backup"
+        mv "$latest_backup" "$dest"
+    fi
+}
+
 run_quiet() {
     local silent=0
     local description=""

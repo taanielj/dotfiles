@@ -29,11 +29,7 @@ configure_zsh() {
         ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
     fi
 
-    if [[ ! -L "$HOME/.config/zsh" || "$(readlink "$HOME/.config/zsh")" != "$REPO_ROOT/zsh" ]]; then
-        rm -rf "$HOME/.config/zsh"
-        mkdir -p "$HOME/.config"
-        ln -sf "$REPO_ROOT/zsh" "$HOME/.config/zsh"
-    fi
+    link_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
     set_dotfiles_root
 
@@ -77,9 +73,7 @@ teardown_zsh() {
         fi
     fi
 
-    if [[ -L "$HOME/.config/zsh" && "$(readlink "$HOME/.config/zsh")" == "$REPO_ROOT/zsh" ]]; then
-        rm -f "$HOME/.config/zsh"
-    fi
+    unlink_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
     ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit"
     if [[ -d "$ZINIT_HOME" ]]; then

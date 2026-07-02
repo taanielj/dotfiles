@@ -52,14 +52,7 @@ configure_nvim() {
         return 1
     fi
 
-    mkdir -p "$HOME/.config"
-
-    if [[ -e "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
-        warn "⚠️ Backing up existing Neovim config..."
-        mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup.$(date +%s)"
-    fi
-
-    ln -sfn "$REPO_ROOT/nvim" "$HOME/.config/nvim"
+    link_file "$REPO_ROOT/nvim" "$HOME/.config/nvim"
     run_quiet "Syncing Lazy.nvim plugins" nvim --headless "+Lazy! sync" +qa
 
     success "Neovim configuration completed."
@@ -68,16 +61,7 @@ configure_nvim() {
 teardown_nvim() {
     log "Removing Neovim configuration..."
 
-    if [[ -L "$HOME/.config/nvim" && "$(readlink -f "$HOME/.config/nvim")" == "$(readlink -f "$REPO_ROOT/nvim")" ]]; then
-        rm -f "$HOME/.config/nvim"
-
-        local latest_backup
-        latest_backup=$(ls -td "$HOME/.config/nvim.backup."* 2>/dev/null | head -n1)
-        if [[ -d "$latest_backup" ]]; then
-            log "Restoring Neovim configuration from backup: $latest_backup"
-            mv "$latest_backup" "$HOME/.config/nvim"
-        fi
-    fi
+    unlink_file "$REPO_ROOT/nvim" "$HOME/.config/nvim"
 
     if [[ -d "$HOME/.local/nvim" ]]; then
         log "Removing Neovim installation from ~/.local/nvim"

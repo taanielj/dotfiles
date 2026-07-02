@@ -21,8 +21,7 @@ configure_tmux() {
         run_quiet "Cloning tpm" git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
     fi
 
-    rm -f "$HOME/.tmux.conf"
-    ln -sf "$REPO_ROOT/tmux.conf" "$HOME/.tmux.conf"
+    link_file "$REPO_ROOT/tmux.conf" "$HOME/.tmux.conf"
 
     # Ensure tmux is running before installing plugins
     if ! tmux list-sessions &>/dev/null; then
@@ -43,10 +42,7 @@ configure_tmux() {
 teardown_tmux() {
     log "Removing tmux configuration..."
 
-    # Remove tmux.conf symlink
-    if [[ -L "$HOME/.tmux.conf" && "$(readlink "$HOME/.tmux.conf")" == "$REPO_ROOT/tmux.conf" ]]; then
-        rm -f "$HOME/.tmux.conf"
-    fi
+    unlink_file "$REPO_ROOT/tmux.conf" "$HOME/.tmux.conf"
 
     # Remove TPM and plugins
     if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then

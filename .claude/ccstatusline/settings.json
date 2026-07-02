@@ -1,0 +1,117 @@
+{
+  "version": 3,
+  "lines": [
+    [
+      {
+        "id": "1",
+        "type": "model",
+        "color": "cyan"
+      },
+      {
+        "id": "2",
+        "type": "separator"
+      },
+      {
+        "id": "3f",
+        "type": "context-bar",
+        "color": "green"
+      },
+      {
+        "id": "4b",
+        "type": "separator"
+      },
+      {
+        "id": "8",
+        "type": "session-cost",
+        "color": "brightGreen"
+      },
+      {
+        "id": "9",
+        "type": "separator"
+      },
+      {
+        "id": "10",
+        "type": "session-clock",
+        "color": "brightBlack"
+      },
+      {
+        "id": "11",
+        "type": "separator"
+      },
+      {
+        "id": "12",
+        "type": "version",
+        "color": "brightBlack"
+      },
+      {
+        "id": "13",
+        "type": "flex-separator"
+      },
+      {
+        "id": "14",
+        "type": "claude-session-id",
+        "color": "brightBlack",
+        "rawValue": true
+      }
+    ],
+    [
+      {
+        "id": "20",
+        "type": "current-working-dir",
+        "color": "blue",
+        "rawValue": true,
+        "metadata": {
+          "abbreviateHome": "true"
+        }
+      },
+      {
+        "id": "21",
+        "type": "separator"
+      },
+      {
+        "id": "5",
+        "type": "git-branch",
+        "color": "magenta"
+      },
+      {
+        "id": "22",
+        "type": "separator"
+      },
+      {
+        "id": "23",
+        "type": "git-status",
+        "color": "cyan"
+      },
+      {
+        "id": "6",
+        "type": "separator"
+      },
+      {
+        "id": "7",
+        "type": "git-changes",
+        "color": "yellow"
+      }
+    ],
+    []
+  ],
+  "flexMode": "full",
+  "compactThreshold": 60,
+  "colorLevel": 2,
+  "inheritSeparatorColors": false,
+  "globalBold": false,
+  "gitCacheTtlSeconds": 5,
+  "minimalistMode": false,
+  "powerline": {
+    "enabled": false,
+    "separators": [
+      ""
+    ],
+    "separatorInvertBackground": [
+      false
+    ],
+    "startCaps": [],
+    "endCaps": [],
+    "autoAlign": false,
+    "continueThemeAcrossLines": false
+  }
+}

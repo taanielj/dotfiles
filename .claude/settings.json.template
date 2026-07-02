@@ -1,0 +1,28 @@
+{
+  "env": {
+    "USE_BUILTIN_RIPGREP": "0",
+    "ENABLE_LSP_TOOL": "1"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/comment-lint.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "ccstatusline",
+    "padding": 0,
+    "refreshInterval": 10
+  },
+  "alwaysThinkingEnabled": false,
+  "theme": "dark-daltonized",
+  "skipWorkflowUsageWarning": true
+}

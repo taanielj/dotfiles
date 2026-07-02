@@ -15,26 +15,15 @@ configure_wezterm() {
         return 1
     fi
 
-    mkdir -p "$HOME/.config"
-
-    if [[ -e "$HOME/.config/wezterm" && ! -L "$HOME/.config/wezterm" ]]; then
-        warn "Backing up existing WezTerm config..."
-        mv "$HOME/.config/wezterm" "$HOME/.config/wezterm.backup.$(date +%s)"
-    fi
-
-    ln -sfn "$REPO_ROOT/wezterm" "$HOME/.config/wezterm"
+    link_file "$REPO_ROOT/wezterm" "$HOME/.config/wezterm"
     success "WezTerm configuration linked."
 }
 
 teardown_wezterm() {
     log "Removing WezTerm configuration..."
 
-    if [[ -L "$HOME/.config/wezterm" ]]; then
-        rm -f "$HOME/.config/wezterm"
-        success "WezTerm configuration removed."
-    else
-        warn "No WezTerm symlink found, nothing to remove."
-    fi
+    unlink_file "$REPO_ROOT/wezterm" "$HOME/.config/wezterm"
+    success "WezTerm configuration removed."
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
