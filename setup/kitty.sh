@@ -11,17 +11,13 @@ main_kitty() {
 
     run_quiet "Installing Kitty" brew install --cask kitty
 
+    mkdir -p "$HOME/.config/kitty"
     ln -sf "$REPO_ROOT/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-    ln -sf "$REPO_ROOT/kitty/kitty-dark.icns" "$HOME/.config/kitty/kitty-dark.icns"
+    # Must be named kitty.app.icns for kitty to pick it up at startup
+    ln -sf "$REPO_ROOT/kitty/kitty-dark.icns" "$HOME/.config/kitty/kitty.app.icns"
 
-    # Replacing in the bundle avoids the grey box that cocoa_set_app_icon produces
-    local kitty_app="/Applications/kitty.app"
-    local icon_dest="$kitty_app/Contents/Resources/kitty.icns"
-    if [[ -d "$kitty_app" ]]; then
-        cp "$REPO_ROOT/kitty/kitty-dark.icns" "$icon_dest"
-        touch "$kitty_app"  # force Finder to refresh the icon cache
-        killall Dock 2>/dev/null || true
-    fi
+    rm /var/folders/*/*/*/com.apple.dock.iconcache 2>/dev/null || true
+    killall Dock 2>/dev/null || true
 }
 
 teardown_kitty() {
@@ -31,8 +27,8 @@ teardown_kitty() {
         rm -f "$HOME/.config/kitty/kitty.conf"
     fi
 
-    if [[ -L "$HOME/.config/kitty/kitty-dark.icns" ]]; then
-        rm -f "$HOME/.config/kitty/kitty-dark.icns"
+    if [[ -L "$HOME/.config/kitty/kitty.app.icns" ]]; then
+        rm -f "$HOME/.config/kitty/kitty.app.icns"
     fi
 
     if command -v brew >/dev/null 2>&1 && brew list --cask | grep -q "^kitty$"; then
