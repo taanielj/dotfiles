@@ -4,17 +4,17 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Open Cursor with Ctrl-Alt-C",
+                        "description": "Open VS Code with Ctrl-Alt-V",
                         "manipulators": [
                             {
                                 "from": {
-                                    "key_code": "c",
+                                    "key_code": "v",
                                     "modifiers": {
                                         "mandatory": ["command", "option"],
                                         "optional": ["caps_lock"]
                                     }
                                 },
-                                "to": [{ "shell_command": "open -a Cursor" }],
+                                "to": [{ "shell_command": "open -a 'Visual Studio Code'" }],
                                 "type": "basic"
                             }
                         ]
@@ -468,7 +468,8 @@
                                 "conditions": [
                                     {
                                         "bundle_identifiers": [
-                                            "^com\\.operasoftware\\.Opera$"
+                                            "^com\\.operasoftware\\.Opera$",
+                                            "^app\\.zen-browser\\.zen$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -489,7 +490,8 @@
                                 "conditions": [
                                     {
                                         "bundle_identifiers": [
-                                            "^com\\.operasoftware\\.Opera$"
+                                            "^com\\.operasoftware\\.Opera$",
+                                            "^app\\.zen-browser\\.zen$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -808,7 +810,7 @@
                         ]
                     },
                     {
-                        "description": "Open Opera with Ctrl-Alt-O",
+                        "description": "Open Zen Browser with Ctrl-Alt-O",
                         "manipulators": [
                             {
                                 "from": {
@@ -818,13 +820,13 @@
                                         "optional": ["caps_lock"]
                                     }
                                 },
-                                "to": [{ "shell_command": "open /Applications/Opera.app/" }],
+                                "to": [{ "shell_command": "open /Applications/Zen.app/" }],
                                 "type": "basic"
                             }
                         ]
                     },
                     {
-                        "description": "Open a terminal window with Ctrl-Alt-T",
+                        "description": "Open Kitty Terminal with Ctrl-Alt-T",
                         "manipulators": [
                             {
                                 "from": {
