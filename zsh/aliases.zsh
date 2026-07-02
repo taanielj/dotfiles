@@ -1,14 +1,18 @@
 # Aliases configuration
+#
+# Interactive-only guard: these are conveniences for a human at the keyboard
+# (eza/bat/tree wrappers, etc). Sourcing them into non-interactive shells
+# (scripts, hooks, tooling) caused partially-applied aliases and cache issues,
+# so bail out early unless we're interactive.
+[[ -o interactive ]] || return
+
 if command -v nvim &>/dev/null; then
     alias vim=nvim
 fi
-# Only alias cat to bat in interactive shells to avoid cache issues in scripts/hooks
-if [[ -o interactive ]]; then
-    if command -v bat &>/dev/null; then
-        alias cat="bat -p --paging=never"
-    elif command -v batcat &>/dev/null; then
-        alias cat="batcat -p --paging=never"
-    fi
+if command -v bat &>/dev/null; then
+    alias cat="bat -p --paging=never"
+elif command -v batcat &>/dev/null; then
+    alias cat="batcat -p --paging=never"
 fi
 
 if command -v fd &>/dev/null; then
@@ -45,17 +49,12 @@ if command -v eza &>/dev/null; then
 
         eza --group-directories-first --icons --color=always --git -h "$@"
     }
-    # Use aliases to redirect to the wrapper function (only when interactive)
-    if [[ -o interactive ]]; then
-        alias ls="_eza_wrapper"
-    fi
+    alias ls="_eza_wrapper"
     alias la="_eza_wrapper -l -a"
     alias tree="eza --tree"
 else
     alias l="ls"
-    if [[ -o interactive ]]; then
-        alias ls="ls --color=auto"
-    fi
+    alias ls="ls --color=auto"
     alias la="ls -la --color=auto"
     alias tree="tree"
 fi
