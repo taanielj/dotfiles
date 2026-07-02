@@ -1,4 +1,5 @@
 return {
+    {
     "nvimtools/none-ls.nvim",
     config = function()
         local null_ls = require("null-ls")
@@ -65,4 +66,22 @@ return {
             end,
         })
     end,
+    },
+    {
+        "jay-babu/mason-null-ls.nvim",
+        dependencies = { "williamboman/mason.nvim" },
+        event = { "BufReadPre", "BufNewFile" },
+        opts = {
+            automatic_installation = true,
+            ensure_installed = {
+                "stylua",                    -- Lua
+                "black",                     -- Python code formatter
+                "isort",                     -- Python import sorter
+                "shfmt",                     -- Shell
+                "buf",                       -- Protobuf
+                "checkmake",                 -- Makefile linter
+                "sonarlint-language-server", -- SonarLint
+            },
+        },
+    },
 }
