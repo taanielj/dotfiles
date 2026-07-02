@@ -20,6 +20,7 @@ __pycache__/
 # Claude Code
 CLAUDE.md
 .claude/
+TODO.md
 
 .mise.toml
 # manually add tool-versions by default
