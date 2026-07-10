@@ -18,6 +18,21 @@ SETUP_SCRIPTS=(
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh")
 [[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/lazygit.sh")
 
+show_help() {
+    cat <<EOF
+Usage: setup.sh [OPTIONS]
+
+Sets up (or tears down) the [taanielj/dotfiles] environment.
+
+With no options, launches an interactive menu to choose what to run.
+
+Options:
+  --teardown        Tear down all components (reverse of setup, keeps system packages)
+  --remove-cargo    During teardown, also remove cargo itself
+  -h, --help        Show this help and exit
+EOF
+}
+
 parse_args() {
     MODE="setup"
     remove_cargo=false
@@ -26,6 +41,16 @@ parse_args() {
         case "$arg" in
         --teardown) MODE="teardown" ;;
         --remove-cargo) remove_cargo=true ;;
+        -h | --help)
+            show_help
+            exit 0
+            ;;
+        *)
+            error "Unknown option: $arg"
+            echo ""
+            show_help
+            exit 1
+            ;;
         esac
     done
 }
@@ -75,12 +100,15 @@ teardown_scripts() {
 
 select_scripts() {
     log "Choose setup mode:"
-    mode=$(interactive_choice "Mode: " "System only" "All" "Custom" "Exit")
+    mode=$(interactive_choice "Mode: " "System only" "All" "Custom" "Teardown" "Exit")
 
     case "$mode" in
     "Exit")
         log "Exiting setup."
         exit 0
+        ;;
+    "Teardown")
+        MODE="teardown"
         ;;
     "System only")
         log "Running system setup only..."
@@ -146,13 +174,16 @@ run_teardown() {
 
 main() {
     parse_args "$@"
+
+    # --teardown flag skips the menu; otherwise the menu may switch MODE to teardown.
+    [[ "$MODE" != "teardown" ]] && select_scripts
+
     show_banner
 
     if [[ "$MODE" == "teardown" ]]; then
         teardown_scripts
         run_teardown
     else
-        select_scripts
         run_setup
     fi
 }
