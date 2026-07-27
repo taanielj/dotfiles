@@ -154,3 +154,5 @@ test -d "/home/linuxbrew/.linuxbrew" && eval "$(/home/linuxbrew/.linuxbrew/bin/b
 bindkey "^?" backward-delete-char
 
 fpath+=~/.zfunc; autoload -Uz compinit; compinit
+
+command -v brew >/dev/null 2>&1 && export PATH="/opt/homebrew/bin:$PATH"  
