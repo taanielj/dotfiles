@@ -1,4 +1,4 @@
-# Aliases configuration
+# Aliases configurationalias
 #
 # Interactive-only guard: these are conveniences for a human at the keyboard
 # (eza/bat/tree wrappers, etc). Sourcing them into non-interactive shells

@@ -128,18 +128,18 @@ return {
                     provideFormatter = true,
                 },
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
-                ruby_lsp = {
-                    init_options = {
-                        addonSettings = {
-                            RubyLSPRails = { enablePendingMigrationsPrompt = false },
-                        },
-                    },
-                },
-                marksman = {},    -- Markdown
-                dockerls = {},    -- Dockerfile
-                gopls = {},       -- Go
-                eslint = {},      -- JavaScript/TypeScript
-                cssls = {},       -- CSS
+                -- ruby_lsp = {
+                --     init_options = {
+                --         addonSettings = {
+                --             RubyLSPRails = { enablePendingMigrationsPrompt = false },
+                --         },
+                --     },
+                -- },
+                marksman = {}, -- Markdown
+                dockerls = {}, -- Dockerfile
+                gopls = {}, -- Go
+                eslint = {}, -- JavaScript/TypeScript
+                cssls = {}, -- CSS
                 terraformls = {}, -- Terraform
             }
 

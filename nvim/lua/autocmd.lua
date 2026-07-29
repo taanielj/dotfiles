@@ -69,3 +69,15 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.cmd("setlocal noexpandtab")
     end,
 })
+
+-- Jump to the first non-blank character if opening at column 1 (useful with vim-fetch)
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+    group = augroup("fetch_first_non_blank"),
+    callback = function()
+        vim.schedule(function()
+            if vim.api.nvim_get_mode().mode == "n" and vim.fn.col('.') == 1 then
+                vim.cmd("normal! ^")
+            end
+        end)
+    end,
+})

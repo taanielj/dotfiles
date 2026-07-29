@@ -10,6 +10,8 @@ return {
         ensure_installed = {
             "astro",
             "bash",
+            "sh",
+            "zsh",
             "c",
             "css",
             "diff",
@@ -37,7 +39,7 @@ return {
             "vim",
             "vimdoc",
             "yaml",
-            "ruby",
+            -- "ruby",
         },
     },
     config = function(_, opts)

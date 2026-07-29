@@ -19,6 +19,7 @@ return {
         local actions = require("telescope.actions")
         local history_dir = vim.fn.stdpath("data") .. "/databases"
         local history_file = history_dir .. "/telescope_history.sqlite3"
+        -- print("Telescope history file: " .. history_file)
         vim.fn.mkdir(history_dir, "p")
         require("telescope").setup({
             pickers = {
