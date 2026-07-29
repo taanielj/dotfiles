@@ -16,11 +16,17 @@ require("vim-options") -- Basic vim options
 require("keybinds")    -- Keybinds
 require("zen")         -- Zen mode
 require("autocmd")     -- Autocommands
-require("lazy").setup("plugins")
+require("lazy").setup({
+    { import = "plugins.ui" },
+    { import = "plugins.editor" },
+    { import = "plugins.lsp" },
+    { import = "plugins.coding" },
+    { import = "plugins.tools" },
+})
 
 function ReloadPlugins()
     local plugin_path = vim.fn.stdpath("config") .. "/lua/plugins/"
-    local lua_files = vim.fn.glob(plugin_path .. "*.lua", false, true)
+    local lua_files = vim.fn.glob(plugin_path .. "**/*.lua", false, true)
     for _, file in ipairs(lua_files) do
         local lua_file = file:match("lua/(.-)%.lua") -- find all *.lua files in lua/plugins folder
         if lua_file then                       -- truthy check, if file match is not nil
