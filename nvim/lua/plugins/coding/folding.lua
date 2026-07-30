@@ -78,6 +78,12 @@ return {
             ---@diagnostic disable-next-line
             require("ufo").setup({
                 fold_virt_text_handler = handler,
+                provider_selector = function(bufnr, filetype, buftype)
+                    if filetype == "markdown" then
+                        return { "treesitter", "indent" }
+                    end
+                    return { "lsp", "indent" }
+                end,
             })
         end,
     },
