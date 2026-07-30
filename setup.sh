@@ -8,6 +8,7 @@ source "$REPO_ROOT/setup/utils.sh"
 # system should be run first (and torn down last)
 SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/system.sh" # only one that needs sudo, supports ubuntu, debian, termux, darwin
+    "$REPO_ROOT/setup/git.sh"    # no sudo, platform agnostic
     "$REPO_ROOT/setup/zsh.sh"    # no sudo, platform agnostic
     "$REPO_ROOT/setup/tmux.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/mise.sh"   # no sudo, platform agnostic

@@ -17,9 +17,13 @@ __pycache__/
 *.pyc
 *.coverage
 
-# Claude Code
+# AI Agents & LLM Tooling
+AGENTS.md
 CLAUDE.md
 .claude/
+.cursorrules
+.cline/
+.antigravity/
 TODO.md
 
 .mise.toml

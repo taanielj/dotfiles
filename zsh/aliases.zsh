@@ -296,3 +296,38 @@ if command -v claude &>/dev/null; then
         echo "copied"
     }
 fi
+
+agyr() {
+    if ! command -v fzf &> /dev/null; then
+        echo "Error: fzf is not installed." >&2
+        return 1
+    fi
+
+    local brain_dir="$HOME/.gemini/antigravity-cli/brain"
+    if [[ ! -d "$brain_dir" ]]; then
+        echo "Error: Directory $brain_dir does not exist." >&2
+        return 1
+    fi
+
+    local files=$(grep -l "$PWD" "$brain_dir"/*/.system_generated/logs/transcript.jsonl 2>/dev/null)
+    
+    if [[ -z "$files" ]]; then
+        echo "No conversations found for $PWD."
+        return 0
+    fi
+
+    local options=""
+    for file in ${(f)files}; do
+        local uuid=$(echo "$file" | awk -F'/' '{print $7}')
+        local date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$file")
+        options+="$date | $uuid\n"
+    done
+
+    local selected=$(echo -e "$options" | awk 'NF' | fzf --prompt="Select conversation to resume: ")
+
+    if [[ -n "$selected" ]]; then
+        local selected_uuid=$(echo "$selected" | awk -F'|' '{print $2}' | xargs)
+        echo "Resuming $selected_uuid..."
+        agy --conversation "$selected_uuid"
+    fi
+}

@@ -15,19 +15,7 @@ configure_zsh() {
         return 1
     fi
 
-    # Backs up existing .zshrc before symlinking to avoid clobbering user config
-    if [[ -L "$HOME/.zshrc" && "$(readlink "$HOME/.zshrc")" == "$REPO_ROOT/zsh/zshrc.zsh" ]]; then
-        log ".zshrc is already linked to the repository. Skipping symlink setup."
-    elif [[ -f "$HOME/.zshrc" && ! -f "$HOME/.zshrc.pre-taaniel-dotfiles" ]]; then
-        log "Backing up existing .zshrc to .zshrc.pre-taaniel-dotfiles"
-        mv "$HOME/.zshrc" "$HOME/.zshrc.pre-taaniel-dotfiles"
-        ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
-    elif [[ -f "$HOME/.zshrc" && -f "$HOME/.zshrc.pre-taaniel-dotfiles" ]]; then
-        log "Both .zshrc and .zshrc.pre-taaniel-dotfiles exist. Please resolve this manually."
-        return 1
-    else
-        ln -sf "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
-    fi
+    link_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
 
     link_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
@@ -63,15 +51,7 @@ set_dotfiles_root() {
 teardown_zsh() {
     log "Removing Zsh configuration..."
 
-    if [[ -L "$HOME/.zshrc" && "$(readlink "$HOME/.zshrc")" == "$REPO_ROOT/zsh/zshrc.zsh" ]]; then
-        rm -f "$HOME/.zshrc"
-        if [[ -f "$HOME/.zshrc.pre-taaniel-dotfiles" ]]; then
-            log "Restoring original .zshrc from .zshrc.pre-taaniel-dotfiles"
-            mv "$HOME/.zshrc.pre-taaniel-dotfiles" "$HOME/.zshrc"
-        else
-            log "No backup .zshrc found"
-        fi
-    fi
+    unlink_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
 
     unlink_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
