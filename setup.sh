@@ -11,6 +11,7 @@ SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/git.sh"    # no sudo, platform agnostic
     "$REPO_ROOT/setup/zsh.sh"    # no sudo, platform agnostic
     "$REPO_ROOT/setup/tmux.sh"   # no sudo, platform agnostic
+    "$REPO_ROOT/setup/herdr.sh"  # no sudo, platform agnostic
     "$REPO_ROOT/setup/mise.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/nvim.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/cargo.sh"  # no sudo, platform agnostic

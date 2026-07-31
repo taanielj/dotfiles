@@ -130,6 +130,13 @@ for file in "$HOME"/.config/zsh/*.zsh; do
     source "$file"
 done
 
+# Private shell config from the notes repo. Sourced after the public config
+# above so it can use helpers like register_tmux_session.
+NOTES_DIR="${DOTFILES_NOTES_DIR:-$HOME/git/notes}"
+for file in "$NOTES_DIR"/*/shell.zsh(N); do
+    source "$file"
+done
+
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 
 ### ──────────────

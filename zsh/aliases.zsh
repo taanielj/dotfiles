@@ -4,6 +4,7 @@
 # (eza/bat/tree wrappers, etc). Sourcing them into non-interactive shells
 # (scripts, hooks, tooling) caused partially-applied aliases and cache issues,
 # so bail out early unless we're interactive.
+GIT_PATH="$HOME/git"
 [[ -o interactive ]] || return
 
 if command -v nvim &>/dev/null; then
@@ -63,25 +64,15 @@ alias cl="clear && printf '\e[3J'"
 alias cle="clear && printf '\e[3J' && exec zsh"
 alias cld="cd && clear && printf '\e[3J' && exec zsh"
 
-# TMUX sessions
-default_sessions=(
-    "notes"
-    "shell"
-)
-# if macOS append zqa and zendesk to default sessions
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    default_sessions+=(
-        "zqa"
-        "zendesk"
-    )
-fi
+# TMUX sessions. Work sessions register from the notes repo (overlay in
+# zshrc.zsh), keeping this file free of work-specific config.
+typeset -ga default_sessions=()
+typeset -gA _tmux_session_builders=()
 
-default_sessions=(
-    "zqa"
-    "zendesk"
-    "shell"
-    "notes"
-)
+register_tmux_session() {
+    default_sessions+=("$1")
+    _tmux_session_builders[$1]="$2"
+}
 
 # Helper: Create tmux session with optional directory
 _tmux_new_session_maybe_dir() {
@@ -102,54 +93,30 @@ _tmux_new_window_maybe_dir() {
     local window_name="$2"
     local dir="$3"
 
+    # Trailing colon forces a session target, even when a window shares the name.
     if [[ -n "$dir" && -d "$dir" ]]; then
-        tmux new-window -t "$session" -n "$window_name" -c "$dir"
+        tmux new-window -t "${session}:" -n "$window_name" -c "$dir"
     else
-        tmux new-window -t "$session" -n "$window_name"
+        tmux new-window -t "${session}:" -n "$window_name"
     fi
 }
 
-# Helper: Start all sessions if not already started
+_tmux_build_notes() {
+    _tmux_new_session_maybe_dir notes notes "${GIT_PATH}/notes"
+    _tmux_new_window_maybe_dir notes dotfiles "${GIT_PATH}/dotfiles"
+}
+_tmux_build_shell() {
+    tmux new-session -d -s shell
+}
+register_tmux_session notes _tmux_build_notes
+register_tmux_session shell _tmux_build_shell
+
 _start_all_sessions() {
+    local session builder
     for session in "${default_sessions[@]}"; do
-        if ! tmux has-session -t "$session" 2>/dev/null; then
-            [[ "$OSTYPE" != "darwin"* && "$session" =~ ^(zqa|zendesk)$ ]] && continue
-
-            case "$session" in
-            zendesk)
-                # Skip if ZENDESK_CODE_DIR is not set
-                [[ -z "$ZENDESK_CODE_DIR" ]] && continue
-
-                _tmux_new_session_maybe_dir zendesk zig "${ZENDESK_CODE_DIR}/zendesk-identity-governance"
-                _tmux_new_window_maybe_dir zendesk proto "${ZENDESK_CODE_DIR}/zendesk_protobuf_schemas"
-                ;;
-            zqa)
-                # Skip if ZENDESK_CODE_DIR is not set
-                [[ -z "$ZENDESK_CODE_DIR" ]] && continue
-
-                _tmux_new_session_maybe_dir zqa publ "${ZENDESK_CODE_DIR}/zqa-analytics-publisher"
-                _tmux_new_window_maybe_dir zqa etl "${ZENDESK_CODE_DIR}/zqa-etl-pipelines"
-                _tmux_new_window_maybe_dir zqa dbt_klaus "${ZENDESK_CODE_DIR}/zdp_dbt_regional_klaus"
-                ;;
-            claude)
-                command -v claude &>/dev/null || continue
-                _tmux_new_session_maybe_dir claude publ "${ZENDESK_CODE_DIR}/zqa-analytics-publisher"
-                _tmux_new_window_maybe_dir claude dbt_klaus "${ZENDESK_CODE_DIR}/zdp_dbt_regional_klaus"
-                ;;
-            notes)
-                _tmux_new_session_maybe_dir notes notes "$HOME/Code/notes"
-                _tmux_new_window_maybe_dir notes dotfiles "$HOME/Code/dotfiles"
-                ;;
-            shell)
-                # Create shell session (no special setup)
-                tmux new-session -d -s shell
-                ;;
-            *)
-                # Default: create session without special setup
-                tmux new-session -d -s "$session"
-                ;;
-            esac
-        fi
+        tmux has-session -t "$session" 2>/dev/null && continue
+        builder="${_tmux_session_builders[$session]}"
+        [[ -n "$builder" ]] && "$builder"
     done
 }
 
@@ -177,37 +144,6 @@ tsn() {
 tss() {
     _start_all_sessions
     tmux attach-session -t shell
-}
-
-tsz() {
-    if [[ -z "$ZENDESK_CODE_DIR" ]]; then
-        echo "🧘 Relax, you're not at work."
-        return 0
-    fi
-    _start_all_sessions
-    tmux attach-session -t zendesk
-}
-
-tsc() {
-    command -v claude &>/dev/null || {
-        echo "Claude CLI not found. Please install it to use this session."
-        return 1
-    }
-    if [[ -z "$ZENDESK_CODE_DIR" ]]; then
-        echo "🧘 Relax, you're not at work."
-        return 0
-    fi
-    _start_all_sessions
-    tmux attach-session -t claude
-}
-
-tsq() {
-    if [[ -z "$ZENDESK_CODE_DIR" ]]; then
-        echo "🧘 Relax, you're not at work."
-        return 0
-    fi
-    _start_all_sessions
-    tmux attach-session -t zqa
 }
 
 # Reset the current git repository
@@ -298,7 +234,7 @@ if command -v claude &>/dev/null; then
 fi
 
 agyr() {
-    if ! command -v fzf &> /dev/null; then
+    if ! command -v fzf &>/dev/null; then
         echo "Error: fzf is not installed." >&2
         return 1
     fi
@@ -310,7 +246,7 @@ agyr() {
     fi
 
     local files=$(grep -l "$PWD" "$brain_dir"/*/.system_generated/logs/transcript.jsonl 2>/dev/null)
-    
+
     if [[ -z "$files" ]]; then
         echo "No conversations found for $PWD."
         return 0
