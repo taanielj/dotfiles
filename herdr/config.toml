@@ -141,6 +141,7 @@ description = "resurrect: restore"
 
 [ui]
 pane_gaps = false
+toast.delivery = "system"
 
 [theme]
 name = "catppuccin-mocha"
