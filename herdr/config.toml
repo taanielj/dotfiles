@@ -1,0 +1,151 @@
+# Herdr config, ported from tmux.conf. Only bindings that differ from herdr's
+# defaults are set; session/tab/rename bindings rely on herdr defaults, which
+# already mirror the tmux equivalents (prefix+c new tab, prefix+shift+n new
+# workspace, prefix+shift+t / prefix+shift+w rename tab / workspace).
+
+onboarding = false
+
+[terminal]
+shell_mode = "auto"
+
+[session]
+resume_agents_on_restore = true
+
+[keys]
+prefix = "ctrl+space"
+
+# reload config (ctrl+r is resurrect restore per your tmux, so shift+r here)
+reload_config = "prefix+ctrl+shift+r"
+
+# tmux: M-Left/M-Right = previous/next window; kept alongside herdr's prefix+p/n
+previous_tab = ["prefix+p", "alt+left"]
+next_tab = ["prefix+n", "alt+right"]
+
+# alt+arrows — left/right cycle tabs (above); up/down cycle workspaces
+next_workspace     = "alt+down"
+previous_workspace = "alt+up"
+
+# --- tmux muscle-memory aliases (secondary keys; prune once herdr's stick) ---
+# settings moves off prefix+s so the tmux session-picker key is free for it.
+rename_workspace = ["prefix+shift+w", "prefix+shift+4"] # tmux: prefix $
+rename_tab       = ["prefix+shift+t", "prefix+comma"]   # tmux: prefix ,
+detach           = ["prefix+q", "prefix+d"]             # tmux: prefix d
+workspace_picker = ["prefix+w", "prefix+s"]             # tmux: prefix s
+close_tab        = ["prefix+shift+x", "prefix+shift+7"] # tmux: prefix &
+split_horizontal = ["prefix+minus", "prefix+'"]         # tmux: prefix ' (top/bottom)
+split_vertical   = ["prefix+v", 'prefix+"']             # tmux: prefix " (side-by-side)
+settings         = "prefix+shift+s"
+
+# Seamless nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
+# herdr-splits plugin; the nvim half is nvim/lua/plugins/tools/herdr-splits.lua.
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "herdr-splits.nav-left"
+description = "navigate left"
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "herdr-splits.nav-down"
+description = "navigate down"
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "herdr-splits.nav-up"
+description = "navigate up"
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "herdr-splits.nav-right"
+description = "navigate right"
+[[keys.command]]
+key = "alt+h"
+type = "plugin_action"
+command = "herdr-splits.resize-left"
+description = "resize left"
+[[keys.command]]
+key = "alt+j"
+type = "plugin_action"
+command = "herdr-splits.resize-down"
+description = "resize down"
+[[keys.command]]
+key = "alt+k"
+type = "plugin_action"
+command = "herdr-splits.resize-up"
+description = "resize up"
+[[keys.command]]
+key = "alt+l"
+type = "plugin_action"
+command = "herdr-splits.resize-right"
+description = "resize right"
+
+# tmux: prefix B = break-pane (herdr has no built-in action, so call the CLI)
+[[keys.command]]
+key = "prefix+shift+b"
+type = "shell"
+command = '"${HERDR_BIN_PATH:-herdr}" pane move "$HERDR_ACTIVE_PANE_ID" --new-tab --focus'
+description = "break pane to new tab"
+
+# tmux: prefix m/M = choose-window -> join-pane; fzf picker pulls a pane in
+[[keys.command]]
+key = "prefix+m"
+type = "popup"
+command = 'bash "$HOME/.config/herdr/bin/herdr-join.sh" right'
+description = "join a pane (split right)"
+width = "70%"
+height = "60%"
+[[keys.command]]
+key = "prefix+shift+m"
+type = "popup"
+command = 'bash "$HOME/.config/herdr/bin/herdr-join.sh" down'
+description = "join a pane (split down)"
+width = "70%"
+height = "60%"
+
+# tmux: prefix space = next-layout (cycles even-v, even-h, main-left, main-top, tiled)
+[[keys.command]]
+key = "prefix+space"
+type = "plugin_action"
+command = "layouts.cycle"
+description = "cycle layout"
+
+# lazygit overlay (nvim has its own prefix+gg; this is for non-nvim panes)
+[[keys.command]]
+key = "prefix+l"
+type = "popup"
+command = "lazygit"
+description = "lazygit"
+width = "90%"
+height = "90%"
+
+# scrollback -> nvim (tmux capture-pane -> editor)
+[[keys.command]]
+key = "prefix+slash"
+type = "popup"
+command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
+description = "scrollback in nvim"
+width = "90%"
+height = "90%"
+
+# session save/restore (tmux-resurrect: prefix C-s save, prefix C-r restore)
+[[keys.command]]
+key = "prefix+ctrl+s"
+type = "plugin_action"
+command = "ntindle.herdr-resurrect.save"
+description = "resurrect: save"
+[[keys.command]]
+key = "prefix+ctrl+r"
+type = "plugin_action"
+command = "ntindle.herdr-resurrect.restore"
+description = "resurrect: restore"
+
+[ui]
+pane_gaps = false
+
+[theme]
+name = "catppuccin-mocha"
+auto_switch = true
+
+[experimental]
+kitty_graphics = true
+pane_history = true
