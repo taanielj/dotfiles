@@ -9,6 +9,7 @@ return {
         local wk = require("which-key")
 
         wk.add({
+            { "<leader>a",   group = "AI/Claude Code" },
             { "<leader>b",   group = "Buffer" },
             { "<leader>bs",  group = "Sort" },
             { "<leader>bc",  group = "Close" },

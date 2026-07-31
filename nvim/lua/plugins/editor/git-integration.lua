@@ -69,7 +69,7 @@ return {
                     map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
                     map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
                     map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
-                    map("n", "<leader>gb", gitsigns.blame_line, { desc = "Toggle blame" })
+                    map("n", "<leader>gb", gitsigns.blame_line, { desc = "Blame line (popup)" })
                     map("n", "<leader>gd", gitsigns.diffthis, { desc = "Diff against base" })
                     map("n", "<leader>gl", function()
                         ---@diagnostic disable-next-line: param-type-mismatch
