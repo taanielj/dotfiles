@@ -5,4 +5,4 @@ python 3.12
 rust 1.92.0
 uv 0.10
 deno 2.7
-node 22.1
+node 22.20.0

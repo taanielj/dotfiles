@@ -34,7 +34,7 @@ return {
                     map("gi", builtin.lsp_implementations, "Go to implementation")
                     map("gr", builtin.lsp_references, "Find references")
                     map("gs", builtin.lsp_document_symbols, "Document symbols")
-                    map("<leader>D", builtin.lsp_type_definitions, "Go to type definition")
+                    map("<leader>lt", builtin.lsp_type_definitions, "Go to type definition")
                     map("<leader>lw", builtin.lsp_workspace_symbols, "Workspace symbols")
                     map("<leader>lq", builtin.diagnostics, "Search diagnostics")
                     map("gD", vim.lsp.buf.declaration, "Go to declaration")
