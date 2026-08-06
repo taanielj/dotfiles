@@ -15,7 +15,17 @@ return {
         "neovim/nvim-lspconfig",
         dependencies = {
             { "williamboman/mason.nvim", opts = {} },
-            { "j-hui/fidget.nvim", opt = true },
+            {
+                "j-hui/fidget.nvim",
+                opts = {
+                    progress = {
+                        suppress_on_insert = true,
+                        ignore_done_already = true,
+                        ignore_empty_message = true,
+                        ignore = { "pyright", "sonarlint.nvim", "ruff" },
+                    },
+                },
+            },
             "hrsh7th/cmp-nvim-lsp",
             "williamboman/mason-lspconfig.nvim",
             "WhoIsSethDaniel/mason-tool-installer.nvim",

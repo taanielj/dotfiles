@@ -34,3 +34,8 @@ TODO.md
 .bloop/
 metals.sbt
 
+# dbt
+.user.yml
+
+# scratch dir
+.scratch/
