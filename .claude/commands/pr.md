@@ -35,6 +35,15 @@ To get the "why", in priority order:
 2. Otherwise AskUserQuestion: "What's the motivation for this change?"
 3. Only skip asking if the "why" is truly self-evident from the diff (e.g., fixing a typo)
 
+## Shape
+
+The description reads top-down: what merged, then the details, then the trivia.
+
+1. Open with a complete declarative sentence stating what the change does - subject and verb, not a verb-first fragment and not in medias res backstory about the prior state.
+2. The why rides the lead sentence as a clause, not a paragraph.
+3. Mention the old setup only as the factual "replacing X" a reader needs to know what got swapped out. Don't catalogue its failings - the fix implies the problem.
+4. Then: bullets for the concrete changes, a verification line with real numbers from the actual run, and secondary cleanup in a `<details>` block.
+
 ## Style
 
 - Keep descriptions factual and technical, avoid marketing language ("enables", "functionality", etc.)
