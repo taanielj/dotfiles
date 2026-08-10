@@ -8,21 +8,34 @@ typeset -gix P9K_SSH=0
 typeset -gx _P9K_SSH_TTY=$TTY
 
 ### ────────────────────────────────
+###  Zinit Plugin Manager
+### ────────────────────────────────
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
+[ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+
+source "${ZINIT_HOME}/zinit.zsh"
+
+# Pure fpath plugin — must load before compinit; atpull clears the stale dump
+zinit ice blockf atpull'zinit creinstall -q .; rm -f $ZSH_COMPDUMP{,.zwc}'
+zinit light zsh-users/zsh-completions
+
+### ────────────────────────────────
 ###  Completion System
 ### ────────────────────────────────
+# compinit runs ONCE: re-running it wipes dynamic registrations (gcloud etc.)
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' completions 1
 zstyle ':completion:*' glob 1
 zstyle ':completion:*' substitute 1
-zstyle :compinstall filename '$HOME/.zshrc'
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-export CASE_SENSITIVE="true"
 
 ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
+fpath+=~/.zfunc
 
 # Smart compinit - rebuild cache when needed, skip security check when cached
 autoload -Uz compinit
@@ -32,25 +45,20 @@ if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP.zwc -ot $ZSH_COMPDUMP ]]; then
 else
     compinit -C -d "$ZSH_COMPDUMP"
 fi
+autoload -Uz _zinit
+((${+_comps})) && _comps[zinit]=_zinit
 autoload -U select-word-style
 select-word-style bash
 
 ### ────────────────────────────────
-###  Zinit Plugin Manager
+###  Plugins
 ### ────────────────────────────────
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-[ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
-[ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-
-source "${ZINIT_HOME}/zinit.zsh"
-autoload -Uz _zinit
-((${+_comps})) && _comps[zinit]=_zinit
-
 setopt promptsubst
 
 # Powerlevel10k — eager load for stable prompt
 zinit ice depth=1 lucid
 zinit light romkatv/powerlevel10k
+source "$HOME/.config/zsh/p10k.zsh"
 
 # Core plugins — autosuggestions loads immediately for better UX
 zinit ice lucid
@@ -60,10 +68,6 @@ zinit light zsh-users/zsh-autosuggestions
 zinit wait lucid for \
     Aloxaf/fzf-tab \
     zsh-users/zsh-syntax-highlighting
-
-# Completions — reload after plugin is added
-zinit ice wait'1' blockf lucid atload'compinit -u'
-zinit light zsh-users/zsh-completions
 
 # Oh-My-Zsh git plugin (snippet form)
 zinit ice wait'1' lucid
@@ -79,8 +83,6 @@ HISTSIZE=1000000
 SAVEHIST=1000000
 HISTFILE=~/.zsh_history
 
-setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
@@ -94,7 +96,7 @@ setopt HIST_SAVE_NO_DUPS
 ###  Environment / UI Settings
 ### ────────────────────────────────
 export COLORTERM=truecolor
-export PATH=$HOME/.local/nvim/bin:$PATH
+command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
 
 if command -v fdfind >/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'
@@ -118,25 +120,30 @@ command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 ### ────────────────────────────────
 ###  Google Cloud SDK Integration
 ### ────────────────────────────────
-[[ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]] && source "$HOME/google-cloud-sdk/path.zsh.inc"
-[[ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]] && source "$HOME/google-cloud-sdk/completion.zsh.inc"
+for _gcloud_sdk in "$HOMEBREW_PREFIX/share/google-cloud-sdk" "$HOME/google-cloud-sdk"; do
+    if [[ -f "$_gcloud_sdk/path.zsh.inc" ]]; then
+        source "$_gcloud_sdk/path.zsh.inc"
+        [[ -f "$_gcloud_sdk/completion.zsh.inc" ]] && source "$_gcloud_sdk/completion.zsh.inc"
+        break
+    fi
+done
+unset _gcloud_sdk
 
 ### ────────────────────────────────
 ###  User Configuration Files
 ### ────────────────────────────────
-for file in "$HOME"/.config/zsh/*.zsh; do
-    [[ ! -f "$file" ]] && continue
-    [[ "$(basename "$file")" == "zshrc.zsh" ]] && continue
+for file in "$HOME"/.config/zsh/lib/*.zsh(N) "$HOME"/.config/zsh/modules/*.zsh(N); do
     source "$file"
 done
 
-# Private shell config from the notes repo. Sourced after the public config
-# above so it can use helpers like register_tmux_session.
-NOTES_DIR="${DOTFILES_NOTES_DIR:-$HOME/git/notes}"
-for file in "$NOTES_DIR"/*/shell.zsh(N); do
-    source "$file"
-done
+if [[ -o interactive ]]; then
+    for file in "$HOME"/.config/zsh/interactive/*.zsh(N); do
+        source "$file"
+    done
+fi
 
+# Machine-local config, not in VCS. Sourced after the interactive files so it
+# can use helpers like register_tmux_session.
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 
 ### ──────────────
@@ -146,20 +153,3 @@ export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
 mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
-
-### ────────────────────────────────
-
-### ────────────────────────────────
-###  Final Setup & Keybindings
-### ────────────────────────────────
-fpath+=~/.zfunc
-command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
-
-## enable brew on linux if installed
-test -d "/home/linuxbrew/.linuxbrew" && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-bindkey "^?" backward-delete-char
-
-fpath+=~/.zfunc; autoload -Uz compinit; compinit
-
-command -v brew >/dev/null 2>&1 && export PATH="/opt/homebrew/bin:$PATH"  

@@ -4,10 +4,20 @@
 
 [[ -z "$(command -v kubectl)" ]] && return
 
-alias k="kubectl"                                                    # kubectl shorthand
+alias k="kubectl"                                                   # kubectl shorthand
 ka() { kubectl --as admin --as-group system:masters "$@"; }        # kubectl with admin privileges
-source <(kubectl completion zsh)                                   # enable kubectl completion
-compdef _kubectl k                                                 # enable completion for k alias
+
+# kubectl completion is slow to generate — cache until the binary changes
+if [[ -o interactive ]]; then
+    _kubectl_comp="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/kubectl-completion.zsh"
+    if [[ ! -s "$_kubectl_comp" || "${commands[kubectl]}" -nt "$_kubectl_comp" ]]; then
+        mkdir -p "${_kubectl_comp:h}"
+        kubectl completion zsh >| "$_kubectl_comp"
+    fi
+    source "$_kubectl_comp"
+    compdef _kubectl k
+    unset _kubectl_comp
+fi
 
 # ----------------------------
 # Context and Namespace Selectors
@@ -91,27 +101,6 @@ kd() {                                                              # describe p
     [ -n "$pod" ] && kubectl describe pod "$pod"
 }
 
-_pipe_json_if_valid() {
-    # Streams stdin, pretty-printing JSON lines (with bat if available) and passing others through.
-    while IFS= read -r line; do
-        # Strip leading timestamp if present (ISO 8601 + space)
-        content="${line##+([0-9T:.Z-]) }"
-
-        # Fast path: skip lines that don't look like JSON objects
-        [[ "$content" =~ ^\{.*\}$ ]] || { echo "$line"; continue; }
-
-        if parsed=$(echo "$content" | jq . 2>/dev/null); then
-            if command -v bat &>/dev/null; then
-                echo "$parsed" | bat --color=always --language=json --style=plain --paging=never
-            else
-                echo "$parsed"
-            fi
-        else
-            echo "$line"
-        fi
-    done
-}
-
 kl() {                                                              # tail pod logs (with fzf selection)
     kp >/dev/null || return
 
@@ -142,8 +131,8 @@ kl() {                                                              # tail pod l
 kauth() {                                                           # check kubernetes permissions
     local verb="$1"
     local resource="$2"
-    [ -z "$verb" ] && read -p "Verb (e.g. get): " verb
-    [ -z "$resource" ] && read -p "Resource (e.g. pods): " resource
+    [ -z "$verb" ] && read "verb?Verb (e.g. get): "
+    [ -z "$resource" ] && read "resource?Resource (e.g. pods): "
     kubectl auth can-i "$verb" "$resource" --as self
 }
 
@@ -196,7 +185,8 @@ sg() {                                                              # stern logs
     kp >/dev/null || return
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
     [[ -z "$pod" ]] && return
-    read -rp "Search pattern: " pattern
+    local pattern
+    read -r "pattern?Search pattern: "
     stern "$pod" | rg --color=always "$pattern"
 }
 

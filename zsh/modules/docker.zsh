@@ -13,8 +13,9 @@ _docker_compose() {
     local compose_file=""
     local args=()
 
+    # --find picks a compose file via fzf; -f passes through to docker compose
     for arg in "$@"; do
-        [[ "$arg" == "-f" || "$arg" == "--find" ]] && find_mode=1 || args+=("$arg")
+        [[ "$arg" == "--find" ]] && find_mode=1 || args+=("$arg")
     done
 
     if ((find_mode)); then
@@ -143,28 +144,6 @@ de() {
 # ─────────────────────────────────────────────────────────────
 # Docker Logs (interactive or static if not running)
 # ─────────────────────────────────────────────────────────────
-
-_pipe_json_if_valid() {
-    while IFS= read -r line; do
-        # Strip leading timestamp if present (ISO 8601 + space)
-        content="${line##+([0-9T:.Z-]) }"
-
-        # Fast path: skip lines that don't look like JSON objects
-        [[ "$content" =~ ^\{.*\}$ ]] || { echo "$line"; continue; }
-
-        # Try to parse with jq
-        if parsed=$(echo "$content" | jq . 2>/dev/null); then
-            if command -v bat &>/dev/null; then
-                echo "$parsed" | bat --color=always --language=json --style=plain --paging=never
-            else
-                echo "$parsed"
-            fi
-        else
-            # Fallback: print original if jq fails
-            echo "$line"
-        fi
-    done
-}
 
 dl() {
     local query container=""

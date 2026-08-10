@@ -22,9 +22,8 @@ bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 
 ## option left and right: move to left or right word (these work on mac)
-## ctrl backspace: delete word before cursor, ctrl delete: delete word after cursor
-bindkey "^[[3;5~" kill-word # ctrl delete - works in both mac and windows terminal
-bindkey "^?" backward-kill-word # that didn't work, testing alternatives, currently to pass ctrl packspace:
+bindkey "^[[3;5~" kill-word         # ctrl delete
+bindkey "^?" backward-delete-char   # backspace
 
 # Prefix-based history search (type "git" then Up/Down)
 bindkey "^[[A" history-search-backward

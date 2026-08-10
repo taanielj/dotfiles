@@ -63,7 +63,7 @@ __pip() {
     if [[ -n "$USE_UV" ]]; then
         uv pip "$@"
     else
-        "$PYTHON_EXEC" -m pip "$@"
+        "${PYTHON_EXEC:-python}" -m pip "$@"
     fi
 }
 
@@ -149,9 +149,10 @@ venv() {
     fi
 
     echo "Creating a new virtual environment in $venv_path..."
-    $PYTHON_EXEC -m $VENV_MODULE "$venv_path"
+    __venv_create "$venv_path" || return 1
     source "$venv_path/bin/activate"
-    python -m pip install --upgrade pip
+    # uv venvs ship without pip; __pip routes through `uv pip` instead
+    [[ -z "$USE_UV" ]] && python -m pip install --upgrade pip
     echo "Virtual environment created and activated: $VIRTUAL_ENV"
 
     if __require_reqs &>/dev/null; then
@@ -177,7 +178,7 @@ rm_venv() {
     [[ -n "$VIRTUAL_ENV" && "$VIRTUAL_ENV" == "$venv_path" && -x "$venv_path/bin/deactivate" ]] && {
         deactivate
     }
-    
+
     rm -rf "$venv_path"
     unset VIRTUAL_ENV
     echo "Virtual environment removed: $venv_path"
@@ -202,14 +203,16 @@ reset_venv() {
 }
 
 reqs() {
+    __detect_tools
     __require_reqs || return 1
     __require_venv || return 1
-    pip install --upgrade -r requirements.txt
+    __pip install --upgrade -r requirements.txt
     echo "Requirements installed, run 'update_reqs' to update to latest and freeze versions."
 }
 
 update_reqs() {
     # Strips pinned versions, upgrades all packages to latest, then re-pins from pip freeze.
+    __detect_tools
     __require_reqs || return 1
     __require_venv || return 1
     if ! __confirm_action "This will update all packages to latest and freeze versions. Continue?"; then
@@ -226,10 +229,9 @@ update_reqs() {
         return 1
     fi
 
-    python -m pip install --upgrade pip
-    python -m pip install --upgrade -r requirements.txt
+    __pip install --upgrade -r requirements.txt
 
-    frozen_reqs=$(pip freeze)
+    frozen_reqs=$(__pip freeze)
 
     while IFS= read -r line; do
         if [[ -z "$line" || "$line" =~ ^# ]]; then
@@ -260,6 +262,7 @@ pipr() {
         return 1
     }
 
+    __detect_tools
     local reqfile="requirements.txt"
     [[ ! -f "$reqfile" ]] && {
         echo "📝 Creating $reqfile"
@@ -268,13 +271,13 @@ pipr() {
 
     for input_pkg in "$@"; do
         echo "📦 Installing $input_pkg..."
-        if ! python -m pip install --quiet "$input_pkg"; then
+        if ! __pip install --quiet "$input_pkg"; then
             echo "❌ Failed to install $input_pkg"
             continue
         fi
 
         local versioned
-        versioned=$(python -m pip show "$input_pkg" 2>/dev/null | awk '
+        versioned=$(__pip show "$input_pkg" 2>/dev/null | awk '
             BEGIN { name=""; version="" }
             /^Name:/    { name=tolower($2) }
             /^Version:/ { version=$2 }

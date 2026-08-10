@@ -17,6 +17,8 @@ configure_zsh() {
 
     link_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
 
+    link_file "$REPO_ROOT/zsh/zprofile.zsh" "$HOME/.zprofile"
+
     link_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
     set_dotfiles_root
@@ -52,6 +54,8 @@ teardown_zsh() {
     log "Removing Zsh configuration..."
 
     unlink_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
+
+    unlink_file "$REPO_ROOT/zsh/zprofile.zsh" "$HOME/.zprofile"
 
     unlink_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
