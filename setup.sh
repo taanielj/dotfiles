@@ -15,7 +15,6 @@ SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/mise.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/nvim.sh"   # no sudo, platform agnostic
     "$REPO_ROOT/setup/cargo.sh"  # no sudo, platform agnostic
-    "$REPO_ROOT/setup/claude.sh" # no sudo, platform agnostic
 )
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh")
 [[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/lazygit.sh")

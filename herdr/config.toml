@@ -143,6 +143,7 @@ description = "resurrect: restore"
 pane_gaps = false
 toast.delivery = "system"
 
+agent_panel_sort = "priority"
 [theme]
 name = "catppuccin-mocha"
 auto_switch = true

@@ -96,6 +96,9 @@ setopt HIST_SAVE_NO_DUPS
 ###  Environment / UI Settings
 ### ────────────────────────────────
 export COLORTERM=truecolor
+
+# Typo correction on command names. Exempt one with: alias foo='nocorrect foo'
+setopt CORRECT
 command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
 
 if command -v fdfind >/dev/null 2>&1; then
@@ -109,12 +112,10 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
 ### ────────────────────────────────
-###  Optional Tools (zoxide, direnv, mise, fzf)
+###  Optional Tools
 ### ────────────────────────────────
-[[ -f $HOME/.fzf.zsh ]] && source "$HOME/.fzf.zsh"
 [[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="always"
 
-command -v zoxide >/dev/null 2>&1 && [[ -o interactive ]] && eval "$(zoxide init --cmd cd zsh)"
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
 ### ────────────────────────────────
@@ -153,3 +154,13 @@ export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
 mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
+# Added by dbt Fusion extension (ensure dbt binary dir on PATH)
+if [[ ":$PATH:" != *":/Users/taaniel.jakobson/.local/bin:"* ]]; then
+  export PATH=/Users/taaniel.jakobson/.local/bin:"$PATH"
+fi
+# Added by dbt Fusion extension
+alias dbtf=/Users/taaniel.jakobson/.local/bin/dbt
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/taaniel.jakobson/.local/bin:$PATH"

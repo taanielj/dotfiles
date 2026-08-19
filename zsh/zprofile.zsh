@@ -13,3 +13,7 @@ path=("$HOME/.local/nvim/bin" "$HOME/.local/bin" $path)
     path+=("$HOME/Library/Application Support/JetBrains/Toolbox/scripts")
 
 export PATH
+
+
+# Added by Antigravity CLI installer
+export PATH="/Users/taaniel.jakobson/.local/bin:$PATH"
