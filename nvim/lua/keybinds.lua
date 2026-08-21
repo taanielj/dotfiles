@@ -142,8 +142,8 @@ local all_mappings = {
     { "v",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
     { "v",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
     -- Resize splits (Alt+h/j/k/l, repeatable)
-    { "n",               "<M-h>",                       "2<C-w>>",                                       "Resize split left" },
-    { "n",               "<M-l>",                       "2<C-w><",                                       "Resize split right" },
+    { "n",               "<M-h>",                       "2<C-w><",                                       "Resize split left" },
+    { "n",               "<M-l>",                       "2<C-w>>",                                       "Resize split right" },
     { "n",               "<M-j>",                       "2<C-w>+",                                       "Resize split down" },
     { "n",               "<M-k>",                       "2<C-w>-",                                       "Resize split up" },
 }

@@ -31,7 +31,8 @@ teardown_mise() {
 
     for shell in "${!rc_files[@]}"; do
         rc="${rc_files[$shell]}"
-        if [[ -f "$rc" ]]; then
+        # Rewriting a symlinked rc would replace it with a regular file; those are repo-managed anyway.
+        if [[ -f "$rc" && ! -L "$rc" ]]; then
             log "Removing mise activation from $rc"
             grep -v "mise activate $shell" "$rc" >"$rc.tmp" || true
             mv "$rc.tmp" "$rc"

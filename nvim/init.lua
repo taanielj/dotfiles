@@ -40,7 +40,6 @@ function LoadConfig()
     require("vim-options")
     require("keybinds")
     require("autocmd")
-    require("mouse")
     ReloadPlugins()
 end
 

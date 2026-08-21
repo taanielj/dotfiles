@@ -70,6 +70,8 @@ link_file() {
         local backup="$dest.backup.$(date +%s)"
         warn "Backing up existing $dest to $backup"
         mv "$dest" "$backup"
+    elif [[ -L "$dest" ]]; then
+        warn "Replacing symlink $dest -> $(readlink "$dest")"
     fi
 
     rm -rf "$dest"

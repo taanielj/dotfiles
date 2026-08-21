@@ -1,10 +1,10 @@
 -- Seamless nvim <-> herdr navigation (ctrl+hjkl) and resize (alt+hjkl).
--- Only loads inside herdr; outside it, smart-splits (zellij.lua) owns these keys.
+-- Only loads inside herdr; outside it, smart-splits (smart-splits.lua) owns these keys.
 return {
     "lmilojevicc/herdr-splits.nvim",
     cond = vim.env.HERDR_ENV == "1",
     event = "VeryLazy",
-    build = 'lua require("herdr-splits").sync_herdr()',
+    build = ':lua require("herdr-splits").sync_herdr()',
     opts = {
         at_edge = "wrap",
     },

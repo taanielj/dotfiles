@@ -76,28 +76,30 @@ return {
         map("n", "<leader>cl", vim.lsp.codelens.run)
         map("n", "<leader>sh", vim.lsp.buf.signature_help)
         map("n", "<leader>rn", vim.lsp.buf.rename)
-        map("n", "<leader>f", vim.lsp.buf.format)
+        -- format: <leader>m (none-ls.lua) already covers LSP formatting
         map("n", "<leader>ca", vim.lsp.buf.code_action)
 
         map("n", "<leader>ws", function()
           require("metals").hover_worksheet()
         end)
 
+        -- Diagnostics live under the LSP group (<leader>l); <leader>a is Claude Code,
+        -- <leader>d is the dap prefix below.
         -- all workspace diagnostics
-        map("n", "<leader>aa", vim.diagnostic.setqflist)
+        map("n", "<leader>lD", vim.diagnostic.setqflist)
 
         -- all workspace errors
-        map("n", "<leader>ae", function()
+        map("n", "<leader>lE", function()
           vim.diagnostic.setqflist({ severity = "E" })
         end)
 
         -- all workspace warnings
-        map("n", "<leader>aw", function()
+        map("n", "<leader>lW", function()
           vim.diagnostic.setqflist({ severity = "W" })
         end)
 
         -- buffer diagnostics only
-        map("n", "<leader>d", vim.diagnostic.setloclist)
+        map("n", "<leader>ld", vim.diagnostic.setloclist)
 
         map("n", "[c", function()
           vim.diagnostic.jump({ count = -1, float = true })

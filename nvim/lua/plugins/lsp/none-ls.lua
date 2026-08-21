@@ -61,7 +61,7 @@ return {
                 callback = function(args)
                     if args.match ~= "neo-tree" and args.match ~= "neotree" then
                         vim.keymap.set("n", "<leader>m", call_formatter, {
-                            buf = args.buf,
+                            buffer = args.buf,
                             desc = "Format",
                         })
                     end

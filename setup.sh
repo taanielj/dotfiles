@@ -150,7 +150,8 @@ run_setup() {
         divider
         echo ""
         source "$file"
-        eval "main_$(basename "$file" .sh)"
+        # A component that bails (e.g. its tool isn't installed) shouldn't abort the rest under set -e.
+        eval "main_$(basename "$file" .sh)" || warn "[$(basename "$file" .sh)] setup did not complete; continuing."
     done
 }
 
@@ -164,10 +165,11 @@ run_teardown() {
 
         case "$(basename "$file" .sh)" in
         cargo)
-            teardown_cargo $([ "$remove_cargo" == true ] && echo "--remove-cargo")
+            teardown_cargo $([ "$remove_cargo" == true ] && echo "--remove-cargo") ||
+                warn "[cargo] teardown did not complete; continuing."
             ;;
         *)
-            eval "teardown_$(basename "$file" .sh)"
+            eval "teardown_$(basename "$file" .sh)" || warn "[$(basename "$file" .sh)] teardown did not complete; continuing."
             ;;
         esac
     done

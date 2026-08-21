@@ -99,6 +99,11 @@ export COLORTERM=truecolor
 
 # Typo correction on command names. Exempt one with: alias foo='nocorrect foo'
 setopt CORRECT
+
+# User-local bins: zprofile sets these for login shells, but multiplexer panes
+# (herdr, tmux) spawn non-login shells that never read it. -U keeps path deduped.
+typeset -U path
+path=("$HOME/.local/nvim/bin" "$HOME/.local/bin" $path)
 command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
 
 if command -v fdfind >/dev/null 2>&1; then

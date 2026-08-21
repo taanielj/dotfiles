@@ -10,7 +10,7 @@ main_nvim() {
 }
 
 install_nvim() {
-    log "Installing Neovim nightly..."
+    log "Installing Neovim (latest stable release)..."
 
     local github_url="https://github.com/neovim/neovim/releases/latest/download/"
     local archive_name=""
@@ -18,7 +18,8 @@ install_nvim() {
         [[ "$(uname -m)" == "arm64" ]] && archive_name="nvim-macos-arm64.tar.gz"
         [[ "$(uname -m)" == "x86_64" ]] && archive_name="nvim-macos-x86_64.tar.gz"
     elif [[ "$OS" == "Linux" ]]; then
-        archive_name="nvim-linux-x86_64.tar.gz"
+        [[ "$(uname -m)" == "aarch64" ]] && archive_name="nvim-linux-arm64.tar.gz"
+        [[ "$(uname -m)" == "x86_64" ]] && archive_name="nvim-linux-x86_64.tar.gz"
     fi
     [[ -z "$archive_name" ]] && error "Unsupported architecture: $(uname -m)" && return 1
 
@@ -35,8 +36,11 @@ install_nvim() {
     mv "$nvim_path" "$HOME/.local/nvim"
     rm -rf "$tmp_dir"
 
+    # Symlinked rc files are managed by this repo (zsh/ already puts nvim on PATH);
+    # only patch real, machine-local rc files.
     for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        grep -q "/.local/nvim/bin" "$rc" || echo 'export PATH=$HOME/.local/nvim/bin:$PATH' >>"$rc"
+        [[ -L "$rc" ]] && continue
+        grep -q "/.local/nvim/bin" "$rc" 2>/dev/null || echo 'export PATH=$HOME/.local/nvim/bin:$PATH' >>"$rc"
     done
     export PATH="$HOME/.local/nvim/bin:$PATH"
     local nvim_version
@@ -68,8 +72,9 @@ teardown_nvim() {
         rm -rf "$HOME/.local/nvim"
     fi
 
+    # sed -i would replace a symlinked rc with a regular file; those are repo-managed anyway.
     for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        if [[ -f "$rc" ]]; then
+        if [[ -f "$rc" && ! -L "$rc" ]]; then
             log "Removing Neovim path from $rc"
             sed -i.bak '/\.local\/nvim\/bin/d' "$rc"
             rm -f "$rc.bak"

@@ -35,7 +35,7 @@ return {
                 },
             },
             defaults = {
-                vimmgrep_arguments = {
+                vimgrep_arguments = {
                     "rg",
                     "--color=never",
                     "--no-heading",

@@ -1,4 +1,5 @@
-# Login shells: PATH construction lives here, not zshrc.
+# Login shells: brew and platform PATH construction lives here. zshrc repeats
+# only the user-local bins so non-login multiplexer panes get them too.
 typeset -U path
 
 if [[ -x /opt/homebrew/bin/brew ]]; then

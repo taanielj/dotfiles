@@ -161,7 +161,8 @@ agyr() {
     local options=""
     for file in ${(f)files}; do
         local uuid=$(echo "$file" | awk -F'/' '{print $7}')
-        local date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$file")
+        zmodload -F zsh/stat b:zstat
+        local date=$(zstat -F "%Y-%m-%d %H:%M:%S" +mtime "$file")
         options+="$date | $uuid\n"
     done
 

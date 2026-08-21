@@ -1,12 +1,12 @@
 return {
     "nvim-lualine/lualine.nvim",
     dependencies = {
-        "kyazdani42/nvim-web-devicons", -- Ensure correct dependency for icons
+        "nvim-tree/nvim-web-devicons",
     },
     config = function()
         require("lualine").setup({
             options = {
-                theme = "catppuccin-mocha",
+                theme = "catppuccin", -- follows the active catppuccin flavour (catppuccin.lua)
                 globalstatus = true,
             },
             sections = {
@@ -31,7 +31,7 @@ return {
                         "filename",
                         file_status = true, -- Display file status
                         path = 1, -- 0 = just filename, 1 = relative path, 2 = absolute path
-                        shortin_target = 40,
+                        shorting_target = 40,
                         symbols = { modified = "", readonly = "", unnamed = "[No Name]", newfile = "[New]" }, -- Icons
                     },
                 },

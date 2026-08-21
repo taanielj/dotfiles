@@ -13,10 +13,10 @@ Constantly updated, no guarantees, implied or otherwise, that it will work on yo
 bash setup.sh
 
 # Tear down (undo) everything
-bash tear-down.sh
+bash setup.sh --teardown
 
 # Tear down including complete cargo removal
-bash tear-down.sh --remove-cargo
+bash setup.sh --teardown --remove-cargo
 ```
 
 ## What's Included
@@ -25,7 +25,7 @@ Run `bash setup.sh` to setup:
 
 - [system packages](setup/system.sh): installs various packages using apt (Ubuntu/Debian), pkg (termux), or brew (macOS)
   - the basics, such as git, curl, wget, various build tools, if they're not already installed
-- [zsh](setup/zsh.sh): uses zinit, p10k, various plugins, see [zsh/zshrc](zsh/zshrc)
+- [zsh](setup/zsh.sh): uses zinit, p10k, various plugins, see [zsh/zshrc.zsh](zsh/zshrc.zsh)
 - [neovim](setup/nvim.sh) uses lazy.nvim, various plugins see [plugins dir](nvim/lua/plugins)
 - [tmux](setup/tmux.sh): uses tpm, various plugins, see [tmux.conf](tmux.conf)
 - Also have [setup scripts](setup) for setting up:
@@ -44,7 +44,7 @@ That list is up to date as of Sep 02, 2025. If you see later commit dates, that 
 
 ## Teardown
 
-You can use `tear-down.sh` to undo all the configuration:
+You can use `bash setup.sh --teardown` to undo all the configuration:
 
 - Restores original configs if they were backed up
 - Removes all symlinks created by the setup scripts

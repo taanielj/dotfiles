@@ -13,8 +13,10 @@ return {
                 },
                 settings = {
                     sonarlint = (function()
+                        -- Connected mode needs both; set them in ~/.zshrc.local per machine.
                         local token = os.getenv("SONAR_TOKEN")
-                        if not token then return {} end
+                        local server_url = os.getenv("SONAR_HOST_URL")
+                        if not token or not server_url then return {} end
                         local props = vim.fn.getcwd() .. "/sonar-project.properties"
                         local project_key = nil
                         local f = io.open(props, "r")
@@ -31,14 +33,14 @@ return {
                                 connections = {
                                     sonarqube = {
                                         {
-                                            connectionId = "zendesk",
-                                            serverUrl = "https://sonarqube.staging-zende.sk",
+                                            connectionId = "default",
+                                            serverUrl = server_url,
                                             token = token,
                                         },
                                     },
                                 },
                                 project = {
-                                    connectionId = "zendesk",
+                                    connectionId = "default",
                                     projectKey = project_key,
                                 },
                             },

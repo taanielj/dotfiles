@@ -1,7 +1,6 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     lazy = false,
-    event = "BufRead",
     branch = "main",
     build = ":TSUpdate",
     ---@class TSConfig
@@ -10,7 +9,6 @@ return {
         ensure_installed = {
             "astro",
             "bash",
-            "sh",
             "zsh",
             "c",
             "css",

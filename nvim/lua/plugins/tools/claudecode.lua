@@ -1,7 +1,15 @@
+-- Inside herdr, herdr-agents.nvim calls claudecode.setup() itself with its pane
+-- provider; a second setup() here would start the server twice.
+local inside_herdr = vim.env.HERDR_SOCKET_PATH ~= nil and vim.env.HERDR_SOCKET_PATH ~= ""
+
 return {
     "coder/claudecode.nvim",
     dependencies = { "folke/snacks.nvim" },
-    config = true,
+    config = function(_, opts)
+        if not inside_herdr then
+            require("claudecode").setup(opts)
+        end
+    end,
     cmd = {
         "ClaudeCode",
         "ClaudeCodeFocus",
