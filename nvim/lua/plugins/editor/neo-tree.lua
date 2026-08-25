@@ -69,6 +69,7 @@ return {
                     hide_gitignored = false,
                     always_show = {
                         ".github",
+                        ".scratch",
                     },
                     always_show_by_pattern = {
                         ".env*",
