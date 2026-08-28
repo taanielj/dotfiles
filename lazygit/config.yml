@@ -1,0 +1,17 @@
+services:
+  'git.sco.ro': 'gitlab:git.sco.ro'
+
+customCommands:
+  - key: 'o'
+    context: 'localBranches'
+    description: 'Open pull/merge request in browser (existing one, else new; repo on main)'
+    command: >-
+      B={{.SelectedLocalBranch.Name | quote}};
+      U=$(git remote get-url origin | sed -E 's#^git@([^:]+):#https://\1/#; s#\.git$##');
+      case "$B" in main|master) open "$U"; exit ;; esac;
+      case "$U" in
+      *git.sco.ro*) glab mr view --web "$B" 2>/dev/null || open "$U/-/merge_requests/new?merge_request[source_branch]=$B" ;;
+      *github*) if command -v gh >/dev/null 2>&1; then gh pr view --web "$B" 2>/dev/null || gh pr create --web --head "$B"; else open "$U/compare/$B?expand=1"; fi ;;
+      *) open "$U/compare/$B?expand=1" ;;
+      esac
+    output: log

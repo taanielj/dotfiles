@@ -106,6 +106,9 @@ typeset -U path
 path=("$HOME/.local/nvim/bin" "$HOME/.local/bin" $path)
 command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
 
+# Lazygit reads ~/Library/Application Support on macOS unless pointed elsewhere
+[[ -f "$HOME/.config/lazygit/config.yml" ]] && export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
+
 if command -v fdfind >/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'
 elif command -v fd >/dev/null 2>&1; then
