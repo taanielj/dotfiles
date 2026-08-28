@@ -6,7 +6,7 @@ return {
     config = function()
         require("lualine").setup({
             options = {
-                theme = "catppuccin", -- follows the active catppuccin flavour (catppuccin.lua)
+                theme = "catppuccin-nvim", -- follows the active catppuccin flavour (catppuccin.lua)
                 globalstatus = true,
             },
             sections = {

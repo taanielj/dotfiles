@@ -39,3 +39,6 @@ metals.sbt
 
 # scratch dir
 .scratch/
+
+# direnv
+.envrc
