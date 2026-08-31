@@ -18,6 +18,9 @@ configure_herdr() {
     link_file "$REPO_ROOT/herdr/bin/herdr-join.sh" "$HOME/.config/herdr/bin/herdr-join.sh"
     link_file "$REPO_ROOT/herdr/bin/herdr-scrollback.sh" "$HOME/.config/herdr/bin/herdr-scrollback.sh"
     link_file "$REPO_ROOT/herdr/bin/herdr-session.sh" "$HOME/.config/herdr/bin/herdr-session.sh"
+    link_file "$REPO_ROOT/herdr/bin/herdr-sysmon.sh" "$HOME/.config/herdr/bin/herdr-sysmon.sh"
+    link_file "$REPO_ROOT/herdr/bin/herdr-netspeed.sh" "$HOME/.config/herdr/bin/herdr-netspeed.sh"
+    link_file "$REPO_ROOT/herdr/bin/herdr-weather.sh" "$HOME/.config/herdr/bin/herdr-weather.sh"
 
     # Herd-side plugins the config binds to (seamless nvim<->herdr nav/resize).
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-splits"; then
@@ -46,6 +49,9 @@ teardown_herdr() {
     unlink_file "$REPO_ROOT/herdr/bin/herdr-join.sh" "$HOME/.config/herdr/bin/herdr-join.sh"
     unlink_file "$REPO_ROOT/herdr/bin/herdr-scrollback.sh" "$HOME/.config/herdr/bin/herdr-scrollback.sh"
     unlink_file "$REPO_ROOT/herdr/bin/herdr-session.sh" "$HOME/.config/herdr/bin/herdr-session.sh"
+    unlink_file "$REPO_ROOT/herdr/bin/herdr-sysmon.sh" "$HOME/.config/herdr/bin/herdr-sysmon.sh"
+    unlink_file "$REPO_ROOT/herdr/bin/herdr-netspeed.sh" "$HOME/.config/herdr/bin/herdr-netspeed.sh"
+    unlink_file "$REPO_ROOT/herdr/bin/herdr-weather.sh" "$HOME/.config/herdr/bin/herdr-weather.sh"
     success "herdr configuration removed."
 }
 
