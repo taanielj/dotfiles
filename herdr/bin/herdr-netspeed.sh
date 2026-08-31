@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
-# Up/down speed for the herdr tab bar. netstat counters are cumulative, so
-# each run diffs against the previous sample stored in a cache file; the
-# first run (or a counter reset / interface switch) shows 0.
+# Up/down speed on the default-route interface, for the herdr tab bar.
+# macOS and Linux.
 set -euo pipefail
 
-iface=$(route -n get default 2>/dev/null | awk '/interface:/ {print $2}')
-[[ -n "${iface:-}" ]] || { printf "󰖪 offline"; exit 0; }
-
-read -r rx tx < <(netstat -ibn -I "$iface" | awk 'NR==2 {print $7, $10}')
+if [[ -d /sys/class/net ]]; then
+    iface=$({ ip route show default 2>/dev/null || true; } |
+        awk '{for (i = 1; i < NF; i++) if ($i == "dev") { print $(i + 1); exit }}')
+    [[ -n "${iface:-}" ]] || { printf "󰖪 offline"; exit 0; }
+    rx=$(<"/sys/class/net/$iface/statistics/rx_bytes")
+    tx=$(<"/sys/class/net/$iface/statistics/tx_bytes")
+else
+    iface=$(route -n get default 2>/dev/null | awk '/interface:/ {print $2}')
+    [[ -n "${iface:-}" ]] || { printf "󰖪 offline"; exit 0; }
+    read -r rx tx < <(netstat -ibn -I "$iface" | awk 'NR==2 {print $7, $10}')
+fi
 now=$(date +%s)
 
 state="${XDG_CACHE_HOME:-$HOME/.cache}/herdr-netspeed"
@@ -18,6 +24,7 @@ printf '%s %s %s\n' "$now" "$rx" "$tx" > "$state"
 
 elapsed=$(( now - prev_now ))
 rx_rate=0 tx_rate=0
+# a stale sample or a counter reset (reboot, interface switch) would fake a spike
 if (( elapsed > 0 && elapsed <= 60 && rx >= prev_rx && tx >= prev_tx )); then
     rx_rate=$(( (rx - prev_rx) / elapsed ))
     tx_rate=$(( (tx - prev_tx) / elapsed ))
@@ -32,5 +39,5 @@ human() {
     }'
 }
 
-# %5s fits the widest human() output (e.g. "1023M") so columns stay put
+# %5s fits the widest human() output ("1023M")
 printf " %5s/s  %5s/s" "$(human "$rx_rate")" "$(human "$tx_rate")"
