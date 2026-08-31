@@ -17,7 +17,11 @@ if [[ -s $cache ]]; then
     fi
 fi
 
-if out=$(curl -sf -m 5 'https://wttr.in/?format=%c%t' 2>/dev/null) && [[ -n $out ]]; then
-    printf '%s' "$out" > "$cache"
+# printf pads by bytes, so only the ASCII part gets padded: emoji and °C are
+# multibyte and would jitter. Temp is split out, stripped to sign+digits,
+# padded to 4 columns ("+5" .. "-12" .. "+30"), and cached padded.
+if out=$(curl -sf -m 5 'https://wttr.in/?format=%c|%t' 2>/dev/null) && [[ $out == *"|"* ]]; then
+    temp=${out##*|}
+    printf '%s%4s°C' "${out%%|*}" "${temp%°C}" > "$cache"
 fi
 [[ -f $cache ]] && cat "$cache"

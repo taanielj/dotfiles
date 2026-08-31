@@ -18,4 +18,5 @@ used_gb=$(vm_stat | awk '
         printf "%.0f", (a + w + c) * ps / 1073741824
     }')
 
-printf " %s%%   %s/%sG" "$cpu" "$used_gb" "$total_gb"
+# Right-aligned fixed widths so the segment doesn't shift as values change
+printf " %3s%%   %2s/%sG" "$cpu" "$used_gb" "$total_gb"

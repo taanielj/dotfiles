@@ -28,8 +28,9 @@ human() {
         split("B K M G", u, " ")
         i = 1
         while (b >= 1024 && i < 4) { b /= 1024; i++ }
-        printf (i >= 3 ? "%.1f%s" : "%.0f%s"), b, u[i]
+        printf ((i >= 3 && b < 10) ? "%.1f%s" : "%.0f%s"), b, u[i]
     }'
 }
 
-printf " %s/s  %s/s" "$(human "$rx_rate")" "$(human "$tx_rate")"
+# %5s fits the widest human() output (e.g. "1023M") so columns stay put
+printf " %5s/s  %5s/s" "$(human "$rx_rate")" "$(human "$tx_rate")"
