@@ -149,7 +149,7 @@ tab_bar_right = [
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-netspeed.sh", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-sysmon.sh", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-weather.sh", interval_seconds = 900, timeout_seconds = 10 },
-    { type = "datetime", format = "%H:%M" },
+    { type = "datetime", format = "%H:%M " },
 ]
 tab_bar_right_separator = " · "
 

@@ -175,3 +175,5 @@ alias dbtf=/Users/taaniel.jakobson/.local/bin/dbt
 
 # Added by Antigravity CLI installer
 export PATH="/Users/taaniel.jakobson/.local/bin:$PATH"
+
+fpath+=~/.zfunc; autoload -Uz compinit; compinit
