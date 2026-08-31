@@ -92,6 +92,16 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 setopt HIST_SAVE_NO_DUPS
 
+### ──────────────
+### Mise Config
+### ──────────────
+# Activated before the command -v guards below (zoxide, fd, direnv, nvim) so
+# they see mise-managed bins like ~/.cargo/bin; activation applies PATH eagerly.
+export MISE_POETRY_AUTO_INSTALL=1
+export MISE_POETRY_VENV_AUTO=1
+
+mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
+
 ### ────────────────────────────────
 ###  Environment / UI Settings
 ### ────────────────────────────────
@@ -155,13 +165,6 @@ fi
 # can use helpers like register_tmux_session.
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 
-### ──────────────
-### Mise Config
-### ──────────────
-export MISE_POETRY_AUTO_INSTALL=1
-export MISE_POETRY_VENV_AUTO=1
-
-mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
 # Added by dbt Fusion extension (ensure dbt binary dir on PATH)
 if [[ ":$PATH:" != *":/Users/taaniel.jakobson/.local/bin:"* ]]; then
   export PATH=/Users/taaniel.jakobson/.local/bin:"$PATH"
