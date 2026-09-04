@@ -2,6 +2,15 @@
 
 if command -v nvim &>/dev/null; then
     alias vim=nvim
+
+    # Drop this directory's auto-session and start nvim clean. The filename
+    # mirrors auto-session's encoding of the cwd (/ and . percent-encoded).
+    nvf() {
+        local enc=${PWD//\//%2F}
+        enc=${enc//./%2E}
+        rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/sessions/${enc}.vim"
+        nvim "$@"
+    }
 fi
 if command -v bat &>/dev/null; then
     alias cat="bat -p --paging=never"

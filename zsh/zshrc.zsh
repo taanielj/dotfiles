@@ -164,16 +164,3 @@ fi
 # Machine-local config, not in VCS. Sourced after the interactive files so it
 # can use helpers like register_tmux_session.
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
-
-# Added by dbt Fusion extension (ensure dbt binary dir on PATH)
-if [[ ":$PATH:" != *":/Users/taaniel.jakobson/.local/bin:"* ]]; then
-  export PATH=/Users/taaniel.jakobson/.local/bin:"$PATH"
-fi
-# Added by dbt Fusion extension
-alias dbtf=/Users/taaniel.jakobson/.local/bin/dbt
-
-
-# Added by Antigravity CLI installer
-export PATH="/Users/taaniel.jakobson/.local/bin:$PATH"
-
-fpath+=~/.zfunc; autoload -Uz compinit; compinit

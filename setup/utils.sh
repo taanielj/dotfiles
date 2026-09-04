@@ -97,6 +97,62 @@ unlink_file() {
     fi
 }
 
+_STUB_COMMENT="# Managed by dotfiles setup; installer appends below stay machine-local."
+
+# Usage: stub_file <source-in-repo> <dest-path>
+# Writes a real file sourcing src instead of a symlink, so installers that
+# append to dest (dbt, cloud CLIs, ...) dirty the stub, not the repo.
+stub_file() {
+    local src="$1" dest="$2"
+    local line="source \"$src\""
+
+    if [[ -f "$dest" && ! -L "$dest" ]] && grep -Fxq "$line" "$dest"; then
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$dest")"
+
+    if [[ -L "$dest" ]]; then
+        warn "Replacing symlink $dest -> $(readlink "$dest") with stub"
+        rm -f "$dest"
+    elif [[ -e "$dest" ]]; then
+        local backup="$dest.backup.$(date +%s)"
+        warn "Backing up existing $dest to $backup"
+        mv "$dest" "$backup"
+    fi
+
+    printf '%s\n%s\n' "$_STUB_COMMENT" "$line" >"$dest"
+}
+
+# Usage: unstub_file <source-in-repo> <dest-path>
+# Removes the stub's lines; machine-local appends survive in place, and an
+# otherwise-empty stub is deleted with the newest backup restored.
+unstub_file() {
+    local src="$1" dest="$2"
+    local line="source \"$src\""
+
+    [[ -f "$dest" && ! -L "$dest" ]] || return 0
+    grep -Fxq "$line" "$dest" || return 0
+
+    local tmp
+    tmp=$(mktemp)
+    grep -Fxv "$line" "$dest" | grep -Fxv "$_STUB_COMMENT" >"$tmp" || true
+
+    if grep -q '[^[:space:]]' "$tmp"; then
+        warn "$dest has machine-local additions; removing only the dotfiles lines"
+        mv "$tmp" "$dest"
+        return 0
+    fi
+
+    rm -f "$tmp" "$dest"
+    local latest_backup
+    latest_backup=$(ls -td "$dest.backup."* 2>/dev/null | head -n1)
+    if [[ -e "$latest_backup" ]]; then
+        log "Restoring $dest from $latest_backup"
+        mv "$latest_backup" "$dest"
+    fi
+}
+
 run_quiet() {
     local silent=0
     local description=""

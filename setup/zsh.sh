@@ -15,9 +15,11 @@ configure_zsh() {
         return 1
     fi
 
-    link_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
+    # Real stubs, not symlinks: installers that append to these files land in
+    # the stub instead of the repo.
+    stub_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
 
-    link_file "$REPO_ROOT/zsh/zprofile.zsh" "$HOME/.zprofile"
+    stub_file "$REPO_ROOT/zsh/zprofile.zsh" "$HOME/.zprofile"
 
     link_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
@@ -28,7 +30,7 @@ configure_zsh() {
 
 set_dotfiles_root() {
     local zshrc_local="$HOME/.zshrc.local"
-    local dotfiles_line="DOTFILES_ROOT=\"$REPO_ROOT\""
+    local dotfiles_line="export DOTFILES_ROOT=\"$REPO_ROOT\""
 
     touch "$zshrc_local"
 
@@ -36,13 +38,14 @@ set_dotfiles_root() {
         return 0 # Already correct, no logging
     fi
 
-    if grep -q "^DOTFILES_ROOT=" "$zshrc_local" 2>/dev/null; then
+    # loose match so a stale path or the old bare form gets upgraded in place
+    if grep -Eq "^(export )?DOTFILES_ROOT=" "$zshrc_local" 2>/dev/null; then
         log "Updating DOTFILES_ROOT in .zshrc.local"
         # macOS sed -i requires '' arg, GNU sed doesn't
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|^DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
+            sed -E -i '' "s|^(export )?DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
         else
-            sed -i "s|^DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
+            sed -E -i "s|^(export )?DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
         fi
     else
         log "Adding DOTFILES_ROOT to .zshrc.local"
@@ -53,8 +56,11 @@ set_dotfiles_root() {
 teardown_zsh() {
     log "Removing Zsh configuration..."
 
+    # Pre-stub installs used symlinks; try both removal paths.
+    unstub_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
     unlink_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
 
+    unstub_file "$REPO_ROOT/zsh/zprofile.zsh" "$HOME/.zprofile"
     unlink_file "$REPO_ROOT/zsh/zprofile.zsh" "$HOME/.zprofile"
 
     unlink_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
