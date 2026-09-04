@@ -178,19 +178,6 @@ return {
                         vim.fn.setreg("+", url)
                         vim.notify("Copied URL to clipboard: " .. url, vim.log.levels.INFO)
                     end, { desc = "Copy line URL to clipboard" })
-                    map({ "n", "v" }, "<leader>yl", function()
-                        local line_start, line_end = get_line_range()
-                        local file_path = vim.fn.expand("%:p")
-                        local result = file_path
-                        if not (line_start == 1 and line_end == 1) then
-                            result = result .. ":" .. line_start
-                            if line_end ~= line_start then
-                                result = result .. "-" .. line_end
-                            end
-                        end
-                        vim.fn.setreg("+", result)
-                        vim.notify("Copied to clipboard: " .. result, vim.log.levels.INFO)
-                    end, { desc = "Copy local path to clipboard" })
                 end,
             })
         end,

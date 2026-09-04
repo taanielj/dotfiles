@@ -267,6 +267,28 @@ vim.keymap.set("n", "<leader>yb", function()
     end
 end, { noremap = true, silent = true, desc = "Yank buffer absolute path" })
 
+-- Yank buffer absolute path with line number(s); visual mode yanks the range
+vim.keymap.set({ "n", "v" }, "<leader>yl", function()
+    local line_start, line_end
+    local mode = vim.fn.mode()
+    if mode == "v" or mode == "V" or mode == "\22" then
+        line_start = vim.fn.line("v")
+        line_end = vim.fn.line(".")
+        if line_start > line_end then
+            line_start, line_end = line_end, line_start
+        end
+    else
+        line_start = vim.fn.line(".")
+        line_end = line_start
+    end
+    local result = vim.fn.expand("%:p") .. ":" .. line_start
+    if line_end ~= line_start then
+        result = result .. "-" .. line_end
+    end
+    vim.fn.setreg("+", result)
+    vim.notify(result, vim.log.levels.INFO, { title = "Yanked path:line" })
+end, { noremap = true, silent = true, desc = "Yank buffer path with line" })
+
 -- Ctrl+Shift+Arrow = word-by-word selection (wordmotion-aware)
 vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word forward" })
 vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })
