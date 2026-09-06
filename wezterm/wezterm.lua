@@ -2,7 +2,7 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
 
--- Catppuccin Macchiato bg/fg only, full color_scheme pastels out ANSI colors for daltonism
+-- Catppuccin Macchiato bg/fg only: the full color_scheme swaps ANSI colors for pastels that are hard to tell apart with color blindness
 config.colors = {
 	foreground = "#cad3f5",
 	background = "#24273a",

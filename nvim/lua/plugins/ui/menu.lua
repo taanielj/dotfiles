@@ -40,7 +40,7 @@ return {
             menu.open(options, { mouse = true })
         end, {})
 
-        -- 🔧 BufferLine-specific menu entry point
+        -- BufferLine-specific menu entry point
         function M.open_buffer_menu(bufnr)
             vim.g.menu_context = {
                 bufnr = bufnr,

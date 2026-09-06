@@ -76,7 +76,7 @@ return {
                         gitsigns.diffthis("@")
                     end, { desc = "Diff last commit" })
 
-                    -- New: Diff against default branch (main/master)
+                    -- Diff against default branch (main/master)
                     map("n", "<leader>gm", function()
                         local base = get_default_branch()
                         ---@diagnostic disable-next-line: param-type-mismatch

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Build (or focus) a herdr workspace with one tab per repo — starting the herdr
+# Build (or focus) a herdr workspace with one tab per repo - starting the herdr
 # server and attaching if needed (herdr's server doesn't auto-start on API
 # calls the way tmux does on session-create). Generic: label + repos come from
 # the environment, so no work-specific paths live in this public repo.
 #
 #   HERDR_SESSION_LABEL   workspace label, e.g. "work" (arg $1 overrides)
-#   HERDR_SESSION_REPOS   "tab:path;tab:path;..." — path under ${GIT_PATH:-$HOME/git}
+#   HERDR_SESSION_REPOS   "tab:path;tab:path;..." - path under ${GIT_PATH:-$HOME/git}
 #                         unless absolute; repos whose dir is missing are skipped
 set -euo pipefail
 

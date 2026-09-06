@@ -1,7 +1,6 @@
--- Set leader key first
+-- Leader must be set before plugins load
 vim.g.mapleader = " "
 
--- Define the mapping function
 local map = function(mappings)
     if mappings[1] == nil or type(mappings[1]) ~= "table" then
         mappings = { mappings }
@@ -148,7 +147,6 @@ local all_mappings = {
     { "n",               "<M-k>",                       "2<C-w>-",                                       "Resize split up" },
 }
 
--- Apply all the mappings
 map(all_mappings)
 
 -- =================

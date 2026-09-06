@@ -33,7 +33,7 @@ envload() {
     echo "Loaded $(grep -cvE '^[[:space:]]*(#|$)' .env) var(s) from .env"
 }
 
-# exa is nolonger maintained, using eza instead, a maintained fork
+# eza: maintained fork of the abandoned exa
 if command -v eza &>/dev/null; then
     alias l="eza"
 
@@ -57,7 +57,6 @@ alias cld="cd && clear && printf '\e[3J' && exec zsh"
 reset_repo() {
     echo -e "\033[1;33mWARNING: This will DELETE and RECLONE the repo!\033[0m"
 
-    # Get root of the repo (ensures we operate from the correct directory)
     REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
     if [[ -z "$REPO_ROOT" ]]; then
         echo -e "\033[1;31mError: Not in a git repository. Please navigate to a git repo and try again.\033[0m"
@@ -75,14 +74,14 @@ reset_repo() {
     echo -e "Git Remote: \033[1;34m$GIT_REMOTE\033[0m"
     echo -e "New Clone Path: \033[1;34m$REPO_ROOT/\033[0m"
 
-    # 🚨 Prevent execution if there are uncommitted changes
+    # Refuse to run with uncommitted changes
     if [[ -n "$(git status --porcelain)" ]]; then
         echo -e "\033[1;31mError: You have uncommitted changes. Commit or discard them before proceeding.\033[0m"
         git status --short
         return 1
     fi
 
-    # 🚨 Prevent execution if there are stashed changes
+    # Refuse to run with stashed changes
     if [[ -n "$(git stash list)" ]]; then
         echo -e "\033[1;31mError: You have stashed changes. Apply or drop them before proceeding.\033[0m"
         git stash list
@@ -99,7 +98,6 @@ reset_repo() {
 
     echo -e "\033[1;33mDeleting and recloning into: $REPO_ROOT\033[0m"
 
-    # Delete old repo and reclone
     cd $REPO_ROOT && cd .. || return 1
     rm -rf "$REPO_ROOT" || return 1
     git clone "$GIT_REMOTE" "$REPO_ROOT" || return 1
@@ -110,7 +108,7 @@ reset_repo() {
 
 # Neovim
 nvim() {
-    # set term to xterm-kitty just for nvim, for better blinking cursor support
+    # xterm-kitty terminfo gives nvim a blinking cursor
     [[ "$TERM_PROGRAM" == "kitty" ]] && export TERM="xterm-kitty"
     if [[ $# -ne 0 ]]; then
         command nvim "$@"

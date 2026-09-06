@@ -32,7 +32,6 @@ configure_tmux() {
     fi
 
     run_quiet "Installing tmux plugins" "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
-    # Source new configuration
     tmux source-file ~/.tmux.conf
     # Cleanup: if we started the server, the only session is ours, so kill it.
     if [[ "$started_server" -eq 1 ]]; then

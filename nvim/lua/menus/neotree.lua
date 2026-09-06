@@ -1,7 +1,6 @@
 local manager = require "neo-tree.sources.manager"
 local cc = require "neo-tree.sources.common.commands"
 
--- Get neo-tree state.
 local function get_state()
   local state = manager.get_state_for_window()
   assert(state)
@@ -9,7 +8,6 @@ local function get_state()
   return state
 end
 
--- Call arbitrary neo-tree action.
 local function call(what)
   return vim.schedule_wrap(function()
     local state = get_state()
@@ -18,7 +16,7 @@ local function call(what)
   end)
 end
 
--- Copy path to clipboard. How is fnamemodify argument.
+-- Copy path to clipboard; `how` is the fnamemodify() modifier.
 local function copy_path(how)
   return function()
     local node = get_state().tree:get_node()

@@ -16,7 +16,7 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Pure fpath plugin — must load before compinit; atpull clears the stale dump
+# Pure fpath plugin - must load before compinit; atpull clears the stale dump
 zinit ice blockf atpull'zinit creinstall -q .; rm -f $ZSH_COMPDUMP{,.zwc}'
 zinit light zsh-users/zsh-completions
 
@@ -37,7 +37,7 @@ ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
 fpath+=~/.zfunc
 
-# Smart compinit - rebuild cache when needed, skip security check when cached
+# Rebuild the completion cache when stale; skip the security check when cached
 autoload -Uz compinit
 if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP.zwc -ot $ZSH_COMPDUMP ]]; then
     compinit -d "$ZSH_COMPDUMP"
@@ -55,16 +55,16 @@ select-word-style bash
 ### ────────────────────────────────
 setopt promptsubst
 
-# Powerlevel10k — eager load for stable prompt
+# Powerlevel10k - eager load so the prompt renders before lazy plugins
 zinit ice depth=1 lucid
 zinit light romkatv/powerlevel10k
 source "$HOME/.config/zsh/p10k.zsh"
 
-# Core plugins — autosuggestions loads immediately for better UX
+# Autosuggestions loads eagerly so suggestions appear from the first prompt
 zinit ice lucid
 zinit light zsh-users/zsh-autosuggestions
 
-# Other core plugins — lazy load
+# Other core plugins - lazy load
 zinit wait lucid for \
     Aloxaf/fzf-tab \
     zsh-users/zsh-syntax-highlighting
@@ -106,6 +106,10 @@ mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" 
 ###  Environment / UI Settings
 ### ────────────────────────────────
 export COLORTERM=truecolor
+
+# Bar cursor at each prompt; kitty's shell integration sends the same itself
+_prompt_cursor_bar() { printf '\e[5 q' }
+precmd_functions+=(_prompt_cursor_bar)
 
 # Typo correction on command names. Exempt one with: alias foo='nocorrect foo'
 setopt CORRECT

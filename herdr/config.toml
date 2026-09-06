@@ -21,11 +21,11 @@ reload_config = "prefix+ctrl+r"
 previous_tab = ["prefix+p", "alt+left"]
 next_tab = ["prefix+n", "alt+right"]
 
-# alt+arrows — left/right cycle tabs (above); up/down cycle workspaces
+# alt+arrows - left/right cycle tabs (above); up/down cycle workspaces
 next_workspace     = "alt+down"
 previous_workspace = "alt+up"
 
-# --- tmux muscle-memory aliases (secondary keys; prune once herdr's stick) ---
+# --- tmux muscle-memory aliases (secondary keys; prune once the herdr defaults stick) ---
 # settings moves off prefix+s so the tmux session-picker key is free for it.
 rename_workspace = ["prefix+shift+w", "prefix+shift+4"] # tmux: prefix $
 rename_tab       = ["prefix+shift+t", "prefix+comma"]   # tmux: prefix ,
@@ -36,7 +36,7 @@ split_horizontal = ["prefix+minus", "prefix+'"]         # tmux: prefix ' (top/bo
 split_vertical   = ["prefix+v", 'prefix+"']             # tmux: prefix " (side-by-side)
 settings         = "prefix+shift+s"
 
-# Seamless nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
+# nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
 # herdr-splits plugin; the nvim half is nvim/lua/plugins/tools/herdr-splits.lua.
 [[keys.command]]
 key = "ctrl+h"

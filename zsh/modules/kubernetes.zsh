@@ -7,7 +7,7 @@
 alias k="kubectl"                                                   # kubectl shorthand
 ka() { kubectl --as admin --as-group system:masters "$@"; }        # kubectl with admin privileges
 
-# kubectl completion is slow to generate — cache until the binary changes
+# kubectl completion is slow to generate - cache until the binary changes
 if [[ -o interactive ]]; then
     _kubectl_comp="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/kubectl-completion.zsh"
     if [[ ! -s "$_kubectl_comp" || "${commands[kubectl]}" -nt "$_kubectl_comp" ]]; then

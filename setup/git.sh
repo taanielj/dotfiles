@@ -10,10 +10,9 @@ main_git() {
 configure_git() {
     log "Configuring git..."
 
-    # Link the global gitignore (link_file handles backups automatically!)
+    # Link the global gitignore
     link_file "$REPO_ROOT/gitignore_global" "$HOME/.gitignore_global"
 
-    # Tell git to use the symlinked ignore file globally
     run_quiet "Configuring global core.excludesfile" git config --global core.excludesfile "$HOME/.gitignore_global"
 
     success "Git configuration completed."
@@ -22,10 +21,9 @@ configure_git() {
 teardown_git() {
     log "Removing git configuration..."
 
-    # Unlink the file (unlink_file restores the backup automatically!)
+    # Unlink the global gitignore
     unlink_file "$REPO_ROOT/gitignore_global" "$HOME/.gitignore_global"
 
-    # Unset the git config
     run_quiet "Removing global core.excludesfile config" git config --global --unset core.excludesfile || true
 
     success "Git configuration removed."

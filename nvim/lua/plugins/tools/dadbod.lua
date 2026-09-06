@@ -12,7 +12,6 @@ return {
         { "<leader>D", "<cmd>DBUIToggle<cr>", desc = "Dadbod: toggle UI" },
     },
     init = function()
-        -- UI niceties
         vim.g.db_ui_use_nerd_fonts = 1
         vim.g.db_ui_show_database_icon = 1
         vim.g.db_ui_win_position = "left"
@@ -21,7 +20,7 @@ return {
         vim.g.db_ui_execute_on_save = 0
 
         -- Buffer-local query execution inside SQL buffers, via dadbod's :DB command.
-        -- Uses <leader>e/<leader>E — distinct from the <leader>D toggle, and buffer-local
+        -- Uses <leader>e/<leader>E - distinct from the <leader>D toggle, and buffer-local
         -- so it only applies while editing SQL. Rebind here if it collides with something.
         vim.api.nvim_create_autocmd("FileType", {
             group = vim.api.nvim_create_augroup("dadbod_sql_keys", { clear = true }),

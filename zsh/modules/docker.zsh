@@ -49,7 +49,6 @@ drmi() {
 
     [[ -z "$images" ]] && echo "No images selected" && return 1
 
-    # Extract image IDs from the selected lines
     local image_ids
     image_ids=$(echo "$images" | awk '{print $3}')
 
@@ -167,7 +166,7 @@ dl() {
 
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
-    # Always force color, just in case
+    # Force color; tools drop it when stdout is not a tty
     export CLICOLOR_FORCE=1
 
     if docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null | grep -q true; then

@@ -1,4 +1,3 @@
--- dashboard for neovim
 return {
 	"goolord/alpha-nvim",
 	dependencies = {

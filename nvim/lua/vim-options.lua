@@ -8,11 +8,9 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.scroll = 5
 vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
 vim.o.mousemoveevent = true
--- undo setup
 vim.opt.swapfile = false
 vim.opt.backup = false
 
--- search stuff
 vim.opt.hlsearch = true    -- highlight search results
 vim.opt.incsearch = true   -- incremental search
 -- Unless \C or capital letter in search pattern, search is case-insensitive
@@ -33,7 +31,6 @@ vim.opt.termguicolors = true
 
 vim.opt.colorcolumn = "121"
 
--- set persistent undo
 vim.opt.undofile = true
 vim.opt.undolevels = 1000
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"

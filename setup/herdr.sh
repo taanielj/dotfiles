@@ -22,7 +22,7 @@ configure_herdr() {
     link_file "$REPO_ROOT/herdr/bin/herdr-netspeed.sh" "$HOME/.config/herdr/bin/herdr-netspeed.sh"
     link_file "$REPO_ROOT/herdr/bin/herdr-weather.sh" "$HOME/.config/herdr/bin/herdr-weather.sh"
 
-    # Herd-side plugins the config binds to (seamless nvim<->herdr nav/resize).
+    # Herd-side plugins the config binds to (nvim<->herdr nav/resize).
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-splits"; then
         run_quiet "Installing herdr-splits plugin" herdr plugin install lmilojevicc/herdr-splits.nvim --yes
     fi

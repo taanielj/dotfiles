@@ -14,14 +14,13 @@ bindkey "^[[F" end-of-line          # End (xterm normal mode)
 bindkey "^[[1~" beginning-of-line   # Home (vt / tmux-256color)
 bindkey "^[[4~" end-of-line         # End (vt / tmux-256color)
 
-## ctrl up and down do nothing
+## ctrl up and down: previous/next history line
 bindkey "^[[1;5A" up-line-or-history
 bindkey "^[[1;5B" down-line-or-history
-## ctrl left and right: move to left or right word (these don't work on mac)
+## ctrl left and right: back/forward one word (on mac the terminal sends these for option+arrows)
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 
-## option left and right: move to left or right word (these work on mac)
 bindkey "^[[3;5~" kill-word         # ctrl delete
 bindkey "^?" backward-delete-char   # backspace
 
@@ -30,3 +29,4 @@ bindkey "^[[A" history-search-backward
 bindkey "^[OA" history-search-backward
 bindkey "^[[B" history-search-forward
 bindkey "^[OB" history-search-forward
+

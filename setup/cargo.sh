@@ -56,7 +56,6 @@ teardown_cargo() {
     for tool in "${TOOLS[@]}"; do
         if cargo install --list | grep -q "^$tool "; then
             log "Uninstalling $tool"
-            # The || true ensures the script continues even if uninstallation fails
             cargo uninstall "$tool" 2>/dev/null || true
         else
             log "$tool is not installed, skipping"
