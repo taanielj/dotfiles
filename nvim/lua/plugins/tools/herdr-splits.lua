@@ -1,4 +1,3 @@
--- nvim <-> herdr navigation (ctrl+hjkl) and resize (alt+hjkl).
 -- Only loads inside herdr; outside it, smart-splits (smart-splits.lua) owns these keys.
 return {
     "lmilojevicc/herdr-splits.nvim",

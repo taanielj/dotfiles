@@ -10,7 +10,6 @@ main_git() {
 configure_git() {
     log "Configuring git..."
 
-    # Link the global gitignore
     link_file "$REPO_ROOT/gitignore_global" "$HOME/.gitignore_global"
 
     run_quiet "Configuring global core.excludesfile" git config --global core.excludesfile "$HOME/.gitignore_global"
@@ -21,7 +20,6 @@ configure_git() {
 teardown_git() {
     log "Removing git configuration..."
 
-    # Unlink the global gitignore
     unlink_file "$REPO_ROOT/gitignore_global" "$HOME/.gitignore_global"
 
     run_quiet "Removing global core.excludesfile config" git config --global --unset core.excludesfile || true

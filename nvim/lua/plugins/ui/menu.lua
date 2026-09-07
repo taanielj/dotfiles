@@ -52,7 +52,6 @@ return {
             menu.open("bufferline", { mouse = true })
         end
 
-        -- Expose the helper
         package.loaded["menu"] = M -- override original module with our augmented one
     end,
 }

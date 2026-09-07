@@ -58,7 +58,6 @@ return {
             },
             pre_delete_cmds = {
                 "Neotree action=close",
-                -- save all buffers
                 "silent! wa",
                 "silent! %bd!",
             },

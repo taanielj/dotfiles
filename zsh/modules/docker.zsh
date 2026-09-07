@@ -37,7 +37,6 @@ dcR() { dcD && dcu "$@"; }                        # compose restart with volumes
 ds() { docker ps "$@"; }                          # list containers
 di() { docker images "$@"; }                      # list images
 
-# Remove images with fzf selection
 drmi() {
     if [[ $# -gt 0 ]]; then
         docker rmi "$@"
@@ -118,7 +117,6 @@ de() {
 
     local cmd=(docker exec -it -e TERM=xterm-256color "$container")
 
-    # If additional arguments are passed, try to validate the command exists first
     if (($#)); then
         if "${cmd[@]}" sh -c "command -v $1" &>/dev/null; then
             "${cmd[@]}" "$@"
@@ -129,7 +127,6 @@ de() {
         return
     fi
 
-    # Interactive shell fallback, preferring bash
     if "${cmd[@]}" sh -c 'command -v bash' &>/dev/null; then
         "${cmd[@]}" bash
     elif "${cmd[@]}" sh -c 'command -v sh' &>/dev/null; then
@@ -153,11 +150,9 @@ dl() {
     fi
 
     if [[ -n "$query" ]]; then
-        # Try to find exact match first
         if docker ps -a --format '{{.Names}}' | grep -Fxq "$query"; then
             container="$query"
         else
-            # Fuzzy search with pre-filled input
             container=$(docker ps -a --format '{{.Names}} {{.Status}}' | fzf --query="$query" --select-1 --exit-0 | awk '{print $1}')
         fi
     else

@@ -11,12 +11,12 @@ vim.o.mousemoveevent = true
 vim.opt.swapfile = false
 vim.opt.backup = false
 
-vim.opt.hlsearch = true    -- highlight search results
-vim.opt.incsearch = true   -- incremental search
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
 -- Unless \C or capital letter in search pattern, search is case-insensitive
-vim.opt.ignorecase = true  -- ignore case when searching
-vim.opt.smartcase = true   -- ignore case if search pattern is all lowercase
-vim.opt.signcolumn = "yes" -- always show sign column
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.signcolumn = "yes"
 
 vim.opt.listchars = {
     tab = "▸ ",
@@ -25,8 +25,7 @@ vim.opt.listchars = {
     precedes = "❮",
     nbsp = "␣",
 }
-vim.opt.inccommand = "split" -- show live preview of substitution
--- colorscheme support (for true color in kitty/tmux/windows terminal)
+vim.opt.inccommand = "split"
 vim.opt.termguicolors = true
 
 vim.opt.colorcolumn = "121"

@@ -1,11 +1,6 @@
--- Marksman indexes the markdown files it finds when it starts and hears about
--- nothing afterwards: it registers no file watchers, and Neovim reports only the
--- files Neovim itself creates. A note written by anything else -- a coding agent,
--- a git checkout -- stays unknown, so links to it read as broken until the server
--- restarts.
---
--- The server does advertise workspace.fileOperations for markdown, so re-listing
--- the workspace and reporting what appeared or vanished keeps its index honest.
+-- Marksman registers no file watchers, and Neovim reports only the markdown it
+-- creates itself, so notes written by anything else stay out of the index. The
+-- server does honour workspace.fileOperations, hence this re-listing.
 
 local M = {}
 
@@ -35,8 +30,6 @@ local function walk(root)
     return files
 end
 
--- The set of files marksman considers part of the workspace: tracked plus
--- untracked, minus whatever .gitignore excludes.
 local function list(root, done)
     local function fallback()
         vim.schedule(function()
@@ -146,8 +139,6 @@ function M.attach(client)
     })
 end
 
--- Forgets the baseline so every file is re-announced; the way out of any
--- disagreement between marksman's index and the disk.
 vim.api.nvim_create_user_command("MarksmanSync", function()
     for id, state in pairs(tracked) do
         local client = vim.lsp.get_client_by_id(id)

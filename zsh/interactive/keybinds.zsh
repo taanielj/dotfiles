@@ -1,4 +1,3 @@
-# Key bindings configuration
 bindkey -e
 
 ## Edit command line in $EDITOR (neovim)
@@ -6,7 +5,6 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '^x^e' edit-command-line
 
-## Home and End
 bindkey "^[OH" beginning-of-line    # Home (application mode / SS3)
 bindkey "^[OF" end-of-line          # End (application mode / SS3)
 bindkey "^[[H" beginning-of-line    # Home (xterm normal mode)

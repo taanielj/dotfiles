@@ -1,4 +1,3 @@
--- Set up the lazy loader
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
     vim.fn.system({
@@ -45,7 +44,6 @@ function LoadConfig()
 end
 
 vim.keymap.set("n", "<leader>R", LoadConfig, { noremap = true, silent = true, desc = "Reload Config" })
--- nvim/init.lua (if your color scheme does not already provide these highlight groups)
 
 vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
 vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })

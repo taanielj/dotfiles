@@ -27,7 +27,6 @@ if ! server_up; then
     for _ in {1..200}; do server_up && break; sleep 0.05; done
 fi
 
-# Find the workspace, or build it from the repo list.
 id=$("$herdr" workspace list | jq -r --arg l "$label" '.result.workspaces[] | select(.label==$l) | .workspace_id' | head -1)
 if [[ -z "$id" ]]; then
     present=()

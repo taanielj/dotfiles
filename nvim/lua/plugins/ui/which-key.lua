@@ -17,7 +17,6 @@ return {
             { "<leader>f",   group = "Find" },
             { "<leader>h",   group = "Find Hidden" },
             { "<leader>g",   group = "Git" },
-            -- close and force quit
             { "<leader>q",   group = "Close" },
             { "<leader>qf",  group = "Force quit" },
             { "<leader>qfy", "Lose all unsaved changes?" },

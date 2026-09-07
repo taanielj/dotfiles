@@ -9,7 +9,6 @@ return {
             local neotree_manager = require("neo-tree.sources.manager")
 
             local function get_neotree_display_name()
-                -- Find the window that belongs to Neo-tree
                 for _, win in ipairs(vim.api.nvim_list_wins()) do
                     local buf = vim.api.nvim_win_get_buf(win)
                     if vim.bo[buf].filetype == "neo-tree" then
@@ -46,7 +45,6 @@ return {
                     -- close_command = "BufDel",
                 },
             })
-            -- keymap dict
             local bufferline_mappings = {
                 -- closing
                 { "n", "<leader>bch", ":BufferLineCloseLeft<CR>",       "Close Left" },
@@ -69,7 +67,6 @@ return {
                 -- pin buffer
                 { "n", "<leader>bt",  ":BufferLineTogglePin<CR>",       "Pin Buffer" },
             }
-            -- set keymaps
             for _, map in ipairs(bufferline_mappings) do
                 vim.keymap.set(map[1], map[2], map[3], { desc = map[4], silent = true })
             end

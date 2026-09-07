@@ -62,10 +62,7 @@ return {
         require("telescope").load_extension("smart_history")
         local builtin = require("telescope.builtin")
 
-        -- search current buffer
-        -- Find all files in current working directory:
         vim.keymap.set("n", "<leader> ", builtin.find_files, { desc = "Find Files" })
-        -- Find all open buffers:
         vim.keymap.set("n", "<leader>/", function()
             local dropdown = require("telescope.themes").get_dropdown({
                 winblend = 10,
@@ -93,8 +90,6 @@ return {
             })
         end, { desc = "Find in Open Files" })
         vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Find in Project" })
-        -- Fuzzy find in current working directory:
-        -- find (in) hidden files:
         vim.keymap.set("n", "<leader>hf", function()
             builtin.find_files({ hidden = true, no_ignore = true })
         end, { desc = "Find Hidden Files" })

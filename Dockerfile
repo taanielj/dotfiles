@@ -7,7 +7,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Create non-root user with passwordless sudo
 RUN useradd -m -s /bin/bash ubuntu-dev && \
     echo "ubuntu-dev ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/test && \
     chmod 0440 /etc/sudoers.d/test
@@ -23,7 +22,7 @@ RUN apt-get -y update && \
 COPY --chown=ubuntu-dev:ubuntu-dev . /home/ubuntu-dev/dotfiles
 
 USER ubuntu-dev
-# set remote url from ssh to https
+# No ssh keys in the image, so fetch over https
 RUN cd /home/ubuntu-dev/dotfiles && \
     git remote set-url origin https://github.com/taanielj/dotfiles
 

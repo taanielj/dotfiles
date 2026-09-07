@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Dump the calling pane's scrollback into nvim for real search/yank/copy.
-# The herdr equivalent of tmux capture-pane -> editor.
 set -euo pipefail
 
 herdr="${HERDR_BIN_PATH:-herdr}"

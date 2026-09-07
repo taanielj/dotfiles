@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Pull another pane into the current herdr tab, picking it with fzf.
-# Faithful port of tmux `choose-window` -> `join-pane`. Arg: split direction.
 set -euo pipefail
 
 dir="${1:-right}" # right | down

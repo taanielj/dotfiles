@@ -2,7 +2,7 @@ local function augroup(name)
     return vim.api.nvim_create_augroup("user_" .. name, { clear = true })
 end
 
--- Remove indentkeys that trigger while typing (keeps o,O for new line indent)
+-- o and O still indent new lines; the rest fire mid-typing
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = augroup("indentkeys"),
     pattern = "*",
@@ -23,7 +23,6 @@ vim.api.nvim_create_autocmd("InsertLeave", {
     end,
 })
 
--- disable conceallevel for json
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("json_conceal"),
     pattern = "json",
@@ -32,7 +31,6 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- Neotree special behavior
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("neotree"),
     pattern = { "neo-tree", "neotree" },
@@ -42,7 +40,6 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- Highlight on yank
 vim.api.nvim_create_autocmd("TextYankPost", {
     group = augroup("highlight_yank"),
     desc = "Briefly highlight yanked text",
@@ -61,7 +58,6 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- Use real tabs for Makefiles
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("makefile_tabs"),
     pattern = "make",
@@ -70,9 +66,7 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- Claude Code (snacks terminal): navigate out with <C-hjkl> from terminal mode.
 -- Scoped to snacks_terminal buffers so shells in other :terminals keep <C-l> etc.
--- herdr-splits owns these keys inside herdr; smart-splits owns them outside.
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("claude_term_nav"),
     pattern = "snacks_terminal",
@@ -87,7 +81,7 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- Jump to the first non-blank character if opening at column 1 (useful with vim-fetch)
+-- vim-fetch opens at column 1, so move to the text
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     group = augroup("fetch_first_non_blank"),
     callback = function()
@@ -99,9 +93,8 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     end,
 })
 
--- gx on a markdown link: markdown opens in Neovim, everything else (web links,
--- images, PDFs) goes to the OS handler. Marksman does the resolving where it is
--- attached, so anchors and [[wiki links]] land on the right heading.
+-- Marksman resolves the target where it is attached, so anchors and
+-- [[wiki links]] land on the right heading.
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("markdown_links"),
     pattern = "markdown",
@@ -110,7 +103,6 @@ vim.api.nvim_create_autocmd("FileType", {
             return name:match("%.md$") ~= nil or name:match("%.markdown$") ~= nil
         end
 
-        -- The target of the [text](target) the cursor sits in, if any.
         local function target_under_cursor()
             local line = vim.api.nvim_get_current_line()
             local col = vim.api.nvim_win_get_cursor(0)[2] + 1

@@ -14,7 +14,6 @@ configure_tmux() {
         return 1
     fi
 
-    # Install TPM
     if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
         git -C "$HOME/.tmux/plugins/tpm" pull &>/dev/null
     else
@@ -45,7 +44,6 @@ teardown_tmux() {
 
     unlink_file "$REPO_ROOT/tmux.conf" "$HOME/.tmux.conf"
 
-    # Remove TPM and plugins
     if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
         log "Removing tmux plugin manager and plugins"
         rm -rf "$HOME/.tmux/plugins"

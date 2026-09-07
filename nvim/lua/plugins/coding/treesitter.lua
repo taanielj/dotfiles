@@ -5,7 +5,6 @@ return {
     build = ":TSUpdate",
     ---@class TSConfig
     opts = {
-        -- custom handling of parsers
         ensure_installed = {
             "astro",
             "bash",
@@ -41,10 +40,8 @@ return {
         },
     },
     config = function(_, opts)
-        -- install parsers from custom opts.ensure_installed
         if opts.ensure_installed and #opts.ensure_installed > 0 then
             require("nvim-treesitter").install(opts.ensure_installed)
-            -- register and start parsers for filetypes
             for _, parser in ipairs(opts.ensure_installed) do
                 local filetypes = parser -- In this case, parser is the filetype/language name
                 vim.treesitter.language.register(parser, filetypes)
@@ -58,7 +55,6 @@ return {
             end
         end
 
-        -- Auto-install and start parsers for any buffer
         vim.api.nvim_create_autocmd({ "BufRead" }, {
             callback = function(event)
                 local bufnr = event.buf

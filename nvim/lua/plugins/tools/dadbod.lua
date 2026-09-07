@@ -19,9 +19,6 @@ return {
         -- Never auto-run a query just because the buffer was written.
         vim.g.db_ui_execute_on_save = 0
 
-        -- Buffer-local query execution inside SQL buffers, via dadbod's :DB command.
-        -- Uses <leader>e/<leader>E - distinct from the <leader>D toggle, and buffer-local
-        -- so it only applies while editing SQL. Rebind here if it collides with something.
         vim.api.nvim_create_autocmd("FileType", {
             group = vim.api.nvim_create_augroup("dadbod_sql_keys", { clear = true }),
             pattern = { "sql", "mysql", "plsql" },

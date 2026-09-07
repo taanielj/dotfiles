@@ -1,4 +1,3 @@
-# Aliases configuration
 
 if command -v nvim &>/dev/null; then
     alias vim=nvim
@@ -53,7 +52,6 @@ alias cl="clear && printf '\e[3J'"
 alias cle="clear && printf '\e[3J' && exec zsh"
 alias cld="cd && clear && printf '\e[3J' && exec zsh"
 
-# Reset the current git repository
 reset_repo() {
     echo -e "\033[1;33mWARNING: This will DELETE and RECLONE the repo!\033[0m"
 
@@ -63,7 +61,6 @@ reset_repo() {
         return 1
     fi
     cd "$REPO_ROOT" || return 1 # Move to repo root
-    # Get the repo name from git remote
     GIT_REMOTE=$(git remote get-url origin 2>/dev/null)
     if [[ -z "$GIT_REMOTE" ]]; then
         echo -e "\033[1;31mError: No remote repository found. Are you in a git repo?\033[0m"
@@ -74,21 +71,18 @@ reset_repo() {
     echo -e "Git Remote: \033[1;34m$GIT_REMOTE\033[0m"
     echo -e "New Clone Path: \033[1;34m$REPO_ROOT/\033[0m"
 
-    # Refuse to run with uncommitted changes
     if [[ -n "$(git status --porcelain)" ]]; then
         echo -e "\033[1;31mError: You have uncommitted changes. Commit or discard them before proceeding.\033[0m"
         git status --short
         return 1
     fi
 
-    # Refuse to run with stashed changes
     if [[ -n "$(git stash list)" ]]; then
         echo -e "\033[1;31mError: You have stashed changes. Apply or drop them before proceeding.\033[0m"
         git stash list
         return 1
     fi
 
-    # Confirm action (zsh-compatible)
     echo -n "Type YES to confirm: "
     read CONFIRM
     if [[ "$CONFIRM" != "YES" ]]; then
@@ -135,7 +129,6 @@ nvimf() {
     [[ -n "$file" ]] && nvim "$file"
 }
 
-# Git file history log
 alias gflog='git log --follow --stat --date=format:'%Y-%m-%d' --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
 
 if command -v claude &>/dev/null; then

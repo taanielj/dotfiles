@@ -31,8 +31,6 @@ vim.keymap.set("n", "i", function()
     return "i"
 end, { noremap = true, expr = true, silent = true, desc = "Insert mode without relative number" })
 
--- Store all mappings in a single table, grouped by functionality
--- Supply the mode(s), key(s), command and description
 local all_mappings = {
     -- ====================
     -- Common functionality
@@ -83,7 +81,6 @@ local all_mappings = {
     { "v",               "<S-End>",                    "$",                                             "Move to end of line" },
     { "v",               "<End>",                      "$h",                                            "Move to end of line" },
 
-    -- Select all with Ctrl + A
     { "n",               "<C-a>",                      "ggVG",                                          "Select all" },
     { "v",               "<C-a>",                      "ggVG",                                          "Select all" },
     { "i",               "<C-a>",                      "<Esc>ggVG",                                     "Select all" },
@@ -140,7 +137,7 @@ local all_mappings = {
     { "v",               { "<Leader>b", "<Leader>*" }, '"zc****<Esc>2h"zp',                             "Add bold" },
     { "v",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
     { "v",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
-    -- Resize splits (Alt+h/j/k/l, repeatable)
+    -- Resize splits
     { "n",               "<M-h>",                       "2<C-w><",                                       "Resize split left" },
     { "n",               "<M-l>",                       "2<C-w>>",                                       "Resize split right" },
     { "n",               "<M-j>",                       "2<C-w>+",                                       "Resize split down" },
@@ -151,9 +148,8 @@ map(all_mappings)
 
 -- =================
 -- Function mappings
--- ================
+-- =================
 
--- Wrap and unwrap functions
 function _G.close_no_name_buffers()
     local bufnr_list = vim.api.nvim_list_bufs()
     for _, bufnr in ipairs(bufnr_list) do
@@ -174,7 +170,6 @@ vim.keymap.set("n", "<leader>ww", function()
         .. "|"
 end, { expr = true, noremap = true, silent = true, desc = "Wrap by opening new window" })
 
--- Unwrap functionality
 vim.keymap.set("n", "<leader>wu", function()
     vim.wo.wrap = false
     vim.wo.linebreak = false
@@ -183,7 +178,6 @@ vim.keymap.set("n", "<leader>wu", function()
     vim.cmd("lua close_no_name_buffers()")
 end, { noremap = true, silent = true, desc = "Unwrap current window" })
 
--- Insert mode special function mappings
 local function move_cursor_visual(lines)
     local count = math.abs(lines)
     local key = lines > 0 and "gj" or "gk"
@@ -227,7 +221,6 @@ end, { silent = true, desc = "Ctrl-Delete = delete next word (wordmotion-aware)"
 
 
 
--- Fix cursor position when exiting insert mode
 vim.keymap.set("i", "<Esc>", function()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
     vim.schedule(function()
@@ -256,7 +249,6 @@ vim.keymap.set("c", "<Right>", function()
     return vim.fn.pumvisible() == 1 and "<Down>" or "<Right>"
 end, { expr = true })
 
--- Yank buffer absolute path
 vim.keymap.set("n", "<leader>yb", function()
     if vim.bo.modifiable then
         local path = vim.fn.expand("%:p")
@@ -265,7 +257,6 @@ vim.keymap.set("n", "<leader>yb", function()
     end
 end, { noremap = true, silent = true, desc = "Yank buffer absolute path" })
 
--- Yank buffer absolute path with line number(s); visual mode yanks the range
 vim.keymap.set({ "n", "v" }, "<leader>yl", function()
     local line_start, line_end
     local mode = vim.fn.mode()
@@ -287,7 +278,6 @@ vim.keymap.set({ "n", "v" }, "<leader>yl", function()
     vim.notify(result, vim.log.levels.INFO, { title = "Yanked path:line" })
 end, { noremap = true, silent = true, desc = "Yank buffer path with line" })
 
--- Ctrl+Shift+Arrow = word-by-word selection (wordmotion-aware)
 vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word forward" })
 vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })
 vim.keymap.set("x", "<C-S-Right>", "e", { remap = true, desc = "Extend selection word forward" })

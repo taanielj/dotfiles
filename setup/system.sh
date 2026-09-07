@@ -9,8 +9,7 @@ COMMON_PACKAGES=(
     "unzip" "zip"           # Compression and archiving
     "direnv"
 )
-# Note, debian/ubuntu packages are pretty thorough,
-# mainly due to this script also supporting minimal debian/ubuntu installs
+# The debian/ubuntu list is long because this also supports minimal installs.
 DEBIAN_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
     "build-essential" "gcc" "g++" "make" "cmake"                  # General compilation tools

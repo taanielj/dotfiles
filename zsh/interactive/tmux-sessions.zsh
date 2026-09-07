@@ -10,7 +10,6 @@ register_tmux_session() {
     _tmux_session_builders[$1]="$2"
 }
 
-# Create tmux session, in a start directory when given
 _tmux_new_session_maybe_dir() {
     local session="$1"
     local window_name="$2"
@@ -23,7 +22,6 @@ _tmux_new_session_maybe_dir() {
     fi
 }
 
-# Create tmux window, in a start directory when given
 _tmux_new_window_maybe_dir() {
     local session="$1"
     local window_name="$2"

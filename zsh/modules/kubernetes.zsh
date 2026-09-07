@@ -149,7 +149,6 @@ kxe() {                                                             # exec into 
     local container=$(kubectl get pod "$pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | fzf)
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
-    # Try bash first, then sh
     kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- bash || \
         kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- sh
 }

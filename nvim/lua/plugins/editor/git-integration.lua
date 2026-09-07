@@ -21,7 +21,6 @@ return {
                         vim.keymap.set(mode, l, r, opts)
                     end
 
-                    -- Helper to detect default branch
                     local function get_default_branch()
                         local handle =
                             io.popen("git remote show origin 2>/dev/null | grep 'HEAD branch' | awk '{print $NF}'")
@@ -31,7 +30,6 @@ return {
                         end
                         result = vim.trim(result)
                         if result == "" then
-                            -- fallback to main if unknown
                             return "main"
                         end
                         return result
@@ -76,7 +74,6 @@ return {
                         gitsigns.diffthis("@")
                     end, { desc = "Diff last commit" })
 
-                    -- Diff against default branch (main/master)
                     map("n", "<leader>gm", function()
                         local base = get_default_branch()
                         ---@diagnostic disable-next-line: param-type-mismatch
@@ -106,7 +103,6 @@ return {
                     end
 
                     local function get_remote_url(line_start, line_end)
-                        -- Detect platform and build URL
                         local branch = run_cmd("git rev-parse --abbrev-ref HEAD 2>/dev/null")
                         local repo_root = run_cmd("git rev-parse --show-toplevel 2>/dev/null")
                         local file_path = vim.fn.expand("%:p")
@@ -134,7 +130,6 @@ return {
                                 end
                             end
                         else
-                            -- Default to GitHub format
                             url = string.format("%s/blob/%s/%s", remote_url, branch, relative_path)
                             if include_lines then
                                 url = url .. "#L" .. line_start

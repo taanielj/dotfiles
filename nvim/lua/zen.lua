@@ -3,7 +3,6 @@ local _neotree_was_open = false
 local _mux_was_zoomed = {}
 
 local function is_neo_tree_open()
-    -- Checks whether any window has a filetype of "neo-tree"
     for _, win in ipairs(vim.api.nvim_list_wins()) do
         local buf = vim.api.nvim_win_get_buf(win)
         local ft = vim.bo[buf].filetype
@@ -14,12 +13,11 @@ local function is_neo_tree_open()
     return false
 end
 
--- Runs a command, ignoring failures (the multiplexer may be gone)
+-- The multiplexer may be gone, so failures are ignored
 local function run(cmd)
     os.execute(cmd .. " >/dev/null 2>&1 || true")
 end
 
--- Runs a command and returns its output, or "" if it could not start
 local function capture(cmd)
     local handle = io.popen(cmd .. " 2>/dev/null")
     if not handle then
@@ -43,8 +41,8 @@ local function herdr_is_zoomed()
     return capture("herdr pane layout --pane " .. herdr_pane()):match('"zoomed"%s*:%s*true') ~= nil
 end
 
--- Zen applies to every multiplexer that is present, so nvim in tmux in herdr
--- zooms both rather than picking a winner.
+-- Every multiplexer that is present gets zoomed, so nvim in tmux in herdr
+-- zooms both.
 local muxes = {
     {
         name = "tmux",
@@ -86,7 +84,6 @@ local function active_muxes()
     return found
 end
 
--- Applies zen mode UI and remembers external state
 local function zen()
     _neotree_was_open = is_neo_tree_open()
 
@@ -110,7 +107,6 @@ local function zen()
     end
 end
 
--- Restores UI and external state as it was before zen
 local function unzen()
     if not _zen_mode_active then
         return
@@ -142,7 +138,6 @@ local function unzen()
     end
 end
 
--- Entry point
 local function toggle_zen_mode()
     if _zen_mode_active then
         unzen()

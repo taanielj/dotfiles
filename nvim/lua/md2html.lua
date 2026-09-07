@@ -1,17 +1,8 @@
--- Yank Markdown as the HTML that Scoro's description fields want.
+-- Scoro's description fields render HTML, so Markdown pasted in shows its
+-- backticks, ** and fences literally.
 --
--- Scoro renders HTML, so Markdown pasted in shows its backticks, ** and fences
--- literally. python-markdown does the conversion and uvx fetches it per run, so
--- there is nothing to install into a project or a global Python.
---
--- Extensions match what the notes actually use:
---   fenced_code  ``` blocks become <pre><code>; plain markdown collapses them to <p>
---   tables       pipe tables become <table>
---   sane_lists   a stray "1." mid-paragraph stays prose
---
--- nl2br stays off: it puts a <br /> at every newline, freezing hard-wrapped
--- prose into mid-sentence breaks that Scoro's editor then keeps. Two trailing
--- spaces still give a hard break where one is wanted.
+-- nl2br stays off: a <br /> at every newline freezes hard-wrapped prose into
+-- mid-sentence breaks that Scoro's editor then keeps.
 
 local M = {}
 
@@ -24,11 +15,8 @@ local CMD = {
     "-x", "sane_lists",
 }
 
--- python-markdown nests a list only when the child is indented a full four
--- spaces; at two or three it emits a sibling, silently flattening the structure.
--- The notes nest at two and three throughout, so rewrite the indentation to four
--- per level first. A stack of the open levels' source indents keeps this
--- independent of the width any one file happens to use.
+-- python-markdown reads a child indented less than four spaces as a sibling,
+-- flattening the nesting, so rewrite every level to four first.
 
 local function width(ws)
     local n = 0
@@ -46,9 +34,7 @@ local function shift(line, delta)
     return string.rep(" ", math.max(0, width(ws) + delta)) .. rest
 end
 
--- A line carrying no marker of its own -- wrapped prose, an indented fence --
--- moves with the deepest open level it still clears, which keeps it inside the
--- item it belongs to instead of the one that happens to precede it.
+-- A line with no marker of its own moves with the deepest open level it clears.
 local function delta_for(stack, indent)
     local level = 0
     while level < #stack and stack[level + 1] <= indent do
