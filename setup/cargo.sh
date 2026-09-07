@@ -73,14 +73,7 @@ teardown_cargo() {
             rustup self uninstall -y
         fi
 
-        # sed -i would replace a symlinked rc with a regular file; those are repo-managed anyway.
-        for rc_file in "$HOME/.bashrc" "$HOME/.zshrc"; do
-            if [[ -f "$rc_file" && ! -L "$rc_file" ]]; then
-                log "Removing cargo PATH entries from $rc_file"
-                sed -i.bak '/\.cargo\/bin/d' "$rc_file"
-                rm -f "$rc_file.bak"
-            fi
-        done
+        rc_remove_lines ".cargo/bin"
 
         log "Cargo has been completely removed"
     fi

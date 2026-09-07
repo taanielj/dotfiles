@@ -153,6 +153,34 @@ unstub_file() {
     fi
 }
 
+# A symlinked rc file is this repo's; rewriting one would replace it with a
+# regular file, so both helpers below touch only real, machine-local rc files.
+_RC_FILES=("$HOME/.bashrc" "$HOME/.zshrc")
+
+# Usage: rc_append_line <line>
+# Appends the line to each rc file that does not already contain it.
+rc_append_line() {
+    local line="$1" rc
+    for rc in "${_RC_FILES[@]}"; do
+        [[ -L "$rc" ]] && continue
+        grep -qF "$line" "$rc" 2>/dev/null || echo "$line" >>"$rc"
+    done
+}
+
+# Usage: rc_remove_lines <substring>
+# Deletes every line containing the substring. | delimits the sed address, so
+# paths need no escaping; a substring containing | does.
+rc_remove_lines() {
+    local needle="$1" rc
+    for rc in "${_RC_FILES[@]}"; do
+        [[ -L "$rc" ]] && continue
+        grep -qF "$needle" "$rc" 2>/dev/null || continue
+        log "Removing $needle from $rc"
+        sed -i.bak "\\|$needle|d" "$rc"
+        rm -f "$rc.bak"
+    done
+}
+
 run_quiet() {
     local silent=0
     local description=""

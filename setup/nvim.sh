@@ -36,12 +36,7 @@ install_nvim() {
     mv "$nvim_path" "$HOME/.local/nvim"
     rm -rf "$tmp_dir"
 
-    # Symlinked rc files are managed by this repo (zsh/ already puts nvim on PATH);
-    # only patch real, machine-local rc files.
-    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        [[ -L "$rc" ]] && continue
-        grep -q "/.local/nvim/bin" "$rc" 2>/dev/null || echo 'export PATH=$HOME/.local/nvim/bin:$PATH' >>"$rc"
-    done
+    rc_append_line 'export PATH=$HOME/.local/nvim/bin:$PATH'
     export PATH="$HOME/.local/nvim/bin:$PATH"
     local nvim_version
     nvim_version=$(nvim --version | head -n1)
@@ -72,14 +67,7 @@ teardown_nvim() {
         rm -rf "$HOME/.local/nvim"
     fi
 
-    # sed -i would replace a symlinked rc with a regular file; those are repo-managed anyway.
-    for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        if [[ -f "$rc" && ! -L "$rc" ]]; then
-            log "Removing Neovim path from $rc"
-            sed -i.bak '/\.local\/nvim\/bin/d' "$rc"
-            rm -f "$rc.bak"
-        fi
-    done
+    rc_remove_lines ".local/nvim/bin"
 
     success "Neovim configuration and installation removed."
 }
