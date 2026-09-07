@@ -16,6 +16,7 @@ require("vim-options") -- Basic vim options
 require("keybinds")    -- Keybinds
 require("zen")         -- Zen mode
 require("autocmd")     -- Autocommands
+require("md2html")     -- Yank markdown as HTML
 require("lazy").setup({
     { import = "plugins.ui" },
     { import = "plugins.editor" },
