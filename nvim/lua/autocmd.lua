@@ -98,3 +98,62 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
         end)
     end,
 })
+
+-- gx on a markdown link: markdown opens in Neovim, everything else (web links,
+-- images, PDFs) goes to the OS handler. Marksman does the resolving where it is
+-- attached, so anchors and [[wiki links]] land on the right heading.
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup("markdown_links"),
+    pattern = "markdown",
+    callback = function(ev)
+        local function is_markdown(name)
+            return name:match("%.md$") ~= nil or name:match("%.markdown$") ~= nil
+        end
+
+        -- The target of the [text](target) the cursor sits in, if any.
+        local function target_under_cursor()
+            local line = vim.api.nvim_get_current_line()
+            local col = vim.api.nvim_win_get_cursor(0)[2] + 1
+            local from = 1
+            while true do
+                local s, e, target = line:find("%[[^%]]*%]%(([^)]+)%)", from)
+                if not s then
+                    return nil
+                end
+                if col >= s and col <= e then
+                    return target
+                end
+                from = e + 1
+            end
+        end
+
+        vim.keymap.set("n", "gx", function()
+            local target = target_under_cursor() or vim.fn.expand("<cfile>")
+            if target == "" then
+                return
+            end
+            if target:match("^%a[%w+.-]*:") then -- http:, https:, mailto:
+                return vim.ui.open(target)
+            end
+
+            local path = vim.uri_decode((target:gsub("#.*$", "")))
+            if path ~= "" then
+                path = vim.fs.normalize(
+                    path:sub(1, 1) == "/" and path or vim.fs.joinpath(vim.fn.expand("%:p:h"), path)
+                )
+            end
+
+            if path == "" or is_markdown(path) then
+                if next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) then
+                    return vim.lsp.buf.definition()
+                end
+                if vim.uv.fs_stat(path) then
+                    return vim.cmd.edit(vim.fn.fnameescape(path))
+                end
+            elseif vim.uv.fs_stat(path) then
+                return vim.ui.open(path)
+            end
+            vim.notify("No such file: " .. path, vim.log.levels.WARN)
+        end, { buffer = ev.buf, desc = "Follow link under cursor" })
+    end,
+})
