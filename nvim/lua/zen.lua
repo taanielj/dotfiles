@@ -1,6 +1,6 @@
 local _zen_mode_active = false
 local _neotree_was_open = false
-local _tmux_was_zoomed = false
+local _mux_was_zoomed = {}
 
 local function is_neo_tree_open()
     -- Checks whether any window has a filetype of "neo-tree"
@@ -14,25 +14,81 @@ local function is_neo_tree_open()
     return false
 end
 
-local function is_tmux_zoomed()
-    local handle = io.popen("tmux list-panes -F '#{?pane_active,#{window_zoomed_flag},}'")
-    if not handle then
-        return false
-    end
-    local result = handle:read("*a")
-    handle:close()
-    return result:match("1") ~= nil
+-- Runs a command, ignoring failures (the multiplexer may be gone)
+local function run(cmd)
+    os.execute(cmd .. " >/dev/null 2>&1 || true")
 end
 
--- Thin wrapper for tmux commands
-local function tmux(cmd)
-    os.execute("tmux " .. cmd .. " >/dev/null 2>&1 || true")
+-- Runs a command and returns its output, or "" if it could not start
+local function capture(cmd)
+    local handle = io.popen(cmd .. " 2>/dev/null")
+    if not handle then
+        return ""
+    end
+    local out = handle:read("*a") or ""
+    handle:close()
+    return out
+end
+
+local function tmux_is_zoomed()
+    return capture("tmux list-panes -F '#{?pane_active,#{window_zoomed_flag},}'"):match("1") ~= nil
+end
+
+-- herdr's --current follows the focused pane, so address this pane by id
+local function herdr_pane()
+    return vim.fn.shellescape(vim.env.HERDR_PANE_ID)
+end
+
+local function herdr_is_zoomed()
+    return capture("herdr pane layout --pane " .. herdr_pane()):match('"zoomed"%s*:%s*true') ~= nil
+end
+
+-- Zen applies to every multiplexer that is present, so nvim in tmux in herdr
+-- zooms both rather than picking a winner.
+local muxes = {
+    {
+        name = "tmux",
+        present = function()
+            return vim.env.TMUX ~= nil
+        end,
+        is_zoomed = tmux_is_zoomed,
+        set_zoom = function(on)
+            -- resize-pane -Z only toggles, so check where we are first
+            if tmux_is_zoomed() ~= on then
+                run("tmux resize-pane -Z")
+            end
+        end,
+        set_chrome = function(visible)
+            run("tmux set status " .. (visible and "on" or "off"))
+        end,
+    },
+    {
+        name = "herdr",
+        present = function()
+            return vim.env.HERDR_ENV == "1" and vim.env.HERDR_PANE_ID ~= nil
+        end,
+        is_zoomed = herdr_is_zoomed,
+        set_zoom = function(on)
+            run("herdr pane zoom --pane " .. herdr_pane() .. (on and " --on" or " --off"))
+        end,
+        -- The sidebar and tab bar are config-time only, so nothing to hide here
+        set_chrome = function() end,
+    },
+}
+
+local function active_muxes()
+    local found = {}
+    for _, mux in ipairs(muxes) do
+        if mux.present() then
+            table.insert(found, mux)
+        end
+    end
+    return found
 end
 
 -- Applies zen mode UI and remembers external state
 local function zen()
     _neotree_was_open = is_neo_tree_open()
-    _tmux_was_zoomed = is_tmux_zoomed()
 
     vim.wo.number = false
     vim.wo.relativenumber = false
@@ -43,9 +99,10 @@ local function zen()
     vim.o.laststatus = 0
     vim.o.showtabline = 0
 
-    tmux("set status off")
-    if not _tmux_was_zoomed then
-        tmux("resize-pane -Z")
+    for _, mux in ipairs(active_muxes()) do
+        _mux_was_zoomed[mux.name] = mux.is_zoomed()
+        mux.set_chrome(false)
+        mux.set_zoom(true)
     end
 
     if _neotree_was_open then
@@ -68,13 +125,20 @@ local function unzen()
     vim.o.showtabline = 2
     vim.cmd("redraw!")
 
-    tmux("set status on")
-    if not _tmux_was_zoomed then
-        tmux("resize-pane -Z")
+    for _, mux in ipairs(active_muxes()) do
+        mux.set_chrome(true)
+        mux.set_zoom(_mux_was_zoomed[mux.name] == true)
     end
 
     if _neotree_was_open then
-        vim.cmd("Neotree reveal")
+        -- "show" reopens the tree without focusing it, so the cursor stays put
+        local win = vim.api.nvim_get_current_win()
+        vim.cmd("Neotree show reveal")
+        vim.schedule(function()
+            if vim.api.nvim_win_is_valid(win) then
+                vim.api.nvim_set_current_win(win)
+            end
+        end)
     end
 end
 
@@ -98,8 +162,8 @@ vim.keymap.set("n", "<leader>z", toggle_zen_mode, {
 
 return {
     toggle = toggle_zen_mode,
-    is_tmux_zoomed = is_tmux_zoomed,
     is_neo_tree_open = is_neo_tree_open,
+    active_muxes = active_muxes,
     zen = zen,
     unzen = unzen,
     is_active = function()
