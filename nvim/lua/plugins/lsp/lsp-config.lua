@@ -60,6 +60,11 @@ return {
 
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
+                    -- Marksman only knows the markdown files that existed when it started.
+                    if client and client.name == "marksman" then
+                        require("marksman-sync").attach(client)
+                    end
+
                     -- Highlight references on cursor hold
                     if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
                         vim.opt.updatetime = 300

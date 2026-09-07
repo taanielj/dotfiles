@@ -1,0 +1,161 @@
+-- Marksman indexes the markdown files it finds when it starts and hears about
+-- nothing afterwards: it registers no file watchers, and Neovim reports only the
+-- files Neovim itself creates. A note written by anything else -- a coding agent,
+-- a git checkout -- stays unknown, so links to it read as broken until the server
+-- restarts.
+--
+-- The server does advertise workspace.fileOperations for markdown, so re-listing
+-- the workspace and reporting what appeared or vanished keeps its index honest.
+
+local M = {}
+
+local DEBOUNCE_MS = 2000
+local PATTERNS = { "*.md", "*.markdown" }
+
+---@type table<integer, { known: table<string, true>, pending: boolean }>
+local tracked = {}
+
+local function is_markdown(name)
+    return name:match("%.md$") ~= nil or name:match("%.markdown$") ~= nil
+end
+
+-- Fallback for workspaces marksman rooted on something other than a repo.
+local function walk(root)
+    local files = {}
+    for name, type in vim.fs.dir(root, {
+        depth = 16,
+        skip = function(dir)
+            return dir ~= ".git" and dir ~= "node_modules"
+        end,
+    }) do
+        if type == "file" and is_markdown(name) then
+            files[root .. "/" .. name] = true
+        end
+    end
+    return files
+end
+
+-- The set of files marksman considers part of the workspace: tracked plus
+-- untracked, minus whatever .gitignore excludes.
+local function list(root, done)
+    local function fallback()
+        vim.schedule(function()
+            local ok, files = pcall(walk, root)
+            done(ok and files or {})
+        end)
+    end
+
+    local cmd = { "git", "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--" }
+    vim.list_extend(cmd, PATTERNS)
+    local spawned = pcall(vim.system, cmd, { cwd = root, text = true }, function(res)
+        vim.schedule(function()
+            if res.code ~= 0 then
+                fallback()
+                return
+            end
+            local files = {}
+            for _, rel in ipairs(vim.split(res.stdout or "", "\0", { trimempty = true })) do
+                local path = root .. "/" .. rel
+                -- ls-files still reports files deleted from the working tree.
+                if vim.uv.fs_stat(path) then
+                    files[path] = true
+                end
+            end
+            done(files)
+        end)
+    end)
+    if not spawned then
+        fallback()
+    end
+end
+
+local function sync(client, now)
+    local state = tracked[client.id]
+    if not state or client:is_stopped() then
+        return
+    end
+
+    if not now then
+        if state.pending then
+            return
+        end
+        state.pending = true
+        vim.defer_fn(function()
+            state.pending = false
+            sync(client, true)
+        end, DEBOUNCE_MS)
+        return
+    end
+
+    list(client.root_dir, function(found)
+        if client:is_stopped() then
+            return
+        end
+        local created, deleted = {}, {}
+        for path in pairs(found) do
+            if not state.known[path] then
+                created[#created + 1] = { uri = vim.uri_from_fname(path) }
+            end
+        end
+        for path in pairs(state.known) do
+            if not found[path] then
+                deleted[#deleted + 1] = { uri = vim.uri_from_fname(path) }
+            end
+        end
+        state.known = found
+        if #created > 0 then
+            client:notify("workspace/didCreateFiles", { files = created })
+        end
+        if #deleted > 0 then
+            client:notify("workspace/didDeleteFiles", { files = deleted })
+        end
+    end)
+end
+
+---@param client vim.lsp.Client the attached marksman client
+function M.attach(client)
+    if tracked[client.id] or not client.root_dir then
+        return
+    end
+    local state = { known = {}, pending = false }
+    tracked[client.id] = state
+    -- Baseline: what marksman itself just indexed.
+    list(client.root_dir, function(found)
+        state.known = found
+    end)
+
+    local group = vim.api.nvim_create_augroup("user_marksman_sync_" .. client.id, { clear = true })
+    vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "CursorHold", "FocusGained" }, {
+        group = group,
+        pattern = PATTERNS,
+        desc = "Tell marksman about markdown files written outside Neovim",
+        callback = function()
+            sync(client)
+        end,
+    })
+    vim.api.nvim_create_autocmd("LspDetach", {
+        group = group,
+        callback = function(event)
+            if event.data.client_id == client.id then
+                tracked[client.id] = nil
+                vim.schedule(function()
+                    pcall(vim.api.nvim_del_augroup_by_id, group)
+                end)
+            end
+        end,
+    })
+end
+
+-- Forgets the baseline so every file is re-announced; the way out of any
+-- disagreement between marksman's index and the disk.
+vim.api.nvim_create_user_command("MarksmanSync", function()
+    for id, state in pairs(tracked) do
+        local client = vim.lsp.get_client_by_id(id)
+        if client then
+            state.known = {}
+            sync(client, true)
+        end
+    end
+end, { desc = "Re-announce every markdown file to marksman" })
+
+return M
