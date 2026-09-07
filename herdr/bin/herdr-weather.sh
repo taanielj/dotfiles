@@ -7,7 +7,9 @@ cache="${XDG_CACHE_HOME:-$HOME/.cache}/herdr-weather"
 mkdir -p "$(dirname "$cache")"
 max_age=1800
 
-mtime() { stat -f %m "$1" 2>/dev/null || stat -c %Y "$1"; }
+# GNU stat first: it reads "-f %m" as a filename, erroring on stdout rather
+# than to stderr. BSD stat rejects "-c" cleanly, so this order is safe on both.
+mtime() { stat -c %Y "$1" 2>/dev/null || stat -f %m "$1"; }
 
 if [[ -s $cache ]]; then
     age=$(( $(date +%s) - $(mtime "$cache") ))
