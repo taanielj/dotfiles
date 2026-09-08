@@ -6,12 +6,14 @@ customCommands:
     context: 'localBranches'
     description: 'Open pull/merge request in browser (existing one, else new; repo on main)'
     command: >-
+      O() { if [ -n "$WSL_DISTRO_NAME" ]; then explorer.exe "$1" || true;
+      elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$1"; else open "$1"; fi; };
       B={{.SelectedLocalBranch.Name | quote}};
       U=$(git remote get-url origin | sed -E 's#^git@([^:]+):#https://\1/#; s#\.git$##');
-      case "$B" in main|master) open "$U"; exit ;; esac;
+      case "$B" in main|master) O "$U"; exit ;; esac;
       case "$U" in
-      *git.sco.ro*) glab mr view --web "$B" 2>/dev/null || open "$U/-/merge_requests/new?merge_request[source_branch]=$B" ;;
-      *github*) if command -v gh >/dev/null 2>&1; then gh pr view --web "$B" 2>/dev/null || gh pr create --web --head "$B"; else open "$U/compare/$B?expand=1"; fi ;;
-      *) open "$U/compare/$B?expand=1" ;;
+      *git.sco.ro*) glab mr view --web "$B" 2>/dev/null || O "$U/-/merge_requests/new?merge_request[source_branch]=$B" ;;
+      *github*) if command -v gh >/dev/null 2>&1; then gh pr view --web "$B" 2>/dev/null || gh pr create --web --head "$B"; else O "$U/compare/$B?expand=1"; fi ;;
+      *) O "$U/compare/$B?expand=1" ;;
       esac
     output: log
