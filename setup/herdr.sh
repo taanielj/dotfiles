@@ -15,12 +15,8 @@ configure_herdr() {
     fi
 
     link_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
-    link_file "$REPO_ROOT/herdr/bin/herdr-join.sh" "$HOME/.config/herdr/bin/herdr-join.sh"
-    link_file "$REPO_ROOT/herdr/bin/herdr-scrollback.sh" "$HOME/.config/herdr/bin/herdr-scrollback.sh"
-    link_file "$REPO_ROOT/herdr/bin/herdr-session.sh" "$HOME/.config/herdr/bin/herdr-session.sh"
-    link_file "$REPO_ROOT/herdr/bin/herdr-sysmon.sh" "$HOME/.config/herdr/bin/herdr-sysmon.sh"
-    link_file "$REPO_ROOT/herdr/bin/herdr-netspeed.sh" "$HOME/.config/herdr/bin/herdr-netspeed.sh"
-    link_file "$REPO_ROOT/herdr/bin/herdr-weather.sh" "$HOME/.config/herdr/bin/herdr-weather.sh"
+    # The whole directory, so a new script is visible to herdr without rerunning setup.
+    link_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
 
     # Herd-side plugins the config binds to (nvim<->herdr nav/resize).
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-splits"; then
@@ -46,12 +42,7 @@ configure_herdr() {
 teardown_herdr() {
     log "Removing herdr configuration..."
     unlink_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
-    unlink_file "$REPO_ROOT/herdr/bin/herdr-join.sh" "$HOME/.config/herdr/bin/herdr-join.sh"
-    unlink_file "$REPO_ROOT/herdr/bin/herdr-scrollback.sh" "$HOME/.config/herdr/bin/herdr-scrollback.sh"
-    unlink_file "$REPO_ROOT/herdr/bin/herdr-session.sh" "$HOME/.config/herdr/bin/herdr-session.sh"
-    unlink_file "$REPO_ROOT/herdr/bin/herdr-sysmon.sh" "$HOME/.config/herdr/bin/herdr-sysmon.sh"
-    unlink_file "$REPO_ROOT/herdr/bin/herdr-netspeed.sh" "$HOME/.config/herdr/bin/herdr-netspeed.sh"
-    unlink_file "$REPO_ROOT/herdr/bin/herdr-weather.sh" "$HOME/.config/herdr/bin/herdr-weather.sh"
+    unlink_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
     success "herdr configuration removed."
 }
 

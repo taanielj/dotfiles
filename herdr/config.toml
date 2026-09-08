@@ -36,6 +36,10 @@ split_horizontal = ["prefix+minus", "prefix+'"]         # tmux: prefix ' (top/bo
 split_vertical   = ["prefix+v", 'prefix+"']             # tmux: prefix " (side-by-side)
 settings         = "prefix+shift+s"
 
+# prefix+f is the fzf goto with a pane preview (below); the built-in goto still
+# covers tabs and workspaces that have no pane to preview.
+goto = "prefix+shift+f"
+
 # nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
 # herdr-splits plugin; the nvim half is nvim/lua/plugins/tools/herdr-splits.lua.
 [[keys.command]]
@@ -86,6 +90,15 @@ type = "shell"
 command = '"${HERDR_BIN_PATH:-herdr}" pane move "$HERDR_ACTIVE_PANE_ID" --new-tab --focus'
 description = "break pane to new tab"
 
+# goto with a preview of each pane's screen
+[[keys.command]]
+key = "prefix+f"
+type = "popup"
+command = 'bash "$HOME/.config/herdr/bin/herdr-goto.sh"'
+description = "goto pane (preview)"
+width = "70%"
+height = "60%"
+
 # tmux: prefix m/M = choose-window -> join-pane; fzf picker pulls a pane in
 [[keys.command]]
 key = "prefix+m"
@@ -109,9 +122,10 @@ type = "plugin_action"
 command = "layouts.cycle"
 description = "cycle layout"
 
-# lazygit overlay (nvim has its own prefix+gg; this is for non-nvim panes)
+# lazygit overlay (nvim has its own prefix+gg; this is for non-nvim panes).
+# prefix+l is left to herdr's default focus_pane_right.
 [[keys.command]]
-key = "prefix+l"
+key = "prefix+g"
 type = "popup"
 command = "lazygit"
 description = "lazygit"
