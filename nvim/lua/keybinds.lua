@@ -306,7 +306,7 @@ vim.keymap.set("n", "<leader>R", function()
         return
     end
 
-    require("auto-session").AutoSaveSession()
+    require("auto-session").auto_save_session()
 
     -- noice's UI handler errors on the restart event, so it is detached first
     if package.loaded["noice"] then
