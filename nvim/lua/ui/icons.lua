@@ -31,7 +31,6 @@ return {
     list = "\u{F03A}",
     select_all = "\u{F046}",
     copy_all = "\u{F0C5}",
-    erase = "\u{F12D}",
     inspect = "\u{F002}",
     config = "\u{F013}",
 }
