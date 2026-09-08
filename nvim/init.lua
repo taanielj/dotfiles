@@ -25,31 +25,5 @@ require("lazy").setup({
     { import = "plugins.tools" },
 })
 
-function ReloadPlugins()
-    local plugin_path = vim.fn.stdpath("config") .. "/lua/plugins/"
-    local lua_files = vim.fn.glob(plugin_path .. "**/*.lua", false, true)
-    for _, file in ipairs(lua_files) do
-        local lua_file = file:match("lua/(.-)%.lua") -- find all *.lua files in lua/plugins folder
-        if lua_file then                       -- truthy check, if file match is not nil
-            package.loaded[lua_file] = nil     -- unload the plugin
-            require(lua_file)                  -- require the plugin
-        end
-    end
-end
-
-function LoadConfig()
-    require("vim-options")
-    require("keybinds")
-    require("autocmd")
-    ReloadPlugins()
-end
-
-vim.keymap.set("n", "<leader>R", LoadConfig, { noremap = true, silent = true, desc = "Reload Config" })
-
-vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
-vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
-vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
-vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
-vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
-vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
-vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
+-- A require-based reload cannot reach lazy's plugin specs, so restart instead
+vim.keymap.set("n", "<leader>R", "<Cmd>restart<CR>", { noremap = true, silent = true, desc = "Restart nvim" })
