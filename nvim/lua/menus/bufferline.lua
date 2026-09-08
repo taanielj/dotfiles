@@ -1,25 +1,24 @@
-local buf_context = vim.g.menu_context or {}
-local bufnr = buf_context.bufnr
-local bufname = vim.api.nvim_buf_get_name(bufnr or 0)
-local filename = vim.fn.fnamemodify(bufname, ":t")
+local icons = require("ui.icons")
 
-local function noop()
-    vim.notify("Placeholder action for buffer: " .. filename)
+return function(ctx)
+    local bufnr = ctx.bufnr
+    local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ":t")
+    local buffers = require("ui.buffers")
+
+    local function item(icon, name, cmd)
+        return { name = icon .. "  " .. name, cmd = cmd }
+    end
+
+    return {
+        item(icons.file, filename, function() vim.cmd("buffer " .. bufnr) end),
+        { separator = true },
+        item(icons.delete, "Close", function() buffers.close({ buf = bufnr }) end),
+        item(icons.split, "Close others", function() require("snacks.bufdelete").other({ buf = bufnr }) end),
+        item(icons.pin, "Toggle pin", function() vim.cmd("BufferLineTogglePin " .. bufnr) end),
+        { separator = true },
+        item(icons.clipboard, "Copy name", function()
+            vim.fn.setreg("+", filename)
+            vim.notify("Copied: " .. filename)
+        end),
+    }
 end
-
-return {
-    { name = "󰈔  Open buffer '" .. filename .. "'", cmd = noop, rtxt = "o" },
-    { name = "  Dummy Split", cmd = noop, rtxt = "s" },
-    { name = "  Dummy VSplit", cmd = noop, rtxt = "v" },
-    { name = "separator" },
-    { name = "  Close buffer", cmd = function()
-        require("bufdel").bufdel(bufnr)
-    end, rtxt = "d" },
-    { name = "󰐃  Toggle pin", cmd = function()
-        vim.cmd("BufferLineTogglePin " .. bufnr)
-    end, rtxt = "p" },
-    { name = "󰉿  Copy buffer name", cmd = function()
-        vim.fn.setreg("+", filename)
-        vim.notify("Copied: " .. filename)
-    end, rtxt = "y" },
-}

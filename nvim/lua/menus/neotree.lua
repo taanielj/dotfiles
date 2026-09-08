@@ -1,71 +1,79 @@
-local manager = require "neo-tree.sources.manager"
-local cc = require "neo-tree.sources.common.commands"
+local manager = require("neo-tree.sources.manager")
+local cc = require("neo-tree.sources.common.commands")
+local icons = require("ui.icons")
 
 local function get_state()
-  local state = manager.get_state_for_window()
-  assert(state)
-  state.config = state.config or {}
-  return state
+    local state = manager.get_state_for_window()
+    assert(state)
+    state.config = state.config or {}
+    return state
 end
 
 local function call(what)
-  return vim.schedule_wrap(function()
-    local state = get_state()
-    local cb = require("neo-tree.sources." .. state.name .. ".commands")[what] or cc[what]
-    cb(state)
-  end)
+    return vim.schedule_wrap(function()
+        local state = get_state()
+        local cb = require("neo-tree.sources." .. state.name .. ".commands")[what] or cc[what]
+        cb(state)
+    end)
 end
 
 -- Copy path to clipboard; `how` is the fnamemodify() modifier.
 local function copy_path(how)
-  return function()
-    local node = get_state().tree:get_node()
-    if node.type == "message" then return end
-    vim.fn.setreg('"', vim.fn.fnamemodify(node.path, how))
-    vim.fn.setreg("+", vim.fn.fnamemodify(node.path, how))
-  end
+    return function()
+        local node = get_state().tree:get_node()
+        if node.type == "message" then
+            return
+        end
+        vim.fn.setreg('"', vim.fn.fnamemodify(node.path, how))
+        vim.fn.setreg("+", vim.fn.fnamemodify(node.path, how))
+    end
 end
 
-return {
-  -- NAVIGATION
-  { name = "  Open", cmd = call "open", rtxt = "return" },
-  { name = "  Open in vertical split", cmd = call "open_vsplit", rtxt = "s" },
-  { name = "  Open in horizontal split", cmd = call "open_split", rtxt = "S" },
-  { name = "separator" },
-  -- FILE ACTIONS
-  { name = "  New file", cmd = call "add", rtxt = "a" },
-  { name = "  New folder", cmd = call "add_directory", rtxt = "A" },
-  { name = "  Delete", hl = "ExRed", cmd = call "Delete", rtxt = "d" },
-  { name = "   File details", cmd = call "show_file_details", rtxt = "i" },
-  { name = "  Rename", cmd = call "rename", rtxt = "r" },
-  { name = "  Rename basename", cmd = call "rename_basename", rtxt = "b" },
-  { name = "  Copy", cmd = call "copy_to_clipboard", rtxt = "y" },
-  { name = "  Cut", cmd = call "cut_to_clipboard", rtxt = "x" },
-  { name = "  Paste", cmd = call "paste_from_clipboard", rtxt = "p" },
-  { name = "separator" },
-  -- VIEW CHANGES
-  { name = "Toggle hidden", cmd = call "toggle_hidden", rtxt = "H" },
-  { name = "Refresh", cmd = call "refresh", rtxt = "R" },
-  {
-    name = "[O]rder by...",
-    rtxt = "o",
-    items = {
-      { name = "Sort the tree by created date.", cmd = call "order_by_created", rtxt = "c" },
-      { name = "Sort by diagnostic severity.", cmd = call "order_by_diagnostics", rtxt = "d" },
-      { name = "Sort by git status.", cmd = call "order_by_git_status", rtxt = "g" },
-      { name = "Sort by last modified date.", cmd = call "order_by_modified", rtxt = "m" },
-      { name = "Sort by name (default sort).", cmd = call "order_by_name", rtxt = "n" },
-      { name = "Sort by size.", cmd = call "order_by_size", rtxt = "s" },
-      { name = "Sort by type.", cmd = call "order_by_type", rtxt = "t" },
-    },
-  },
-  -- FILTER
-  { name = "Fuzzy finder", cmd = call "fuzzy_finder", rtxt = "/" },
-  { name = "Fuzzy finder directory", cmd = call "fuzzy_finder_directory", rtxt = "D" },
-  { name = "Fuzzy sorter", cmd = call "fuzzy_sorter", rtxt = "#" },
-  { name = "separator" },
-  -- others
-  { name = "󰴠  Copy absolute path", cmd = copy_path ":p", rtxt = "gy" },
-  { name = "  Copy relative path", cmd = copy_path ":~:.", rtxt = "Y" },
-  -- { name = "  Open in terminal", hl = "ExBlue", cmd = open_in_terminal() },
-}
+local function item(icon, name, cmd)
+    return { name = icon .. "  " .. name, cmd = cmd }
+end
+
+return function()
+    return {
+        item(icons.open, "Open", call("open")),
+        item(icons.vsplit, "Open in vertical split", call("open_vsplit")),
+        item(icons.hsplit, "Open in horizontal split", call("open_split")),
+        { separator = true },
+        item(icons.new_file, "New file", call("add")),
+        item(icons.new_folder, "New folder", call("add_directory")),
+        item(icons.rename, "Rename", call("rename")),
+        item(icons.rename, "Rename basename", call("rename_basename")),
+        { name = "File details", cmd = call("show_file_details") },
+        { separator = true },
+        item(icons.copy, "Copy", call("copy_to_clipboard")),
+        item(icons.cut, "Cut", call("cut_to_clipboard")),
+        item(icons.paste, "Paste", call("paste_from_clipboard")),
+        item(icons.path, "Copy absolute path", copy_path(":p")),
+        item(icons.relative_path, "Copy relative path", copy_path(":~:.")),
+        { separator = true },
+        {
+            name = "Order by",
+            items = {
+                { name = "Created date", cmd = call("order_by_created") },
+                { name = "Diagnostic severity", cmd = call("order_by_diagnostics") },
+                { name = "Git status", cmd = call("order_by_git_status") },
+                { name = "Last modified", cmd = call("order_by_modified") },
+                { name = "Name", cmd = call("order_by_name") },
+                { name = "Size", cmd = call("order_by_size") },
+                { name = "Type", cmd = call("order_by_type") },
+            },
+        },
+        {
+            name = "Find",
+            items = {
+                { name = "Fuzzy finder", cmd = call("fuzzy_finder") },
+                { name = "Fuzzy finder directory", cmd = call("fuzzy_finder_directory") },
+                { name = "Fuzzy sorter", cmd = call("fuzzy_sorter") },
+            },
+        },
+        { name = "Toggle hidden", cmd = call("toggle_hidden") },
+        { name = "Refresh", cmd = call("refresh") },
+        { separator = true },
+        item(icons.delete, "Delete", call("Delete")),
+    }
+end

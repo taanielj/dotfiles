@@ -4,6 +4,7 @@ return {
         version = "*",
         dependencies = {
             "nvim-tree/nvim-web-devicons",
+            "folke/snacks.nvim", -- buffer closing that keeps the window layout
         },
         config = function()
             local neotree_manager = require("neo-tree.sources.manager")
@@ -21,11 +22,15 @@ return {
             require("bufferline").setup({
                 highlights = require("catppuccin.special.bufferline").get_theme()(),
                 options = {
-                    middle_mouse_command = "BufDel %d",
-                    close_command = "BufDel %d",
+                    middle_mouse_command = function(bufnr)
+                        require("ui.buffers").close({ buf = bufnr })
+                    end,
+                    close_command = function(bufnr)
+                        require("ui.buffers").close({ buf = bufnr })
+                    end,
 
                     right_mouse_command = function(bufnr)
-                        require("menu").open_buffer_menu(bufnr)
+                        require("ui.menu").show("]Buffer", "bufferline", { bufnr = bufnr })
                     end,
                     diagnostics = "nvim_lsp",
                     offsets = {
@@ -42,7 +47,6 @@ return {
                         },
                     },
                     separator_style = "slant",
-                    -- close_command = "BufDel",
                 },
             })
             local bufferline_mappings = {
@@ -68,27 +72,6 @@ return {
                 { "n", "<leader>bt",  ":BufferLineTogglePin<CR>",       "Pin Buffer" },
             }
             for _, map in ipairs(bufferline_mappings) do
-                vim.keymap.set(map[1], map[2], map[3], { desc = map[4], silent = true })
-            end
-        end,
-    },
-    {
-        "ojroques/nvim-bufdel",
-        config = function()
-            require("bufdel").setup({
-                next = "tabs",
-                quit = true,
-            })
-            local bufdel_mappings = {
-                { "n", "ZZ",          ":BufDel<CR>",    "Save and close buffer" },
-                { "n", "<leader>bq",  ":BufDel<CR>",    "Save and close buffer" },
-                { "n", "<leader>qb",  ":BufDel<CR>",    "Save and close buffer" },
-                { "n", "<leader>q!",  ":BufDel!<CR>",   "Close buffer without saving" },
-                { "n", "<Leader>qa",  ":wa<CR>:qa<CR>", "Quit and save all" },
-                { "n", "<Leader>qfy", ":qa!<CR>",       "Quit without saving?" },
-            }
-
-            for _, map in ipairs(bufdel_mappings) do
                 vim.keymap.set(map[1], map[2], map[3], { desc = map[4], silent = true })
             end
         end,

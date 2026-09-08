@@ -137,6 +137,13 @@ local all_mappings = {
     { "v",               { "<Leader>b", "<Leader>*" }, '"zc****<Esc>2h"zp',                             "Add bold" },
     { "v",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
     { "v",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
+    -- Context menu at the cursor; right-click uses Neovim's own popup_setpos
+    { "n",               "<leader>.",                  function() require("ui.menu").popup_at_cursor() end, "Open menu" },
+    -- Buffers
+    { "n",               { "ZZ", "<leader>bq", "<leader>qb" }, function() require("ui.buffers").close() end,    "Save and close buffer" },
+    { "n",               "<leader>q!",                 function() require("ui.buffers").close({ force = true }) end, "Close buffer without saving" },
+    { "n",               "<Leader>qa",                 "<Cmd>wa<CR><Cmd>qa<CR>",                        "Quit and save all" },
+    { "n",               "<Leader>qfy",                "<Cmd>qa!<CR>",                                  "Quit without saving?" },
     -- Resize splits
     { "n",               "<M-h>",                       "2<C-w><",                                       "Resize split left" },
     { "n",               "<M-l>",                       "2<C-w>>",                                       "Resize split right" },
