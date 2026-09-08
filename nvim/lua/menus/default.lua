@@ -1,5 +1,5 @@
--- The whole PopUp menu, replacing Neovim's own so rows that cannot apply
--- are left out instead of shown disabled. `ctx` comes from ui.menu.
+-- Replaces Neovim's PopUp so rows that cannot apply are left out rather than
+-- shown disabled. `ctx` is ui.menu.buffer_context().
 local icons = require("ui.icons")
 
 return function(ctx)
@@ -10,8 +10,9 @@ return function(ctx)
     end
 
     local function edit_config()
-        vim.cmd("tabnew")
-        vim.cmd("tcd " .. vim.fn.stdpath("config") .. " | edit init.lua")
+        vim.cmd.tabnew()
+        vim.cmd.tcd(vim.fn.fnameescape(vim.fn.stdpath("config")))
+        vim.cmd.edit("init.lua")
     end
 
     local entries = {}

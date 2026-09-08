@@ -1,18 +1,12 @@
--- Global keymaps, in two forms:
---   * one row in `all_mappings` when the whole mapping fits on a line,
---   * a vim.keymap.set call further down when it needs a function body.
--- Normal-mode leader maps are sectioned by prefix, matching `groups` below,
--- which which-key reads so the file and the popup share one structure.
--- Everything else is sectioned by task.
---
--- Not here: buffer-local maps, which live with what scopes them (LSP
--- on_attach, FileType autocmds), and maps that are a plugin's lazy-load
--- trigger, which stay in that plugin's `keys`.
+-- A row in `all_mappings` when a mapping fits on a line, a vim.keymap.set call
+-- below when it needs a function body. Leader maps are sectioned by prefix,
+-- matching `groups`, which which-key reads. Buffer-local maps live with what
+-- scopes them, and a plugin's lazy-load triggers stay in its `keys`.
 
 -- Leader must be set before plugins load
 vim.g.mapleader = " "
 
--- Which-key labels for prefixes; a prefix has no mapping of its own to carry a desc.
+-- A prefix has no mapping of its own to carry a desc
 local groups = {
     { "<leader>a",  group = "AI/Claude Code" },
     { "<leader>b",  group = "Buffer" },
@@ -238,8 +232,7 @@ end, { noremap = true, silent = true, desc = "Yank buffer path with line" })
 -- <leader>w  Wrap
 -- =================
 
--- Spacer windows keyed by the window they narrow, so the toggle closes its own.
-local wrap_spacers = {}
+local spacer_by_window = {}
 
 local function open_wrap_spacer(win, width)
     vim.cmd("vertical rightbelow new")
@@ -251,12 +244,12 @@ local function open_wrap_spacer(win, width)
     vim.wo.relativenumber = false
     vim.api.nvim_set_current_win(win)
     vim.api.nvim_win_set_width(win, width)
-    wrap_spacers[win] = spacer
+    spacer_by_window[win] = spacer
 end
 
 local function close_wrap_spacer(win)
-    local spacer = wrap_spacers[win]
-    wrap_spacers[win] = nil
+    local spacer = spacer_by_window[win]
+    spacer_by_window[win] = nil
     if spacer and vim.api.nvim_win_is_valid(spacer) then
         vim.api.nvim_win_close(spacer, true)
     end

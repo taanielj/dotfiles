@@ -41,7 +41,6 @@ function M.is_dirty()
     return M.run({ "status", "--porcelain" }) ~= ""
 end
 
----True when `ancestor` is reachable from `rev`.
 function M.is_ancestor(ancestor, rev)
     return vim.system({ "git", "merge-base", "--is-ancestor", ancestor, rev }):wait().code == 0
 end

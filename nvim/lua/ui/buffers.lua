@@ -1,6 +1,5 @@
--- Buffer closing that keeps the window layout, and exits when the last listed
--- buffer goes, which is what nvim-bufdel's quit option did. Closing from inside
--- a diffview closes the view instead: its buffers are not yours to delete.
+-- Closing keeps the window layout, and the last listed buffer going quits
+-- nvim. Inside a diffview the view closes instead: its buffers are not ours.
 local M = {}
 
 local function listed()

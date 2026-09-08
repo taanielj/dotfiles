@@ -1,10 +1,8 @@
--- Diffview entry points. Each opener toggles: in a diffview tab it closes the
--- view, elsewhere it opens one. Buffers the view loaded are dropped on close.
 local git = require("git")
 
 local M = {}
 
----True when the current tabpage is a diffview. Does not load the plugin.
+-- Reads package.loaded so asking never loads the plugin
 function M.is_open()
     local lib = package.loaded["diffview.lib"]
     return lib ~= nil and lib.get_current_view() ~= nil
@@ -39,7 +37,6 @@ function M.base()
     vim.notify("No default branch or upstream to compare against", vim.log.levels.WARN)
 end
 
--- Working tree against HEAD.
 M.uncommitted = toggle(function()
     if not git.is_dirty() then
         vim.notify("Working tree is clean", vim.log.levels.INFO)
@@ -48,7 +45,7 @@ M.uncommitted = toggle(function()
     vim.cmd.DiffviewOpen()
 end)
 
--- Everything this branch adds on top of its base.
+-- Three dots: only what the branch added since it left its base
 M.branch = toggle(function()
     local base = M.base()
     if base then
@@ -56,7 +53,6 @@ M.branch = toggle(function()
     end
 end)
 
--- The branch's commits one at a time.
 M.branch_log = toggle(function()
     local base = M.base()
     if base then
@@ -64,12 +60,10 @@ M.branch_log = toggle(function()
     end
 end)
 
--- Every commit that touched the current file.
 M.file_log = toggle(function()
     vim.cmd.DiffviewFileHistory("%")
 end)
 
--- Working tree against a branch chosen in telescope.
 M.pick_branch = toggle(function()
     local actions = require("telescope.actions")
     local state = require("telescope.actions.state")
@@ -174,8 +168,7 @@ function M.focus_first_change()
     require("diffview.actions").focus_entry()
 end
 
--- Buffers listed before each view opened, keyed by the view's tabpage, so
--- closing the view can drop the files it pulled in without touching yours.
+-- Snapshot per view, so closing drops only the files the view pulled in
 local listed_before = {}
 
 local function listed()

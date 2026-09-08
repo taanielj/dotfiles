@@ -1,14 +1,10 @@
--- Right-click menus are Neovim's own popup menus. 'mousemodel' is popup_setpos,
--- so a click moves the cursor and opens PopUp with no mapping involved; the
--- MenuPopup autocmd rebuilds PopUp for what is under the cursor just before it
--- shows, replacing Neovim's handler, which only disables rows.
---
--- Menus for a clicked thing that is not the buffer (the tree, a bufferline
--- tab) cannot be buffer-local, because <buffer> is rejected for PopUp, so each
--- is a separate hidden menu rebuilt from its spec in lua/menus/ when shown.
---
--- A menu entry's right-hand side is a key sequence rather than a Lua value, so
--- callbacks are reached through a registry keyed by menu name.
+-- Neovim's own popup menus. 'mousemodel' is popup_setpos, so a right-click
+-- moves the cursor and opens PopUp with no mapping; the MenuPopup autocmd
+-- rebuilds PopUp for what is under the cursor, replacing Neovim's handler,
+-- which only disables rows. Menus for things that are not the buffer (the
+-- tree, a bufferline tab) are separate hidden menus, since PopUp cannot be
+-- buffer-local. A menu's right-hand side is a key sequence, so Lua callbacks
+-- are reached through a registry keyed by menu name.
 local M = {}
 
 local callbacks = {}
@@ -48,14 +44,12 @@ local function add(menu, path, entries)
     end
 end
 
--- Replaces `menu` with the entries the named spec builds for `ctx`.
 function M.define(menu, spec, ctx)
     vim.cmd("silent! aunmenu " .. menu)
     callbacks[menu] = {}
     add(menu, menu, require("menus." .. spec)(ctx))
 end
 
--- What the default menu needs to know about the buffer under the cursor.
 function M.buffer_context()
     local bufnr = vim.api.nvim_get_current_buf()
     return {
@@ -70,14 +64,13 @@ function M.buffer_context()
     }
 end
 
--- Rebuilds `menu` and shows it at the mouse pointer, or at the cursor.
 function M.show(menu, spec, ctx, opts)
     M.define(menu, spec, ctx)
     vim.cmd((opts and opts.at_cursor and "popup " or "popup! ") .. menu)
 end
 
--- As show(), after moving the cursor to the clicked line the way popup_setpos
--- does for PopUp. Menu entries read the node under the cursor.
+-- Moves the cursor to the clicked line first, as popup_setpos does for PopUp,
+-- because entries act on the node under the cursor.
 function M.show_at_mouse(menu, spec, ctx)
     local mouse = vim.fn.getmousepos()
     if mouse.winid ~= 0 and mouse.line > 0 then
@@ -91,12 +84,10 @@ function M.show_at_mouse(menu, spec, ctx)
     M.show(menu, spec, ctx)
 end
 
--- The keyboard route to the right-click menu.
 function M.popup_at_cursor()
     M.show("PopUp", "default", M.buffer_context(), { at_cursor = true })
 end
 
--- Takes PopUp over from Neovim: its handler and rows go, ours rebuild per click.
 function M.setup()
     vim.cmd("silent! aunmenu PopUp")
     pcall(vim.api.nvim_del_augroup_by_name, "nvim.popupmenu")
