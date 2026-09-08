@@ -40,20 +40,6 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
-vim.api.nvim_create_autocmd("FileType", {
-    group = augroup("filetype_menus"),
-    pattern = { "neo-tree", "oil" },
-    -- A click within 'mousetime' of the last one arrives as a multi-click key,
-    -- which is how a right-click while a menu is open lands.
-    callback = function()
-        for _, lhs in ipairs({ "<RightMouse>", "<2-RightMouse>", "<3-RightMouse>", "<4-RightMouse>" }) do
-            vim.keymap.set("n", lhs, function()
-                require("ui.menu").popup_at_mouse()
-            end, { buffer = true, silent = true, desc = "Context menu" })
-        end
-    end,
-})
-
 vim.api.nvim_create_autocmd("TextYankPost", {
     group = augroup("highlight_yank"),
     desc = "Briefly highlight yanked text",

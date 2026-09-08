@@ -1,11 +1,12 @@
 -- Neovim's own popup menus. 'mousemodel' is popup_setpos, so a right-click
 -- moves the cursor and opens PopUp with no mapping; the MenuPopup autocmd
--- rebuilds PopUp for what is under the cursor, replacing Neovim's handler,
--- which only disables rows. Menus for things that are not the buffer (the
--- tree, a bufferline tab) are separate hidden menus, since PopUp cannot be
--- buffer-local. A menu's right-hand side is a key sequence, so Lua callbacks
--- are reached through a registry keyed by menu name. The terminal popup
--- executes any row, so there are no submenus: a row is an item or a separator.
+-- rebuilds PopUp for what is under the cursor, by filetype, replacing
+-- Neovim's handler, which only disables rows. A bufferline tab is not a
+-- window, so its menu is a separate hidden menu. A menu's right-hand side is
+-- a key sequence, so Lua callbacks are reached through a registry keyed by
+-- menu name. No mappings on the mouse: a click while a menu is open is
+-- pushed back and handled by normal mode directly, where mappings do not
+-- apply.
 local M = {}
 
 local callbacks = {}
@@ -173,48 +174,35 @@ function M.show(menu, spec, ctx, opts)
     vim.cmd((opts and opts.at_cursor and "popup " or "popup! ") .. menu)
 end
 
--- Windows that are not a text buffer get their own menu, by filetype.
+-- Windows that are not a text buffer get their own spec, by filetype.
 local by_filetype = {
-    ["neo-tree"] = { "]NeoTree", "neotree" },
-    oil = { "]Oil", "oil" },
+    ["neo-tree"] = "neotree",
+    oil = "oil",
 }
 
-local function show_for_filetype(opts)
-    local menu = by_filetype[vim.bo.filetype]
-    if menu then
-        M.show(menu[1], menu[2], nil, opts)
-    else
-        M.show("PopUp", "default", M.buffer_context(), opts)
+local function define_popup()
+    local spec = by_filetype[vim.bo.filetype]
+    if spec then
+        return M.define("PopUp", spec)
     end
-end
-
--- Moves the cursor to the clicked line first, as popup_setpos does for PopUp,
--- because entries act on the node under the cursor.
-function M.popup_at_mouse()
-    local mouse = vim.fn.getmousepos()
-    if mouse.winid ~= 0 and mouse.line > 0 then
-        vim.api.nvim_set_current_win(mouse.winid)
-        local line = math.min(mouse.line, vim.api.nvim_buf_line_count(0))
-        if line > 0 then
-            vim.api.nvim_win_set_cursor(mouse.winid, { line, 0 })
-        end
-    end
-    show_for_filetype()
+    return M.define("PopUp", "default", M.buffer_context())
 end
 
 function M.popup_at_cursor()
-    show_for_filetype({ at_cursor = true })
+    if define_popup() > 0 then
+        vim.cmd("popup PopUp")
+    end
 end
 
 function M.setup()
     vim.cmd("silent! aunmenu PopUp")
     pcall(vim.api.nvim_del_augroup_by_name, "nvim.popupmenu")
-    M.define("PopUp", "default", M.buffer_context()) -- never empty when a click lands
+    define_popup() -- never empty when a click lands
 
     vim.api.nvim_create_autocmd("MenuPopup", {
         group = vim.api.nvim_create_augroup("user_popupmenu", { clear = true }),
         callback = function()
-            M.define("PopUp", "default", M.buffer_context())
+            define_popup() -- a truthy return would delete the autocmd
         end,
     })
 end
