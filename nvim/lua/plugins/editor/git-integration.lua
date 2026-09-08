@@ -183,6 +183,7 @@ return {
                 { "n", "k", actions.select_prev_entry, { desc = "Open the previous file" } },
                 { "n", "<up>", actions.select_prev_entry, { desc = "Open the previous file" } },
                 { "n", "<cr>", function() require("ui.diffview").focus_first_change() end, { desc = "Open the file at its first change" } },
+                { "n", "<LeftMouse>", function() require("ui.diffview").click_entry() end, { desc = "Open the clicked file" } },
             }
             local view_keys = {
                 panel_keys[1],

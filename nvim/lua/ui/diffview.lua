@@ -172,6 +172,22 @@ function M.focus_first_change()
     require("diffview.actions").focus_entry()
 end
 
+-- A single click opens the entry under the mouse the way j and k do, with focus
+-- staying in the panel. A click that lands in another window is passed on as
+-- a plain click so it still moves there.
+function M.click_entry()
+    local pos = vim.fn.getmousepos()
+    if pos.winid ~= vim.api.nvim_get_current_win() then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<LeftMouse>", true, false, true), "n", false)
+        return
+    end
+    if pos.line == 0 then
+        return
+    end
+    vim.api.nvim_win_set_cursor(0, { pos.line, 0 })
+    require("diffview.actions").select_entry()
+end
+
 local function is_index(file)
     return file.rev.type == require("diffview.vcs.rev").RevType.STAGE
 end
