@@ -31,8 +31,28 @@ local function rhs(menu, entry)
     return ("<Cmd>lua require('ui.menu').run('%s', %d)<CR>"):format(menu, id)
 end
 
+-- Separators only between rows that are shown, so a menu whose whole
+-- group was left out does not open with a blank line.
+local function compact(entries)
+    local result = {}
+    for _, entry in ipairs(entries) do
+        local last = result[#result]
+        if entry.separator then
+            if last and not last.separator then
+                result[#result + 1] = entry
+            end
+        elseif not entry.items or #entry.items > 0 then
+            result[#result + 1] = entry
+        end
+    end
+    if result[#result] and result[#result].separator then
+        result[#result] = nil
+    end
+    return result
+end
+
 local function add(menu, path, entries)
-    for i, entry in ipairs(entries) do
+    for i, entry in ipairs(compact(entries)) do
         if entry.separator then
             vim.cmd(("anoremenu %s.-sep%d- <Nop>"):format(path, i))
         elseif entry.items then
@@ -44,23 +64,72 @@ local function add(menu, path, entries)
     end
 end
 
+---Collects a menu's rows, leaving out those whose `when` is false.
+function M.rows()
+    local entries = {}
+    local rows = { entries = entries }
+    function rows.add(entry, when)
+        if when ~= false then
+            entries[#entries + 1] = entry
+        end
+    end
+    function rows.item(icon, name, cmd, when, mode)
+        rows.add({ name = icon .. "  " .. name, cmd = cmd, mode = mode }, when)
+    end
+    return rows
+end
+
 function M.define(menu, spec, ctx)
     vim.cmd("silent! aunmenu " .. menu)
     callbacks[menu] = {}
     add(menu, menu, require("menus." .. spec)(ctx))
 end
 
+local symbol_captures = {
+    variable = true, constant = true, parameter = true, property = true, field = true,
+    ["function"] = true, method = true, constructor = true,
+    type = true, module = true, namespace = true, attribute = true,
+}
+
+-- Without a parser any word counts as a symbol.
+local function symbol_and_call(bufnr)
+    local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+    if not ok or not parser then
+        return vim.fn.expand("<cword>"):match("^[%w_]+$") ~= nil, true
+    end
+    local row = vim.api.nvim_win_get_cursor(0)[1] - 1
+    parser:parse({ row, row })
+
+    local symbol = vim.iter(vim.treesitter.get_captures_at_cursor(0)):any(function(capture)
+        return symbol_captures[capture:match("^[%a_]+")] == true
+    end)
+    local node = vim.treesitter.get_node()
+    while node and not node:type():match("argument") do
+        node = node:parent()
+    end
+    return symbol, node ~= nil
+end
+
 function M.buffer_context()
     local bufnr = vim.api.nvim_get_current_buf()
+    local row = vim.api.nvim_win_get_cursor(0)[1] - 1
+    local symbol, in_call = symbol_and_call(bufnr)
     return {
         bufnr = bufnr,
         -- _get_urls() falls back to <cfile>, so any word would count
         url = vim.iter(vim.ui._get_urls()):any(function(url)
             return url:match("^%a[%w+.-]*://") ~= nil
         end),
-        lsp = #vim.lsp.get_clients({ bufnr = bufnr }) > 0,
+        symbol = symbol,
+        in_call = in_call,
+        supports = function(method)
+            return #vim.lsp.get_clients({ bufnr = bufnr, method = method }) > 0
+        end,
+        line_diagnostics = #vim.diagnostic.get(bufnr, { lnum = row }) > 0,
         diagnostics = #vim.diagnostic.get(bufnr) > 0,
         modifiable = vim.bo[bufnr].modifiable,
+        empty = vim.api.nvim_buf_line_count(bufnr) == 1 and vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] == "",
+        clipboard = vim.fn.getreg("+") ~= "",
     }
 end
 
@@ -85,7 +154,11 @@ function M.show_at_mouse(menu, spec, ctx)
 end
 
 function M.popup_at_cursor()
-    M.show("PopUp", "default", M.buffer_context(), { at_cursor = true })
+    if vim.bo.filetype == "neo-tree" then
+        M.show("]NeoTree", "neotree", nil, { at_cursor = true })
+    else
+        M.show("PopUp", "default", M.buffer_context(), { at_cursor = true })
+    end
 end
 
 function M.setup()

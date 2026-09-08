@@ -17,7 +17,6 @@ return {
     paste = "\u{F429}",
     path = "\u{F0D20}",
     relative_path = "\u{F506}",
-    terminal = "\u{F489}",
     file = "\u{F0214}",
     pin = "\u{F0403}",
     clipboard = "\u{F027F}",

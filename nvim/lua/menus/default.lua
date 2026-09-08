@@ -1,60 +1,44 @@
 -- Replaces Neovim's PopUp so rows that cannot apply are left out rather than
 -- shown disabled. `ctx` is ui.menu.buffer_context().
 local icons = require("ui.icons")
+local menu = require("ui.menu")
 
 return function(ctx)
-    local function open_in_terminal()
-        local dir = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":h")
-        vim.cmd("enew")
-        vim.fn.jobstart({ vim.o.shell, "-c", "cd " .. vim.fn.shellescape(dir) .. " ; " .. vim.o.shell }, { term = true })
-    end
-
     local function edit_config()
         vim.cmd.tabnew()
         vim.cmd.tcd(vim.fn.fnameescape(vim.fn.stdpath("config")))
         vim.cmd.edit("init.lua")
     end
 
-    local entries = {}
-    local function add(entry, when)
-        if when ~= false then
-            entries[#entries + 1] = entry
-        end
-    end
-    local function item(icon, name, cmd, when, mode)
-        add({ name = icon .. "  " .. name, cmd = cmd, mode = mode }, when)
-    end
+    local rows = menu.rows()
 
-    item(icons.browser, "Open in web browser", "gx", ctx.url)
-    item(icons.definition, "Go to definition", vim.lsp.buf.definition, ctx.lsp)
-    item(icons.code_action, "Code actions", vim.lsp.buf.code_action, ctx.lsp)
-    item(icons.format, "Format buffer", vim.lsp.buf.format, ctx.lsp)
-    add({
-        name = icons.lsp .. "  LSP",
-        items = {
-            { name = "Go to implementation", cmd = vim.lsp.buf.implementation },
-            { name = "Show references", cmd = vim.lsp.buf.references },
-            { name = "Signature help", cmd = vim.lsp.buf.signature_help },
-            { name = "Rename symbol", cmd = vim.lsp.buf.rename },
-        },
-    }, ctx.lsp)
-    item(icons.diagnostics, "Show diagnostics", vim.diagnostic.open_float, ctx.diagnostics)
-    item(icons.list, "All diagnostics", vim.diagnostic.setqflist, ctx.diagnostics)
-    add({ separator = true }, ctx.url or ctx.lsp or ctx.diagnostics)
+    local lsp = menu.rows()
+    lsp.add({ name = "Go to implementation", cmd = vim.lsp.buf.implementation }, ctx.symbol and ctx.supports("textDocument/implementation"))
+    lsp.add({ name = "Show references", cmd = vim.lsp.buf.references }, ctx.symbol and ctx.supports("textDocument/references"))
+    lsp.add({ name = "Signature help", cmd = vim.lsp.buf.signature_help }, ctx.in_call and ctx.supports("textDocument/signatureHelp"))
+    lsp.add({ name = "Rename symbol", cmd = vim.lsp.buf.rename }, ctx.symbol and ctx.modifiable and ctx.supports("textDocument/rename"))
 
-    item(icons.cut, "Cut", '"+x', nil, "v")
-    item(icons.copy, "Copy", '"+y', nil, "v")
-    item(icons.paste, "Paste", '"+gP', nil, "n")
-    item(icons.paste, "Paste", '"+P', nil, "v")
-    item(icons.delete, "Delete", "x", nil, "v")
-    item(icons.select_all, "Select all", "<Cmd>normal! ggVG<CR>")
-    item(icons.copy_all, "Copy buffer", "<Cmd>%y+<CR>", nil, "n")
-    item(icons.erase, "Delete buffer contents", "<Cmd>%d<CR>", ctx.modifiable, "n")
-    add({ separator = true })
+    rows.item(icons.browser, "Open in web browser", "gx", ctx.url)
+    rows.item(icons.definition, "Go to definition", vim.lsp.buf.definition, ctx.symbol and ctx.supports("textDocument/definition"))
+    rows.item(icons.code_action, "Code actions", vim.lsp.buf.code_action, ctx.supports("textDocument/codeAction"))
+    rows.item(icons.format, "Format buffer", vim.lsp.buf.format, ctx.modifiable and ctx.supports("textDocument/formatting"))
+    rows.add({ name = icons.lsp .. "  LSP", items = lsp.entries })
+    rows.item(icons.diagnostics, "Show diagnostics", vim.diagnostic.open_float, ctx.line_diagnostics)
+    rows.item(icons.list, "All diagnostics", vim.diagnostic.setqflist, ctx.diagnostics)
+    rows.add({ separator = true })
 
-    item(icons.inspect, "Inspect", "<Cmd>Inspect<CR>")
-    item(icons.terminal, "Open in terminal", open_in_terminal)
-    item(icons.config, "Edit config", edit_config)
+    rows.item(icons.cut, "Cut", '"+x', ctx.modifiable, "v")
+    rows.item(icons.copy, "Copy", '"+y', nil, "v")
+    rows.item(icons.paste, "Paste", '"+gP', ctx.modifiable and ctx.clipboard, "n")
+    rows.item(icons.paste, "Paste", '"+P', ctx.modifiable and ctx.clipboard, "v")
+    rows.item(icons.delete, "Delete", "x", ctx.modifiable, "v")
+    rows.item(icons.select_all, "Select all", "<Cmd>normal! ggVG<CR>", not ctx.empty)
+    rows.item(icons.copy_all, "Copy buffer", "<Cmd>%y+<CR>", not ctx.empty, "n")
+    rows.item(icons.erase, "Delete buffer contents", "<Cmd>%d<CR>", ctx.modifiable and not ctx.empty, "n")
+    rows.add({ separator = true })
 
-    return entries
+    rows.item(icons.inspect, "Inspect", "<Cmd>Inspect<CR>")
+    rows.item(icons.config, "Edit config", edit_config)
+
+    return rows.entries
 end
