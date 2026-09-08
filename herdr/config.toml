@@ -84,6 +84,28 @@ type = "plugin_action"
 command = "herdr-splits.resize-right"
 description = "resize right"
 
+# alt+shift+hjkl - one-percent resize; herdr/bin/herdr-resize-fine.sh
+[[keys.command]]
+key = "alt+shift+h"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" left'
+description = "resize left (fine)"
+[[keys.command]]
+key = "alt+shift+j"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" down'
+description = "resize down (fine)"
+[[keys.command]]
+key = "alt+shift+k"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" up'
+description = "resize up (fine)"
+[[keys.command]]
+key = "alt+shift+l"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" right'
+description = "resize right (fine)"
+
 # tmux: prefix B = break-pane (herdr has no built-in action, so call the CLI)
 [[keys.command]]
 key = "prefix+shift+b"

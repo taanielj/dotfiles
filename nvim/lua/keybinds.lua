@@ -165,6 +165,10 @@ local all_mappings = {
     { "n",               "<M-l>",                      "2<C-w>>",                                       "Resize split right" },
     { "n",               "<M-j>",                      "2<C-w>+",                                       "Resize split down" },
     { "n",               "<M-k>",                      "2<C-w>-",                                       "Resize split up" },
+    { "n",               "<M-H>",                      "<C-w><",                                        "Resize split left (fine)" },
+    { "n",               "<M-L>",                      "<C-w>>",                                        "Resize split right (fine)" },
+    { "n",               "<M-J>",                      "<C-w>+",                                        "Resize split down (fine)" },
+    { "n",               "<M-K>",                      "<C-w>-",                                        "Resize split up (fine)" },
 
     -- ====================
     -- Surround replacement
