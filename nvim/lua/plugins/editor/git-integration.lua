@@ -67,22 +67,8 @@ return {
                     end, { desc = "Diff against main/master branch" })
 
                     -- Toggles
-                    local function toggle_blame_column()
-                        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-                            if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "gitsigns-blame" then
-                                vim.api.nvim_win_close(win, true)
-                                return
-                            end
-                        end
-                        local win = vim.api.nvim_get_current_win()
-                        gitsigns.blame(nil, function()
-                            if vim.api.nvim_win_is_valid(win) then
-                                vim.api.nvim_set_current_win(win)
-                            end
-                        end)
-                    end
                     map("n", "<leader>gb", gitsigns.toggle_current_line_blame, { desc = "Toggle inline blame" })
-                    map("n", "<leader>gB", toggle_blame_column, { desc = "Toggle blame column" })
+                    map("n", "<leader>gB", require("ui.blame").toggle_column, { desc = "Toggle blame column" })
                     map("n", "<leader>gD", gitsigns.toggle_linehl, { desc = "Diff line highlighting" })
 
                     -- Open current line in browser (GitHub/GitLab/Bitbucket)
