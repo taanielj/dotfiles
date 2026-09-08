@@ -1,5 +1,7 @@
 return {
     "soulis-1256/eagle.nvim",
+    -- setup() registers the <MouseMove> keymap, so mouse hover needs it loaded
+    event = "VeryLazy",
     opts = {
         border = "rounded",
         mouse_mode = true,
