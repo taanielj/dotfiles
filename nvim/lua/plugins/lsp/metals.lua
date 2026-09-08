@@ -11,6 +11,12 @@ return {
         config = function(self, opts)
           local _ = self; _ = opts
           local dap = require("dap")
+          local icons = require("ui.icons")
+
+          vim.fn.sign_define("DapBreakpoint", { text = icons.breakpoint .. " ", texthl = "DiagnosticError" })
+          vim.fn.sign_define("DapBreakpointCondition", { text = icons.breakpoint_condition .. " ", texthl = "DiagnosticWarn" })
+          vim.fn.sign_define("DapBreakpointRejected", { text = icons.breakpoint_rejected .. " ", texthl = "DiagnosticHint" })
+          vim.fn.sign_define("DapStopped", { text = icons.stopped .. " ", texthl = "DiagnosticWarn", linehl = "CursorLine" })
 
           dap.configurations.scala = {
             {

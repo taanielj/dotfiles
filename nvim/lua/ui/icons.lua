@@ -1,6 +1,10 @@
--- Nerd-font glyphs for the context menus, as escapes so the codepoints stay
--- visible in the source and survive tools that drop private-use characters.
+-- Nerd-font glyphs as escapes, so the codepoints stay visible in the source
+-- and survive tools that drop private-use characters.
 return {
+    breakpoint = "\u{F111}",
+    breakpoint_condition = "\u{F059}",
+    breakpoint_rejected = "\u{F05E}",
+    stopped = "\u{F0A4}",
     open = "\u{EB7F}",
     vsplit = "\u{EB56}",
     hsplit = "\u{EB57}",
@@ -18,4 +22,16 @@ return {
     pin = "\u{F0403}",
     clipboard = "\u{F027F}",
     split = "\u{EA93}",
+    browser = "\u{F0AC}",
+    definition = "\u{F05B}",
+    code_action = "\u{F0EB}",
+    format = "\u{F036}",
+    lsp = "\u{F121}",
+    diagnostics = "\u{F0F1}",
+    list = "\u{F03A}",
+    select_all = "\u{F046}",
+    copy_all = "\u{F0C5}",
+    erase = "\u{F12D}",
+    inspect = "\u{F002}",
+    config = "\u{F013}",
 }
