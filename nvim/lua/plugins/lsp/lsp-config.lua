@@ -183,8 +183,6 @@ return {
                 ensure_installed = ensure_installed,
             })
 
-            vim.cmd.anoremenu("Popup.Definition <Cmd>:lua vim.lsp.buf.definition()<CR>")
-
             vim.diagnostic.config({
                 signs = {
                     text = {

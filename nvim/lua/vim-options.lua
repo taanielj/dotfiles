@@ -17,7 +17,7 @@ vim.opt.incsearch = true
 -- Unless \C or capital letter in search pattern, search is case-insensitive
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.signcolumn = "yes"
+vim.opt.signcolumn = "yes:2" -- a git sign and a diagnostic on the same line
 
 vim.opt.listchars = {
     tab = "▸ ",
