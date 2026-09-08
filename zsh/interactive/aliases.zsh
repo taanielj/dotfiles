@@ -104,19 +104,11 @@ reset_repo() {
 nvim() {
     # xterm-kitty terminfo gives nvim a blinking cursor
     [[ "$TERM_PROGRAM" == "kitty" ]] && export TERM="xterm-kitty"
-    if [[ $# -ne 0 ]]; then
-        command nvim "$@"
+    if [[ -z $VIRTUAL_ENV && -x .venv/bin/python ]]; then
+        VIRTUAL_ENV="$PWD/.venv" PATH="$PWD/.venv/bin:$PATH" command nvim "$@"
         return
     fi
-
-    local venv_path=$(__resolve_venv_path)
-    if [[ -z $venv_path || ! -f "$venv_path/bin/activate" ]]; then
-        command nvim
-        return
-    fi
-
-    source "$venv_path/bin/activate"
-    command nvim
+    command nvim "$@"
 }
 
 nvimf() {
