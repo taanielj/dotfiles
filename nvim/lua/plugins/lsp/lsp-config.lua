@@ -142,7 +142,9 @@ return {
                         },
                     },
                 },
-                ruff = {}, -- Python linter (formatting via black + isort in none-ls)
+                -- Python linter, formatter and import sorter; the editor line length
+                -- wins over a project's, as the black and isort flags did before.
+                ruff = { init_options = { settings = { lineLength = 120 } } },
                 html = {
                     configurationSection = { "html", "css", "javascript" },
                     embeddedLanguages = { css = true, javascript = true },

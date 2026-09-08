@@ -19,19 +19,6 @@ return {
                     }),
                     -- JavaScript/TypeScript/HTML/CSS/JSON/YAML/Markdown
                     null_ls.builtins.formatting.prettier,
-                    -- Python - code formatter
-                    null_ls.builtins.formatting.black.with({
-                        extra_args = { "--line-length", "120" },
-                    }),
-                    -- Python - import sorter
-                    null_ls.builtins.formatting.isort.with({
-                        extra_args = {
-                            "--line-length",
-                            "120",
-                            "--profile",
-                            "black",
-                        },
-                    }),
                     -- Protobuf
                     null_ls.builtins.formatting.buf,
                     -- SQL
@@ -52,8 +39,6 @@ return {
             automatic_installation = true,
             ensure_installed = {
                 "stylua", -- Lua
-                "black", -- Python code formatter
-                "isort", -- Python import sorter
                 "shfmt", -- Shell
                 "buf", -- Protobuf
                 "checkmake", -- Makefile linter
