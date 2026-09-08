@@ -21,26 +21,19 @@ bash setup.sh --teardown --remove-cargo
 
 ## What's Included
 
-Run `bash setup.sh` to setup:
+`setup.sh` runs the scripts in [setup](setup) in a fixed order (see `SETUP_SCRIPTS` at the top of the file) and offers an interactive menu to pick a subset. Each script installs and configures one component and knows how to undo itself:
 
-- [system packages](setup/system.sh): installs various packages using apt (Ubuntu/Debian), pkg (termux), or brew (macOS)
-  - the basics, such as git, curl, wget, various build tools, if they're not already installed
-- [zsh](setup/zsh.sh): uses zinit, p10k, various plugins, see [zsh/zshrc.zsh](zsh/zshrc.zsh)
-- [neovim](setup/nvim.sh) uses lazy.nvim, various plugins see [plugins dir](nvim/lua/plugins)
-- [tmux](setup/tmux.sh): uses tpm, various plugins, see [tmux.conf](tmux.conf)
-- Also have [setup scripts](setup) for setting up:
-  - [mise.sh](setup/mise.sh) - A modern alternative to asdf [mise.sh](setup/mise.sh)
-    - Choose whether to install nodejs, python, java, go, ruby etc (fzf, use tab to toggle)
-  - [cargo.sh](setup/cargo.sh) - Rust package manager [cargo.sh](setup/cargo.sh), also installs:
-    - eza - A modern alternative to ls, aliased to `ls`
-    - zoxide - A smarter cd, aliased to `cd`
-    - bat - a pretty cat, aliased to `cat`
-    - ripgrep - faster grep, run with `rg`
-    - fd-find - a simpler, faster, smarter find, run with `fd`
-  - [lazygit](setup/lazygit.sh) - A Terminal User Interface (TUI) for git commands, run with `lazygit`
-  - [kitty.sh](setup/kitty.sh) - A fast, feature-rich, GPU based terminal emulator, run with `kitty` MacOS only currently, since I use linux via WSL most of the time
-
-That list is up to date as of Sep 02, 2025. If you see later commit dates, that means I updated something but didn't update this list.
+- [system](setup/system.sh): base packages via apt, pkg (termux), or brew - the only script that needs sudo
+- [git](setup/git.sh): sane global defaults, global ignore file, prompts for name and email, gh as credential helper when logged in
+- [zsh](setup/zsh.sh): zinit, p10k, and the config under [zsh](zsh)
+- [tmux](setup/tmux.sh): tpm and [tmux.conf](tmux.conf)
+- [herdr](setup/herdr.sh): config and plugins for the herdr multiplexer, skipped if herdr is not installed
+- [mise](setup/mise.sh): version manager for language runtimes, with an fzf picker for which to install
+- [nvim](setup/nvim.sh): latest stable Neovim and the lazy.nvim config under [nvim](nvim)
+- [cargo](setup/cargo.sh): Rust plus the cargo-installed CLI tools aliased in [zsh/interactive/aliases.zsh](zsh/interactive/aliases.zsh)
+- [lazygit](setup/lazygit.sh): Linux only
+- [win32yank](setup/win32yank.sh): Windows clipboard tool for zsh, tmux and nvim, WSL only
+- [kitty](setup/kitty.sh) and [wezterm](setup/wezterm.sh): macOS only
 
 ## Teardown
 
