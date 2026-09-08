@@ -202,6 +202,8 @@ return {
                 panel_keys[1],
                 panel_keys[2],
                 { "n", "-", actions.toggle_stage_entry, { desc = "Stage / unstage the file" } },
+                { { "n", "x" }, "dp", require("ui.diffview").hunk_to_index("diffput"), { desc = "Put the hunk into the other side, staging it" } },
+                { { "n", "x" }, "do", require("ui.diffview").hunk_to_index("diffget"), { desc = "Take the hunk from the other side, unstaging it" } },
             }
             return {
                 hooks = require("ui.diffview").hooks,
