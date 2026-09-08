@@ -7,6 +7,7 @@ onboarding = false
 
 [terminal]
 shell_mode = "auto"
+kitty_graphics = true
 
 [session]
 resume_agents_on_restore = true
@@ -173,5 +174,4 @@ name = "catppuccin-mocha"
 auto_switch = true
 
 [experimental]
-kitty_graphics = true
 pane_history = true
