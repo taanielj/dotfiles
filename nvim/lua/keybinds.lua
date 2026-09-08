@@ -288,6 +288,28 @@ vim.keymap.set("ca", "q", function()
     return "q"
 end, { expr = true })
 
+-- ============
+-- Mouse wheel
+-- ============
+
+-- scrollbind only follows the current window, so wheeling over the other side
+-- of a diff moves that side alone; syncing from the hovered window brings the
+-- rest along.
+local function wheel(key)
+    local termcode = vim.api.nvim_replace_termcodes(key, true, false, true)
+    return function()
+        local win = vim.fn.getmousepos().winid
+        vim.cmd.normal({ termcode, bang = true })
+        if win ~= 0 and win ~= vim.api.nvim_get_current_win() and vim.wo[win].scrollbind then
+            vim.api.nvim_win_call(win, vim.cmd.syncbind)
+        end
+    end
+end
+map({
+    { { "n", "x", "i" }, "<ScrollWheelDown>", wheel("<ScrollWheelDown>"), "Scroll down, syncing bound windows" },
+    { { "n", "x", "i" }, "<ScrollWheelUp>",   wheel("<ScrollWheelUp>"),   "Scroll up, syncing bound windows" },
+})
+
 -- ===================
 -- <leader>R  Restart
 -- ===================
