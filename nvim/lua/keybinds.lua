@@ -1,5 +1,32 @@
+-- Global keymaps, in two forms:
+--   * one row in `all_mappings` when the whole mapping fits on a line,
+--   * a vim.keymap.set call further down when it needs a function body.
+-- Normal-mode leader maps are sectioned by prefix, matching `groups` below,
+-- which which-key reads so the file and the popup share one structure.
+-- Everything else is sectioned by task.
+--
+-- Not here: buffer-local maps, which live with what scopes them (LSP
+-- on_attach, FileType autocmds), and maps that are a plugin's lazy-load
+-- trigger, which stay in that plugin's `keys`.
+
 -- Leader must be set before plugins load
 vim.g.mapleader = " "
+
+-- Which-key labels for prefixes; a prefix has no mapping of its own to carry a desc.
+local groups = {
+    { "<leader>a",  group = "AI/Claude Code" },
+    { "<leader>b",  group = "Buffer" },
+    { "<leader>bc", group = "Close" },
+    { "<leader>bs", group = "Sort" },
+    { "<leader>c",  group = "Copilot / Codesnap" },
+    { "<leader>f",  group = "Find" },
+    { "<leader>g",  group = "Git" },
+    { "<leader>h",  group = "Find hidden" },
+    { "<leader>l",  group = "LSP" },
+    { "<leader>q",  group = "Close" },
+    { "<leader>qf", group = "Force quit" },
+    { "<leader>y",  group = "Yank" },
+}
 
 local map = function(mappings)
     if mappings[1] == nil or type(mappings[1]) ~= "table" then
@@ -26,17 +53,48 @@ local map = function(mappings)
     end
 end
 
-vim.keymap.set("n", "i", function()
-    vim.wo.relativenumber = false
-    return "i"
-end, { noremap = true, expr = true, silent = true, desc = "Insert mode without relative number" })
-
 local all_mappings = {
+    -- ==================
+    -- <leader>b  Buffer
+    -- ==================
+    { "n",               "<leader>bn",                 "<Cmd>BufferLineCycleNext<CR>",                  "Next buffer" },
+    { "n",               "<leader>bp",                 "<Cmd>BufferLineCyclePrev<CR>",                  "Previous buffer" },
+    { "n",               "<Tab>",                      "<Cmd>BufferLineCycleNext<CR>",                  "Next buffer" },
+    { "n",               "<S-Tab>",                    "<Cmd>BufferLineCyclePrev<CR>",                  "Previous buffer" },
+    { "n",               "<leader>bh",                 "<Cmd>BufferLineMovePrev<CR>",                   "Move buffer left" },
+    { "n",               "<leader>bl",                 "<Cmd>BufferLineMoveNext<CR>",                   "Move buffer right" },
+    { "n",               "<leader>bP",                 "<Cmd>BufferLinePick<CR>",                       "Pick buffer" },
+    { "n",               "<leader>bt",                 "<Cmd>BufferLineTogglePin<CR>",                  "Pin buffer" },
+    { "n",               { "ZZ", "<leader>bq", "<leader>qb" }, function() require("ui.buffers").close() end, "Save and close buffer" },
+    -- <leader>bc  Close
+    { "n",               "<leader>bch",                "<Cmd>BufferLineCloseLeft<CR>",                  "Close buffers to the left" },
+    { "n",               "<leader>bcl",                "<Cmd>BufferLineCloseRight<CR>",                 "Close buffers to the right" },
+    { "n",               "<leader>bca",                "<Cmd>BufferLineCloseOthers<CR>",                "Close other buffers" },
+    -- <leader>bs  Sort
+    { "n",               "<leader>bsd",                "<Cmd>BufferLineSortByDirectory<CR>",            "Sort by directory" },
+    { "n",               "<leader>bst",                "<Cmd>BufferLineSortByTabs<CR>",                 "Sort by tabs" },
+    { "n",               "<leader>bse",                "<Cmd>BufferLineSortByExtension<CR>",            "Sort by extension" },
+
+    -- =================
+    -- <leader>q  Close
+    -- =================
+    { "n",               "<leader>q!",                 function() require("ui.buffers").close({ force = true }) end, "Close buffer without saving" },
+    { "n",               "<leader>qa",                 "<Cmd>wa<CR><Cmd>qa<CR>",                        "Quit and save all" },
+    { "n",               "<leader>qfy",                "<Cmd>qa!<CR>",                                  "Quit without saving?" },
+
+    -- =================
+    -- <leader>  leaves
+    -- =================
+    -- Right-click uses Neovim's own popup_setpos; this is the keyboard route
+    { "n",               "<leader>.",                  function() require("ui.menu").popup_at_cursor() end, "Open menu" },
+    { "n",               "<leader>s",                  ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
+
     -- ====================
     -- Common functionality
     -- ====================
     { { "n", "i", "v" }, "<C-s>",                      "<Cmd>w<CR>",                                    "Save file" },
     { "n",               "<C-q>",                      "<C-v>",                                         "Visual block" },
+    { "n",               "<Esc>",                      ":let @/=''<CR>",                                "Clear search highlight" },
 
     -- =============================
     -- Line movement and indentation
@@ -93,12 +151,6 @@ local all_mappings = {
     { "x",               "<C-v>",                      '"0dP',                                          "Paste without overwriting unnamed reg" },
     { "i",               "<C-v>",                      "<C-o>P",                                        "Paste" },
 
-    -- ==================
-    -- Search and replace
-    -- ==================
-    { "n",               "<leader>s",                  ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
-    { "n",               "<Esc>",                      ":let @/=''<CR>",                                "Clear search highlight" },
-
     -- ============================
     -- Navigation with wrap enabled
     -- ============================
@@ -110,6 +162,14 @@ local all_mappings = {
     { "n",               "<Down>",                     "gj",                                            "Move down (visual line)" },
     { "x",               "<Up>",                       "gk",                                            "Move up (visual line)" },
     { "x",               "<Down>",                     "gj",                                            "Move down (visual line)" },
+
+    -- =============
+    -- Resize splits
+    -- =============
+    { "n",               "<M-h>",                      "2<C-w><",                                       "Resize split left" },
+    { "n",               "<M-l>",                      "2<C-w>>",                                       "Resize split right" },
+    { "n",               "<M-j>",                      "2<C-w>+",                                       "Resize split down" },
+    { "n",               "<M-k>",                      "2<C-w>-",                                       "Resize split up" },
 
     -- ====================
     -- Surround replacement
@@ -137,24 +197,45 @@ local all_mappings = {
     { "v",               { "<Leader>b", "<Leader>*" }, '"zc****<Esc>2h"zp',                             "Add bold" },
     { "v",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
     { "v",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
-    -- Context menu at the cursor; right-click uses Neovim's own popup_setpos
-    { "n",               "<leader>.",                  function() require("ui.menu").popup_at_cursor() end, "Open menu" },
-    -- Buffers
-    { "n",               { "ZZ", "<leader>bq", "<leader>qb" }, function() require("ui.buffers").close() end,    "Save and close buffer" },
-    { "n",               "<leader>q!",                 function() require("ui.buffers").close({ force = true }) end, "Close buffer without saving" },
-    { "n",               "<Leader>qa",                 "<Cmd>wa<CR><Cmd>qa<CR>",                        "Quit and save all" },
-    { "n",               "<Leader>qfy",                "<Cmd>qa!<CR>",                                  "Quit without saving?" },
-    -- Resize splits
-    { "n",               "<M-h>",                       "2<C-w><",                                       "Resize split left" },
-    { "n",               "<M-l>",                       "2<C-w>>",                                       "Resize split right" },
-    { "n",               "<M-j>",                       "2<C-w>+",                                       "Resize split down" },
-    { "n",               "<M-k>",                       "2<C-w>-",                                       "Resize split up" },
 }
 
 map(all_mappings)
 
+-- ================
+-- <leader>y  Yank
+-- ================
+
+vim.keymap.set("n", "<leader>yb", function()
+    if vim.bo.modifiable then
+        local path = vim.fn.expand("%:p")
+        vim.fn.setreg("+", path)
+        vim.notify(path, vim.log.levels.INFO, { title = "Yanked path" })
+    end
+end, { noremap = true, silent = true, desc = "Yank buffer absolute path" })
+
+vim.keymap.set({ "n", "v" }, "<leader>yl", function()
+    local line_start, line_end
+    local mode = vim.fn.mode()
+    if mode == "v" or mode == "V" or mode == "\22" then
+        line_start = vim.fn.line("v")
+        line_end = vim.fn.line(".")
+        if line_start > line_end then
+            line_start, line_end = line_end, line_start
+        end
+    else
+        line_start = vim.fn.line(".")
+        line_end = line_start
+    end
+    local result = vim.fn.expand("%:p") .. ":" .. line_start
+    if line_end ~= line_start then
+        result = result .. "-" .. line_end
+    end
+    vim.fn.setreg("+", result)
+    vim.notify(result, vim.log.levels.INFO, { title = "Yanked path:line" })
+end, { noremap = true, silent = true, desc = "Yank buffer path with line" })
+
 -- =================
--- Function mappings
+-- <leader>w  Wrap
 -- =================
 
 -- Spacer windows keyed by the window they narrow, so the toggle closes its own.
@@ -200,6 +281,15 @@ vim.keymap.set("n", "<leader>w", function()
     open_wrap_spacer(win, vim.v.count ~= 0 and vim.v.count or 125)
 end, { desc = "Toggle wrap window" })
 
+-- ===================
+-- Insert-mode editing
+-- ===================
+
+vim.keymap.set("n", "i", function()
+    vim.wo.relativenumber = false
+    return "i"
+end, { noremap = true, expr = true, silent = true, desc = "Insert mode without relative number" })
+
 local function move_cursor_visual(lines)
     local count = math.abs(lines)
     local key = lines > 0 and "gj" or "gk"
@@ -215,33 +305,31 @@ vim.keymap.set("i", "<Down>", function()
 end, { noremap = true, silent = true, desc = "Move down in insert mode (visual line)" })
 
 vim.keymap.set("i", "<C-w>", function()
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  if col == 0 then return end
-  local line = vim.api.nvim_get_current_line()
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    if col == 0 then return end
+    local line = vim.api.nvim_get_current_line()
 
-  -- Position cursor for normal-mode wordmotion (at EOL, back up one)
-  vim.api.nvim_win_set_cursor(0, { row, math.min(col, #line - 1) })
-  vim.fn["wordmotion#motion"](1, "n", "b", 0, {})
-  local _, target = unpack(vim.api.nvim_win_get_cursor(0))
+    -- Position cursor for normal-mode wordmotion (at EOL, back up one)
+    vim.api.nvim_win_set_cursor(0, { row, math.min(col, #line - 1) })
+    vim.fn["wordmotion#motion"](1, "n", "b", 0, {})
+    local _, target = unpack(vim.api.nvim_win_get_cursor(0))
 
-  vim.api.nvim_buf_set_text(0, row - 1, target, row - 1, col, { "" })
-  vim.api.nvim_win_set_cursor(0, { row, target })
+    vim.api.nvim_buf_set_text(0, row - 1, target, row - 1, col, { "" })
+    vim.api.nvim_win_set_cursor(0, { row, target })
 end, { silent = true, desc = "Delete previous word (wordmotion-aware)" })
 
 vim.keymap.set("i", "<C-Del>", function()
-  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-  local line = vim.api.nvim_get_current_line()
-  if col >= #line then return end
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+    local line = vim.api.nvim_get_current_line()
+    if col >= #line then return end
 
-  vim.api.nvim_win_set_cursor(0, { row, col })
-  vim.fn["wordmotion#motion"](1, "n", "e", 0, {})
-  local _, target = unpack(vim.api.nvim_win_get_cursor(0))
+    vim.api.nvim_win_set_cursor(0, { row, col })
+    vim.fn["wordmotion#motion"](1, "n", "e", 0, {})
+    local _, target = unpack(vim.api.nvim_win_get_cursor(0))
 
-  vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, target + 1, { "" })
-  vim.api.nvim_win_set_cursor(0, { row, col })
+    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, target + 1, { "" })
+    vim.api.nvim_win_set_cursor(0, { row, col })
 end, { silent = true, desc = "Ctrl-Delete = delete next word (wordmotion-aware)" })
-
-
 
 vim.keymap.set("i", "<Esc>", function()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -253,6 +341,24 @@ vim.keymap.set("i", "<Esc>", function()
     end)
     return "<Esc>"
 end, { expr = true, noremap = true, desc = "Exit insert mode preserving cursor position" })
+
+-- ==============
+-- Word selection
+-- ==============
+
+vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word forward" })
+vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })
+vim.keymap.set("x", "<C-S-Right>", "e", { remap = true, desc = "Extend selection word forward" })
+vim.keymap.set("x", "<C-S-Left>", "b", { remap = true, desc = "Extend selection word backward" })
+vim.keymap.set("i", "<C-S-Left>", function()
+    vim.cmd("stopinsert")
+    vim.cmd("normal! v")
+    vim.fn["wordmotion#motion"](1, "v", "b", 0, {})
+end, { silent = true, desc = "Select word backward" })
+
+-- ============
+-- Command line
+-- ============
 
 -- Wildmenu pum: swap Up/Down (dir nav) with Left/Right (list nav)
 vim.keymap.set("c", "<Up>", function()
@@ -271,42 +377,4 @@ vim.keymap.set("c", "<Right>", function()
     return vim.fn.pumvisible() == 1 and "<Down>" or "<Right>"
 end, { expr = true })
 
-vim.keymap.set("n", "<leader>yb", function()
-    if vim.bo.modifiable then
-        local path = vim.fn.expand("%:p")
-        vim.fn.setreg("+", path)
-        vim.notify(path, vim.log.levels.INFO, { title = "Yanked path" })
-    end
-end, { noremap = true, silent = true, desc = "Yank buffer absolute path" })
-
-vim.keymap.set({ "n", "v" }, "<leader>yl", function()
-    local line_start, line_end
-    local mode = vim.fn.mode()
-    if mode == "v" or mode == "V" or mode == "\22" then
-        line_start = vim.fn.line("v")
-        line_end = vim.fn.line(".")
-        if line_start > line_end then
-            line_start, line_end = line_end, line_start
-        end
-    else
-        line_start = vim.fn.line(".")
-        line_end = line_start
-    end
-    local result = vim.fn.expand("%:p") .. ":" .. line_start
-    if line_end ~= line_start then
-        result = result .. "-" .. line_end
-    end
-    vim.fn.setreg("+", result)
-    vim.notify(result, vim.log.levels.INFO, { title = "Yanked path:line" })
-end, { noremap = true, silent = true, desc = "Yank buffer path with line" })
-
-vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word forward" })
-vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })
-vim.keymap.set("x", "<C-S-Right>", "e", { remap = true, desc = "Extend selection word forward" })
-vim.keymap.set("x", "<C-S-Left>", "b", { remap = true, desc = "Extend selection word backward" })
-vim.keymap.set("i", "<C-S-Left>", function()
-    vim.cmd("stopinsert")
-    vim.cmd("normal! v")
-    vim.fn["wordmotion#motion"](1, "v", "b", 0, {})
-end, { silent = true, desc = "Select word backward" })
-
+return { groups = groups }

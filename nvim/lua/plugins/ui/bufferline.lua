@@ -49,31 +49,6 @@ return {
                     separator_style = "slant",
                 },
             })
-            local bufferline_mappings = {
-                -- closing
-                { "n", "<leader>bch", ":BufferLineCloseLeft<CR>",       "Close Left" },
-                { "n", "<leader>bcl", ":BufferLineCloseRight<CR>",      "Close Right" },
-                { "n", "<leader>bca", ":BufferLineCloseOthers<CR>",     "Close All Other Buffers" },
-                -- sorting
-                { "n", "<leader>bsd", ":BufferLineSortByDirectory<CR>", "Sort by Directory" },
-                { "n", "<leader>bst", ":BufferLineSortByTabs<CR>",      "Sort by Tabs" },
-                { "n", "<leader>bse", ":BufferLineSortByExtension<CR>", "Sort by Extension" },
-                -- move buffer
-                { "n", "<leader>bh",  ":BufferLineMovePrev<CR>",        "Move Prev" },
-                { "n", "<leader>bl",  ":BufferLineMoveNext<CR>",        "Move Next" },
-                -- cycle buffer
-                { "n", "<leader>bn",  ":BufferLineCycleNext<CR>",       "Next Buffer" },
-                { "n", "<leader>bp",  ":BufferLineCyclePrev<CR>",       "Previous Buffer" },
-                { "n", "<Tab>",       ":BufferLineCycleNext<CR>",       "Next Buffer" },
-                { "n", "<S-Tab>",     ":BufferLineCyclePrev<CR>",       "Previous Buffer" },
-                -- pick buffer
-                { "n", "<leader>bP",  ":BufferLinePick<CR>",            "Pick Buffer" },
-                -- pin buffer
-                { "n", "<leader>bt",  ":BufferLineTogglePin<CR>",       "Pin Buffer" },
-            }
-            for _, map in ipairs(bufferline_mappings) do
-                vim.keymap.set(map[1], map[2], map[3], { desc = map[4], silent = true })
-            end
         end,
     },
 }

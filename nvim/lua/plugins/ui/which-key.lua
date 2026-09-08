@@ -4,24 +4,8 @@ return {
         "echasnovski/mini.icons",
     },
     event = "VeryLazy",
-    config = function()
-        vim.o.timeoutlen = 200
-        local wk = require("which-key")
-
-        wk.add({
-            { "<leader>a",   group = "AI/Claude Code" },
-            { "<leader>b",   group = "Buffer" },
-            { "<leader>bs",  group = "Sort" },
-            { "<leader>bc",  group = "Close" },
-            { "<leader>l",   group = "LSP" },
-            { "<leader>f",   group = "Find" },
-            { "<leader>h",   group = "Find Hidden" },
-            { "<leader>g",   group = "Git" },
-            { "<leader>q",   group = "Close" },
-            { "<leader>qf",  group = "Force quit" },
-            { "<leader>qfy", "Lose all unsaved changes?" },
-        })
-
-        require("which-key").setup()
+    opts = function()
+        -- Mappings are read from Neovim directly; only the prefix labels need declaring
+        return { spec = require("keybinds").groups }
     end,
 }

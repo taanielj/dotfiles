@@ -51,3 +51,4 @@ vim.lsp.handlers["textDocument/hover"] = function(err, result, _, config)
   }))
 end
 
+vim.o.timeoutlen = 200 -- how long which-key waits before showing the popup
