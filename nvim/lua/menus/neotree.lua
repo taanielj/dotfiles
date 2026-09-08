@@ -9,20 +9,26 @@ local function get_state()
     return state
 end
 
+local function command(state, what)
+    return require("neo-tree.sources." .. state.name .. ".commands")[what] or cc[what]
+end
+
 local function call(what)
     return vim.schedule_wrap(function()
         local state = get_state()
-        local cb = require("neo-tree.sources." .. state.name .. ".commands")[what] or cc[what]
-        cb(state)
+        command(state, what)(state)
     end)
 end
 
--- The popup cannot nest, so a group of commands is a row that prompts.
+-- The popup cannot nest, so a group of commands is a row that prompts. The
+-- state is taken before the picker opens, since the choice lands with the
+-- picker's focus, not the tree's.
 local function choose(prompt, choices)
     return function()
+        local state = get_state()
         vim.ui.select(choices, { prompt = prompt, format_item = function(c) return c[1] end }, function(choice)
             if choice then
-                call(choice[2])()
+                command(state, choice[2])(state)
             end
         end)
     end
