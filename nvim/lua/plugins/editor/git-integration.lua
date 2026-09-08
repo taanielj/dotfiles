@@ -1,3 +1,18 @@
+-- Inline blame and a diagnostic both sit at the end of the line, so the
+-- diagnostic wins.
+local function inline_blame(username, info)
+    local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+    if #vim.diagnostic.get(0, { lnum = lnum }) > 0 then
+        return {}
+    end
+    if info.author == "Not Committed Yet" then
+        return { { " Not committed yet ", "GitSignsCurrentLineBlame" } }
+    end
+    local author = info.author == username and "You" or info.author
+    local when = os.date("%Y-%m-%d", info.author_time)
+    return { { (" %s, %s - %s "):format(author, when, info.summary), "GitSignsCurrentLineBlame" } }
+end
+
 return {
     {
         "lewis6991/gitsigns.nvim",
@@ -13,6 +28,8 @@ return {
                     untracked = { text = "┆" },
                 },
                 current_line_blame = true,
+                current_line_blame_formatter = inline_blame,
+                current_line_blame_formatter_nc = inline_blame,
                 blame_formatter = "<author> <author_time:%Y-%m-%d>",
                 on_attach = function(bufnr)
                     local gitsigns = require("gitsigns")
@@ -67,8 +84,7 @@ return {
                     end, { desc = "Diff against main/master branch" })
 
                     -- Toggles
-                    map("n", "<leader>gb", gitsigns.toggle_current_line_blame, { desc = "Toggle inline blame" })
-                    map("n", "<leader>gB", require("ui.blame").toggle_column, { desc = "Toggle blame column" })
+                    map("n", "<leader>gb", require("ui.blame").toggle_column, { desc = "Toggle blame column" })
                     map("n", "<leader>gD", gitsigns.toggle_linehl, { desc = "Diff line highlighting" })
 
                     -- Open current line in browser (GitHub/GitLab/Bitbucket)
