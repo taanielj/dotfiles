@@ -18,6 +18,7 @@ SETUP_SCRIPTS=(
 )
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh")
 [[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/lazygit.sh")
+[[ -n "$WSL_DISTRO_NAME" ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/win32yank.sh")
 
 show_help() {
     cat <<EOF
@@ -85,6 +86,7 @@ show_banner() {
         log "  • Rust tools (cargo packages like eza, ripgrep, bat)"
         [[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, wezterm)"
         [[ "$OSTYPE" == "linux-gnu"* ]] && log "  • Git TUI (lazygit)"
+        [[ -n "$WSL_DISTRO_NAME" ]] && log "  • Windows clipboard tool (win32yank)"
         echo ""
     fi
 }
