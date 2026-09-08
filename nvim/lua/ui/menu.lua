@@ -79,10 +79,13 @@ function M.rows()
     return rows
 end
 
+---@return integer rows
 function M.define(menu, spec, ctx)
     vim.cmd("silent! aunmenu " .. menu)
     callbacks[menu] = {}
-    add(menu, menu, require("menus." .. spec)(ctx))
+    local entries = require("menus." .. spec)(ctx)
+    add(menu, menu, entries)
+    return #entries
 end
 
 local symbol_captures = {
@@ -164,13 +167,30 @@ function M.buffer_context()
 end
 
 function M.show(menu, spec, ctx, opts)
-    M.define(menu, spec, ctx)
+    if M.define(menu, spec, ctx) == 0 then
+        return
+    end
     vim.cmd((opts and opts.at_cursor and "popup " or "popup! ") .. menu)
+end
+
+-- Windows that are not a text buffer get their own menu, by filetype.
+local by_filetype = {
+    ["neo-tree"] = { "]NeoTree", "neotree" },
+    oil = { "]Oil", "oil" },
+}
+
+local function show_for_filetype(opts)
+    local menu = by_filetype[vim.bo.filetype]
+    if menu then
+        M.show(menu[1], menu[2], nil, opts)
+    else
+        M.show("PopUp", "default", M.buffer_context(), opts)
+    end
 end
 
 -- Moves the cursor to the clicked line first, as popup_setpos does for PopUp,
 -- because entries act on the node under the cursor.
-function M.show_at_mouse(menu, spec, ctx)
+function M.popup_at_mouse()
     local mouse = vim.fn.getmousepos()
     if mouse.winid ~= 0 and mouse.line > 0 then
         vim.api.nvim_set_current_win(mouse.winid)
@@ -179,16 +199,11 @@ function M.show_at_mouse(menu, spec, ctx)
             vim.api.nvim_win_set_cursor(mouse.winid, { line, 0 })
         end
     end
-
-    M.show(menu, spec, ctx)
+    show_for_filetype()
 end
 
 function M.popup_at_cursor()
-    if vim.bo.filetype == "neo-tree" then
-        M.show("]NeoTree", "neotree", nil, { at_cursor = true })
-    else
-        M.show("PopUp", "default", M.buffer_context(), { at_cursor = true })
-    end
+    show_for_filetype({ at_cursor = true })
 end
 
 function M.setup()

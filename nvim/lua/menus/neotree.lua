@@ -34,15 +34,6 @@ local function choose(prompt, choices)
     end
 end
 
--- Copy path to clipboard; `how` is the fnamemodify() modifier.
-local function copy_path(how)
-    return function()
-        local node = get_state().tree:get_node()
-        vim.fn.setreg('"', vim.fn.fnamemodify(node.path, how))
-        vim.fn.setreg("+", vim.fn.fnamemodify(node.path, how))
-    end
-end
-
 return function()
     local state = get_state()
     local node = state.tree:get_node()
@@ -66,8 +57,9 @@ return function()
     rows.item(icons.copy, "Copy", call("copy_to_clipboard"), below_root)
     rows.item(icons.cut, "Cut", call("cut_to_clipboard"), below_root)
     rows.item(icons.paste, "Paste", call("paste_from_clipboard"), clipboard)
-    rows.item(icons.path, "Copy absolute path", copy_path(":p"), entry)
-    rows.item(icons.relative_path, "Copy relative path", copy_path(":~:."), entry)
+    if entry then
+        require("menus.file")(rows, node.path)
+    end
     rows.add({ separator = true })
     rows.add({ name = "Order by", cmd = choose("Order by", {
         { "Created date", "order_by_created" },

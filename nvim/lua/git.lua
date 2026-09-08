@@ -37,6 +37,41 @@ function M.default_branch()
     end
 end
 
+---The origin's web URL for a file on the checked-out branch, with a line
+---anchor when lines are given; nil outside a repository or without origin.
+---@param path string
+---@param first integer?
+---@param last integer?
+---@return string?
+function M.remote_url(path, first, last)
+    local root = vim.fs.root(path, ".git")
+    if not root then
+        return nil
+    end
+    local origin = M.run({ "-C", root, "remote", "get-url", "origin" })
+    if origin == "" then
+        return nil
+    end
+    origin = origin:gsub("^git@([^:]+):", "https://%1/"):gsub("%.git$", "")
+    local branch = M.run({ "-C", root, "rev-parse", "--abbrev-ref", "HEAD" })
+    local file = path:sub(#root + 2)
+
+    local blob, anchor = "/blob/%s/%s", { "#L%d", "-L%d" }
+    if origin:match("gitlab") then
+        blob, anchor = "/-/blob/%s/%s", { "#L%d", "-%d" }
+    elseif origin:match("bitbucket") then
+        blob, anchor = "/src/%s/%s", { "#lines-%d", ":%d" }
+    end
+    local url = origin .. blob:format(branch, file)
+    if first then
+        url = url .. anchor[1]:format(first)
+        if last and last ~= first then
+            url = url .. anchor[2]:format(last)
+        end
+    end
+    return url
+end
+
 function M.is_dirty()
     return M.run({ "status", "--porcelain" }) ~= ""
 end

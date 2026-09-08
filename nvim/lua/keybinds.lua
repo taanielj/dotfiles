@@ -204,34 +204,43 @@ map(all_mappings)
 -- <leader>y  Yank
 -- ================
 
+local yank = require("yank")
+
+local function line_suffix()
+    local first, last = yank.line_range()
+    return first == last and (":" .. first) or (":" .. first .. "-" .. last)
+end
+
 vim.keymap.set("n", "<leader>yb", function()
-    if vim.bo.modifiable then
-        local path = vim.fn.expand("%:p")
-        vim.fn.setreg("+", path)
-        vim.notify(path, vim.log.levels.INFO, { title = "Yanked path" })
-    end
-end, { noremap = true, silent = true, desc = "Yank buffer absolute path" })
+    yank.copy(vim.fn.expand("%:p"), "path")
+end, { desc = "Yank buffer absolute path" })
 
 vim.keymap.set({ "n", "v" }, "<leader>yl", function()
-    local line_start, line_end
-    local mode = vim.fn.mode()
-    if mode == "v" or mode == "V" or mode == "\22" then
-        line_start = vim.fn.line("v")
-        line_end = vim.fn.line(".")
-        if line_start > line_end then
-            line_start, line_end = line_end, line_start
-        end
-    else
-        line_start = vim.fn.line(".")
-        line_end = line_start
+    yank.copy(vim.fn.expand("%:p") .. line_suffix(), "path:line")
+end, { desc = "Yank buffer path with line" })
+
+-- The origin URL for the file, with the line or selection anchored.
+local function remote_url()
+    local url = require("git").remote_url(vim.fn.expand("%:p"), yank.line_range())
+    if not url then
+        vim.notify("No git remote for this file", vim.log.levels.WARN)
     end
-    local result = vim.fn.expand("%:p") .. ":" .. line_start
-    if line_end ~= line_start then
-        result = result .. "-" .. line_end
+    return url
+end
+
+vim.keymap.set({ "n", "v" }, "<leader>yg", function()
+    local url = remote_url()
+    if url then
+        yank.copy(url, "git URL")
     end
-    vim.fn.setreg("+", result)
-    vim.notify(result, vim.log.levels.INFO, { title = "Yanked path:line" })
-end, { noremap = true, silent = true, desc = "Yank buffer path with line" })
+end, { desc = "Yank git URL for line" })
+
+vim.keymap.set({ "n", "v" }, "<leader>go", function()
+    local url = remote_url()
+    if url then
+        vim.ui.open(url)
+    end
+end, { desc = "Open line in browser" })
 
 -- =================
 -- <leader>w  Wrap

@@ -37,10 +37,16 @@ vim.api.nvim_create_autocmd("FileType", {
     callback = function()
         require("ufo").detach()
         vim.opt_local.foldenable = false
+    end,
+})
 
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup("filetype_menus"),
+    pattern = { "neo-tree", "oil" },
+    callback = function()
         vim.keymap.set("n", "<RightMouse>", function()
-            require("ui.menu").show_at_mouse("]NeoTree", "neotree")
-        end, { buffer = true, silent = true, desc = "Tree context menu" })
+            require("ui.menu").popup_at_mouse()
+        end, { buffer = true, silent = true, desc = "Context menu" })
     end,
 })
 
