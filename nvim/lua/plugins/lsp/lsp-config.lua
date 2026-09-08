@@ -122,13 +122,9 @@ return {
                             format_on_save = false,
                             formatter = nil,
                             runtime = { version = "LuaJIT" },
-                            workspace = {
-                                checkThirdParty = false,
-                                library = {
-                                    "${3rd}/luv/library",
-                                    unpack(vim.api.nvim_get_runtime_file("", true)),
-                                },
-                            },
+                            -- lazydev supplies the library; listing every runtime
+                            -- dir here pulled in plugin test mocks of vim.lsp
+                            workspace = { checkThirdParty = false },
                             completion = { callSnippet = "Replace" },
                         },
                     },
