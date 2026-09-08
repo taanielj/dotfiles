@@ -1,6 +1,10 @@
 -- Nerd-font glyphs as escapes, so the codepoints stay visible in the source
 -- and survive tools that drop private-use characters.
 return {
+    error = "\u{F0159}",
+    warning = "\u{F0026}",
+    info = "\u{F02FC}",
+    hint = "\u{F0335}",
     breakpoint = "\u{F111}",
     breakpoint_condition = "\u{F059}",
     breakpoint_rejected = "\u{F05E}",

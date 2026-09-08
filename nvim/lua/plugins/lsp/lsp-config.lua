@@ -183,19 +183,14 @@ return {
                 ensure_installed = ensure_installed,
             })
 
+            local icons = require("ui.icons")
             vim.diagnostic.config({
                 signs = {
                     text = {
-                        [vim.diagnostic.severity.ERROR] = " ",
-                        [vim.diagnostic.severity.WARN] = " ",
-                        [vim.diagnostic.severity.INFO] = "󰋼 ",
-                        [vim.diagnostic.severity.HINT] = "󰌵 ",
-                    },
-                    numhl = {
-                        [vim.diagnostic.severity.ERROR] = "",
-                        [vim.diagnostic.severity.WARN] = "",
-                        [vim.diagnostic.severity.HINT] = "",
-                        [vim.diagnostic.severity.INFO] = "",
+                        [vim.diagnostic.severity.ERROR] = icons.error .. " ",
+                        [vim.diagnostic.severity.WARN] = icons.warning .. " ",
+                        [vim.diagnostic.severity.INFO] = icons.info .. " ",
+                        [vim.diagnostic.severity.HINT] = icons.hint .. " ",
                     },
                 },
                 virtual_text = {
