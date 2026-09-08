@@ -17,6 +17,17 @@ local function call(what)
     end)
 end
 
+-- The popup cannot nest, so a group of commands is a row that prompts.
+local function choose(prompt, choices)
+    return function()
+        vim.ui.select(choices, { prompt = prompt, format_item = function(c) return c[1] end }, function(choice)
+            if choice then
+                call(choice[2])()
+            end
+        end)
+    end
+end
+
 -- Copy path to clipboard; `how` is the fnamemodify() modifier.
 local function copy_path(how)
     return function()
@@ -52,26 +63,20 @@ return function()
     rows.item(icons.path, "Copy absolute path", copy_path(":p"), entry)
     rows.item(icons.relative_path, "Copy relative path", copy_path(":~:."), entry)
     rows.add({ separator = true })
-    rows.add({
-        name = "Order by",
-        items = {
-            { name = "Created date", cmd = call("order_by_created") },
-            { name = "Diagnostic severity", cmd = call("order_by_diagnostics") },
-            { name = "Git status", cmd = call("order_by_git_status") },
-            { name = "Last modified", cmd = call("order_by_modified") },
-            { name = "Name", cmd = call("order_by_name") },
-            { name = "Size", cmd = call("order_by_size") },
-            { name = "Type", cmd = call("order_by_type") },
-        },
-    })
-    rows.add({
-        name = "Find",
-        items = {
-            { name = "Fuzzy finder", cmd = call("fuzzy_finder") },
-            { name = "Fuzzy finder directory", cmd = call("fuzzy_finder_directory") },
-            { name = "Fuzzy sorter", cmd = call("fuzzy_sorter") },
-        },
-    })
+    rows.add({ name = "Order by", cmd = choose("Order by", {
+        { "Created date", "order_by_created" },
+        { "Diagnostic severity", "order_by_diagnostics" },
+        { "Git status", "order_by_git_status" },
+        { "Last modified", "order_by_modified" },
+        { "Name", "order_by_name" },
+        { "Size", "order_by_size" },
+        { "Type", "order_by_type" },
+    }) })
+    rows.add({ name = "Find", cmd = choose("Find", {
+        { "Fuzzy finder", "fuzzy_finder" },
+        { "Fuzzy finder directory", "fuzzy_finder_directory" },
+        { "Fuzzy sorter", "fuzzy_sorter" },
+    }) })
     rows.add({ name = "Toggle hidden", cmd = call("toggle_hidden") })
     rows.add({ name = "Refresh", cmd = call("refresh") })
     rows.add({ separator = true })

@@ -4,7 +4,8 @@
 -- which only disables rows. Menus for things that are not the buffer (the
 -- tree, a bufferline tab) are separate hidden menus, since PopUp cannot be
 -- buffer-local. A menu's right-hand side is a key sequence, so Lua callbacks
--- are reached through a registry keyed by menu name.
+-- are reached through a registry keyed by menu name. The terminal popup
+-- executes any row, so there are no submenus: a row is an item or a separator.
 local M = {}
 
 local callbacks = {}
@@ -41,7 +42,7 @@ local function compact(entries)
             if last and not last.separator then
                 result[#result + 1] = entry
             end
-        elseif not entry.items or #entry.items > 0 then
+        else
             result[#result + 1] = entry
         end
     end
@@ -55,8 +56,6 @@ local function add(menu, path, entries)
     for i, entry in ipairs(compact(entries)) do
         if entry.separator then
             vim.cmd(("anoremenu %s.-sep%d- <Nop>"):format(path, i))
-        elseif entry.items then
-            add(menu, path .. "." .. escape(entry.name), entry.items)
         else
             vim.cmd(("%snoremenu %s.%s %s"):format(
                 entry.mode or "a", path, escape(entry.name), rhs(menu, entry)))
