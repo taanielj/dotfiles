@@ -10,10 +10,8 @@ return function(ctx)
 
     local rows = require("ui.menu").rows()
 
-    rows.item(icons.file, filename, function() vim.cmd("buffer " .. bufnr) end)
-    rows.add({ separator = true })
     rows.item(icons.delete, "Close", function() buffers.close({ buf = bufnr }) end)
-    rows.item(icons.split, "Close others", function() require("snacks.bufdelete").other({ buf = bufnr }) end, others)
+    rows.item(icons.close_all, "Close others", function() require("snacks.bufdelete").other({ buf = bufnr }) end, others)
     rows.item(icons.pin, pinned and "Unpin" or "Pin", function() vim.cmd("BufferLineTogglePin " .. bufnr) end)
     rows.add({ separator = true })
     rows.item(icons.clipboard, "Copy name", function()
