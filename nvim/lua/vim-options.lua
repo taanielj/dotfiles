@@ -4,6 +4,19 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.number = true
 vim.opt.relativenumber = true
+-- WSL: nvim finds no clipboard tool on its own (zsh's pbcopy is a shell function).
+-- win32yank is picked up by the built-in provider when installed; this wires
+-- clip.exe + powershell as the fallback, same pair as zsh/lib/clipboard.zsh.
+if vim.fn.has("wsl") == 1 and vim.fn.executable("win32yank.exe") == 0 then
+    local paste = { "powershell.exe", "-NoProfile", "-Command",
+        '[Console]::Out.Write("$(Get-Clipboard -Raw)".replace("`r",""))' }
+    vim.g.clipboard = {
+        name = "wsl-clipboard",
+        copy = { ["+"] = "clip.exe", ["*"] = "clip.exe" },
+        paste = { ["+"] = paste, ["*"] = paste },
+        cache_enabled = 0,
+    }
+end
 vim.opt.clipboard = "unnamedplus"
 vim.opt.scroll = 5
 vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
