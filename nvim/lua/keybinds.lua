@@ -82,6 +82,7 @@ local all_mappings = {
     -- Right-click uses Neovim's own popup_setpos; this is the keyboard route
     { "n",               "<leader>.",                  function() require("ui.menu").popup_at_cursor() end, "Open menu" },
     { "n",               "<leader>s",                  ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
+    { "n",               "<leader>m",                  function() require("format").buffer() end,       "Format buffer" },
 
     -- ====================
     -- Common functionality
