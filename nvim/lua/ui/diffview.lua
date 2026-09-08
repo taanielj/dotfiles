@@ -277,7 +277,7 @@ local function map_stage_keys(bufnr)
     end
     map({ "n", "x" }, "<leader>gs", M.stage_hunk, "Stage/unstage hunk")
     map("n", "<leader>gS", M.stage_file, "Stage buffer")
-    map("n", "<leader>gU", M.unstage_file, "Unstage buffer")
+    map("n", "<leader>gu", M.unstage_file, "Unstage buffer")
 end
 
 M.hooks = {

@@ -68,24 +68,11 @@ return {
                     end, { desc = "git [r]eset hunk" })
                     map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "Stage/unstage hunk" })
                     map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "Stage buffer" })
-                    map("n", "<leader>gU", gitsigns.reset_buffer_index, { desc = "Unstage buffer" })
+                    map("n", "<leader>gu", gitsigns.reset_buffer_index, { desc = "Unstage buffer" })
                     map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
                     map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
                     map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
-                    map("n", "<leader>gd", gitsigns.diffthis, { desc = "Diff against base" })
-                    map("n", "<leader>gl", function()
-                        ---@diagnostic disable-next-line: param-type-mismatch
-                        gitsigns.diffthis("@")
-                    end, { desc = "Diff last commit" })
-
-                    map("n", "<leader>gm", function()
-                        ---@diagnostic disable-next-line: param-type-mismatch
-                        gitsigns.diffthis(require("git").default_branch() or "main")
-                    end, { desc = "Diff against main/master branch" })
-
-                    -- Toggles
                     map("n", "<leader>gb", require("ui.blame").toggle_column, { desc = "Toggle blame column" })
-                    map("n", "<leader>gD", gitsigns.toggle_linehl, { desc = "Diff line highlighting" })
 
                     -- Open current line in browser (GitHub/GitLab/Bitbucket)
                     local git = require("git")
@@ -180,8 +167,8 @@ return {
         "sindrets/diffview.nvim",
         cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
         keys = {
-            { "<leader>gv", function() require("ui.diffview").uncommitted() end,  desc = "Diff uncommitted changes" },
-            { "<leader>gV", function() require("ui.diffview").branch() end,       desc = "Diff branch against its base" },
+            { "<leader>gd", function() require("ui.diffview").uncommitted() end,  desc = "Diff uncommitted changes" },
+            { "<leader>gD", function() require("ui.diffview").branch() end,       desc = "Diff branch against its base" },
             { "<leader>gh", function() require("ui.diffview").file_log() end,     desc = "File history" },
             { "<leader>gH", function() require("ui.diffview").branch_log() end,   desc = "Branch commits one by one" },
             { "<leader>gc", function() require("ui.diffview").pick_commits() end, desc = "Diff from a picked commit" },
@@ -216,17 +203,6 @@ return {
                     file_history_panel = { close, unpack(panel_keys) },
                 },
             }
-        end,
-    },
-    {
-        "neogitOrg/neogit",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            "sindrets/diffview.nvim",
-            "nvim-telescope/telescope.nvim",
-        },
-        config = function()
-            vim.keymap.set("n", "<leader>gn", "<Cmd>Neogit kind=floating<CR>", { desc = "Open Neogit" })
         end,
     },
 }
