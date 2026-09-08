@@ -21,20 +21,6 @@ return {
                         vim.keymap.set(mode, l, r, opts)
                     end
 
-                    local function get_default_branch()
-                        local handle =
-                            io.popen("git remote show origin 2>/dev/null | grep 'HEAD branch' | awk '{print $NF}'")
-                        local result = handle and handle:read("*a") or ""
-                        if handle then
-                            handle:close()
-                        end
-                        result = vim.trim(result)
-                        if result == "" then
-                            return "main"
-                        end
-                        return result
-                    end
-
                     -- Navigation
                     map("n", "]c", function()
                         if vim.wo.diff then
@@ -75,9 +61,8 @@ return {
                     end, { desc = "Diff last commit" })
 
                     map("n", "<leader>gm", function()
-                        local base = get_default_branch()
                         ---@diagnostic disable-next-line: param-type-mismatch
-                        gitsigns.diffthis(base)
+                        gitsigns.diffthis(require("git").default_branch() or "main")
                     end, { desc = "Diff against main/master branch" })
 
                     -- Toggles
@@ -85,16 +70,9 @@ return {
                     map("n", "<leader>gD", gitsigns.toggle_linehl, { desc = "Diff line highlighting" })
 
                     -- Open current line in browser (GitHub/GitLab/Bitbucket)
-                    local function run_cmd(cmd)
-                        local handle = io.popen(cmd)
-                        local result = handle and handle:read("*a") or ""
-                        if handle then
-                            handle:close()
-                        end
-                        return vim.trim(result)
-                    end
+                    local git = require("git")
                     local function is_git_repo()
-                        local remote_url = run_cmd("git remote get-url origin 2>/dev/null")
+                        local remote_url = git.run({ "remote", "get-url", "origin" })
                         if remote_url == "" then
                             vim.notify("No git remote found", vim.log.levels.ERROR)
                             return false
@@ -103,11 +81,11 @@ return {
                     end
 
                     local function get_remote_url(line_start, line_end)
-                        local branch = run_cmd("git rev-parse --abbrev-ref HEAD 2>/dev/null")
-                        local repo_root = run_cmd("git rev-parse --show-toplevel 2>/dev/null")
+                        local branch = git.head()
+                        local repo_root = git.run({ "rev-parse", "--show-toplevel" })
                         local file_path = vim.fn.expand("%:p")
                         local relative_path = file_path:sub(#repo_root + 2)
-                        local remote_url = run_cmd("git remote get-url origin 2>/dev/null")
+                        local remote_url = git.run({ "remote", "get-url", "origin" })
                         remote_url = remote_url:gsub("git@([^:]+):", "https://%1/"):gsub("%.git$", "")
                         local url
 
@@ -179,6 +157,45 @@ return {
     },
     {
         "tpope/vim-fugitive",
+    },
+    {
+        "sindrets/diffview.nvim",
+        cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
+        keys = {
+            { "<leader>gv", function() require("ui.diffview").uncommitted() end,  desc = "Diff uncommitted changes" },
+            { "<leader>gV", function() require("ui.diffview").branch() end,       desc = "Diff branch against its base" },
+            { "<leader>gh", function() require("ui.diffview").file_log() end,     desc = "File history" },
+            { "<leader>gH", function() require("ui.diffview").branch_log() end,   desc = "Branch commits one by one" },
+            { "<leader>gc", function() require("ui.diffview").pick_commits() end, desc = "Diff from a picked commit" },
+            { "<leader>gC", function() require("ui.diffview").pick_branch() end,  desc = "Diff against a picked branch" },
+        },
+        opts = function()
+            local actions = require("diffview.actions")
+            local close = { "n", "q", "<Cmd>DiffviewClose<CR>", { desc = "Close the diffview" } }
+            -- The panel keys shadow the <leader>b and <leader>e prefixes.
+            local panel_keys = {
+                { "n", "<leader>b", false },
+                { "n", "<leader>e", false },
+                { "n", "j", actions.select_next_entry, { desc = "Open the next file" } },
+                { "n", "<down>", actions.select_next_entry, { desc = "Open the next file" } },
+                { "n", "k", actions.select_prev_entry, { desc = "Open the previous file" } },
+                { "n", "<up>", actions.select_prev_entry, { desc = "Open the previous file" } },
+                { "n", "<cr>", function() require("ui.diffview").focus_first_change() end, { desc = "Open the file at its first change" } },
+            }
+            local view_keys = {
+                panel_keys[1],
+                panel_keys[2],
+                { "n", "-", actions.toggle_stage_entry, { desc = "Stage / unstage the file" } },
+            }
+            return {
+                hooks = require("ui.diffview").hooks,
+                keymaps = {
+                    view = { close, unpack(view_keys) },
+                    file_panel = { close, unpack(panel_keys) },
+                    file_history_panel = { close, unpack(panel_keys) },
+                },
+            }
+        end,
     },
     {
         "neogitOrg/neogit",
