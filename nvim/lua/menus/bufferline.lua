@@ -30,10 +30,18 @@ return function(ctx)
     rows.item(icons.close_right, "Close to the right", close_tabs(index + 1, #tabs), index > 0 and index < #tabs)
     rows.item(icons.pin, pinned and "Unpin" or "Pin", function() vim.cmd("BufferLineTogglePin " .. bufnr) end)
     rows.add({ separator = true })
-    rows.item(icons.clipboard, "Copy name", function()
-        vim.fn.setreg("+", filename)
-        vim.notify("Copied: " .. filename)
-    end, name ~= "")
+    local function copy(text)
+        return function()
+            vim.fn.setreg("+", text)
+            vim.notify("Copied: " .. text)
+        end
+    end
+    local root = name ~= "" and vim.fs.root(name, ".git") or nil
+    rows.item(icons.clipboard, "Copy name", copy(filename), name ~= "")
+    rows.item(icons.path, "Copy path", copy(name), name ~= "")
+    if root then
+        rows.item(icons.relative_path, "Copy git path", copy(name:sub(#root + 2)))
+    end
 
     return rows.entries
 end
