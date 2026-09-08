@@ -109,6 +109,26 @@ local function symbol_and_call(bufnr)
     return symbol, node ~= nil
 end
 
+-- Only the servers know whether an action applies here, so they are asked;
+-- one that has not answered within the wait keeps the row.
+local function has_code_actions(bufnr, row)
+    if #vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/codeAction" }) == 0 then
+        return false
+    end
+    local diagnostics = vim.lsp.diagnostic.from(vim.diagnostic.get(bufnr, { lnum = row }))
+    local results = vim.lsp.buf_request_sync(bufnr, "textDocument/codeAction", function(client)
+        local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
+        params.context = { diagnostics = diagnostics, triggerKind = 2 }
+        return params
+    end, 200)
+    if not results then
+        return true
+    end
+    return vim.iter(pairs(results)):any(function(_, result)
+        return result.result ~= nil and #result.result > 0
+    end)
+end
+
 function M.buffer_context()
     local bufnr = vim.api.nvim_get_current_buf()
     local row = vim.api.nvim_win_get_cursor(0)[1] - 1
@@ -124,6 +144,7 @@ function M.buffer_context()
         supports = function(method)
             return #vim.lsp.get_clients({ bufnr = bufnr, method = method }) > 0
         end,
+        code_actions = has_code_actions(bufnr, row),
         line_diagnostics = #vim.diagnostic.get(bufnr, { lnum = row }) > 0,
         diagnostics = #vim.diagnostic.get(bufnr) > 0,
         modifiable = vim.bo[bufnr].modifiable,
