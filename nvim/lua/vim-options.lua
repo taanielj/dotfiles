@@ -52,3 +52,4 @@ vim.lsp.handlers["textDocument/hover"] = function(err, result, _, config)
 end
 
 vim.o.timeoutlen = 200 -- how long which-key waits before showing the popup
+vim.opt.sessionoptions:remove("blank") -- nameless windows (fidget, wrap spacers) would come back as empty splits

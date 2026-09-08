@@ -24,6 +24,3 @@ require("lazy").setup({
     { import = "plugins.coding" },
     { import = "plugins.tools" },
 })
-
--- A require-based reload cannot reach lazy's plugin specs, so restart instead
-vim.keymap.set("n", "<leader>R", "<Cmd>restart<CR>", { noremap = true, silent = true, desc = "Restart nvim" })

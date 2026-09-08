@@ -35,7 +35,7 @@ return {
                 "tabdo Neotree action=close",
             },
             post_cwd_changed_cmds = {
-                "tabdo Neotree",
+                "tabdo Neotree show",
             },
             post_restore_cmds = {
                 function()
@@ -52,7 +52,7 @@ return {
                         vim.cmd("Alpha")
                         vim.cmd("tabdo bd#")
                     else
-                        vim.cmd("Neotree")
+                        vim.cmd("Neotree show")
                     end
                 end,
             },

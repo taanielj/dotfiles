@@ -295,6 +295,33 @@ vim.keymap.set("ca", "q", function()
 end, { expr = true })
 
 -- ===================
+-- <leader>R  Restart
+-- ===================
+
+-- auto-session restores the cwd session on start; the save is forced here
+-- rather than left to :restart's qall.
+vim.keymap.set("n", "<leader>R", function()
+    local unsaved = {}
+    for _, info in ipairs(vim.fn.getbufinfo({ bufmodified = 1, buflisted = 1 })) do
+        if vim.bo[info.bufnr].buftype == "" then
+            unsaved[#unsaved + 1] = info.name ~= "" and vim.fn.fnamemodify(info.name, ":~:.") or "[No Name]"
+        end
+    end
+    if #unsaved > 0 then
+        vim.notify("Unsaved before restart: " .. table.concat(unsaved, ", "), vim.log.levels.WARN)
+        return
+    end
+
+    require("auto-session").AutoSaveSession()
+
+    -- noice's UI handler errors on the restart event, so it is detached first
+    if package.loaded["noice"] then
+        require("noice").disable()
+    end
+    vim.cmd.restart()
+end, { desc = "Restart nvim, keeping the session" })
+
+-- ===================
 -- Insert-mode editing
 -- ===================
 
