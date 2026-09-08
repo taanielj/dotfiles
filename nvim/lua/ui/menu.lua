@@ -57,8 +57,7 @@ local function add(menu, path, entries)
         if entry.separator then
             vim.cmd(("anoremenu %s.-sep%d- <Nop>"):format(path, i))
         else
-            vim.cmd(("%snoremenu %s.%s %s"):format(
-                entry.mode or "a", path, escape(entry.name), rhs(menu, entry)))
+            vim.cmd(("%snoremenu %s.%s %s"):format(entry.mode or "a", path, escape(entry.name), rhs(menu, entry)))
         end
     end
 end
@@ -72,9 +71,11 @@ function M.rows()
             entries[#entries + 1] = entry
         end
     end
+
     function rows.item(icon, name, cmd, when, mode)
         rows.add({ name = icon .. "  " .. name, cmd = cmd, mode = mode }, when)
     end
+
     return rows
 end
 
@@ -85,9 +86,18 @@ function M.define(menu, spec, ctx)
 end
 
 local symbol_captures = {
-    variable = true, constant = true, parameter = true, property = true, field = true,
-    ["function"] = true, method = true, constructor = true,
-    type = true, module = true, namespace = true, attribute = true,
+    variable = true,
+    constant = true,
+    parameter = true,
+    property = true,
+    field = true,
+    ["function"] = true,
+    method = true,
+    constructor = true,
+    type = true,
+    module = true,
+    namespace = true,
+    attribute = true,
 }
 
 -- Without a parser any word counts as a symbol.

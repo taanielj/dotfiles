@@ -142,9 +142,9 @@ return {
                         },
                     },
                 },
-                -- Python linter, formatter and import sorter; the editor line length
-                -- wins over a project's, as the black and isort flags did before.
-                ruff = { init_options = { settings = { lineLength = 120 } } },
+                -- Python linter, formatter and import sorter. A project's ruff.toml or
+                -- pyproject.toml wins; the line length is for projects without one.
+                ruff = { init_options = { settings = { configurationPreference = "filesystemFirst", lineLength = 120 } } },
                 html = {
                     configurationSection = { "html", "css", "javascript" },
                     embeddedLanguages = { css = true, javascript = true },
