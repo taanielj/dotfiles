@@ -157,33 +157,48 @@ map(all_mappings)
 -- Function mappings
 -- =================
 
-function _G.close_no_name_buffers()
-    local bufnr_list = vim.api.nvim_list_bufs()
-    for _, bufnr in ipairs(bufnr_list) do
-        if vim.api.nvim_buf_get_name(bufnr) == "" then
-            vim.api.nvim_buf_delete(bufnr, { force = true })
-        end
+-- Spacer windows keyed by the window they narrow, so the toggle closes its own.
+local wrap_spacers = {}
+
+local function open_wrap_spacer(win, width)
+    vim.cmd("vertical rightbelow new")
+    local spacer = vim.api.nvim_get_current_win()
+    vim.bo.buftype = "nofile"
+    vim.bo.bufhidden = "wipe"
+    vim.wo.winbar = ""
+    vim.wo.number = false
+    vim.wo.relativenumber = false
+    vim.api.nvim_set_current_win(win)
+    vim.api.nvim_win_set_width(win, width)
+    wrap_spacers[win] = spacer
+end
+
+local function close_wrap_spacer(win)
+    local spacer = wrap_spacers[win]
+    wrap_spacers[win] = nil
+    if spacer and vim.api.nvim_win_is_valid(spacer) then
+        vim.api.nvim_win_close(spacer, true)
     end
 end
 
+-- linebreak is the flag this sets; wrap is on by default and cannot signal the state
+vim.keymap.set("n", "<leader>w", function()
+    local win = vim.api.nvim_get_current_win()
+    if vim.wo.linebreak then
+        vim.wo.wrap = false
+        vim.wo.linebreak = false
+        vim.wo.breakindent = false
+        vim.wo.breakindentopt = ""
+        close_wrap_spacer(win)
+        return
+    end
 
-vim.keymap.set("n", "<leader>ww", function()
     vim.wo.wrap = true
     vim.wo.linebreak = true
     vim.wo.breakindent = true
     vim.wo.breakindentopt = "list:2"
-    return '<Cmd>vertical rightbelow new | set winbar="" nonumber norelativenumber<CR><C-w>h<C-w>'
-        .. (vim.v.count ~= 0 and vim.v.count or 125)
-        .. "|"
-end, { expr = true, noremap = true, silent = true, desc = "Wrap by opening new window" })
-
-vim.keymap.set("n", "<leader>wu", function()
-    vim.wo.wrap = false
-    vim.wo.linebreak = false
-    vim.wo.breakindent = false
-    vim.wo.breakindentopt = ""
-    vim.cmd("lua close_no_name_buffers()")
-end, { noremap = true, silent = true, desc = "Unwrap current window" })
+    open_wrap_spacer(win, vim.v.count ~= 0 and vim.v.count or 125)
+end, { desc = "Toggle wrap window" })
 
 local function move_cursor_visual(lines)
     local count = math.abs(lines)

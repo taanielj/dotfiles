@@ -28,6 +28,21 @@ return {
             "WhoIsSethDaniel/mason-tool-installer.nvim",
         },
         config = function()
+            -- vim.lsp.buf.document_highlight() applies the reply without checking
+            -- that the buffer still exists, which errors when it was wiped mid-request.
+            local function highlight_references(ev)
+                local method = vim.lsp.protocol.Methods.textDocument_documentHighlight
+                vim.lsp.buf_request(ev.buf, method, function(client)
+                    return vim.lsp.util.make_position_params(0, client.offset_encoding)
+                end, function(err, result, ctx)
+                    local client = vim.lsp.get_client_by_id(ctx.client_id)
+                    if err or not result or not client or not vim.api.nvim_buf_is_valid(ctx.bufnr) then
+                        return
+                    end
+                    vim.lsp.util.buf_highlight_references(ctx.bufnr, result, client.offset_encoding)
+                end)
+            end
+
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
                 callback = function(event)
@@ -67,7 +82,7 @@ return {
                         vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
                             buffer = event.buf,
                             group = highlight_augroup,
-                            callback = vim.lsp.buf.document_highlight,
+                            callback = highlight_references,
                         })
                         vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
                             buffer = event.buf,
