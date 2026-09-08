@@ -24,6 +24,8 @@ return {
     pin = "\u{F0403}",
     clipboard = "\u{F0EA}",
     close_all = "\u{EBBA}",
+    close_left = "\u{EAB5}",
+    close_right = "\u{EAB6}",
     browser = "\u{F0AC}",
     definition = "\u{F05B}",
     code_action = "\u{F0EB}",
