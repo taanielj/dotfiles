@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/razajamil/herdr-plugin-workspace-manager/main/schema.json
+# Layouts herdr applies to a fresh worktree workspace. A worktree made by hand
+# gets an editor and a Claude; one made by a Claude subagent gets an editor and
+# a shell, since the agent already runs in the parent session.
+layouts:
+  - id: dev
+    tabs:
+      - title: code
+        panes:
+          - title: editor
+            command: nvim
+          - title: claude
+            agent: claude
+            split: vertical
+            size: "45%"
+      - title: shell
+        panes:
+          - title: shell
+  - id: agent
+    tabs:
+      - title: code
+        panes:
+          - title: editor
+            command: nvim
+          - title: shell
+            split: vertical
+            size: "40%"
+
+globalLayout: dev
+workspaces:
+  - path: ~/git
+    defaultLayout: dev
+    layoutMatching:
+      - title: Claude subagent worktrees
+        worktreePattern: worktree-agent-*
+        layout: agent

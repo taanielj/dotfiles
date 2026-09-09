@@ -28,6 +28,12 @@ configure_herdr() {
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-resurrect"; then
         run_quiet "Installing herdr-resurrect plugin" herdr plugin install ntindle/herdr-resurrect --yes
     fi
+    # Lays out every new worktree workspace; builds itself with cargo on first use.
+    if ! herdr plugin list 2>/dev/null | grep -q "herdr-plugin-workspace-manager"; then
+        run_quiet "Installing herdr workspace-manager plugin" herdr plugin install razajamil/herdr-plugin-workspace-manager --yes
+    fi
+    link_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
+        "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
 
     if ! herdr config check; then
         warn "herdr config check reported issues (see above)."
@@ -43,6 +49,8 @@ teardown_herdr() {
     log "Removing herdr configuration..."
     unlink_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     unlink_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
+    unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
+        "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
     success "herdr configuration removed."
 }
 
