@@ -52,6 +52,7 @@ return {
                 },
                 mappings = {
                     i = {
+                        ["<Esc>"] = actions.close,
                         ["<S-Down>"] = actions.cycle_history_next,
                         ["<S-Up>"] = actions.cycle_history_prev,
                     },
