@@ -154,6 +154,7 @@ run_setup() {
         source "$file"
         # A component that bails (e.g. its tool isn't installed) shouldn't abort the rest under set -e.
         eval "main_$(basename "$file" .sh)" || warn "[$(basename "$file" .sh)] setup did not complete; continuing."
+        echo ""
     done
 }
 
@@ -174,6 +175,7 @@ run_teardown() {
             eval "teardown_$(basename "$file" .sh)" || warn "[$(basename "$file" .sh)] teardown did not complete; continuing."
             ;;
         esac
+        echo ""
     done
 }
 
