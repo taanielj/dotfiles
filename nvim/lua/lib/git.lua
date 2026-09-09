@@ -13,14 +13,10 @@ function M.run(args)
 end
 
 ---Short name of the checked-out branch, "HEAD" when detached.
-function M.head()
-    return M.run({ "rev-parse", "--abbrev-ref", "HEAD" })
-end
+function M.head() return M.run({ "rev-parse", "--abbrev-ref", "HEAD" }) end
 
 ---Upstream of the checked-out branch, e.g. "origin/main"; "" when unset.
-function M.upstream()
-    return M.run({ "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}" })
-end
+function M.upstream() return M.run({ "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}" }) end
 
 ---The remote's default branch as "origin/<name>", falling back to a local
 ---main or master; nil when none of those exist.
@@ -82,9 +78,7 @@ function M.web_url(path, first, last)
     return url
 end
 
-function M.is_dirty()
-    return M.run({ "status", "--porcelain" }) ~= ""
-end
+function M.is_dirty() return M.run({ "status", "--porcelain" }) ~= "" end
 
 function M.is_ancestor(ancestor, rev)
     return vim.system({ "git", "merge-base", "--is-ancestor", ancestor, rev }):wait().code == 0

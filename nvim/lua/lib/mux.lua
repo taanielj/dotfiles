@@ -17,15 +17,11 @@ local function tmux_is_zoomed()
 end
 
 -- herdr's --current follows the focused pane, so this pane is addressed by id
-local function herdr_pane()
-    return vim.env.HERDR_PANE_ID
-end
+local function herdr_pane() return vim.env.HERDR_PANE_ID end
 
 local adapters = {
     tmux = {
-        present = function()
-            return vim.env.TMUX ~= nil
-        end,
+        present = function() return vim.env.TMUX ~= nil end,
         is_zoomed = tmux_is_zoomed,
         set_zoom = function(on)
             -- resize-pane -Z only toggles
@@ -33,20 +29,14 @@ local adapters = {
                 run({ "tmux", "resize-pane", "-Z" })
             end
         end,
-        set_chrome = function(visible)
-            run({ "tmux", "set", "status", visible and "on" or "off" })
-        end,
+        set_chrome = function(visible) run({ "tmux", "set", "status", visible and "on" or "off" }) end,
     },
     herdr = {
-        present = function()
-            return require("lib.herdr").inside() and vim.env.HERDR_PANE_ID ~= nil
-        end,
+        present = function() return require("lib.herdr").inside() and vim.env.HERDR_PANE_ID ~= nil end,
         is_zoomed = function()
             return run({ "herdr", "pane", "layout", "--pane", herdr_pane() }):match('"zoomed"%s*:%s*true') ~= nil
         end,
-        set_zoom = function(on)
-            run({ "herdr", "pane", "zoom", "--pane", herdr_pane(), on and "--on" or "--off" })
-        end,
+        set_zoom = function(on) run({ "herdr", "pane", "zoom", "--pane", herdr_pane(), on and "--on" or "--off" }) end,
         -- The sidebar and tab bar are config-time only
         set_chrome = function() end,
     },

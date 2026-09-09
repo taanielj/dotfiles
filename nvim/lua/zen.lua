@@ -71,8 +71,6 @@ function M.toggle()
     end
 end
 
-function M.is_active()
-    return state ~= nil
-end
+function M.is_active() return state ~= nil end
 
 return M

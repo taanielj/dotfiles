@@ -1,10 +1,9 @@
 -- <leader>f  Find
 local function builtin(picker, opts)
-    return function()
-        require("telescope.builtin")[picker](opts)
-    end
+    return function() require("telescope.builtin")[picker](opts) end
 end
 
+-- stylua: ignore
 require("lib.keymap").rows({
     { "n", "<leader> ",  builtin("find_files"),                                   "Find files" },
     { "n", "<leader>/",  builtin("current_buffer_fuzzy_find"),                    "Find in current buffer" },

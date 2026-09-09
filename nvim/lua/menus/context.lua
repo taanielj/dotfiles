@@ -25,9 +25,8 @@ local function symbol_and_call(bufnr)
     local row = vim.api.nvim_win_get_cursor(0)[1] - 1
     parser:parse({ row, row })
 
-    local symbol = vim.iter(vim.treesitter.get_captures_at_cursor(0)):any(function(capture)
-        return symbol_captures[capture:match("^[%a_]+")] == true
-    end)
+    local symbol = vim.iter(vim.treesitter.get_captures_at_cursor(0))
+        :any(function(capture) return symbol_captures[capture:match("^[%a_]+")] == true end)
     local node = vim.treesitter.get_node()
     while node and not node:type():match("argument") do
         node = node:parent()
@@ -42,14 +41,10 @@ function M.get()
     return {
         bufnr = bufnr,
         -- _get_urls() falls back to <cfile>, so any word would count
-        url = vim.iter(vim.ui._get_urls()):any(function(url)
-            return url:match("^%a[%w+.-]*://") ~= nil
-        end),
+        url = vim.iter(vim.ui._get_urls()):any(function(url) return url:match("^%a[%w+.-]*://") ~= nil end),
         symbol = symbol,
         in_call = in_call,
-        supports = function(method)
-            return #vim.lsp.get_clients({ bufnr = bufnr, method = method }) > 0
-        end,
+        supports = function(method) return #vim.lsp.get_clients({ bufnr = bufnr, method = method }) > 0 end,
         line_diagnostics = #vim.diagnostic.get(bufnr, { lnum = row }) > 0,
         diagnostics = #vim.diagnostic.get(bufnr) > 0,
         modifiable = vim.bo[bufnr].modifiable,

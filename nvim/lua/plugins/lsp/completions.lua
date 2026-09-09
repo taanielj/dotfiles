@@ -1,9 +1,7 @@
 return {
     {
         "github/copilot.vim",
-        init = function()
-            vim.g.copilot_no_tab_map = true
-        end,
+        init = function() vim.g.copilot_no_tab_map = true end,
     },
     {
         "L3MON4D3/LuaSnip",
@@ -20,9 +18,7 @@ return {
             require("luasnip.loaders.from_vscode").lazy_load()
             cmp.setup({
                 snippet = {
-                    expand = function(args)
-                        require("luasnip").lsp_expand(args.body)
-                    end,
+                    expand = function(args) require("luasnip").lsp_expand(args.body) end,
                 },
                 mapping = cmp.mapping.preset.insert({
                     ["<C-b>"] = cmp.mapping.scroll_docs(-4),

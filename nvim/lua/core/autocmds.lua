@@ -1,6 +1,4 @@
-local function augroup(name)
-    return vim.api.nvim_create_augroup("user_" .. name, { clear = true })
-end
+local function augroup(name) return vim.api.nvim_create_augroup("user_" .. name, { clear = true }) end
 
 -- o and O still indent new lines; the rest fire mid-typing
 vim.api.nvim_create_autocmd("InsertEnter", {
@@ -18,9 +16,7 @@ vim.api.nvim_create_autocmd("InsertEnter", {
 local number_toggle = augroup("number_toggle")
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = number_toggle,
-    callback = function()
-        vim.wo.relativenumber = false
-    end,
+    callback = function() vim.wo.relativenumber = false end,
 })
 -- 'scroll' goes back to half the window height whenever a window is resized,
 -- which the UI does once more after VimEnter
@@ -47,9 +43,7 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("json_conceal"),
     pattern = "json",
-    callback = function()
-        vim.opt_local.conceallevel = 0
-    end,
+    callback = function() vim.opt_local.conceallevel = 0 end,
 })
 
 vim.api.nvim_create_autocmd("FileType", {
@@ -64,9 +58,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("TextYankPost", {
     group = augroup("highlight_yank"),
     desc = "Briefly highlight yanked text",
-    callback = function()
-        vim.hl.on_yank({ higroup = "Visual", timeout = 200 })
-    end,
+    callback = function() vim.hl.on_yank({ higroup = "Visual", timeout = 200 }) end,
 })
 
 local indent_filetypes = { "yaml", "html", "css", "json", "markdown" }
@@ -82,9 +74,7 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("makefile_tabs"),
     pattern = "make",
-    callback = function()
-        vim.cmd("setlocal noexpandtab")
-    end,
+    callback = function() vim.cmd("setlocal noexpandtab") end,
 })
 
 -- Scoped to snacks_terminal buffers so shells in other :terminals keep <C-l> etc.
@@ -95,9 +85,12 @@ vim.api.nvim_create_autocmd("FileType", {
         local nav = require("lib.herdr").inside() and "herdr-splits" or "smart-splits"
         local dirs = { h = "move_cursor_left", j = "move_cursor_down", k = "move_cursor_up", l = "move_cursor_right" }
         for key, fn in pairs(dirs) do
-            vim.keymap.set("t", "<C-" .. key .. ">", function()
-                require(nav)[fn]()
-            end, { buffer = ev.buf, silent = true, desc = "Window nav " .. key })
+            vim.keymap.set(
+                "t",
+                "<C-" .. key .. ">",
+                function() require(nav)[fn]() end,
+                { buffer = ev.buf, silent = true, desc = "Window nav " .. key }
+            )
         end
     end,
 })
@@ -146,9 +139,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
             local path = vim.uri_decode((target:gsub("#.*$", "")))
             if path ~= "" then
-                path = vim.fs.normalize(
-                    path:sub(1, 1) == "/" and path or vim.fs.joinpath(vim.fn.expand("%:p:h"), path)
-                )
+                path = vim.fs.normalize(path:sub(1, 1) == "/" and path or vim.fs.joinpath(vim.fn.expand("%:p:h"), path))
             end
 
             if path == "" or require("lib.markdown").is_file(path) then

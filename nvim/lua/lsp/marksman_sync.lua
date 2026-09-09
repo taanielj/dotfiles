@@ -13,12 +13,12 @@ local tracked = {}
 -- Fallback for workspaces marksman rooted on something other than a repo.
 local function walk(root)
     local files = {}
-    for name, type in vim.fs.dir(root, {
-        depth = 16,
-        skip = function(dir)
-            return dir ~= ".git" and dir ~= "node_modules"
-        end,
-    }) do
+    for name, type in
+        vim.fs.dir(root, {
+            depth = 16,
+            skip = function(dir) return dir ~= ".git" and dir ~= "node_modules" end,
+        })
+    do
         if type == "file" and require("lib.markdown").is_file(name) then
             files[root .. "/" .. name] = true
         end
@@ -109,27 +109,21 @@ function M.attach(client)
     local state = { known = {}, pending = false }
     tracked[client.id] = state
     -- Baseline: what marksman itself just indexed.
-    list(client.root_dir, function(found)
-        state.known = found
-    end)
+    list(client.root_dir, function(found) state.known = found end)
 
     local group = vim.api.nvim_create_augroup("user_marksman_sync_" .. client.id, { clear = true })
     vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "CursorHold", "FocusGained" }, {
         group = group,
         pattern = PATTERNS,
         desc = "Tell marksman about markdown files written outside Neovim",
-        callback = function()
-            sync(client)
-        end,
+        callback = function() sync(client) end,
     })
     vim.api.nvim_create_autocmd("LspDetach", {
         group = group,
         callback = function(event)
             if event.data.client_id == client.id then
                 tracked[client.id] = nil
-                vim.schedule(function()
-                    pcall(vim.api.nvim_del_augroup_by_id, group)
-                end)
+                vim.schedule(function() pcall(vim.api.nvim_del_augroup_by_id, group) end)
             end
         end,
     })

@@ -69,20 +69,26 @@ return function()
         require("menus.file")(rows, node.path)
     end
     rows.add({ separator = true })
-    rows.add({ name = "Order by", cmd = choose("Order by", {
-        { "Created date", "order_by_created" },
-        { "Diagnostic severity", "order_by_diagnostics" },
-        { "Git status", "order_by_git_status" },
-        { "Last modified", "order_by_modified" },
-        { "Name", "order_by_name" },
-        { "Size", "order_by_size" },
-        { "Type", "order_by_type" },
-    }) })
-    rows.add({ name = "Find", cmd = choose("Find", {
-        { "Fuzzy finder", "fuzzy_finder" },
-        { "Fuzzy finder directory", "fuzzy_finder_directory" },
-        { "Fuzzy sorter", "fuzzy_sorter" },
-    }) })
+    rows.add({
+        name = "Order by",
+        cmd = choose("Order by", {
+            { "Created date", "order_by_created" },
+            { "Diagnostic severity", "order_by_diagnostics" },
+            { "Git status", "order_by_git_status" },
+            { "Last modified", "order_by_modified" },
+            { "Name", "order_by_name" },
+            { "Size", "order_by_size" },
+            { "Type", "order_by_type" },
+        }),
+    })
+    rows.add({
+        name = "Find",
+        cmd = choose("Find", {
+            { "Fuzzy finder", "fuzzy_finder" },
+            { "Fuzzy finder directory", "fuzzy_finder_directory" },
+            { "Fuzzy sorter", "fuzzy_sorter" },
+        }),
+    })
     rows.add({ name = "Toggle hidden", cmd = call("toggle_hidden") })
     rows.add({ name = "Refresh", cmd = call("refresh") })
     rows.add({ separator = true })

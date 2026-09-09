@@ -7,6 +7,7 @@
 vim.g.mapleader = " "
 
 -- A prefix has no mapping of its own to carry a desc
+-- stylua: ignore
 local groups = {
     { "<leader>a",  group = "AI/Claude Code" },
     { "<leader>b",  group = "Buffer" },

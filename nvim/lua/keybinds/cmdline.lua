@@ -15,7 +15,5 @@ local swap = {
     ["<Right>"] = "<Down>",
 }
 for key, replacement in pairs(swap) do
-    vim.keymap.set("c", key, function()
-        return vim.fn.pumvisible() == 1 and replacement or key
-    end, { expr = true })
+    vim.keymap.set("c", key, function() return vim.fn.pumvisible() == 1 and replacement or key end, { expr = true })
 end

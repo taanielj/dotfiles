@@ -1,5 +1,6 @@
 local map = require("lib.keymap").rows
 
+-- stylua: ignore
 map({
     -- Right-click uses Neovim's own popup_setpos; this is the keyboard route
     { "n", "<leader>.", function() require("menus").popup_at_cursor() end,     "Open menu" },
@@ -44,9 +45,10 @@ local function open_wrap_spacer(win, width)
 end
 
 local function splits()
-    return vim.tbl_filter(function(win)
-        return vim.api.nvim_win_get_config(win).relative == ""
-    end, vim.api.nvim_tabpage_list_wins(0))
+    return vim.tbl_filter(
+        function(win) return vim.api.nvim_win_get_config(win).relative == "" end,
+        vim.api.nvim_tabpage_list_wins(0)
+    )
 end
 
 -- The last split cannot close, so a spacer left alone stays as a window
@@ -64,9 +66,7 @@ vim.api.nvim_create_autocmd("WinClosed", {
     callback = function(ev)
         local closed = tonumber(ev.match)
         if spacer_by_window[closed] then
-            vim.schedule(function()
-                close_wrap_spacer(closed)
-            end)
+            vim.schedule(function() close_wrap_spacer(closed) end)
             return
         end
         for win, spacer in pairs(spacer_by_window) do
@@ -110,6 +110,7 @@ local function wheel(key)
     end
 end
 
+-- stylua: ignore
 map({
     { { "n", "x", "i" }, "<ScrollWheelDown>", wheel("<ScrollWheelDown>"), "Scroll down, syncing bound windows" },
     { { "n", "x", "i" }, "<ScrollWheelUp>",   wheel("<ScrollWheelUp>"),   "Scroll up, syncing bound windows" },

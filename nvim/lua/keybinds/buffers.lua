@@ -1,5 +1,6 @@
 local map = require("lib.keymap").rows
 
+-- stylua: ignore
 map({
     -- <leader>b  Buffer
     { "n", "<leader>bn",                           "<Cmd>BufferLineCycleNext<CR>",                  "Next buffer" },

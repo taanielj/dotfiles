@@ -5,9 +5,7 @@ local M = {}
 
 local ns = vim.api.nvim_create_namespace("user_blame_summary")
 
-local function blame_window()
-    return require("lib.win").by_filetype("gitsigns-blame", { tabpage = true })
-end
+local function blame_window() return require("lib.win").by_filetype("gitsigns-blame", { tabpage = true }) end
 
 local function wrap(text, width)
     local lines, line = {}, ""
@@ -28,13 +26,9 @@ local function wrap(text, width)
 end
 
 -- Lua character classes are byte-wise, so the glyphs are matched whole.
-local function continues_block(line)
-    return vim.startswith(line, "│") or vim.startswith(line, "┕")
-end
+local function continues_block(line) return vim.startswith(line, "│") or vim.startswith(line, "┕") end
 
-local function summary_of(line)
-    return line:match("^│ (.+)$") or line:match("^┕ (.+)$")
-end
+local function summary_of(line) return line:match("^│ (.+)$") or line:match("^┕ (.+)$") end
 
 -- A block is a header line followed by lines that start with a bar glyph;
 -- gitsigns puts the summary on the first of those.
@@ -67,7 +61,13 @@ local function spread_summaries(win)
             local piece = pieces[row - block.first + 1]
             vim.api.nvim_buf_set_text(buf, row - 1, #glyph, row - 1, -1, { piece and (" " .. piece) or "" })
             if piece then
-                vim.api.nvim_buf_set_extmark(buf, ns, row - 1, #glyph + 1, { end_col = #glyph + 1 + #piece, hl_group = "Comment" })
+                vim.api.nvim_buf_set_extmark(
+                    buf,
+                    ns,
+                    row - 1,
+                    #glyph + 1,
+                    { end_col = #glyph + 1 + #piece, hl_group = "Comment" }
+                )
             end
         end
     end

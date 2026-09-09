@@ -31,15 +31,18 @@ return {
             -- that the buffer still exists, which errors when it was wiped mid-request.
             local function highlight_references(ev)
                 local method = vim.lsp.protocol.Methods.textDocument_documentHighlight
-                vim.lsp.buf_request(ev.buf, method, function(client)
-                    return vim.lsp.util.make_position_params(0, client.offset_encoding)
-                end, function(err, result, ctx)
-                    local client = vim.lsp.get_client_by_id(ctx.client_id)
-                    if err or not result or not client or not vim.api.nvim_buf_is_valid(ctx.bufnr) then
-                        return
+                vim.lsp.buf_request(
+                    ev.buf,
+                    method,
+                    function(client) return vim.lsp.util.make_position_params(0, client.offset_encoding) end,
+                    function(err, result, ctx)
+                        local client = vim.lsp.get_client_by_id(ctx.client_id)
+                        if err or not result or not client or not vim.api.nvim_buf_is_valid(ctx.bufnr) then
+                            return
+                        end
+                        vim.lsp.util.buf_highlight_references(ctx.bufnr, result, client.offset_encoding)
                     end
-                    vim.lsp.util.buf_highlight_references(ctx.bufnr, result, client.offset_encoding)
-                end)
+                )
             end
 
             vim.api.nvim_create_autocmd("LspAttach", {
@@ -61,19 +64,31 @@ return {
                     map("n", "<leader>lr", vim.lsp.buf.rename, "Rename symbol")
                     map("n", "<leader>le", vim.diagnostic.open_float, "Show diagnostics")
                     map({ "n", "x" }, "<leader>la", vim.lsp.buf.code_action, "Code action")
-                    map("n", "<leader>ln", function()
-                        vim.diagnostic.jump({ count = 1, float = true })
-                    end, "Next diagnostic")
-                    map("n", "<leader>lp", function()
-                        vim.diagnostic.jump({ count = -1, float = true })
-                    end, "Previous diagnostic")
+                    map(
+                        "n",
+                        "<leader>ln",
+                        function() vim.diagnostic.jump({ count = 1, float = true }) end,
+                        "Next diagnostic"
+                    )
+                    map(
+                        "n",
+                        "<leader>lp",
+                        function() vim.diagnostic.jump({ count = -1, float = true }) end,
+                        "Previous diagnostic"
+                    )
                     map("n", "<leader>lD", vim.diagnostic.setqflist, "Workspace diagnostics")
-                    map("n", "<leader>lE", function()
-                        vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR })
-                    end, "Workspace errors")
-                    map("n", "<leader>lW", function()
-                        vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.WARN })
-                    end, "Workspace warnings")
+                    map(
+                        "n",
+                        "<leader>lE",
+                        function() vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR }) end,
+                        "Workspace errors"
+                    )
+                    map(
+                        "n",
+                        "<leader>lW",
+                        function() vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.WARN }) end,
+                        "Workspace warnings"
+                    )
                     map("n", "<leader>ld", vim.diagnostic.setloclist, "Buffer diagnostics")
 
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
@@ -104,9 +119,14 @@ return {
                     end
 
                     if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-                        map("n", "<leader>lh", function()
-                            vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-                        end, "Toggle inlay hints")
+                        map(
+                            "n",
+                            "<leader>lh",
+                            function()
+                                vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
+                            end,
+                            "Toggle inlay hints"
+                        )
                     end
                 end,
             })
@@ -142,7 +162,9 @@ return {
                 },
                 -- A project's ruff.toml or pyproject.toml wins; lineLength applies
                 -- to projects without one.
-                ruff = { init_options = { settings = { configurationPreference = "filesystemFirst", lineLength = 120 } } },
+                ruff = {
+                    init_options = { settings = { configurationPreference = "filesystemFirst", lineLength = 120 } },
+                },
                 html = {},
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
                 marksman = {},
@@ -181,9 +203,7 @@ return {
                 virtual_text = {
                     prefix = "●",
                     source = "if_many",
-                    format = function(diagnostic)
-                        return string.format("%s %s", diagnostic.source, diagnostic.message)
-                    end,
+                    format = function(diagnostic) return string.format("%s %s", diagnostic.source, diagnostic.message) end,
                 },
             })
         end,

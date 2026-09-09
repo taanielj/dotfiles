@@ -10,16 +10,10 @@ return {
             require("bufferline").setup({
                 highlights = require("catppuccin.special.bufferline").get_theme()(),
                 options = {
-                    middle_mouse_command = function(bufnr)
-                        require("ui.close_buffer").close({ buf = bufnr })
-                    end,
-                    close_command = function(bufnr)
-                        require("ui.close_buffer").close({ buf = bufnr })
-                    end,
+                    middle_mouse_command = function(bufnr) require("ui.close_buffer").close({ buf = bufnr }) end,
+                    close_command = function(bufnr) require("ui.close_buffer").close({ buf = bufnr }) end,
 
-                    right_mouse_command = function(bufnr)
-                        require("menus").tab(bufnr)
-                    end,
+                    right_mouse_command = function(bufnr) require("menus").tab(bufnr) end,
                     diagnostics = "nvim_lsp",
                     offsets = {
                         {

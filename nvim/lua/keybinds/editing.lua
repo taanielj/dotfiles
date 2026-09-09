@@ -1,5 +1,6 @@
 local map = require("lib.keymap").rows
 
+-- stylua: ignore
 map({
     -- <leader>  leaves
     { "n",               "<leader>s",                  ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
@@ -105,17 +106,25 @@ local function move_cursor_visual(lines)
     vim.cmd.normal({ tostring(count) .. key, bang = true })
 end
 
-vim.keymap.set("i", "<Up>", function()
-    move_cursor_visual(-1)
-end, { silent = true, desc = "Move up in insert mode (visual line)" })
+vim.keymap.set(
+    "i",
+    "<Up>",
+    function() move_cursor_visual(-1) end,
+    { silent = true, desc = "Move up in insert mode (visual line)" }
+)
 
-vim.keymap.set("i", "<Down>", function()
-    move_cursor_visual(1)
-end, { silent = true, desc = "Move down in insert mode (visual line)" })
+vim.keymap.set(
+    "i",
+    "<Down>",
+    function() move_cursor_visual(1) end,
+    { silent = true, desc = "Move down in insert mode (visual line)" }
+)
 
 vim.keymap.set("i", "<C-w>", function()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-    if col == 0 then return end
+    if col == 0 then
+        return
+    end
     local line = vim.api.nvim_get_current_line()
 
     -- Position cursor for normal-mode wordmotion (at EOL, back up one)
@@ -130,7 +139,9 @@ end, { silent = true, desc = "Delete previous word (wordmotion-aware)" })
 vim.keymap.set("i", "<C-Del>", function()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
     local line = vim.api.nvim_get_current_line()
-    if col >= #line then return end
+    if col >= #line then
+        return
+    end
 
     vim.api.nvim_win_set_cursor(0, { row, col })
     vim.fn["wordmotion#motion"](1, "n", "e", 0, {})
@@ -163,11 +174,14 @@ vim.keymap.set("i", "<C-S-Left>", function()
 end, { silent = true, desc = "Select word backward" })
 
 -- Copilot in insert
-local function suggestion_shown()
-    return vim.fn["copilot#GetDisplayedSuggestion"]().text ~= ""
-end
+local function suggestion_shown() return vim.fn["copilot#GetDisplayedSuggestion"]().text ~= "" end
 
-vim.keymap.set("i", "<C-j>", 'copilot#Accept("\\<CR>")', { expr = true, replace_keycodes = false, desc = "Accept suggestion" })
+vim.keymap.set(
+    "i",
+    "<C-j>",
+    'copilot#Accept("\\<CR>")',
+    { expr = true, replace_keycodes = false, desc = "Accept suggestion" }
+)
 vim.keymap.set("i", "<C-l>", "<Plug>(copilot-next)", { remap = true, desc = "Next suggestion" })
 vim.keymap.set("i", "<C-h>", "<Plug>(copilot-previous)", { remap = true, desc = "Previous suggestion" })
 
@@ -179,9 +193,12 @@ vim.keymap.set("i", "<C-Right>", function()
     end
 end, { silent = true, desc = "Accept a word, or move a word" })
 
-vim.keymap.set("i", "<C-Left>", function()
-    vim.fn["wordmotion#motion"](1, "n", "b", 0, {})
-end, { silent = true, desc = "Move back a word" })
+vim.keymap.set(
+    "i",
+    "<C-Left>",
+    function() vim.fn["wordmotion#motion"](1, "n", "b", 0, {}) end,
+    { silent = true, desc = "Move back a word" }
+)
 
 vim.keymap.set("i", "<C-S-Right>", function()
     if suggestion_shown() then

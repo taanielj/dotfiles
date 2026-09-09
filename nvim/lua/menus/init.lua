@@ -23,14 +23,10 @@ local function popup_rows()
     return require("menus.default")(require("menus.context").get())
 end
 
-function M.popup_at_cursor()
-    menu.show("PopUp", popup_rows(), { at_cursor = true })
-end
+function M.popup_at_cursor() menu.show("PopUp", popup_rows(), { at_cursor = true }) end
 
 ---@param bufnr integer the clicked tab's buffer
-function M.tab(bufnr)
-    menu.show("]Buffer", require("menus.bufferline")({ bufnr = bufnr }))
-end
+function M.tab(bufnr) menu.show("]Buffer", require("menus.bufferline")({ bufnr = bufnr })) end
 
 function M.setup()
     vim.cmd("silent! aunmenu PopUp")

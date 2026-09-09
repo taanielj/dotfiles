@@ -18,18 +18,24 @@ return {
                         -- Connected mode needs both; set them in ~/.zshrc.local per machine.
                         local token = os.getenv("SONAR_TOKEN")
                         local server_url = os.getenv("SONAR_HOST_URL")
-                        if not token or not server_url then return {} end
+                        if not token or not server_url then
+                            return {}
+                        end
                         local props = vim.fn.getcwd() .. "/sonar-project.properties"
                         local project_key = nil
                         local f = io.open(props, "r")
                         if f then
                             for line in f:lines() do
                                 project_key = line:match("^sonar%.projectKey=(.+)")
-                                if project_key then break end
+                                if project_key then
+                                    break
+                                end
                             end
                             f:close()
                         end
-                        if not project_key then return {} end
+                        if not project_key then
+                            return {}
+                        end
                         return {
                             connectedMode = {
                                 connections = {

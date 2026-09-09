@@ -8,13 +8,9 @@ function M.is_open()
     return lib ~= nil and lib.get_current_view() ~= nil
 end
 
-local function current_view()
-    return require("diffview.lib").get_current_view()
-end
+local function current_view() return require("diffview.lib").get_current_view() end
 
-function M.close()
-    vim.cmd.DiffviewClose()
-end
+function M.close() vim.cmd.DiffviewClose() end
 
 local function toggle(open)
     return function()
@@ -64,9 +60,7 @@ M.branch_log = toggle(function()
     end
 end)
 
-M.file_log = toggle(function()
-    vim.cmd.DiffviewFileHistory("%")
-end)
+M.file_log = toggle(function() vim.cmd.DiffviewFileHistory("%") end)
 
 M.pick_branch = toggle(function()
     local actions = require("telescope.actions")
@@ -154,9 +148,7 @@ end
 local function jump_to_first_change(view)
     local win = view.cur_layout:get_main_win().id
     if vim.api.nvim_win_is_valid(win) then
-        vim.api.nvim_win_call(win, function()
-            vim.cmd("silent! normal! gg]c[c")
-        end)
+        vim.api.nvim_win_call(win, function() vim.cmd("silent! normal! gg]c[c") end)
     end
 end
 
@@ -164,9 +156,7 @@ function M.focus_first_change()
     local view = current_view()
     if view and opens_file(view, view.panel:get_item_at_cursor()) then
         view.emitter:once("file_open_post", function()
-            vim.schedule(function()
-                jump_to_first_change(view)
-            end)
+            vim.schedule(function() jump_to_first_change(view) end)
         end)
     end
     require("diffview.actions").focus_entry()
@@ -188,9 +178,7 @@ function M.click_entry()
     require("diffview.actions").select_entry()
 end
 
-local function is_index(file)
-    return file.rev.type == require("diffview.vcs.rev").RevType.STAGE
-end
+local function is_index(file) return file.rev.type == require("diffview.vcs.rev").RevType.STAGE end
 
 local function view_file(view, bufnr)
     for _, win in ipairs(view.cur_layout.windows) do
@@ -207,9 +195,7 @@ local function write_index_buffers(view)
     for _, win in ipairs(view.cur_layout.windows) do
         local file = win.file
         if file and file.bufnr and is_index(file) and vim.bo[file.bufnr].modified then
-            vim.api.nvim_buf_call(file.bufnr, function()
-                vim.cmd.write()
-            end)
+            vim.api.nvim_buf_call(file.bufnr, function() vim.cmd.write() end)
         end
     end
 end
@@ -282,9 +268,7 @@ M.hooks = {
             map_stage_keys(bufnr)
         end
     end,
-    view_opened = function(view)
-        listed_before[view.tabpage] = listed()
-    end,
+    view_opened = function(view) listed_before[view.tabpage] = listed() end,
     view_closed = function(view)
         local before = listed_before[view.tabpage] or {}
         listed_before[view.tabpage] = nil

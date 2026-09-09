@@ -34,17 +34,13 @@ return {
                 desc = "Save Folds",
                 group = vim.api.nvim_create_augroup("save_folds_view", { clear = true }),
 
-                callback = function()
-                    vim.cmd("mkview")
-                end,
+                callback = function() vim.cmd("mkview") end,
             })
             vim.api.nvim_create_autocmd("BufReadPost", {
                 desc = "Restore Folds",
                 group = vim.api.nvim_create_augroup("restore_folds_view", { clear = true }),
 
-                callback = function()
-                    vim.cmd("silent! loadview")
-                end,
+                callback = function() vim.cmd("silent! loadview") end,
             })
 
             ---@diagnostic disable-next-line
@@ -66,7 +62,7 @@ return {
             return {
                 setopt = true,
                 segments = {
-                    { text = { "%s" },             click = "v:lua.ScSa" },
+                    { text = { "%s" }, click = "v:lua.ScSa" },
                     {
                         text = { builtin.lnumfunc, " " },
                         condition = { true, builtin.not_empty },

@@ -7,7 +7,7 @@ return {
     lazy = false,
     dependencies = {
         { "coder/claudecode.nvim", dependencies = { "folke/snacks.nvim" } },
-        { "ishiooon/codex.nvim",   dependencies = { "folke/snacks.nvim" } },
+        { "ishiooon/codex.nvim", dependencies = { "folke/snacks.nvim" } },
     },
     opts = {},
 }

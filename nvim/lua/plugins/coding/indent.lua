@@ -12,9 +12,7 @@ return {
             { "RainbowViolet", "#C678DD" },
             { "RainbowCyan", "#56B6C2" },
         }
-        local order = vim.tbl_map(function(pair)
-            return pair[1]
-        end, rainbow)
+        local order = vim.tbl_map(function(pair) return pair[1] end, rainbow)
 
         -- Runs on setup and again after any :colorscheme, which clears highlights
         hooks.register(hooks.type.HIGHLIGHT_SETUP, function()

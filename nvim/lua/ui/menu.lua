@@ -13,9 +13,7 @@ function M.run(menu, id)
 end
 
 -- Menu paths are dot-separated, so a name's own dots and spaces are escaped.
-local function escape(name)
-    return (name:gsub("([\\. |])", "\\%1"))
-end
+local function escape(name) return (name:gsub("([\\. |])", "\\%1")) end
 
 local function rhs(menu, entry)
     if type(entry.cmd) == "string" then

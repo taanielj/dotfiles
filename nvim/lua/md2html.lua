@@ -9,10 +9,17 @@ local M = {}
 local INSTALL_URL = "https://docs.astral.sh/uv/getting-started/installation/"
 
 local CMD = {
-    "uvx", "--quiet", "--from", "markdown", "markdown_py",
-    "-x", "fenced_code",
-    "-x", "tables",
-    "-x", "sane_lists",
+    "uvx",
+    "--quiet",
+    "--from",
+    "markdown",
+    "markdown_py",
+    "-x",
+    "fenced_code",
+    "-x",
+    "tables",
+    "-x",
+    "sane_lists",
 }
 
 -- python-markdown reads a child indented less than four spaces as a sibling,
@@ -89,9 +96,7 @@ local function reindent(lines)
     return out
 end
 
-local function notify(msg, level)
-    vim.notify(msg, level, { title = "md2html" })
-end
+local function notify(msg, level) vim.notify(msg, level, { title = "md2html" }) end
 
 --- Convert lines to HTML and put the result on the + register.
 --- @param first integer|nil 1-indexed first line; nil converts the whole buffer

@@ -5,7 +5,5 @@ return {
     keys = {
         { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit" },
     },
-    config = function()
-        vim.g.lazygit_on_exit_callback = require("ui.tree").refresh
-    end,
+    config = function() vim.g.lazygit_on_exit_callback = require("ui.tree").refresh end,
 }

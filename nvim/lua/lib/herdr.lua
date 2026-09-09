@@ -2,9 +2,7 @@
 -- inside any of its panes, HERDR_SOCKET_PATH where its agent bridge listens.
 local M = {}
 
-function M.inside()
-    return vim.env.HERDR_ENV == "1"
-end
+function M.inside() return vim.env.HERDR_ENV == "1" end
 
 ---@return string? the agent bridge socket
 function M.socket()

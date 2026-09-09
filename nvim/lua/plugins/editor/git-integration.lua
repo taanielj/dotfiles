@@ -54,12 +54,18 @@ return {
                         end
                     end, "Jump to previous git [c]hange")
 
-                    map("v", "<leader>gs", function()
-                        gitsigns.stage_hunk({ vim.fn.line("'<"), vim.fn.line("'>") })
-                    end, "git [s]tage hunk")
-                    map("v", "<leader>gr", function()
-                        gitsigns.reset_hunk({ vim.fn.line("'<"), vim.fn.line("'>") })
-                    end, "git [r]eset hunk")
+                    map(
+                        "v",
+                        "<leader>gs",
+                        function() gitsigns.stage_hunk({ vim.fn.line("'<"), vim.fn.line("'>") }) end,
+                        "git [s]tage hunk"
+                    )
+                    map(
+                        "v",
+                        "<leader>gr",
+                        function() gitsigns.reset_hunk({ vim.fn.line("'<"), vim.fn.line("'>") }) end,
+                        "git [r]eset hunk"
+                    )
                     map("n", "<leader>gs", gitsigns.stage_hunk, "Stage/unstage hunk")
                     map("n", "<leader>gS", gitsigns.stage_buffer, "Stage buffer")
                     map("n", "<leader>gu", gitsigns.reset_buffer_index, "Unstage buffer")
@@ -75,12 +81,20 @@ return {
         "sindrets/diffview.nvim",
         cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
         keys = {
-            { "<leader>gd", function() require("ui.diffview").uncommitted() end,  desc = "Diff uncommitted changes" },
-            { "<leader>gD", function() require("ui.diffview").branch() end,       desc = "Diff branch against its base" },
-            { "<leader>gh", function() require("ui.diffview").file_log() end,     desc = "File history" },
-            { "<leader>gH", function() require("ui.diffview").branch_log() end,   desc = "Branch commits one by one" },
+            { "<leader>gd", function() require("ui.diffview").uncommitted() end, desc = "Diff uncommitted changes" },
+            {
+                "<leader>gD",
+                function() require("ui.diffview").branch() end,
+                desc = "Diff branch against its base",
+            },
+            { "<leader>gh", function() require("ui.diffview").file_log() end, desc = "File history" },
+            { "<leader>gH", function() require("ui.diffview").branch_log() end, desc = "Branch commits one by one" },
             { "<leader>gc", function() require("ui.diffview").pick_commits() end, desc = "Diff from a picked commit" },
-            { "<leader>gC", function() require("ui.diffview").pick_branch() end,  desc = "Diff against a picked branch" },
+            {
+                "<leader>gC",
+                function() require("ui.diffview").pick_branch() end,
+                desc = "Diff against a picked branch",
+            },
         },
         opts = function()
             local actions = require("diffview.actions")
@@ -93,15 +107,35 @@ return {
                 { "n", "<down>", actions.select_next_entry, { desc = "Open the next file" } },
                 { "n", "k", actions.select_prev_entry, { desc = "Open the previous file" } },
                 { "n", "<up>", actions.select_prev_entry, { desc = "Open the previous file" } },
-                { "n", "<cr>", function() require("ui.diffview").focus_first_change() end, { desc = "Open the file at its first change" } },
-                { "n", "<LeftMouse>", function() require("ui.diffview").click_entry() end, { desc = "Open the clicked file" } },
+                {
+                    "n",
+                    "<cr>",
+                    function() require("ui.diffview").focus_first_change() end,
+                    { desc = "Open the file at its first change" },
+                },
+                {
+                    "n",
+                    "<LeftMouse>",
+                    function() require("ui.diffview").click_entry() end,
+                    { desc = "Open the clicked file" },
+                },
             }
             local view_keys = {
                 panel_keys[1],
                 panel_keys[2],
                 { "n", "-", actions.toggle_stage_entry, { desc = "Stage / unstage the file" } },
-                { { "n", "x" }, "dp", require("ui.diffview").hunk_to_index("diffput"), { desc = "Put the hunk into the other side, staging it" } },
-                { { "n", "x" }, "do", require("ui.diffview").hunk_to_index("diffget"), { desc = "Take the hunk from the other side, unstaging it" } },
+                {
+                    { "n", "x" },
+                    "dp",
+                    require("ui.diffview").hunk_to_index("diffput"),
+                    { desc = "Put the hunk into the other side, staging it" },
+                },
+                {
+                    { "n", "x" },
+                    "do",
+                    require("ui.diffview").hunk_to_index("diffget"),
+                    { desc = "Take the hunk from the other side, unstaging it" },
+                },
             }
             return {
                 hooks = require("ui.diffview").hooks,
