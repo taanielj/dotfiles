@@ -16,7 +16,7 @@ map({
     { { "n", "v", "x", "i" }, "<PageUp>",   function() require("neoscroll").ctrl_u({ duration = 100, easing = "quadratic" }) end,        "Scroll up half a page" },
     { { "n", "v", "x", "i" }, "<PageDown>", function() require("neoscroll").ctrl_d({ duration = 100, easing = "quadratic" }) end,        "Scroll down half a page" },
 
-    -- Resize splits
+    -- Resize splits; inside herdr, herdr-splits takes these keys
     { "n", "<M-h>",     "2<C-w><",                                             "Resize split left" },
     { "n", "<M-l>",     "2<C-w>>",                                             "Resize split right" },
     { "n", "<M-j>",     "2<C-w>+",                                             "Resize split down" },

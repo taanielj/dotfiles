@@ -2,7 +2,7 @@
 -- moves the cursor and opens PopUp with no mapping; PopUp is rebuilt for
 -- what is under the cursor on every MenuPopup, replacing Neovim's handler,
 -- which only disables rows. A bufferline tab is not a window, so it has a
--- separate hidden menu. Nothing is mapped on the mouse: a click while a
+-- separate hidden menu. No mouse button is mapped: a click while a
 -- menu is open is pushed back and handled by normal mode directly, where
 -- mappings do not apply.
 local menu = require("ui.menu")

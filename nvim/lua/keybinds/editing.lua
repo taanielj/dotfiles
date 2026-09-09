@@ -168,8 +168,8 @@ local function suggestion_shown()
 end
 
 vim.keymap.set("i", "<C-j>", 'copilot#Accept("\\<CR>")', { expr = true, replace_keycodes = false, desc = "Accept suggestion" })
-vim.keymap.set("i", "<C-l>", "<Plug>(copilot-next)", { desc = "Next suggestion" })
-vim.keymap.set("i", "<C-h>", "<Plug>(copilot-previous)", { desc = "Previous suggestion" })
+vim.keymap.set("i", "<C-l>", "<Plug>(copilot-next)", { remap = true, desc = "Next suggestion" })
+vim.keymap.set("i", "<C-h>", "<Plug>(copilot-previous)", { remap = true, desc = "Previous suggestion" })
 
 vim.keymap.set("i", "<C-Right>", function()
     if suggestion_shown() then

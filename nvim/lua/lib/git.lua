@@ -1,12 +1,11 @@
 -- Git queries against the current working directory.
 local M = {}
 
----Run a git command and return its trimmed stdout; "" on failure or when
----git has not answered within a second.
+---Run a git command and return its trimmed stdout; "" on failure.
 ---@param args string[]
 ---@return string
 function M.run(args)
-    local result = vim.system(vim.list_extend({ "git" }, args), { text = true }):wait(1000)
+    local result = vim.system(vim.list_extend({ "git" }, args), { text = true }):wait()
     if result.code ~= 0 then
         return ""
     end
@@ -88,7 +87,7 @@ function M.is_dirty()
 end
 
 function M.is_ancestor(ancestor, rev)
-    return vim.system({ "git", "merge-base", "--is-ancestor", ancestor, rev }):wait(1000).code == 0
+    return vim.system({ "git", "merge-base", "--is-ancestor", ancestor, rev }):wait().code == 0
 end
 
 return M

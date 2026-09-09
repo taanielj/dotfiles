@@ -3,7 +3,6 @@ local icons = require("ui.icons")
 return function(ctx)
     local bufnr = ctx.bufnr
     local name = vim.api.nvim_buf_get_name(bufnr)
-    local filename = name ~= "" and vim.fn.fnamemodify(name, ":t") or "[No Name]"
     local buffers = require("ui.close_buffer")
     local others = #require("lib.buffers").listed() > 1
     local tabs = require("bufferline").get_elements().elements
@@ -20,7 +19,16 @@ return function(ctx)
             end
         end
     end
-    local pinned = require("bufferline.groups")._is_pinned({ id = bufnr })
+    local groups = require("bufferline.groups")
+    local pinned = groups._is_pinned({ id = bufnr })
+    local function toggle_pin()
+        if pinned then
+            groups.remove_element("pinned", { id = bufnr })
+        else
+            groups.add_element("pinned", { id = bufnr })
+        end
+        require("bufferline.ui").refresh()
+    end
 
     local rows = require("ui.menu").rows()
 
@@ -28,7 +36,7 @@ return function(ctx)
     rows.item(icons.close_all, "Close others", function() require("snacks.bufdelete").other({ buf = bufnr }) end, others)
     rows.item(icons.close_left, "Close to the left", close_tabs(1, index - 1), index > 1)
     rows.item(icons.close_right, "Close to the right", close_tabs(index + 1, #tabs), index > 0 and index < #tabs)
-    rows.item(icons.pin, pinned and "Unpin" or "Pin", function() vim.cmd("BufferLineTogglePin " .. bufnr) end)
+    rows.item(icons.pin, pinned and "Unpin" or "Pin", toggle_pin)
     rows.add({ separator = true })
     if name ~= "" then
         require("menus.file")(rows, name)

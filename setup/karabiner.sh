@@ -10,6 +10,9 @@ main_karabiner() {
 configure_karabiner() {
     log "Configuring Karabiner-Elements..."
 
+    if command -v brew >/dev/null 2>&1; then
+        run_quiet "Installing Karabiner-Elements" brew install --cask karabiner-elements
+    fi
     link_file "$REPO_ROOT/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
     success "Karabiner-Elements configuration linked."
 }

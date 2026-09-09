@@ -4,7 +4,6 @@ return {
         "tpope/vim-dadbod",
         "kristijanhusak/vim-dadbod-completion",
     },
-    -- ft so vim-dadbod-completion attaches to SQL buffers
     ft = { "sql", "mysql", "plsql", "bigquery", "sqlite" },
     cmd = { "DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer" },
     keys = {
@@ -26,6 +25,14 @@ return {
                 map("n", "<leader>X", "<cmd>.DB<cr>", "SQL: execute current line")
                 map("x", "<leader>x", ":DB<cr>", "SQL: execute selection")
             end,
+        })
+    end,
+    config = function()
+        require("cmp").setup.filetype({ "sql", "mysql", "plsql" }, {
+            sources = {
+                { name = "vim-dadbod-completion" },
+                { name = "buffer" },
+            },
         })
     end,
 }

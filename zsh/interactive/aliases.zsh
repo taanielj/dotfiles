@@ -113,10 +113,12 @@ nvim() {
 
 nvimf() {
     local file
+    local preview="cat {}"
+    [[ -n "$_bat_bin" ]] && preview="$_bat_bin --color=always --style=header,grid --line-range :500 {}"
     if [[ -n "$1" && -d "$1" ]]; then
-        file=$(fd . "$1" | fzf --preview "${_bat_bin:-cat} --color=always --style=header,grid --line-range :500 {}")
+        file=$(fd . "$1" | fzf --preview "$preview")
     else
-        file=$(fd --type f --hidden | fzf --preview "${_bat_bin:-cat} --color=always --style=header,grid --line-range :500 {}")
+        file=$(fd --type f --hidden | fzf --preview "$preview")
     fi
     [[ -n "$file" ]] && nvim "$file"
 }
