@@ -110,6 +110,7 @@ if wezterm.target_triple:find("darwin") then
 		{ key = " ", mods = "CMD", action = act.SendString("\x00") }, -- ctrl+space
 		{ key = "'", mods = "CMD", action = act.SendKey({ key = "'", mods = "CTRL" }) },
 		{ key = '"', mods = "CMD", action = act.SendKey({ key = '"', mods = "CTRL" }) },
+		{ key = "/", mods = "CMD", action = act.SendKey({ key = "/", mods = "CTRL" }) },
 
 		-- macOS actions (keep on Cmd)
 		{ key = "n", mods = "CMD|SHIFT", action = act.SpawnCommandInNewWindow({ cwd = wezterm.home_dir }) },
