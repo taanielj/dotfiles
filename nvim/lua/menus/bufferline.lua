@@ -4,8 +4,8 @@ return function(ctx)
     local bufnr = ctx.bufnr
     local name = vim.api.nvim_buf_get_name(bufnr)
     local filename = name ~= "" and vim.fn.fnamemodify(name, ":t") or "[No Name]"
-    local buffers = require("ui.buffers")
-    local others = #vim.fn.getbufinfo({ buflisted = 1 }) > 1
+    local buffers = require("ui.close_buffer")
+    local others = #require("lib.buffers").listed() > 1
     local tabs = require("bufferline").get_elements().elements
     local index = 0
     for i, tab in ipairs(tabs) do

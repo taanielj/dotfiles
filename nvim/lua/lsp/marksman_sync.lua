@@ -10,10 +10,6 @@ local PATTERNS = { "*.md", "*.markdown" }
 ---@type table<integer, { known: table<string, true>, pending: boolean }>
 local tracked = {}
 
-local function is_markdown(name)
-    return name:match("%.md$") ~= nil or name:match("%.markdown$") ~= nil
-end
-
 -- Fallback for workspaces marksman rooted on something other than a repo.
 local function walk(root)
     local files = {}
@@ -23,7 +19,7 @@ local function walk(root)
             return dir ~= ".git" and dir ~= "node_modules"
         end,
     }) do
-        if type == "file" and is_markdown(name) then
+        if type == "file" and require("lib.markdown").is_file(name) then
             files[root .. "/" .. name] = true
         end
     end

@@ -6,11 +6,7 @@ local M = {}
 local ns = vim.api.nvim_create_namespace("user_blame_summary")
 
 local function blame_window()
-    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-        if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "gitsigns-blame" then
-            return win
-        end
-    end
+    return require("lib.win").by_filetype("gitsigns-blame", { tabpage = true })
 end
 
 local function wrap(text, width)

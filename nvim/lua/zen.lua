@@ -15,15 +15,6 @@ local bare = {
 -- nil while off; otherwise what to hand back
 local state
 
-local function tree_is_open()
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-        if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree" then
-            return true
-        end
-    end
-    return false
-end
-
 local function enter()
     local win = vim.api.nvim_get_current_win()
     state = {
@@ -31,7 +22,7 @@ local function enter()
         window = {},
         laststatus = vim.o.laststatus,
         showtabline = vim.o.showtabline,
-        tree = tree_is_open(),
+        tree = require("ui.tree").window() ~= nil,
     }
     for option, value in pairs(bare) do
         state.window[option] = vim.wo[win][option]

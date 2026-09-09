@@ -2,7 +2,7 @@ return {
     "mfussenegger/nvim-jdtls",
     ft = "java",
     opts = function()
-        local jdtls_path = vim.fn.stdpath("data") .. "/mason/bin/jdtls"
+        local jdtls_path = require("lib.mason").path("bin/jdtls")
         local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
         local workspace_dir = vim.fn.stdpath("cache") .. "/jdtls-workspaces/" .. project_name
 
@@ -34,7 +34,7 @@ return {
             pattern = "java",
             callback = function()
                 -- Skip if this is a Scala project (metals handles Java there)
-                if vim.fs.root(0, { "build.sbt", "build.sc", ".scala-build" }) then
+                if require("lsp.scala").is_project() then
                     return
                 end
                 require("jdtls").start_or_attach(opts)

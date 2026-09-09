@@ -34,11 +34,7 @@ return {
                 on_attach = function(bufnr)
                     local gitsigns = require("gitsigns")
 
-                    local function map(mode, l, r, opts)
-                        opts = opts or {}
-                        opts.buf = bufnr
-                        vim.keymap.set(mode, l, r, opts)
-                    end
+                    local map = require("lib.keymap").buffer(bufnr)
 
                     -- Navigation
                     map("n", "]c", function()
@@ -48,7 +44,7 @@ return {
                             ---@diagnostic disable-next-line: param-type-mismatch
                             gitsigns.nav_hunk("next")
                         end
-                    end, { desc = "Jump to next git [c]hange" })
+                    end, "Jump to next git [c]hange")
 
                     map("n", "[c", function()
                         if vim.wo.diff then
@@ -57,22 +53,22 @@ return {
                             ---@diagnostic disable-next-line: param-type-mismatch
                             gitsigns.nav_hunk("prev")
                         end
-                    end, { desc = "Jump to previous git [c]hange" })
+                    end, "Jump to previous git [c]hange")
 
                     -- Actions
                     map("v", "<leader>gs", function()
                         gitsigns.stage_hunk({ vim.fn.line("'<"), vim.fn.line("'>") })
-                    end, { desc = "git [s]tage hunk" })
+                    end, "git [s]tage hunk")
                     map("v", "<leader>gr", function()
                         gitsigns.reset_hunk({ vim.fn.line("'<"), vim.fn.line("'>") })
-                    end, { desc = "git [r]eset hunk" })
-                    map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "Stage/unstage hunk" })
-                    map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "Stage buffer" })
-                    map("n", "<leader>gu", gitsigns.reset_buffer_index, { desc = "Unstage buffer" })
-                    map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "Reset hunk" })
-                    map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "Reset buffer" })
-                    map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "Preview hunk" })
-                    map("n", "<leader>gb", require("ui.blame").toggle_column, { desc = "Toggle blame column" })
+                    end, "git [r]eset hunk")
+                    map("n", "<leader>gs", gitsigns.stage_hunk, "Stage/unstage hunk")
+                    map("n", "<leader>gS", gitsigns.stage_buffer, "Stage buffer")
+                    map("n", "<leader>gu", gitsigns.reset_buffer_index, "Unstage buffer")
+                    map("n", "<leader>gr", gitsigns.reset_hunk, "Reset hunk")
+                    map("n", "<leader>gR", gitsigns.reset_buffer, "Reset buffer")
+                    map("n", "<leader>gp", gitsigns.preview_hunk, "Preview hunk")
+                    map("n", "<leader>gb", require("ui.blame").toggle_column, "Toggle blame column")
                 end,
             })
         end,

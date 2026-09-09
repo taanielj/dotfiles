@@ -1,5 +1,5 @@
 -- Gated on HERDR_SOCKET_PATH per upstream; only loads inside a herdr session.
-local inside_herdr = vim.env.HERDR_SOCKET_PATH ~= nil and vim.env.HERDR_SOCKET_PATH ~= ""
+local inside_herdr = require("lib.herdr").socket() ~= nil
 
 return {
     "ctbaum/herdr-agents.nvim",

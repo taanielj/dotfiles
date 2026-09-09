@@ -1,7 +1,7 @@
 -- Only loads inside herdr; outside it, smart-splits (smart-splits.lua) owns these keys.
 return {
     "lmilojevicc/herdr-splits.nvim",
-    cond = vim.env.HERDR_ENV == "1",
+    cond = require("lib.herdr").inside(),
     event = "VeryLazy",
     build = ':lua require("herdr-splits").sync_herdr()',
     opts = {

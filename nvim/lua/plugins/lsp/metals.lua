@@ -50,14 +50,12 @@ return {
       -- "off" leaves the progress notifications to fidget.nvim
       metals_config.init_options.statusBarProvider = "off"
 
-      metals_config.capabilities = require("cmp_nvim_lsp").default_capabilities()
+      metals_config.capabilities = require("lsp.capabilities").get()
 
       metals_config.on_attach = function(client, bufnr)
         require("metals").setup_dap()
 
-        local function map(mode, lhs, rhs, desc)
-          vim.keymap.set(mode, lhs, rhs, { buf = bufnr, desc = desc })
-        end
+        local map = require("lib.keymap").buffer(bufnr)
 
         map("n", "<leader>lc", vim.lsp.codelens.run, "Run code lens")
         map("n", "<leader>ls", vim.lsp.buf.signature_help, "Signature help")
@@ -104,7 +102,7 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         pattern = self.ft,
         callback = function()
-          local root = vim.fs.root(0, { "build.sbt", "build.sc", ".scala-build" })
+          local root = vim.fs.root(0, require("lsp.scala").root_markers)
           if root then
             require("metals").initialize_or_attach(metals_config)
           end

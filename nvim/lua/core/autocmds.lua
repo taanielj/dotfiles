@@ -79,7 +79,7 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("claude_term_nav"),
     pattern = "snacks_terminal",
     callback = function(ev)
-        local nav = vim.env.HERDR_ENV == "1" and "herdr-splits" or "smart-splits"
+        local nav = require("lib.herdr").inside() and "herdr-splits" or "smart-splits"
         local dirs = { h = "move_cursor_left", j = "move_cursor_down", k = "move_cursor_up", l = "move_cursor_right" }
         for key, fn in pairs(dirs) do
             vim.keymap.set("t", "<C-" .. key .. ">", function()
@@ -106,10 +106,6 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("markdown_links"),
     pattern = "markdown",
     callback = function(ev)
-        local function is_markdown(name)
-            return name:match("%.md$") ~= nil or name:match("%.markdown$") ~= nil
-        end
-
         local function target_under_cursor()
             local line = vim.api.nvim_get_current_line()
             local col = vim.api.nvim_win_get_cursor(0)[2] + 1
@@ -142,7 +138,7 @@ vim.api.nvim_create_autocmd("FileType", {
                 )
             end
 
-            if path == "" or is_markdown(path) then
+            if path == "" or require("lib.markdown").is_file(path) then
                 if next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) then
                     return vim.lsp.buf.definition()
                 end

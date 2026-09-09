@@ -39,7 +39,7 @@ local adapters = {
     },
     herdr = {
         present = function()
-            return vim.env.HERDR_ENV == "1" and vim.env.HERDR_PANE_ID ~= nil
+            return require("lib.herdr").inside() and vim.env.HERDR_PANE_ID ~= nil
         end,
         is_zoomed = function()
             return run({ "herdr", "pane", "layout", "--pane", herdr_pane() }):match('"zoomed"%s*:%s*true') ~= nil

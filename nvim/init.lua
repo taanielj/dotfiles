@@ -11,10 +11,10 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("vim-options") -- Basic vim options
+require("core.options") -- Basic vim options
 require("keybinds")    -- Keybinds
 require("zen")         -- Zen mode
-require("autocmd")     -- Autocommands
+require("core.autocmds")     -- Autocommands
 require("md2html")     -- Yank markdown as HTML
 require("menus").setup()
 require("lazy").setup({

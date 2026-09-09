@@ -1,4 +1,4 @@
-local git = require("git")
+local git = require("lib.git")
 
 local M = {}
 
@@ -261,10 +261,8 @@ local listed_before = {}
 
 local function listed()
     local set = {}
-    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.bo[buf].buflisted then
-            set[buf] = true
-        end
+    for _, buf in ipairs(require("lib.buffers").listed()) do
+        set[buf] = true
     end
     return set
 end
@@ -272,9 +270,7 @@ end
 -- gitsigns only attaches to real files, so its <leader>g keys are absent on
 -- the index and HEAD sides; these are their counterparts there.
 local function map_stage_keys(bufnr)
-    local function map(mode, lhs, rhs, desc)
-        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
-    end
+    local map = require("lib.keymap").buffer(bufnr)
     map({ "n", "x" }, "<leader>gs", M.stage_hunk, "Stage/unstage hunk")
     map("n", "<leader>gS", M.stage_file, "Stage buffer")
     map("n", "<leader>gu", M.unstage_file, "Unstage buffer")

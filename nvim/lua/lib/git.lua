@@ -73,6 +73,16 @@ function M.remote_url(path, first, last)
     return url
 end
 
+---`remote_url`, warning when there is none to give.
+---@return string?
+function M.web_url(path, first, last)
+    local url = M.remote_url(path, first, last)
+    if not url then
+        vim.notify("No git remote for this file", vim.log.levels.WARN)
+    end
+    return url
+end
+
 function M.is_dirty()
     return M.run({ "status", "--porcelain" }) ~= ""
 end

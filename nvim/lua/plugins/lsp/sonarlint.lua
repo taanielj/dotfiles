@@ -1,3 +1,5 @@
+local mason = require("lib.mason")
+
 return {
     "https://gitlab.com/schrieveslaach/sonarlint.nvim",
     ft = { "python", "java" },
@@ -5,11 +7,11 @@ return {
         require("sonarlint").setup({
             server = {
                 cmd = {
-                    vim.fn.stdpath("data") .. "/mason/bin/sonarlint-language-server",
+                    mason.path("bin/sonarlint-language-server"),
                     "-stdio",
                     "-analyzers",
-                    vim.fn.stdpath("data") .. "/mason/share/sonarlint-analyzers/sonarpython.jar",
-                    vim.fn.stdpath("data") .. "/mason/share/sonarlint-analyzers/sonarjava.jar",
+                    mason.path("share/sonarlint-analyzers/sonarpython.jar"),
+                    mason.path("share/sonarlint-analyzers/sonarjava.jar"),
                 },
                 settings = {
                     sonarlint = (function()

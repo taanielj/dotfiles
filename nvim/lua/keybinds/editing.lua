@@ -5,7 +5,7 @@ map({
     -- <leader>  leaves
     -- =================
     { "n",               "<leader>s",                  ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
-    { "n",               "<leader>m",                  function() require("format").buffer() end,       "Format buffer" },
+    { "n",               "<leader>m",                  function() require("lsp.format").buffer() end,       "Format buffer" },
 
     -- ====================
     -- Common functionality

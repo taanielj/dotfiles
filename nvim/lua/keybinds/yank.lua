@@ -2,7 +2,7 @@
 -- <leader>y  Yank
 -- ================
 
-local yank = require("yank")
+local yank = require("lib.yank")
 
 local function line_suffix()
     local first, last = yank.line_range()
@@ -27,11 +27,7 @@ end, { desc = "Yank selection as HTML" })
 
 -- The origin URL for the file, with the line or selection anchored.
 local function remote_url()
-    local url = require("git").remote_url(vim.fn.expand("%:p"), yank.line_range())
-    if not url then
-        vim.notify("No git remote for this file", vim.log.levels.WARN)
-    end
-    return url
+    return require("lib.git").web_url(vim.fn.expand("%:p"), yank.line_range())
 end
 
 vim.keymap.set({ "n", "v" }, "<leader>yg", function()

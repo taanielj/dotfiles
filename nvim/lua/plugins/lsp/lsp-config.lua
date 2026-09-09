@@ -45,42 +45,39 @@ return {
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
                 callback = function(event)
-                    local map = function(keys, func, desc, mode)
-                        mode = mode or "n"
-                        vim.keymap.set(mode, keys, func, { buf = event.buf, desc = "LSP: " .. desc })
-                    end
+                    local map = require("lib.keymap").buffer(event.buf, "LSP: ")
 
                     local builtin = require("telescope.builtin")
-                    map("gd", builtin.lsp_definitions, "Go to definition")
-                    map("gi", builtin.lsp_implementations, "Go to implementation")
-                    map("gr", builtin.lsp_references, "Find references")
-                    map("gs", builtin.lsp_document_symbols, "Document symbols")
-                    map("<leader>lt", builtin.lsp_type_definitions, "Go to type definition")
-                    map("<leader>lw", builtin.lsp_workspace_symbols, "Workspace symbols")
-                    map("<leader>lq", builtin.diagnostics, "Search diagnostics")
-                    map("gD", vim.lsp.buf.declaration, "Go to declaration")
-                    map("<leader>lr", vim.lsp.buf.rename, "Rename symbol")
-                    map("<leader>le", vim.diagnostic.open_float, "Show diagnostics")
-                    map("<leader>la", vim.lsp.buf.code_action, "Code action", { "n", "x" })
-                    map("<leader>ln", function()
+                    map("n", "gd", builtin.lsp_definitions, "Go to definition")
+                    map("n", "gi", builtin.lsp_implementations, "Go to implementation")
+                    map("n", "gr", builtin.lsp_references, "Find references")
+                    map("n", "gs", builtin.lsp_document_symbols, "Document symbols")
+                    map("n", "<leader>lt", builtin.lsp_type_definitions, "Go to type definition")
+                    map("n", "<leader>lw", builtin.lsp_workspace_symbols, "Workspace symbols")
+                    map("n", "<leader>lq", builtin.diagnostics, "Search diagnostics")
+                    map("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
+                    map("n", "<leader>lr", vim.lsp.buf.rename, "Rename symbol")
+                    map("n", "<leader>le", vim.diagnostic.open_float, "Show diagnostics")
+                    map({ "n", "x" }, "<leader>la", vim.lsp.buf.code_action, "Code action")
+                    map("n", "<leader>ln", function()
                         vim.diagnostic.jump({ count = 1, float = true })
                     end, "Next diagnostic")
-                    map("<leader>lp", function()
+                    map("n", "<leader>lp", function()
                         vim.diagnostic.jump({ count = -1, float = true })
                     end, "Previous diagnostic")
-                    map("<leader>lD", vim.diagnostic.setqflist, "Workspace diagnostics")
-                    map("<leader>lE", function()
+                    map("n", "<leader>lD", vim.diagnostic.setqflist, "Workspace diagnostics")
+                    map("n", "<leader>lE", function()
                         vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR })
                     end, "Workspace errors")
-                    map("<leader>lW", function()
+                    map("n", "<leader>lW", function()
                         vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.WARN })
                     end, "Workspace warnings")
-                    map("<leader>ld", vim.diagnostic.setloclist, "Buffer diagnostics")
+                    map("n", "<leader>ld", vim.diagnostic.setloclist, "Buffer diagnostics")
 
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
                     if client and client.name == "marksman" then
-                        require("marksman-sync").attach(client)
+                        require("lsp.marksman_sync").attach(client)
                     end
 
                     if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
@@ -105,20 +102,14 @@ return {
                     end
 
                     if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-                        map("<leader>lh", function()
+                        map("n", "<leader>lh", function()
                             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
                         end, "Toggle inlay hints")
                     end
                 end,
             })
 
-            local capabilities = vim.lsp.protocol.make_client_capabilities()
-            capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-            -- nvim-ufo folding: Neovim doesn't advertise foldingRange by default.
-            capabilities.textDocument.foldingRange = {
-                dynamicRegistration = true,
-                lineFoldingOnly = true,
-            }
+            local capabilities = require("lsp.capabilities").get()
 
             local servers = {
                 lua_ls = {

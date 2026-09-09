@@ -1,6 +1,6 @@
 -- Inside herdr, herdr-agents.nvim calls claudecode.setup() itself with its pane
 -- provider; a second setup() here would start the server twice.
-local inside_herdr = vim.env.HERDR_SOCKET_PATH ~= nil and vim.env.HERDR_SOCKET_PATH ~= ""
+local inside_herdr = require("lib.herdr").socket() ~= nil
 
 return {
     "coder/claudecode.nvim",

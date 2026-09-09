@@ -1,6 +1,6 @@
 -- Rows about a file on disk, shared by every menu that shows one.
 local icons = require("ui.icons")
-local yank = require("yank")
+local yank = require("lib.yank")
 
 ---@param rows table  from ui.menu.rows()
 ---@param path string
@@ -16,11 +16,9 @@ return function(rows, path)
     end)
     -- The URL takes two git calls, so it is built on the click, not per menu
     rows.item(icons.browser, "Copy git URL", function()
-        local url = require("git").remote_url(path)
+        local url = require("lib.git").web_url(path)
         if url then
             yank.copy(url, "git URL")
-        else
-            vim.notify("No git remote for this file", vim.log.levels.WARN)
         end
     end, vim.fs.root(path, ".git") ~= nil)
 end
