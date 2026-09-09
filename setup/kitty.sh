@@ -5,7 +5,7 @@ source "$REPO_ROOT/setup/utils.sh"
 
 main_kitty() {
     if ! command -v brew >/dev/null 2>&1; then
-        echo "Homebrew is not installed. Please install Homebrew first."
+        error "Homebrew is not installed. Please install Homebrew first."
         exit 1
     fi
 
