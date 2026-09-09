@@ -179,7 +179,7 @@ return {
             local ensure_installed = vim.tbl_keys(servers)
             table.insert(ensure_installed, "jdtls")
             require("mason-lspconfig").setup({
-                automatic_installation = true,
+                automatic_enable = false,
                 ensure_installed = ensure_installed,
             })
 

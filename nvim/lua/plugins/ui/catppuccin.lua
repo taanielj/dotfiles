@@ -3,9 +3,9 @@ return {
     lazy = false,
     name = "catppuccin",
     priority = 1000,
-    term_colors = false,
     config = function()
         require("catppuccin").setup({
+            term_colors = false,
             integrations = {
                 neotree = {
                     enabled = true,

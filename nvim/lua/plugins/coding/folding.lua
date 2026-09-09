@@ -36,13 +36,6 @@ return {
             vim.wo.foldminlines = 1
             vim.o.foldenable = true
             vim.o.foldlevelstart = 99
-            vim.o.foldtext = table.concat({
-                "substitute(getline(v:foldstart), '\\t', repeat(' ', &tabstop), 'g')",
-                ".. ' ... '",
-                ".. '(' . (v:foldend - v:foldstart + 1) . ' lines)'",
-            }, ".")
-            vim.o.foldmethod = "manual"
-            vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
             vim.o.fillchars = table.concat({
                 "eob:" .. " ",
                 "fold:" .. ".",

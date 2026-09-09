@@ -20,7 +20,6 @@ return {
         require("neo-tree").setup({
             enable_git_status = true,
             enable_diagnostics = true,
-            use_libuv_file_watcher = true,
             follow_current_file = {
                 enabled = true,
             },
@@ -39,26 +38,26 @@ return {
                         staged = "✓",
                         conflict = "",
                     },
-                    window = {
-                        position = "float",
-                        mappings = {
-                            ["A"] = "git_add_all",
-                            ["gu"] = "git_unstage_file",
-                            ["ga"] = "git_add_file",
-                            ["gr"] = "git_revert_file",
-                            ["gc"] = "git_commit",
-                            ["gA"] = "git_amend",
-                            ["gP"] = "git_push",
-                            ["gp"] = "git_pull",
-                            ["g?"] = "git_help",
-                        },
-                    },
                     align = "right",
                 },
             },
             window = {
                 mappings = {
                     ["<space>"] = "none",
+                },
+            },
+            git_status = {
+                window = {
+                    position = "float",
+                    mappings = {
+                        ["A"] = "git_add_all",
+                        ["gu"] = "git_unstage_file",
+                        ["ga"] = "git_add_file",
+                        ["gr"] = "git_revert_file",
+                        ["gc"] = "git_commit",
+                        ["gP"] = "git_push",
+                        ["gp"] = "git_pull",
+                    },
                 },
             },
             filesystem = {
