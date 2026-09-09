@@ -16,7 +16,7 @@ require("keybinds")    -- Keybinds
 require("zen")         -- Zen mode
 require("autocmd")     -- Autocommands
 require("md2html")     -- Yank markdown as HTML
-require("ui.menu").setup()
+require("menus").setup()
 require("lazy").setup({
     { import = "plugins.ui" },
     { import = "plugins.editor" },

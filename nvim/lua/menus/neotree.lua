@@ -1,22 +1,25 @@
-local manager = require("neo-tree.sources.manager")
-local cc = require("neo-tree.sources.common.commands")
 local icons = require("ui.icons")
 
+-- nil when the window has no tree state, which a click can hit mid-render
 local function get_state()
-    local state = manager.get_state_for_window()
-    assert(state)
-    state.config = state.config or {}
+    local state = require("neo-tree.sources.manager").get_state_for_window()
+    if state then
+        state.config = state.config or {}
+    end
     return state
 end
 
 local function command(state, what)
-    return require("neo-tree.sources." .. state.name .. ".commands")[what] or cc[what]
+    local source = require("neo-tree.sources." .. state.name .. ".commands")
+    return source[what] or require("neo-tree.sources.common.commands")[what]
 end
 
 local function call(what)
     return vim.schedule_wrap(function()
         local state = get_state()
-        command(state, what)(state)
+        if state then
+            command(state, what)(state)
+        end
     end)
 end
 
@@ -26,6 +29,9 @@ end
 local function choose(prompt, choices)
     return function()
         local state = get_state()
+        if not state then
+            return
+        end
         vim.ui.select(choices, { prompt = prompt, format_item = function(c) return c[1] end }, function(choice)
             if choice then
                 command(state, choice[2])(state)
@@ -35,14 +41,16 @@ local function choose(prompt, choices)
 end
 
 return function()
+    local rows = require("ui.menu").rows()
     local state = get_state()
+    if not state then
+        return rows.entries
+    end
     local node = state.tree:get_node()
     local entry = node ~= nil and node.type ~= "message"
     local file = entry and node.type == "file"
     local below_root = entry and node:get_depth() > 1
     local clipboard = next(state.clipboard or {}) ~= nil
-
-    local rows = require("ui.menu").rows()
 
     rows.item(icons.open, "Open", call("open"), entry)
     rows.item(icons.vsplit, "Open in vertical split", call("open_vsplit"), file)

@@ -30,7 +30,7 @@ return {
                     end,
 
                     right_mouse_command = function(bufnr)
-                        require("ui.menu").show("]Buffer", "bufferline", { bufnr = bufnr })
+                        require("menus").tab(bufnr)
                     end,
                     diagnostics = "nvim_lsp",
                     offsets = {

@@ -1,5 +1,5 @@
 -- Replaces Neovim's PopUp so rows that cannot apply are left out rather than
--- shown disabled. `ctx` is ui.menu.buffer_context().
+-- shown disabled. `ctx` is menus.context.get().
 local icons = require("ui.icons")
 local menu = require("ui.menu")
 
@@ -18,7 +18,7 @@ return function(ctx)
     rows.item(icons.references, "Show references", vim.lsp.buf.references, ctx.symbol and ctx.supports("textDocument/references"))
     rows.item(icons.rename, "Rename symbol", vim.lsp.buf.rename, ctx.symbol and ctx.modifiable and ctx.supports("textDocument/rename"))
     rows.item(icons.signature, "Signature help", vim.lsp.buf.signature_help, ctx.in_call and ctx.supports("textDocument/signatureHelp"))
-    rows.item(icons.code_action, "Code actions", vim.lsp.buf.code_action, ctx.code_actions)
+    rows.item(icons.code_action, "Code actions", vim.lsp.buf.code_action, ctx.supports("textDocument/codeAction"))
     rows.item(icons.format, "Format buffer", require("format").buffer, ctx.modifiable and ctx.supports("textDocument/formatting"))
     rows.item(icons.diagnostics, "Show diagnostics", vim.diagnostic.open_float, ctx.line_diagnostics)
     rows.item(icons.list, "All diagnostics", vim.diagnostic.setqflist, ctx.diagnostics)
