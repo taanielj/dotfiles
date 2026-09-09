@@ -1,5 +1,4 @@
--- Replaces Neovim's PopUp so rows that cannot apply are left out rather than
--- shown disabled. `ctx` is menus.context.get().
+-- The text buffer menu; `ctx` is menus.context.get().
 local icons = require("ui.icons")
 local menu = require("ui.menu")
 

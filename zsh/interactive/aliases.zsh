@@ -33,7 +33,6 @@ envload() {
     echo "Loaded $(grep -cvE '^[[:space:]]*(#|$)' .env) var(s) from .env"
 }
 
-# eza: maintained fork of the abandoned exa
 if command -v eza &>/dev/null; then
     alias l="eza"
 
@@ -61,7 +60,7 @@ reset_repo() {
         echo -e "\033[1;31mError: Not in a git repository. Please navigate to a git repo and try again.\033[0m"
         return 1
     fi
-    cd "$REPO_ROOT" || return 1 # Move to repo root
+    cd "$REPO_ROOT" || return 1
     local GIT_REMOTE=$(git remote get-url origin 2>/dev/null)
     if [[ -z "$GIT_REMOTE" ]]; then
         echo -e "\033[1;31mError: No remote repository found. Are you in a git repo?\033[0m"
@@ -102,7 +101,6 @@ reset_repo() {
     echo -e "\033[1;32mRepository reset complete.\033[0m"
 }
 
-# Neovim
 nvim() {
     # xterm-kitty terminfo gives nvim a blinking cursor
     [[ "$TERM_PROGRAM" == "kitty" ]] && export TERM="xterm-kitty"

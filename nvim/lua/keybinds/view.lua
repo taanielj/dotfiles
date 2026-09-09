@@ -1,9 +1,6 @@
 local map = require("lib.keymap").rows
 
 map({
-    -- ==================
-    -- Windows and panels
-    -- ==================
     -- Right-click uses Neovim's own popup_setpos; this is the keyboard route
     { "n", "<leader>.", function() require("menus").popup_at_cursor() end,     "Open menu" },
     { "n", "<leader>e", "<Cmd>Neotree filesystem reveal left toggle=true<CR>", "Show files" },
@@ -13,17 +10,13 @@ map({
     { "n", "zR",        function() require("ufo").openAllFolds() end,          "Open all folds" },
     { "n", "zM",        function() require("ufo").closeAllFolds() end,         "Close all folds" },
 
-    -- ================
     -- Animated scroll
-    -- ================
     { { "n", "v", "x", "i" }, "<C-y>",      function() require("neoscroll").scroll(-0.2, { move_cursor = false, duration = 100 }) end, "Scroll up a little" },
     { { "n", "v", "x", "i" }, "<C-e>",      function() require("neoscroll").scroll(0.2, { move_cursor = false, duration = 100 }) end,  "Scroll down a little" },
     { { "n", "v", "x", "i" }, "<PageUp>",   function() require("neoscroll").ctrl_u({ duration = 100, easing = "quadratic" }) end,        "Scroll up half a page" },
     { { "n", "v", "x", "i" }, "<PageDown>", function() require("neoscroll").ctrl_d({ duration = 100, easing = "quadratic" }) end,        "Scroll down half a page" },
 
-    -- =============
     -- Resize splits
-    -- =============
     { "n", "<M-h>",     "2<C-w><",                                             "Resize split left" },
     { "n", "<M-l>",     "2<C-w>>",                                             "Resize split right" },
     { "n", "<M-j>",     "2<C-w>+",                                             "Resize split down" },
@@ -34,10 +27,7 @@ map({
     { "n", "<M-K>",     "<C-w>-",                                              "Resize split up (fine)" },
 })
 
--- =================
 -- <leader>w  Wrap
--- =================
-
 local spacer_by_window = {}
 
 local function open_wrap_spacer(win, width)
@@ -105,10 +95,6 @@ vim.keymap.set("n", "<leader>w", function()
     vim.wo.breakindentopt = "list:2"
     open_wrap_spacer(win, vim.v.count ~= 0 and vim.v.count or 125)
 end, { desc = "Toggle wrap window" })
-
--- ============
--- Mouse wheel
--- ============
 
 -- scrollbind only follows the current window, so wheeling over the other side
 -- of a diff moves that side alone; syncing from the hovered window brings the

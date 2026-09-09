@@ -8,14 +8,14 @@ source "$REPO_ROOT/setup/utils.sh"
 # system should be run first (and torn down last)
 SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/system.sh"  # only one that needs sudo, supports ubuntu, debian, termux, darwin
-    "$REPO_ROOT/setup/git.sh"     # no sudo, platform agnostic
-    "$REPO_ROOT/setup/zsh.sh"     # no sudo, platform agnostic
-    "$REPO_ROOT/setup/tmux.sh"    # no sudo, platform agnostic
-    "$REPO_ROOT/setup/herdr.sh"   # no sudo, platform agnostic
-    "$REPO_ROOT/setup/mise.sh"    # no sudo, platform agnostic
-    "$REPO_ROOT/setup/nvim.sh"    # no sudo, platform agnostic
-    "$REPO_ROOT/setup/cargo.sh"   # no sudo, platform agnostic
-    "$REPO_ROOT/setup/lazygit.sh" # no sudo, platform agnostic (brew installs the binary on macOS)
+    "$REPO_ROOT/setup/git.sh"
+    "$REPO_ROOT/setup/zsh.sh"
+    "$REPO_ROOT/setup/tmux.sh"
+    "$REPO_ROOT/setup/herdr.sh"
+    "$REPO_ROOT/setup/mise.sh"
+    "$REPO_ROOT/setup/nvim.sh"
+    "$REPO_ROOT/setup/cargo.sh"
+    "$REPO_ROOT/setup/lazygit.sh" # brew installs the binary on macOS
 )
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh")
 [[ -n "$WSL_DISTRO_NAME" ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/win32yank.sh")
@@ -91,7 +91,7 @@ show_banner() {
     fi
 }
 
-# Reverses SETUP_SCRIPTS, dropping system.sh (we don't want to remove system packages)
+# Teardown runs in reverse; system packages may be shared, so system.sh is skipped.
 teardown_scripts() {
     local scripts=()
     for ((i=${#SETUP_SCRIPTS[@]}-1; i>=0; i--)); do

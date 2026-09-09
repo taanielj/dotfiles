@@ -9,8 +9,7 @@ main_lazygit() {
         install_lazygit
     fi
 
-    # macOS lazygit defaults to ~/Library/Application Support; LG_CONFIG_FILE
-    # (exported in zshrc.zsh) points it at this link instead.
+    # LG_CONFIG_FILE, exported in zshrc.zsh, points lazygit at this link.
     link_file "$REPO_ROOT/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
 }
 

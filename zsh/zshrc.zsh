@@ -1,13 +1,7 @@
-### ────────────────────────────────
-###  Powerlevel10k Setup
-### ────────────────────────────────
 # Pre-set SSH detection to skip expensive 'who' command in _p9k_init_ssh
 typeset -gix P9K_SSH=0
 typeset -gx _P9K_SSH_TTY=$TTY
 
-### ────────────────────────────────
-###  Zinit Plugin Manager
-### ────────────────────────────────
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
 [ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
@@ -18,9 +12,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 zinit ice blockf atpull'zinit creinstall -q .; rm -f $ZSH_COMPDUMP{,.zwc}'
 zinit light zsh-users/zsh-completions
 
-### ────────────────────────────────
-###  Completion System
-### ────────────────────────────────
 # compinit runs ONCE: re-running it wipes dynamic registrations (gcloud etc.)
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' completions 1
@@ -48,9 +39,6 @@ autoload -Uz _zinit
 autoload -U select-word-style
 select-word-style bash
 
-### ────────────────────────────────
-###  Plugins
-### ────────────────────────────────
 setopt promptsubst
 
 # Powerlevel10k - eager load so the prompt renders before lazy plugins
@@ -62,18 +50,13 @@ source "$HOME/.config/zsh/p10k.zsh"
 zinit ice lucid
 zinit light zsh-users/zsh-autosuggestions
 
-# Other core plugins - lazy load
 zinit wait lucid for \
     Aloxaf/fzf-tab \
     zsh-users/zsh-syntax-highlighting
 
-# Oh-My-Zsh git plugin (snippet form)
 zinit ice wait'1' lucid
 zinit snippet OMZP::git
 
-### ────────────────────────────────
-###  History Settings
-### ────────────────────────────────
 HISTSIZE=1000000
 SAVEHIST=1000000
 HISTFILE=~/.zsh_history
@@ -87,9 +70,6 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 setopt HIST_SAVE_NO_DUPS
 
-### ──────────────
-### Mise Config
-### ──────────────
 # Activated before the command -v guards below (zoxide, fd, direnv, nvim) so
 # they see mise-managed bins like ~/.cargo/bin; activation applies PATH eagerly.
 export MISE_POETRY_AUTO_INSTALL=1
@@ -98,16 +78,13 @@ export MISE_POETRY_VENV_AUTO=1
 mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
 unset mise_bin
 
-### ────────────────────────────────
-###  Environment / UI Settings
-### ────────────────────────────────
 export COLORTERM=truecolor
 
 # Bar cursor at each prompt; kitty's shell integration sends the same itself
 _prompt_cursor_bar() { printf '\e[5 q' }
 precmd_functions+=(_prompt_cursor_bar)
 
-# Typo correction on command names. Exempt one with: alias foo='nocorrect foo'
+# Exempt a command from CORRECT with: alias foo='nocorrect foo'
 setopt CORRECT
 
 # User-local bins: zprofile sets these for login shells, but multiplexer panes
@@ -129,16 +106,10 @@ fi
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
-### ────────────────────────────────
-###  Optional Tools
-### ────────────────────────────────
 [[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="always"
 
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
-### ────────────────────────────────
-###  Google Cloud SDK Integration
-### ────────────────────────────────
 # HOMEBREW_PREFIX comes from zprofile, which only login shells read, so probe
 # the same two brew prefixes it does.
 for _gcloud_sdk in "${HOMEBREW_PREFIX:-/opt/homebrew}/share/google-cloud-sdk" \
@@ -152,9 +123,6 @@ for _gcloud_sdk in "${HOMEBREW_PREFIX:-/opt/homebrew}/share/google-cloud-sdk" \
 done
 unset _gcloud_sdk
 
-### ────────────────────────────────
-###  User Configuration Files
-### ────────────────────────────────
 for file in "$HOME"/.config/zsh/lib/*.zsh(N) "$HOME"/.config/zsh/modules/*.zsh(N); do
     source "$file"
 done

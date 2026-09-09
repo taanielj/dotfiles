@@ -1,7 +1,3 @@
-# ─────────────────────────────────────────────────────────────
-# Docker Compose Helpers
-# ─────────────────────────────────────────────────────────────
-
 [[ -x $(command -v docker) ]] || return
 
 _find_compose_file() {
@@ -27,7 +23,6 @@ _docker_compose() {
     fi
 }
 
-# Basic aliases
 dc() { _docker_compose "$@"; }
 dcu() { _docker_compose up -d --build "$@"; }
 dcd() { _docker_compose down "$@"; }
@@ -57,10 +52,6 @@ drmi() {
     echo "$image_ids" | xargs docker rmi
 }
 dprune() { docker system prune "$@"; }
-
-# ─────────────────────────────────────────────────────────────
-# Container FZF Picker
-# ─────────────────────────────────────────────────────────────
 
 _git_root() {
     git rev-parse --show-toplevel 2>/dev/null || echo "."

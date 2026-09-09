@@ -1,4 +1,3 @@
--- Copies to the system clipboard and says so.
 local M = {}
 
 ---@param text string

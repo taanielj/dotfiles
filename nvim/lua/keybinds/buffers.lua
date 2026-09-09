@@ -1,9 +1,7 @@
 local map = require("lib.keymap").rows
 
 map({
-    -- ==================
     -- <leader>b  Buffer
-    -- ==================
     { "n", "<leader>bn",                           "<Cmd>BufferLineCycleNext<CR>",                  "Next buffer" },
     { "n", "<leader>bp",                           "<Cmd>BufferLineCyclePrev<CR>",                  "Previous buffer" },
     { "n", "<Tab>",                                "<Cmd>BufferLineCycleNext<CR>",                  "Next buffer" },
@@ -13,29 +11,21 @@ map({
     { "n", "<leader>bP",                           "<Cmd>BufferLinePick<CR>",                       "Pick buffer" },
     { "n", "<leader>bt",                           "<Cmd>BufferLineTogglePin<CR>",                  "Pin buffer" },
     { "n", { "ZZ", "<leader>bq", "<leader>qb" },   function() require("ui.close_buffer").close() end,    "Save and close buffer" },
-    -- <leader>bc  Close
     { "n", "<leader>bch",                          "<Cmd>BufferLineCloseLeft<CR>",                  "Close buffers to the left" },
     { "n", "<leader>bcl",                          "<Cmd>BufferLineCloseRight<CR>",                 "Close buffers to the right" },
     { "n", "<leader>bca",                          "<Cmd>BufferLineCloseOthers<CR>",                "Close other buffers" },
-    -- <leader>bs  Sort
     { "n", "<leader>bsd",                          "<Cmd>BufferLineSortByDirectory<CR>",            "Sort by directory" },
     { "n", "<leader>bst",                          "<Cmd>BufferLineSortByTabs<CR>",                 "Sort by tabs" },
     { "n", "<leader>bse",                          "<Cmd>BufferLineSortByExtension<CR>",            "Sort by extension" },
 
-    -- =================
     -- <leader>q  Close
-    -- =================
     { "n", "<leader>q!",                           function() require("ui.close_buffer").close({ force = true }) end, "Close buffer without saving" },
     { "n", "<leader>qa",                           "<Cmd>wa<CR><Cmd>qa<CR>",                        "Quit and save all" },
     { "n", "<leader>qfy",                          "<Cmd>qa!<CR>",                                  "Quit without saving?" },
 })
 
--- ===================
--- <leader>R  Restart
--- ===================
-
--- auto-session restores the cwd session on start; the save is forced here
--- rather than left to :restart's qall.
+-- The session must be saved before :restart; auto-session restores it on the
+-- next start.
 vim.keymap.set("n", "<leader>R", function()
     local unsaved = {}
     for _, info in ipairs(vim.fn.getbufinfo({ bufmodified = 1, buflisted = 1 })) do

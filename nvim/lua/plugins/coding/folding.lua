@@ -19,7 +19,7 @@ return {
                         local hlGroup = chunk[2]
                         table.insert(newVirtText, { chunkText, hlGroup })
                         chunkWidth = vim.fn.strdisplaywidth(chunkText)
-                        -- str width returned from truncate() may less than 2nd argument, need padding
+                        -- truncate() may return fewer columns than asked, so pad the suffix
                         if curWidth + chunkWidth < targetWidth then
                             suffix = suffix .. (" "):rep(targetWidth - curWidth - chunkWidth)
                         end
@@ -47,7 +47,6 @@ return {
                 end,
             })
 
-            -- lsp -> indent
             ---@diagnostic disable-next-line
             require("ufo").setup({
                 fold_virt_text_handler = handler,

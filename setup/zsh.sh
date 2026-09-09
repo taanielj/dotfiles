@@ -15,8 +15,6 @@ configure_zsh() {
         return 1
     fi
 
-    # Real stubs, not symlinks: installers that append to these files land in
-    # the stub instead of the repo.
     stub_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
 
     stub_file "$REPO_ROOT/zsh/zprofile.zsh" "$HOME/.zprofile"
@@ -35,13 +33,13 @@ set_dotfiles_root() {
     touch "$zshrc_local"
 
     if grep -Fxq "$dotfiles_line" "$zshrc_local" 2>/dev/null; then
-        return 0 # Already correct, no logging
+        return 0
     fi
 
-    # loose match so a stale path or the old bare form gets upgraded in place
+    # loose match so a stale path or a bare assignment is upgraded in place
     if grep -Eq "^(export )?DOTFILES_ROOT=" "$zshrc_local" 2>/dev/null; then
         log "Updating DOTFILES_ROOT in .zshrc.local"
-        # macOS sed -i requires '' arg, GNU sed doesn't
+        # macOS sed -i takes a backup suffix argument; GNU sed takes none
         if [[ "$OSTYPE" == "darwin"* ]]; then
             sed -E -i '' "s|^(export )?DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
         else
@@ -56,7 +54,7 @@ set_dotfiles_root() {
 teardown_zsh() {
     log "Removing Zsh configuration..."
 
-    # Pre-stub installs used symlinks; try both removal paths.
+    # A dest may be a stub or a symlink, so try both removal paths.
     unstub_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
     unlink_file "$REPO_ROOT/zsh/zshrc.zsh" "$HOME/.zshrc"
 

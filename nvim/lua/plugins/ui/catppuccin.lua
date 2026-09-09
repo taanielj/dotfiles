@@ -28,6 +28,6 @@ return {
                 percentage = 0.25,
             },
         })
-        vim.cmd.colorscheme("catppuccin-macchiato") -- -latte, -frappe, -macchiato, -mocha
+        vim.cmd.colorscheme("catppuccin-macchiato")
     end,
 }

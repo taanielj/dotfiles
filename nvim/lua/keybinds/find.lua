@@ -1,7 +1,4 @@
--- ================
 -- <leader>f  Find
--- ================
-
 local function builtin(picker, opts)
     return function()
         require("telescope.builtin")[picker](opts)
@@ -14,7 +11,6 @@ require("lib.keymap").rows({
     { "n", "<leader>fb", builtin("buffers"),                                      "Find buffers" },
     { "n", "<leader>fg", builtin("live_grep"),                                    "Find in project" },
     { "n", "<leader>fG", builtin("live_grep", { grep_open_files = true }),        "Find in open files" },
-    -- <leader>h  Find hidden
     { "n", "<leader>hf", builtin("find_files", { hidden = true, no_ignore = true }), "Find hidden files" },
     { "n", "<leader>hb", builtin("buffers", { show_all_buffers = true, no_ignore = true }), "Find hidden buffers" },
     { "n", "<leader>hg", builtin("live_grep", {

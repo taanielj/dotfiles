@@ -5,17 +5,17 @@ if not vim.uv.fs_stat(lazypath) then
         "clone",
         "--filter=blob:none",
         "https://github.com/folke/lazy.nvim.git",
-        "--branch=stable", -- latest stable release
+        "--branch=stable",
         lazypath,
     })
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("core.options") -- Basic vim options
-require("keybinds")    -- Keybinds
-require("zen")         -- Zen mode
-require("core.autocmds")     -- Autocommands
-require("md2html")     -- Yank markdown as HTML
+require("core.options")
+require("keybinds")
+require("zen")
+require("core.autocmds")
+require("md2html")
 require("menus").setup()
 require("lazy").setup({
     { import = "plugins.ui" },

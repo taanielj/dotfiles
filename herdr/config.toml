@@ -1,7 +1,7 @@
-# Herdr config, ported from tmux.conf. Only bindings that differ from herdr's
-# defaults are set; session/tab/rename bindings rely on herdr defaults, which
-# already mirror the tmux equivalents (prefix+c new tab, prefix+shift+n new
-# workspace, prefix+shift+t / prefix+shift+w rename tab / workspace).
+# Only bindings that differ from herdr's defaults are set; session, tab and
+# rename bindings rely on herdr defaults, which already mirror the tmux
+# equivalents (prefix+c new tab, prefix+shift+n new workspace,
+# prefix+shift+t / prefix+shift+w rename tab / workspace).
 
 onboarding = false
 
@@ -15,19 +15,18 @@ resume_agents_on_restore = true
 [keys]
 prefix = "ctrl+space"
 
-# reload config (ctrl+r is resurrect restore, as in tmux, so shift+r here)
+# ctrl+r is resurrect restore, as in tmux, so reload takes shift+r
 reload_config = "prefix+shift+r"
 
 # tmux: M-Left/M-Right = previous/next window; kept alongside herdr's prefix+p/n
 previous_tab = ["prefix+p", "alt+left"]
 next_tab = ["prefix+n", "alt+right"]
 
-# alt+arrows - left/right cycle tabs (above); up/down cycle workspaces
 next_workspace     = "alt+down"
 previous_workspace = "alt+up"
 
 # --- tmux muscle-memory aliases (secondary keys; prune once the herdr defaults stick) ---
-# settings moves off prefix+s so the tmux session-picker key is free for it.
+# settings takes prefix+shift+s, leaving prefix+s for the tmux session-picker key.
 rename_workspace = ["prefix+shift+w", "prefix+shift+4"] # tmux: prefix $
 rename_tab       = ["prefix+shift+t", "prefix+comma"]   # tmux: prefix ,
 detach           = ["prefix+q", "prefix+d"]             # tmux: prefix d
@@ -84,7 +83,7 @@ type = "plugin_action"
 command = "herdr-splits.resize-right"
 description = "resize right"
 
-# alt+shift+hjkl - one-percent resize; herdr/bin/herdr-resize-fine.sh
+# one-percent resize
 [[keys.command]]
 key = "alt+shift+h"
 type = "shell"
@@ -113,7 +112,6 @@ type = "shell"
 command = '"${HERDR_BIN_PATH:-herdr}" pane move "$HERDR_ACTIVE_PANE_ID" --new-tab --focus'
 description = "break pane to new tab"
 
-# goto with a preview of each pane's screen
 [[keys.command]]
 key = "prefix+f"
 type = "popup"
@@ -155,7 +153,7 @@ description = "lazygit"
 width = "90%"
 height = "90%"
 
-# scrollback -> nvim (tmux capture-pane -> editor)
+# tmux: capture-pane into an editor
 [[keys.command]]
 key = "prefix+slash"
 type = "popup"
@@ -181,7 +179,7 @@ pane_gaps = false
 toast.delivery = "system"
 
 # Tab bar right side (tmux status-right equivalent). Separate command entries
-# so each refreshes at its own pace: counters every second, wttr.in every 15m.
+# so each refreshes at its own pace.
 tab_bar_right = [
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-netspeed.sh", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-sysmon.sh", interval_seconds = 1, timeout_seconds = 2 },

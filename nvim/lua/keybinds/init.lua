@@ -1,8 +1,7 @@
 -- Every global mapping, split by area. A plugin that loads at startup has
 -- its keys here too, with the require inside the function; a plugin that
 -- loads on a key keeps that key as `keys` in its spec, since that is what
--- loads it. Buffer-local maps live with what scopes them. Leader maps are
--- sectioned by prefix, matching `groups`, which which-key reads.
+-- loads it. Buffer-local maps live with what scopes them.
 
 -- Leader must be set before plugins load
 vim.g.mapleader = " "

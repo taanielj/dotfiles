@@ -4,15 +4,15 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
 COMMON_PACKAGES=(
-    "curl" "wget" "git"     # General tools
-    "zsh" "tmux" "fzf" "jq" # Shell and tools
-    "unzip" "zip"           # Compression and archiving
+    "curl" "wget" "git"
+    "zsh" "tmux" "fzf" "jq"
+    "unzip" "zip"
     "direnv"
 )
 # The debian/ubuntu list is long because this also supports minimal installs.
 DEBIAN_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
-    "build-essential" "gcc" "g++" "make" "cmake"                  # General compilation tools
+    "build-essential" "gcc" "g++" "make" "cmake"
     "zlib1g-dev" "libbz2-dev" "liblzma-dev" "xz-utils" "tar"      # Compression and archiving
     "libreadline-dev" "libsqlite3-dev" "libffi-dev" "libyaml-dev" # Language runtime dependencies
     "libncursesw5-dev" "tk-dev"                                   # Terminal and UI libraries
@@ -31,15 +31,15 @@ UBUNTU_PPA_REPOSITORIES=(
 
 TERMUX_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
-    "fastfetch" # available in pkg
+    "fastfetch"
     "clang" "make" "openssl" "libffi" "zlib" "libbz2" "readline" "sqlite" "ncurses" "libcrypt"
 )
 
 MACOS_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
-    "lazygit"           # available in brew
-    "fastfetch"         # available in brew
-    "mise"              # available in brew
+    "lazygit"
+    "fastfetch"
+    "mise"
     "tmux-mem-cpu-load" # tmux.conf status line calls the bare binary; no apt package exists
     # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
 )

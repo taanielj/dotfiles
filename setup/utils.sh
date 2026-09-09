@@ -1,4 +1,3 @@
-# ANSI colors
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
@@ -6,8 +5,6 @@ RED='\033[0;31m'
 ORANGE='\033[0;33m'
 WHITE='\033[1;37m'
 RESET='\033[0m'
-
-# Logging functions
 
 log() {
     if [[ "$1" == "-n" ]]; then
@@ -214,7 +211,6 @@ run_quiet() {
     fi
 }
 
-# Interactive single selection with fzf or bash fallback
 # Usage: interactive_choice "prompt" "option1" "option2" "option3" ...
 interactive_choice() {
     local prompt="$1"
@@ -231,7 +227,6 @@ interactive_choice() {
     fi
 }
 
-# Interactive multi-selection with fzf or bash fallback
 # Usage: interactive_multi_choice "prompt" "${array[@]}"
 interactive_multi_choice() {
     local prompt="$1"

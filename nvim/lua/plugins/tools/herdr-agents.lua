@@ -1,4 +1,4 @@
--- Gated on HERDR_SOCKET_PATH per upstream; only loads inside a herdr session.
+-- Upstream requires HERDR_SOCKET_PATH, which only a herdr pane has.
 local inside_herdr = require("lib.herdr").socket() ~= nil
 
 return {

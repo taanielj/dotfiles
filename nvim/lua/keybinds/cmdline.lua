@@ -1,7 +1,3 @@
--- ==========
--- :q  Quit
--- ==========
-
 -- A diffview is closed as a whole, like ZZ and <leader>bq do, since :q on
 -- one of its windows leaves the rest of the view behind.
 vim.keymap.set("ca", "q", function()
@@ -10,10 +6,6 @@ vim.keymap.set("ca", "q", function()
     end
     return "q"
 end, { expr = true })
-
--- ==============
--- Wildmenu keys
--- ==============
 
 -- Up and Down walk directories, Left and Right walk the list
 local swap = {

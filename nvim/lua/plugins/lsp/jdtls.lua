@@ -33,7 +33,6 @@ return {
         vim.api.nvim_create_autocmd("FileType", {
             pattern = "java",
             callback = function()
-                -- Skip if this is a Scala project (metals handles Java there)
                 if require("lsp.scala").is_project() then
                     return
                 end

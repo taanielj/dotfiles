@@ -66,7 +66,6 @@ ts() {
     return 1
 }
 
-# Attach helpers
 tss() {
     _start_all_sessions
     tmux attach-session -t shell

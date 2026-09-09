@@ -9,7 +9,7 @@ local menu = require("ui.menu")
 
 local M = {}
 
--- Windows that are not a text buffer, by filetype
+-- Filetypes with a menu of their own
 local by_filetype = {
     ["neo-tree"] = "neotree",
     oil = "oil",

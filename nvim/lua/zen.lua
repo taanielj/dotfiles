@@ -1,7 +1,7 @@
 -- Strips the window down to the text: numbers, signs, the statusline and
 -- tab bar, the tree, and the multiplexer's chrome around nvim. Leaving
--- restores what was taken, from a snapshot, so the options come back as
--- they were set and not as this file remembers them.
+-- restores the snapshot taken on entry, so the options come back as they
+-- were set.
 local M = {}
 
 local bare = {

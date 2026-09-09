@@ -1,4 +1,4 @@
--- Only loads inside herdr; outside it, smart-splits (smart-splits.lua) owns these keys.
+-- Outside herdr, smart-splits.lua owns these keys.
 return {
     "lmilojevicc/herdr-splits.nvim",
     cond = require("lib.herdr").inside(),

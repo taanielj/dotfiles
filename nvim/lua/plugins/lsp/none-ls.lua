@@ -25,11 +25,11 @@ return {
         opts = {
             automatic_installation = true,
             ensure_installed = {
-                "stylua", -- Lua
-                "shfmt", -- Shell
+                "stylua",
+                "shfmt",
                 "buf", -- Protobuf
                 "checkmake", -- Makefile linter
-                "sonarlint-language-server", -- SonarLint
+                "sonarlint-language-server",
             },
         },
     },

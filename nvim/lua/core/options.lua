@@ -11,7 +11,6 @@ vim.opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700
 vim.o.mousemoveevent = true
 vim.opt.swapfile = false
 
--- Unless \C or capital letter in search pattern, search is case-insensitive
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.signcolumn = "yes:2" -- a git sign and a diagnostic on the same line

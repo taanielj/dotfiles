@@ -22,13 +22,11 @@ config.enable_tab_bar = false
 config.enable_kitty_keyboard = true
 config.default_cursor_style = "BlinkingBar"
 
--- macOS-specific settings
 if wezterm.target_triple:find("darwin") then
 	config.send_composed_key_when_left_alt_is_pressed = false
 	config.send_composed_key_when_right_alt_is_pressed = true
 	config.macos_window_background_blur = 25
 
-	-- Helper: CMD+key sends CTRL+key
 	local function cmd_to_ctrl(key)
 		return { key = key, mods = "CMD", action = act.SendKey({ key = key, mods = "CTRL" }) }
 	end
@@ -41,7 +39,7 @@ if wezterm.target_triple:find("darwin") then
 		-- Cmd+letter → Ctrl+letter (Karabiner swaps physical Ctrl↔Cmd)
 		cmd_to_ctrl("a"),
 		cmd_to_ctrl("b"),
-		-- copy if selection exists, otherwise send ctrl+c (matches kitty copy_and_clear_or_interrupt)
+		-- matches kitty's copy_and_clear_or_interrupt
 		{
 			key = "c",
 			mods = "CMD",
@@ -79,7 +77,6 @@ if wezterm.target_triple:find("darwin") then
 		cmd_to_ctrl("y"),
 		cmd_to_ctrl("z"),
 
-		-- Cmd+number → Ctrl+number
 		cmd_to_ctrl("1"),
 		cmd_to_ctrl("2"),
 		cmd_to_ctrl("3"),
@@ -99,7 +96,6 @@ if wezterm.target_triple:find("darwin") then
 		{ key = "k", mods = "CMD|SHIFT", action = act.SendString("\x1b[107;6u") },
 		{ key = "l", mods = "CMD|SHIFT", action = act.SendString("\x1b[108;6u") },
 
-		-- Cmd+arrows → Ctrl+arrows
 		cmd_to_ctrl("LeftArrow"),
 		cmd_to_ctrl("RightArrow"),
 		cmd_to_ctrl("UpArrow"),
@@ -109,7 +105,6 @@ if wezterm.target_triple:find("darwin") then
 		cmd_shift_to_ctrl_shift("UpArrow"),
 		cmd_shift_to_ctrl_shift("DownArrow"),
 
-		-- Special sends
 		{ key = "Backspace", mods = "CMD", action = act.SendString("\x17") }, -- ctrl+w
 		{ key = "Delete", mods = "CMD", action = act.SendKey({ key = "Delete", mods = "CTRL" }) },
 		{ key = " ", mods = "CMD", action = act.SendString("\x00") }, -- ctrl+space
@@ -123,7 +118,7 @@ if wezterm.target_triple:find("darwin") then
 		{ key = "`", mods = "CMD", action = act.ActivateWindowRelative(1) },
 		{ key = "`", mods = "ALT", action = act.ActivateWindowRelative(1) },
 
-		-- Opacity toggle (matches kitty cmd+alt+shift+o)
+		-- matches kitty's cmd+alt+shift+o
 		{
 			key = "o",
 			mods = "CMD|ALT|SHIFT",
@@ -137,7 +132,7 @@ if wezterm.target_triple:find("darwin") then
 				window:set_config_overrides(overrides)
 			end),
 		},
-		-- Opacity adjust (matches kitty cmd+option+control+Up/Down)
+		-- matches kitty's cmd+option+control+Up/Down
 		{
 			key = "UpArrow",
 			mods = "CMD|ALT|CTRL",
@@ -159,7 +154,6 @@ if wezterm.target_triple:find("darwin") then
 			end),
 		},
 
-		-- Disable defaults that conflict
 		{ key = "Enter", mods = "CMD", action = act.DisableDefaultAssignment },
 		{ key = "Tab", mods = "CTRL", action = act.DisableDefaultAssignment },
 		{ key = "Tab", mods = "CTRL|SHIFT", action = act.DisableDefaultAssignment },

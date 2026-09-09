@@ -29,7 +29,7 @@ return {
     keys = {
         { "<leader>ac", "<cmd>ClaudeCode<cr>",            desc = "Toggle Claude" },
         { "<leader>af", "<cmd>ClaudeCodeFocus<cr>",       desc = "Focus Claude" },
-        -- Layout variants (only apply on a fresh open; close first to switch).
+        -- A layout applies on a fresh open; close Claude first to switch.
         {
             "<leader>ah",
             function()

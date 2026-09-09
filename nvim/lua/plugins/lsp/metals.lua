@@ -59,13 +59,12 @@ return {
 
         map("n", "<leader>lc", vim.lsp.codelens.run, "Run code lens")
         map("n", "<leader>ls", vim.lsp.buf.signature_help, "Signature help")
-        -- format: <leader>m (none-ls.lua) already covers LSP formatting
+        -- <leader>m (keybinds/editing.lua) already formats through the LSP
 
         map("n", "<leader>lo", function()
           require("metals").hover_worksheet()
         end, "Hover worksheet")
 
-        -- nvim-dap
         map("n", "<leader>dc", function()
           require("dap").continue()
         end, "Continue")

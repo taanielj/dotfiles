@@ -1,7 +1,4 @@
--- ================
 -- <leader>y  Yank
--- ================
-
 local yank = require("lib.yank")
 
 local function line_suffix()
@@ -25,7 +22,6 @@ vim.keymap.set("v", "<leader>yh", function()
     require("md2html").yank(yank.line_range())
 end, { desc = "Yank selection as HTML" })
 
--- The origin URL for the file, with the line or selection anchored.
 local function remote_url()
     return require("lib.git").web_url(vim.fn.expand("%:p"), yank.line_range())
 end

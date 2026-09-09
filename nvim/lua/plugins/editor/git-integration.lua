@@ -36,7 +36,6 @@ return {
 
                     local map = require("lib.keymap").buffer(bufnr)
 
-                    -- Navigation
                     map("n", "]c", function()
                         if vim.wo.diff then
                             vim.cmd.normal({ "]c", bang = true })
@@ -55,7 +54,6 @@ return {
                         end
                     end, "Jump to previous git [c]hange")
 
-                    -- Actions
                     map("v", "<leader>gs", function()
                         gitsigns.stage_hunk({ vim.fn.line("'<"), vim.fn.line("'>") })
                     end, "git [s]tage hunk")

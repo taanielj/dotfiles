@@ -21,7 +21,6 @@ main_git() {
     configure_git
 }
 
-# Usage: ensure_git_identity <key> <prompt>
 # Prompts only when the key is unset, so an existing identity is left alone.
 ensure_git_identity() {
     local key="$1" prompt="$2" value

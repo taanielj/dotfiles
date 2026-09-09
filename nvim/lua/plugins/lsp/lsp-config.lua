@@ -118,8 +118,8 @@ return {
                             format_on_save = false,
                             formatter = nil,
                             runtime = { version = "LuaJIT" },
-                            -- lazydev supplies the library; listing every runtime
-                            -- dir here pulled in plugin test mocks of vim.lsp
+                            -- lazydev supplies the library, so lua_ls needs no
+                            -- third-party workspace directories
                             workspace = { checkThirdParty = false },
                             completion = { callSnippet = "Replace" },
                         },
@@ -138,8 +138,8 @@ return {
                         },
                     },
                 },
-                -- Python linter, formatter and import sorter. A project's ruff.toml or
-                -- pyproject.toml wins; the line length is for projects without one.
+                -- A project's ruff.toml or pyproject.toml wins; lineLength applies
+                -- to projects without one.
                 ruff = { init_options = { settings = { configurationPreference = "filesystemFirst", lineLength = 120 } } },
                 html = {
                     configurationSection = { "html", "css", "javascript" },
@@ -160,11 +160,10 @@ return {
                 vim.lsp.config(name, cfg)
                 vim.lsp.enable(name)
             end
-            -- Scala; config comes from the nvim-metals plugin, not here.
+            -- Scala; nvim-metals supplies the config.
             vim.lsp.enable("metals")
 
-            -- Ensure every managed server plus Java is installed via mason.
-            -- (metals is not available through mason-lspconfig.)
+            -- ensure_installed has no metals: mason-lspconfig does not carry it.
             local ensure_installed = vim.tbl_keys(servers)
             table.insert(ensure_installed, "jdtls")
             require("mason-lspconfig").setup({
