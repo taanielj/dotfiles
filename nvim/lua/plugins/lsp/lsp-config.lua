@@ -164,10 +164,9 @@ return {
             -- ensure_installed has no metals: mason-lspconfig does not carry it.
             local ensure_installed = vim.tbl_keys(servers)
             table.insert(ensure_installed, "jdtls")
-            require("mason-lspconfig").setup({
-                automatic_enable = false,
-                ensure_installed = ensure_installed,
-            })
+            -- automatic_enable stays on: it also enables installed servers with no
+            -- entry above, such as jdtls and stylua
+            require("mason-lspconfig").setup({ ensure_installed = ensure_installed })
 
             local icons = require("ui.icons")
             vim.diagnostic.config({
