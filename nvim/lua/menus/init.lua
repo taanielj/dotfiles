@@ -5,7 +5,7 @@
 -- separate hidden menu. No mouse button is mapped: a click while a
 -- menu is open is pushed back and handled by normal mode directly, where
 -- mappings do not apply.
-local menu = require("ui.menu")
+local menu = require("lib.menu")
 
 local M = {}
 

@@ -1,6 +1,6 @@
 -- The text buffer menu; `ctx` is menus.context.get().
-local icons = require("ui.icons")
-local menu = require("ui.menu")
+local icons = require("lib.icons")
+local menu = require("lib.menu")
 
 return function(ctx)
     local function edit_config()

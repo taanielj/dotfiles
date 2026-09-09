@@ -10,7 +10,7 @@ return {
                 "mfussenegger/nvim-dap",
                 config = function()
                     local dap = require("dap")
-                    local icons = require("ui.icons")
+                    local icons = require("lib.icons")
 
                     vim.fn.sign_define("DapBreakpoint", { text = icons.breakpoint .. " ", texthl = "DiagnosticError" })
                     vim.fn.sign_define(

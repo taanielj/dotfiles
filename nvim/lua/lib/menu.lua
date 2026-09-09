@@ -22,7 +22,7 @@ local function rhs(menu, entry)
 
     local id = #callbacks[menu] + 1
     callbacks[menu][id] = entry.cmd
-    return ("<Cmd>lua require('ui.menu').run('%s', %d)<CR>"):format(menu, id)
+    return ("<Cmd>lua require('lib.menu').run('%s', %d)<CR>"):format(menu, id)
 end
 
 -- Separators only between rows that are shown, so a menu whose whole

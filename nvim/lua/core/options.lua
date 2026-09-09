@@ -36,7 +36,7 @@ vim.o.updatetime = 300 -- how long CursorHold waits, which drives the LSP refere
 vim.opt.sessionoptions:remove("blank") -- nameless windows (fidget, wrap spacers) would come back as empty splits
 
 -- Folds come from ufo; every fold starts open
-local icons = require("ui.icons")
+local icons = require("lib.icons")
 vim.o.foldenable = true
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99

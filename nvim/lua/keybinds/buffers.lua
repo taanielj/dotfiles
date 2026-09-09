@@ -23,27 +23,6 @@ map({
     { "n", "<leader>q!",                           function() require("ui.close_buffer").close({ force = true }) end, "Close buffer without saving" },
     { "n", "<leader>qa",                           "<Cmd>wa<CR><Cmd>qa<CR>",                        "Quit and save all" },
     { "n", "<leader>qfy",                          "<Cmd>qa!<CR>",                                  "Quit without saving?" },
+
+    { "n", "<leader>R",                            function() require("ui.session").restart() end,  "Restart nvim, keeping the session" },
 })
-
--- The session must be saved before :restart; auto-session restores it on the
--- next start.
-vim.keymap.set("n", "<leader>R", function()
-    local unsaved = {}
-    for _, info in ipairs(vim.fn.getbufinfo({ bufmodified = 1, buflisted = 1 })) do
-        if vim.bo[info.bufnr].buftype == "" then
-            unsaved[#unsaved + 1] = info.name ~= "" and vim.fn.fnamemodify(info.name, ":~:.") or "[No Name]"
-        end
-    end
-    if #unsaved > 0 then
-        vim.notify("Unsaved before restart: " .. table.concat(unsaved, ", "), vim.log.levels.WARN)
-        return
-    end
-
-    require("auto-session").auto_save_session()
-
-    -- noice's UI handler errors on the restart event, so it is detached first
-    if package.loaded["noice"] then
-        require("noice").disable()
-    end
-    vim.cmd.restart()
-end, { desc = "Restart nvim, keeping the session" })

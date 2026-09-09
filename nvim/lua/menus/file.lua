@@ -1,8 +1,8 @@
 -- Rows about a file on disk, shared by every menu that shows one.
-local icons = require("ui.icons")
+local icons = require("lib.icons")
 local yank = require("lib.yank")
 
----@param rows table  from ui.menu.rows()
+---@param rows table  from lib.menu.rows()
 ---@param path string
 return function(rows, path)
     rows.item(icons.clipboard, "Copy name", function() yank.copy(vim.fn.fnamemodify(path, ":t"), "name") end)

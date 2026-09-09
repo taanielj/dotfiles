@@ -1,4 +1,4 @@
-local icons = require("ui.icons")
+local icons = require("lib.icons")
 
 -- nil when the window has no tree state, which a click can hit mid-render
 local function get_state()
@@ -41,7 +41,7 @@ local function choose(prompt, choices)
 end
 
 return function()
-    local rows = require("ui.menu").rows()
+    local rows = require("lib.menu").rows()
     local state = get_state()
     if not state then
         return rows.entries

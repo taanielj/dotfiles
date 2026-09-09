@@ -1,4 +1,4 @@
-local icons = require("ui.icons")
+local icons = require("lib.icons")
 
 return function(ctx)
     local bufnr = ctx.bufnr
@@ -30,7 +30,7 @@ return function(ctx)
         require("bufferline.ui").refresh()
     end
 
-    local rows = require("ui.menu").rows()
+    local rows = require("lib.menu").rows()
 
     rows.item(icons.delete, "Close", function() buffers.close({ buf = bufnr }) end)
     rows.item(

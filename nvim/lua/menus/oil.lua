@@ -1,8 +1,8 @@
-local icons = require("ui.icons")
+local icons = require("lib.icons")
 
 return function()
     local oil = require("oil")
-    local rows = require("ui.menu").rows()
+    local rows = require("lib.menu").rows()
     local entry, dir = oil.get_cursor_entry(), oil.get_current_dir()
     if not (entry and dir) then
         return rows.entries

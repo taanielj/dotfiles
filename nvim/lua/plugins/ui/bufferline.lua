@@ -25,7 +25,7 @@ return {
                     },
                     groups = {
                         items = {
-                            require("bufferline.groups").builtin.pinned:with({ icon = require("ui.icons").pin .. " " }),
+                            require("bufferline.groups").builtin.pinned:with({ icon = require("lib.icons").pin .. " " }),
                         },
                     },
                     separator_style = "slant",

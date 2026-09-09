@@ -190,7 +190,7 @@ return {
             -- entry above, such as jdtls and stylua
             require("mason-lspconfig").setup({ ensure_installed = ensure_installed })
 
-            local icons = require("ui.icons")
+            local icons = require("lib.icons")
             vim.diagnostic.config({
                 signs = {
                     text = {

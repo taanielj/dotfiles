@@ -13,9 +13,9 @@ vim.opt.rtp:prepend(lazypath)
 
 require("core.options")
 require("keybinds")
-require("zen")
+require("ui.zen")
 require("core.autocmds")
-require("md2html")
+require("ui.md2html")
 require("menus").setup()
 require("lazy").setup({
     { import = "plugins.ui" },

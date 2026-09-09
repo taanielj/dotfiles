@@ -20,12 +20,12 @@ vim.keymap.set(
     { desc = "Yank buffer path with line" }
 )
 
-vim.keymap.set("n", "<leader>yh", function() require("md2html").yank() end, { desc = "Yank buffer as HTML" })
+vim.keymap.set("n", "<leader>yh", function() require("ui.md2html").yank() end, { desc = "Yank buffer as HTML" })
 
 vim.keymap.set(
     "v",
     "<leader>yh",
-    function() require("md2html").yank(yank.line_range()) end,
+    function() require("ui.md2html").yank(yank.line_range()) end,
     { desc = "Yank selection as HTML" }
 )
 
