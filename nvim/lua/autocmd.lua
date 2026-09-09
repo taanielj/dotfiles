@@ -81,15 +81,14 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- vim-fetch opens at column 1, so move to the text
-vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
+-- vim-fetch lands a file:line spec at column 1, so move to the text
+vim.api.nvim_create_autocmd("User", {
     group = augroup("fetch_first_non_blank"),
+    pattern = "BufFetchPosPost",
     callback = function()
-        vim.schedule(function()
-            if vim.api.nvim_get_mode().mode == "n" and vim.fn.col('.') == 1 then
-                vim.cmd("normal! ^")
-            end
-        end)
+        if vim.fn.col(".") == 1 then
+            vim.cmd("normal! ^")
+        end
     end,
 })
 

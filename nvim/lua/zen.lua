@@ -1,134 +1,67 @@
-local _zen_mode_active = false
-local _neotree_was_open = false
-local _mux_was_zoomed = {}
+-- Strips the window down to the text: numbers, signs, the statusline and
+-- tab bar, the tree, and the multiplexer's chrome around nvim. Leaving
+-- restores what was taken, from a snapshot, so the options come back as
+-- they were set and not as this file remembers them.
+local M = {}
 
-local function is_neo_tree_open()
+local bare = {
+    number = false,
+    relativenumber = false,
+    signcolumn = "no",
+    cursorline = false,
+    colorcolumn = "",
+}
+
+-- nil while off; otherwise what to hand back
+local state
+
+local function tree_is_open()
     for _, win in ipairs(vim.api.nvim_list_wins()) do
-        local buf = vim.api.nvim_win_get_buf(win)
-        local ft = vim.bo[buf].filetype
-        if ft == "neo-tree" then
+        if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree" then
             return true
         end
     end
     return false
 end
 
--- The multiplexer may be gone, so failures are ignored
-local function run(cmd)
-    os.execute(cmd .. " >/dev/null 2>&1 || true")
-end
-
-local function capture(cmd)
-    local handle = io.popen(cmd .. " 2>/dev/null")
-    if not handle then
-        return ""
+local function enter()
+    local win = vim.api.nvim_get_current_win()
+    state = {
+        win = win,
+        window = {},
+        laststatus = vim.o.laststatus,
+        showtabline = vim.o.showtabline,
+        tree = tree_is_open(),
+    }
+    for option, value in pairs(bare) do
+        state.window[option] = vim.wo[win][option]
+        vim.wo[win][option] = value
     end
-    local out = handle:read("*a") or ""
-    handle:close()
-    return out
-end
-
-local function tmux_is_zoomed()
-    return capture("tmux list-panes -F '#{?pane_active,#{window_zoomed_flag},}'"):match("1") ~= nil
-end
-
--- herdr's --current follows the focused pane, so address this pane by id
-local function herdr_pane()
-    return vim.fn.shellescape(vim.env.HERDR_PANE_ID)
-end
-
-local function herdr_is_zoomed()
-    return capture("herdr pane layout --pane " .. herdr_pane()):match('"zoomed"%s*:%s*true') ~= nil
-end
-
--- Every multiplexer that is present gets zoomed, so nvim in tmux in herdr
--- zooms both.
-local muxes = {
-    {
-        name = "tmux",
-        present = function()
-            return vim.env.TMUX ~= nil
-        end,
-        is_zoomed = tmux_is_zoomed,
-        set_zoom = function(on)
-            -- resize-pane -Z only toggles, so check where we are first
-            if tmux_is_zoomed() ~= on then
-                run("tmux resize-pane -Z")
-            end
-        end,
-        set_chrome = function(visible)
-            run("tmux set status " .. (visible and "on" or "off"))
-        end,
-    },
-    {
-        name = "herdr",
-        present = function()
-            return vim.env.HERDR_ENV == "1" and vim.env.HERDR_PANE_ID ~= nil
-        end,
-        is_zoomed = herdr_is_zoomed,
-        set_zoom = function(on)
-            run("herdr pane zoom --pane " .. herdr_pane() .. (on and " --on" or " --off"))
-        end,
-        -- The sidebar and tab bar are config-time only, so nothing to hide here
-        set_chrome = function() end,
-    },
-}
-
-local function active_muxes()
-    local found = {}
-    for _, mux in ipairs(muxes) do
-        if mux.present() then
-            table.insert(found, mux)
-        end
-    end
-    return found
-end
-
-local function zen()
-    _neotree_was_open = is_neo_tree_open()
-
-    vim.wo.number = false
-    vim.wo.relativenumber = false
-    vim.wo.signcolumn = "no"
-    vim.wo.cursorline = false
-    vim.wo.colorcolumn = ""
     require("lualine").hide({ unhide = false, place = { "statusline", "tabline", "winbar" } })
     vim.o.laststatus = 0
     vim.o.showtabline = 0
 
-    for _, mux in ipairs(active_muxes()) do
-        _mux_was_zoomed[mux.name] = mux.is_zoomed()
-        mux.set_chrome(false)
-        mux.set_zoom(true)
-    end
+    state.mux = require("lib.mux").zoom_in()
 
-    if _neotree_was_open then
+    if state.tree then
         vim.cmd("Neotree close")
     end
 end
 
-local function unzen()
-    if not _zen_mode_active then
-        return
+local function leave()
+    local win = vim.api.nvim_win_is_valid(state.win) and state.win or vim.api.nvim_get_current_win()
+    for option, value in pairs(state.window) do
+        vim.wo[win][option] = value
     end
-    vim.wo.number = true
-    vim.wo.relativenumber = true
-    vim.wo.signcolumn = "yes"
-    vim.wo.cursorline = true
-    vim.wo.colorcolumn = "121"
     require("lualine").hide({ unhide = true, place = { "statusline", "tabline", "winbar" } })
-    vim.o.laststatus = 3
-    vim.o.showtabline = 2
+    vim.o.laststatus = state.laststatus
+    vim.o.showtabline = state.showtabline
     vim.cmd("redraw!")
 
-    for _, mux in ipairs(active_muxes()) do
-        mux.set_chrome(true)
-        mux.set_zoom(_mux_was_zoomed[mux.name] == true)
-    end
+    require("lib.mux").restore(state.mux)
 
-    if _neotree_was_open then
+    if state.tree then
         -- "show" reopens the tree without focusing it, so the cursor stays put
-        local win = vim.api.nvim_get_current_win()
         vim.cmd("Neotree show reveal")
         vim.schedule(function()
             if vim.api.nvim_win_is_valid(win) then
@@ -136,32 +69,21 @@ local function unzen()
             end
         end)
     end
+    state = nil
 end
 
-local function toggle_zen_mode()
-    if _zen_mode_active then
-        unzen()
-        _zen_mode_active = false
+function M.toggle()
+    if state then
+        leave()
     else
-        zen()
-        _zen_mode_active = true
+        enter()
     end
 end
 
+function M.is_active()
+    return state ~= nil
+end
 
-vim.keymap.set("n", "<leader>z", toggle_zen_mode, {
-    noremap = true,
-    silent = true,
-    desc = "Toggle Zen Mode",
-})
+vim.keymap.set("n", "<leader>z", M.toggle, { desc = "Toggle Zen Mode" })
 
-return {
-    toggle = toggle_zen_mode,
-    is_neo_tree_open = is_neo_tree_open,
-    active_muxes = active_muxes,
-    zen = zen,
-    unzen = unzen,
-    is_active = function()
-        return _zen_mode_active
-    end,
-}
+return M
