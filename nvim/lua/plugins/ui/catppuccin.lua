@@ -7,10 +7,7 @@ return {
         require("catppuccin").setup({
             term_colors = false,
             integrations = {
-                neotree = {
-                    enabled = true,
-                    show_root = true,
-                },
+                neotree = true,
                 telescope = true,
                 treesitter = true,
                 cmp = true,

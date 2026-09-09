@@ -141,11 +141,7 @@ return {
                 -- A project's ruff.toml or pyproject.toml wins; lineLength applies
                 -- to projects without one.
                 ruff = { init_options = { settings = { configurationPreference = "filesystemFirst", lineLength = 120 } } },
-                html = {
-                    configurationSection = { "html", "css", "javascript" },
-                    embeddedLanguages = { css = true, javascript = true },
-                    provideFormatter = true,
-                },
+                html = {},
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
                 marksman = {},
                 dockerls = {},

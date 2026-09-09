@@ -5,13 +5,12 @@ return {
     config = function()
         require("auto-session").setup({
             enabled = true,
-            auto_clean_after_session_restore = false,
-            auto_save_enabled = true,
+            auto_save = true,
             auto_create = function()
                 local cmd = "git rev-parse --is-inside-work-tree"
                 return vim.fn.system(cmd) == "true\n"
             end,
-            auto_session_root_dir = vim.fn.stdpath("data") .. "/sessions/",
+            root_dir = vim.fn.stdpath("data") .. "/sessions/",
             close_unsupported_windows = true,
             suppressed_dirs = {
                 "/tmp",

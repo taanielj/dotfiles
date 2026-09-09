@@ -22,6 +22,18 @@ vim.api.nvim_create_autocmd("InsertEnter", {
         vim.wo.relativenumber = false
     end,
 })
+-- 'scroll' goes back to half the window height whenever a window is resized
+vim.api.nvim_create_autocmd({ "VimEnter", "WinNew", "WinResized" }, {
+    group = augroup("scroll"),
+    callback = function()
+        for _, win in ipairs(vim.v.event.windows or { vim.api.nvim_get_current_win() }) do
+            if vim.api.nvim_win_is_valid(win) then
+                vim.wo[win].scroll = 5
+            end
+        end
+    end,
+})
+
 vim.api.nvim_create_autocmd("InsertLeave", {
     group = number_toggle,
     callback = function()

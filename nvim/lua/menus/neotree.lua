@@ -86,7 +86,7 @@ return function()
     rows.add({ name = "Toggle hidden", cmd = call("toggle_hidden") })
     rows.add({ name = "Refresh", cmd = call("refresh") })
     rows.add({ separator = true })
-    rows.item(icons.delete, "Delete", call("Delete"), below_root)
+    rows.item(icons.delete, "Delete", call("delete"), below_root)
 
     return rows.entries
 end

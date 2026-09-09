@@ -13,9 +13,6 @@ return {
         require("neo-tree").setup({
             enable_git_status = true,
             enable_diagnostics = true,
-            follow_current_file = {
-                enabled = true,
-            },
             default_component_configs = {
                 git_status = {
                     symbols = {
@@ -52,6 +49,7 @@ return {
                 },
             },
             filesystem = {
+                follow_current_file = { enabled = true },
                 group_empty_dirs = true,
                 scan_mode = "deep",
                 use_libuv_file_watcher = true,
