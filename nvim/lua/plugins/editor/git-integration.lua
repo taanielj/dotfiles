@@ -78,9 +78,6 @@ return {
         end,
     },
     {
-        "tpope/vim-fugitive",
-    },
-    {
         "sindrets/diffview.nvim",
         cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
         keys = {

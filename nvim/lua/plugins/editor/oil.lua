@@ -12,8 +12,7 @@ return {
             ["<C-h>"] = false,
         },
     },
-    dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
-    -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     lazy = false,
     config = function(_, opts)
         require("oil").setup(opts)

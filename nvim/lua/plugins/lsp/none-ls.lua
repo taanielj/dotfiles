@@ -6,21 +6,13 @@ return {
 
             null_ls.setup({
                 sources = {
-                    -- Shell scripts
                     null_ls.builtins.formatting.shfmt.with({
                         filetypes = { "sh", "zsh", "bash" },
                     }),
-                    -- Lua
                     null_ls.builtins.formatting.stylua,
-                    -- JavaScript/TypeScript/HTML/CSS/JSON/YAML/Markdown
                     null_ls.builtins.formatting.prettier,
-                    -- Protobuf
                     null_ls.builtins.formatting.buf,
-                    -- SQL
                     null_ls.builtins.formatting.sqlfmt,
-                    -- Ruby
-                    -- null_ls.builtins.formatting.rubocop,
-                    -- Makefile linter
                     null_ls.builtins.diagnostics.checkmake,
                 },
             })

@@ -8,8 +8,7 @@ return {
       },
       {
         "mfussenegger/nvim-dap",
-        config = function(self, opts)
-          local _ = self; _ = opts
+        config = function()
           local dap = require("dap")
           local icons = require("ui.icons")
 
@@ -25,7 +24,6 @@ return {
               name = "RunOrTest",
               metals = {
                 runType = "runOrTestFile",
-                --args = { "firstArg", "secondArg", "thirdArg" }, -- here just as an example
               },
             },
             {

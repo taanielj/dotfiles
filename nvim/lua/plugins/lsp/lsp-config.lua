@@ -25,7 +25,6 @@ return {
             },
             "hrsh7th/cmp-nvim-lsp",
             "williamboman/mason-lspconfig.nvim",
-            "WhoIsSethDaniel/mason-tool-installer.nvim",
         },
         config = function()
             -- vim.lsp.buf.document_highlight() applies the reply without checking
@@ -122,7 +121,6 @@ return {
                 lineFoldingOnly = true,
             }
 
-            -- Server configs. Empty table = defaults; capabilities are applied below.
             local servers = {
                 lua_ls = {
                     settings = {
@@ -159,19 +157,12 @@ return {
                     provideFormatter = true,
                 },
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
-                -- ruby_lsp = {
-                --     init_options = {
-                --         addonSettings = {
-                --             RubyLSPRails = { enablePendingMigrationsPrompt = false },
-                --         },
-                --     },
-                -- },
-                marksman = {}, -- Markdown
-                dockerls = {}, -- Dockerfile
-                gopls = {}, -- Go
-                eslint = {}, -- JavaScript/TypeScript
-                cssls = {}, -- CSS
-                terraformls = {}, -- Terraform
+                marksman = {},
+                dockerls = {},
+                gopls = {},
+                eslint = {},
+                cssls = {},
+                terraformls = {},
             }
 
             for name, cfg in pairs(servers) do

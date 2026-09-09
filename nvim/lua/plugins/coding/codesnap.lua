@@ -6,11 +6,5 @@ return {
         { "<leader>cc", "<cmd>CodeSnap<cr>",     mode = "x", desc = "Save selected code snapshot into clipboard" },
         { "<leader>cs", "<cmd>CodeSnapSave<cr>", mode = "x", desc = "Save selected code snapshot in " .. save_path },
     },
-    opts = {
-        -- save_path = save_path,
-        -- has_breadcrumbs = true,
-        -- bg_theme = "summer",
-        -- font_family = "JetBrainsMono Nerd Font",
-        -- watermark = "",
-    },
+    opts = {},
 }

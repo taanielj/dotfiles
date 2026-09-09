@@ -29,10 +29,10 @@ return {
                 lualine_c = {
                     {
                         "filename",
-                        file_status = true, -- Display file status
-                        path = 1, -- 0 = just filename, 1 = relative path, 2 = absolute path
+                        file_status = true,
+                        path = 1,
                         shorting_target = 40,
-                        symbols = { modified = "", readonly = "", unnamed = "[No Name]", newfile = "[New]" }, -- Icons
+                        symbols = { modified = "", readonly = "", unnamed = "[No Name]", newfile = "[New]" },
                     },
                 },
                 lualine_x = {

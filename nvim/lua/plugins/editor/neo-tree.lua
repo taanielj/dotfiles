@@ -26,12 +26,10 @@ return {
             default_component_configs = {
                 git_status = {
                     symbols = {
-                        -- Change type
-                        added = "✚", -- NOTE: you can set any of these to an empty string to not show them
+                        added = "✚",
                         deleted = "✖",
                         modified = "",
                         renamed = "➜",
-                        -- Status type
                         untracked = "",
                         ignored = "◌",
                         unstaged = "",
@@ -61,7 +59,7 @@ return {
                 },
             },
             filesystem = {
-                group_empty_dirs = true, -- Group empty directories together
+                group_empty_dirs = true,
                 scan_mode = "deep",
                 use_libuv_file_watcher = true,
                 filtered_items = {
