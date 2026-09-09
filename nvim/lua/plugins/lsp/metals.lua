@@ -57,81 +57,46 @@ return {
       metals_config.on_attach = function(client, bufnr)
         require("metals").setup_dap()
 
-        local function map(mode, lhs, rhs)
-          vim.keymap.set(mode, lhs, rhs, { buf = bufnr })
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, { buf = bufnr, desc = desc })
         end
 
-        -- LSP mappings
-        map("n", "gD", vim.lsp.buf.definition)
-        map("n", "K", vim.lsp.buf.hover)
-        map("n", "gi", vim.lsp.buf.implementation)
-        map("n", "gr", vim.lsp.buf.references)
-        map("n", "gds", vim.lsp.buf.document_symbol)
-        map("n", "gws", vim.lsp.buf.workspace_symbol)
-        map("n", "<leader>cl", vim.lsp.codelens.run)
-        map("n", "<leader>sh", vim.lsp.buf.signature_help)
-        map("n", "<leader>rn", vim.lsp.buf.rename)
+        map("n", "<leader>lc", vim.lsp.codelens.run, "Run code lens")
+        map("n", "<leader>ls", vim.lsp.buf.signature_help, "Signature help")
         -- format: <leader>m (none-ls.lua) already covers LSP formatting
-        map("n", "<leader>ca", vim.lsp.buf.code_action)
 
-        map("n", "<leader>ws", function()
+        map("n", "<leader>lo", function()
           require("metals").hover_worksheet()
-        end)
-
-        -- Diagnostics live under the LSP group (<leader>l); <leader>a is Claude Code,
-        -- <leader>d is the dap prefix below.
-        -- all workspace diagnostics
-        map("n", "<leader>lD", vim.diagnostic.setqflist)
-
-        -- all workspace errors
-        map("n", "<leader>lE", function()
-          vim.diagnostic.setqflist({ severity = "E" })
-        end)
-
-        -- all workspace warnings
-        map("n", "<leader>lW", function()
-          vim.diagnostic.setqflist({ severity = "W" })
-        end)
-
-        -- buffer diagnostics only
-        map("n", "<leader>ld", vim.diagnostic.setloclist)
-
-        map("n", "[c", function()
-          vim.diagnostic.jump({ count = -1, float = true })
-        end)
-
-        map("n", "]c", function()
-          vim.diagnostic.jump({ count = 1, float = true })
-        end)
+        end, "Hover worksheet")
 
         -- nvim-dap
         map("n", "<leader>dc", function()
           require("dap").continue()
-        end)
+        end, "Continue")
 
         map("n", "<leader>dr", function()
           require("dap").repl.toggle()
-        end)
+        end, "Toggle REPL")
 
         map("n", "<leader>dK", function()
           require("dap.ui.widgets").hover()
-        end)
+        end, "Hover value")
 
         map("n", "<leader>dt", function()
           require("dap").toggle_breakpoint()
-        end)
+        end, "Toggle breakpoint")
 
         map("n", "<leader>dso", function()
           require("dap").step_over()
-        end)
+        end, "Step over")
 
         map("n", "<leader>dsi", function()
           require("dap").step_into()
-        end)
+        end, "Step into")
 
         map("n", "<leader>dl", function()
           require("dap").run_last()
-        end)
+        end, "Run last")
       end
 
       return metals_config

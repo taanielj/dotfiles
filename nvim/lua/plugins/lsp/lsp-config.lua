@@ -69,6 +69,14 @@ return {
                     map("<leader>lp", function()
                         vim.diagnostic.jump({ count = -1, float = true })
                     end, "Previous diagnostic")
+                    map("<leader>lD", vim.diagnostic.setqflist, "Workspace diagnostics")
+                    map("<leader>lE", function()
+                        vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.ERROR })
+                    end, "Workspace errors")
+                    map("<leader>lW", function()
+                        vim.diagnostic.setqflist({ severity = vim.diagnostic.severity.WARN })
+                    end, "Workspace warnings")
+                    map("<leader>ld", vim.diagnostic.setloclist, "Buffer diagnostics")
 
                     local client = vim.lsp.get_client_by_id(event.data.client_id)
 
