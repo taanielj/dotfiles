@@ -24,8 +24,6 @@ resolve_mise() {
 teardown_mise() {
     log "Removing mise configuration..."
 
-    rc_remove_lines "mise activate"
-
     if [[ -d "$HOME/.config/mise" ]]; then
         log "Removing mise config directory"
         rm -rf "$HOME/.config/mise"
@@ -136,7 +134,8 @@ install_tools() {
         ;;
     esac
 
-    local mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise")
+    local mise_bin
+    mise_bin=$(resolve_mise)
 
     while IFS= read -r selected_tool_version; do
         [[ -z "$selected_tool_version" ]] && continue

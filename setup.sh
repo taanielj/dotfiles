@@ -7,17 +7,17 @@ source "$REPO_ROOT/setup/utils.sh"
 
 # system should be run first (and torn down last)
 SETUP_SCRIPTS=(
-    "$REPO_ROOT/setup/system.sh" # only one that needs sudo, supports ubuntu, debian, termux, darwin
-    "$REPO_ROOT/setup/git.sh"    # no sudo, platform agnostic
-    "$REPO_ROOT/setup/zsh.sh"    # no sudo, platform agnostic
-    "$REPO_ROOT/setup/tmux.sh"   # no sudo, platform agnostic
-    "$REPO_ROOT/setup/herdr.sh"  # no sudo, platform agnostic
-    "$REPO_ROOT/setup/mise.sh"   # no sudo, platform agnostic
-    "$REPO_ROOT/setup/nvim.sh"   # no sudo, platform agnostic
-    "$REPO_ROOT/setup/cargo.sh"  # no sudo, platform agnostic
+    "$REPO_ROOT/setup/system.sh"  # only one that needs sudo, supports ubuntu, debian, termux, darwin
+    "$REPO_ROOT/setup/git.sh"     # no sudo, platform agnostic
+    "$REPO_ROOT/setup/zsh.sh"     # no sudo, platform agnostic
+    "$REPO_ROOT/setup/tmux.sh"    # no sudo, platform agnostic
+    "$REPO_ROOT/setup/herdr.sh"   # no sudo, platform agnostic
+    "$REPO_ROOT/setup/mise.sh"    # no sudo, platform agnostic
+    "$REPO_ROOT/setup/nvim.sh"    # no sudo, platform agnostic
+    "$REPO_ROOT/setup/cargo.sh"   # no sudo, platform agnostic
+    "$REPO_ROOT/setup/lazygit.sh" # no sudo, platform agnostic (brew installs the binary on macOS)
 )
-[[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh")
-[[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/lazygit.sh")
+[[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh")
 [[ -n "$WSL_DISTRO_NAME" ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/win32yank.sh")
 
 show_help() {
@@ -84,8 +84,8 @@ show_banner() {
         log "  • Version manager (mise with language runtimes)"
         log "  • Text editor (neovim with plugins)"
         log "  • Rust tools (cargo packages like eza, ripgrep, bat)"
-        [[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, wezterm)"
-        [[ "$OSTYPE" == "linux-gnu"* ]] && log "  • Git TUI (lazygit)"
+        log "  • Git TUI (lazygit)"
+        [[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, wezterm) and Karabiner-Elements"
         [[ -n "$WSL_DISTRO_NAME" ]] && log "  • Windows clipboard tool (win32yank)"
         echo ""
     fi

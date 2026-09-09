@@ -101,6 +101,7 @@ export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
 mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
+unset mise_bin
 
 ### ────────────────────────────────
 ###  Environment / UI Settings
@@ -143,7 +144,11 @@ command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 ### ────────────────────────────────
 ###  Google Cloud SDK Integration
 ### ────────────────────────────────
-for _gcloud_sdk in "$HOMEBREW_PREFIX/share/google-cloud-sdk" "$HOME/google-cloud-sdk"; do
+# HOMEBREW_PREFIX comes from zprofile, which only login shells read, so probe
+# the same two brew prefixes it does.
+for _gcloud_sdk in "${HOMEBREW_PREFIX:-/opt/homebrew}/share/google-cloud-sdk" \
+    "/home/linuxbrew/.linuxbrew/share/google-cloud-sdk" \
+    "$HOME/google-cloud-sdk"; do
     if [[ -f "$_gcloud_sdk/path.zsh.inc" ]]; then
         source "$_gcloud_sdk/path.zsh.inc"
         [[ -f "$_gcloud_sdk/completion.zsh.inc" ]] && source "$_gcloud_sdk/completion.zsh.inc"

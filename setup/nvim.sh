@@ -36,7 +36,8 @@ install_nvim() {
     mv "$nvim_path" "$HOME/.local/nvim"
     rm -rf "$tmp_dir"
 
-    rc_append_line 'export PATH=$HOME/.local/nvim/bin:$PATH'
+    # zsh/zshrc.zsh already prepends this, so only bash needs the line
+    rc_append_line 'export PATH=$HOME/.local/nvim/bin:$PATH' "$HOME/.bashrc"
     export PATH="$HOME/.local/nvim/bin:$PATH"
     local nvim_version
     nvim_version=$(nvim --version | head -n1)

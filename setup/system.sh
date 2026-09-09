@@ -37,10 +37,10 @@ TERMUX_PACKAGES=(
 
 MACOS_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
-    "lazygit"   # available in brew
-    "fastfetch" # available in brew
-    "mise"      # available in brew
-    "kitty"     # needed for tmux setup on macOS
+    "lazygit"           # available in brew
+    "fastfetch"         # available in brew
+    "mise"              # available in brew
+    "tmux-mem-cpu-load" # tmux.conf status line calls the bare binary; no apt package exists
     # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
 )
 
@@ -100,7 +100,7 @@ check_permissions() {
         exit 1
     fi
 
-    if [[ "$OS" != "darwin" ]]; then
+    if [[ "$DISTRO" != "darwin" ]]; then
         if ! command -v sudo &>/dev/null; then
             error "❌ 'sudo' is required but not found. Please install it and try again."
             exit 1

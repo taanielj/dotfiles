@@ -157,11 +157,15 @@ unstub_file() {
 # regular file, so both helpers below touch only real, machine-local rc files.
 _RC_FILES=("$HOME/.bashrc" "$HOME/.zshrc")
 
-# Usage: rc_append_line <line>
-# Appends the line to each rc file that does not already contain it.
+# Usage: rc_append_line <line> [rc-file...]
+# Appends the line to each rc file that does not already contain it, defaulting
+# to all of them.
 rc_append_line() {
     local line="$1" rc
-    for rc in "${_RC_FILES[@]}"; do
+    shift
+    local files=("$@")
+    [[ ${#files[@]} -eq 0 ]] && files=("${_RC_FILES[@]}")
+    for rc in "${files[@]}"; do
         [[ -L "$rc" ]] && continue
         grep -qF "$line" "$rc" 2>/dev/null || echo "$line" >>"$rc"
     done

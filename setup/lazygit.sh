@@ -4,7 +4,10 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
 main_lazygit() {
-    install_lazygit
+    # macOS gets lazygit from brew (setup/system.sh); elsewhere from the release tarball.
+    if [[ "$(uname -s)" != "Darwin" ]]; then
+        install_lazygit
+    fi
 
     # macOS lazygit defaults to ~/Library/Application Support; LG_CONFIG_FILE
     # (exported in zshrc.zsh) points it at this link instead.
@@ -18,9 +21,14 @@ install_lazygit() {
     )
     LAZYGIT_BIN="$HOME/.local/bin/lazygit"
 
+    local arch=""
+    [[ "$(uname -m)" == "aarch64" ]] && arch="arm64"
+    [[ "$(uname -m)" == "x86_64" ]] && arch="x86_64"
+    [[ -z "$arch" ]] && error "Unsupported architecture: $(uname -m)" && return 1
+
     mkdir -p "$HOME/.local/bin"
 
-    if command -v lazygit &>/dev/null; then
+    if [[ -x "$LAZYGIT_BIN" ]]; then
         current_version=$("$LAZYGIT_BIN" -v 2>/dev/null | grep -oE 'version=[^,]+' | cut -d= -f2 | head -n 1)
         if [[ "$current_version" == "$LAZYGIT_VERSION" ]]; then
             log "✅ lazygit is already up to date (v$current_version)"
@@ -33,7 +41,7 @@ install_lazygit() {
     fi
 
     tmp_dir=$(mktemp -d)
-    curl -sSL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
+    curl -sSL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${arch}.tar.gz" \
         -o "$tmp_dir/lazygit.tar.gz"
 
     tar -xzf "$tmp_dir/lazygit.tar.gz" -C "$tmp_dir"

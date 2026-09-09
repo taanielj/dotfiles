@@ -71,17 +71,6 @@ teardown_zsh() {
         rm -rf "$ZINIT_HOME"
     fi
 
-    P10K_PROMPT="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER}.zsh"
-    if [[ -f "$P10K_PROMPT" ]]; then
-        log "Removing powerlevel10k instant prompt cache"
-        rm -f "$P10K_PROMPT"
-    fi
-
-    if [[ -f "$HOME/.p10k.zsh" ]]; then
-        log "Removing powerlevel10k config file"
-        rm -f "$HOME/.p10k.zsh"
-    fi
-
     success "Zsh configuration and zinit components removed."
 }
 

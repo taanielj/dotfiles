@@ -12,10 +12,11 @@ if command -v nvim &>/dev/null; then
     }
 fi
 if command -v bat &>/dev/null; then
-    alias cat="bat -p --paging=never"
+    _bat_bin=bat
 elif command -v batcat &>/dev/null; then
-    alias cat="batcat -p --paging=never"
+    _bat_bin=batcat
 fi
+[[ -n "$_bat_bin" ]] && alias cat="$_bat_bin -p --paging=never"
 
 if ! command -v fd &>/dev/null && command -v fdfind &>/dev/null; then
     alias fd="fdfind"
@@ -55,13 +56,13 @@ alias cld="cd && clear && printf '\e[3J' && exec zsh"
 reset_repo() {
     echo -e "\033[1;33mWARNING: This will DELETE and RECLONE the repo!\033[0m"
 
-    REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+    local REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
     if [[ -z "$REPO_ROOT" ]]; then
         echo -e "\033[1;31mError: Not in a git repository. Please navigate to a git repo and try again.\033[0m"
         return 1
     fi
     cd "$REPO_ROOT" || return 1 # Move to repo root
-    GIT_REMOTE=$(git remote get-url origin 2>/dev/null)
+    local GIT_REMOTE=$(git remote get-url origin 2>/dev/null)
     if [[ -z "$GIT_REMOTE" ]]; then
         echo -e "\033[1;31mError: No remote repository found. Are you in a git repo?\033[0m"
         return 1
@@ -84,6 +85,7 @@ reset_repo() {
     fi
 
     echo -n "Type YES to confirm: "
+    local CONFIRM
     read CONFIRM
     if [[ "$CONFIRM" != "YES" ]]; then
         echo -e "\033[1;31mOperation cancelled.\033[0m"
@@ -114,14 +116,14 @@ nvim() {
 nvimf() {
     local file
     if [[ -n "$1" && -d "$1" ]]; then
-        file=$(fd . "$1" | fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}')
+        file=$(fd . "$1" | fzf --preview "${_bat_bin:-cat} --color=always --style=header,grid --line-range :500 {}")
     else
-        file=$(fd --type f --hidden | fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}')
+        file=$(fd --type f --hidden | fzf --preview "${_bat_bin:-cat} --color=always --style=header,grid --line-range :500 {}")
     fi
     [[ -n "$file" ]] && nvim "$file"
 }
 
-alias gflog='git log --follow --stat --date=format:'%Y-%m-%d' --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
+alias gflog='git log --follow --stat --date=format:%Y-%m-%d --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
 
 if command -v claude &>/dev/null; then
     alias clask='claude -p'
