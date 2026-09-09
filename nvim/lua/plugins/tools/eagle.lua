@@ -18,9 +18,7 @@ return {
                     vim.cmd("EagleWin")
                 end
             end,
-            mode = "n",
-            noremap = true,
-            silent = true,
+            desc = "Hover, or peek the fold",
         },
     },
 }

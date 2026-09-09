@@ -14,8 +14,16 @@ vim.api.nvim_create_autocmd("InsertEnter", {
     end,
 })
 
+-- Relative numbers are for jumps; in insert mode the absolute line is the useful one
+local number_toggle = augroup("number_toggle")
+vim.api.nvim_create_autocmd("InsertEnter", {
+    group = number_toggle,
+    callback = function()
+        vim.wo.relativenumber = false
+    end,
+})
 vim.api.nvim_create_autocmd("InsertLeave", {
-    group = augroup("number_toggle"),
+    group = number_toggle,
     callback = function()
         if vim.bo.filetype ~= "neo-tree" and not require("zen").is_active() then
             vim.wo.relativenumber = true

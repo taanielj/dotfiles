@@ -84,6 +84,4 @@ function M.is_active()
     return state ~= nil
 end
 
-vim.keymap.set("n", "<leader>z", M.toggle, { desc = "Toggle Zen Mode" })
-
 return M

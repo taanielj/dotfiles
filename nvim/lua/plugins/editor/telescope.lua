@@ -1,6 +1,8 @@
 return {
     "nvim-telescope/telescope.nvim",
     branch = "master",
+    -- ui-select backs vim.ui.select everywhere, so telescope loads before any prompt
+    event = "VeryLazy",
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-telescope/telescope-smart-history.nvim",
@@ -59,30 +61,5 @@ return {
         require("telescope").load_extension("ui-select")
         require("telescope").load_extension("fzf")
         require("telescope").load_extension("smart_history")
-        local builtin = require("telescope.builtin")
-
-        vim.keymap.set("n", "<leader> ", builtin.find_files, { desc = "Find Files" })
-        vim.keymap.set("n", "<leader>/", builtin.current_buffer_fuzzy_find, { desc = "Find in current buffer" })
-        vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find Buffers" })
-        vim.keymap.set("n", "<leader>fG", function()
-            builtin.live_grep({
-                grep_open_files = true,
-            })
-        end, { desc = "Find in Open Files" })
-        vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Find in Project" })
-        vim.keymap.set("n", "<leader>hf", function()
-            builtin.find_files({ hidden = true, no_ignore = true })
-        end, { desc = "Find Hidden Files" })
-        vim.keymap.set("n", "<leader>hb", function()
-            builtin.buffers({ show_all_buffers = true, no_ignore = true })
-        end, { desc = "Find Hidden Buffers" })
-        vim.keymap.set("n", "<leader>hg", function()
-            builtin.live_grep({
-                file_ignore_patterns = { ".venv", ".idea", ".git" },
-                additional_args = function()
-                    return { "--hidden" }
-                end,
-            })
-        end, { desc = "Find in Hidden Files" })
     end,
 }

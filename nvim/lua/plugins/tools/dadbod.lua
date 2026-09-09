@@ -26,9 +26,9 @@ return {
                 local map = function(mode, lhs, rhs, desc)
                     vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, silent = true, desc = desc })
                 end
-                map("n", "<leader>e", "<cmd>%DB<cr>", "SQL: execute whole buffer")
-                map("n", "<leader>E", "<cmd>.DB<cr>", "SQL: execute current line")
-                map("x", "<leader>e", ":DB<cr>", "SQL: execute selection")
+                map("n", "<leader>x", "<cmd>%DB<cr>", "SQL: execute whole buffer")
+                map("n", "<leader>X", "<cmd>.DB<cr>", "SQL: execute current line")
+                map("x", "<leader>x", ":DB<cr>", "SQL: execute selection")
             end,
         })
     end,

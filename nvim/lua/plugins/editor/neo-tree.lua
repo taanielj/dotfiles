@@ -10,13 +10,6 @@ return {
     config = function()
         require("window-picker").setup()
 
-        vim.keymap.set(
-            "n",
-            "<leader>e",
-            ":Neotree filesystem reveal left toggle=true<CR>",
-            { desc = "Show Files", silent = true }
-        )
-
         require("neo-tree").setup({
             enable_git_status = true,
             enable_diagnostics = true,

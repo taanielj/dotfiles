@@ -27,7 +27,6 @@ return {
         "ClaudeCodeCloseAllDiffs",
     },
     keys = {
-        { "<leader>a",  nil,                              desc = "AI/Claude Code" },
         { "<leader>ac", "<cmd>ClaudeCode<cr>",            desc = "Toggle Claude" },
         { "<leader>af", "<cmd>ClaudeCodeFocus<cr>",       desc = "Focus Claude" },
         -- Layout variants (only apply on a fresh open; close first to switch).

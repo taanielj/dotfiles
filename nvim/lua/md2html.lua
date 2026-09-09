@@ -122,23 +122,6 @@ function M.yank(first, last)
     end)
 end
 
--- '< and '> still hold the previous selection while visual mode is active.
-local function selection()
-    local first, last = vim.fn.line("v"), vim.fn.line(".")
-    if first > last then
-        first, last = last, first
-    end
-    return first, last
-end
-
-vim.keymap.set("n", "<leader>yh", function()
-    M.yank()
-end, { noremap = true, silent = true, desc = "Yank buffer as HTML" })
-
-vim.keymap.set("v", "<leader>yh", function()
-    M.yank(selection())
-end, { noremap = true, silent = true, desc = "Yank selection as HTML" })
-
 vim.api.nvim_create_user_command("Md2Html", function(cmd)
     if cmd.range == 0 then
         M.yank()

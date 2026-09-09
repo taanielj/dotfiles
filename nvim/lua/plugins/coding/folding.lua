@@ -64,9 +64,6 @@ return {
                 end,
             })
 
-            vim.keymap.set("n", "zR", require("ufo").openAllFolds, { silent = true, desc = "Open all folds" })
-            vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { silent = true, desc = "Close all folds" })
-
             -- lsp -> indent
             ---@diagnostic disable-next-line
             require("ufo").setup({

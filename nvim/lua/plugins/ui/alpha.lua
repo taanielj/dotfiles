@@ -30,7 +30,6 @@ return {
 		dashboard.section.bottom_buttons.val = {
 			dashboard.button("q", "󰅚 Quit NeoVim", ":qa<CR>"),
 		}
-        vim.keymap.set("n", "<leader>A", ":Alpha<CR>", { noremap = true, silent = true, desc = "Dashboard" })
 		require("alpha").setup(dashboard.config)
 	end,
 }
