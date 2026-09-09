@@ -21,34 +21,7 @@ configure_zsh() {
 
     link_file "$REPO_ROOT/zsh" "$HOME/.config/zsh"
 
-    set_dotfiles_root
-
     success "Zsh configuration completed."
-}
-
-set_dotfiles_root() {
-    local zshrc_local="$HOME/.zshrc.local"
-    local dotfiles_line="export DOTFILES_ROOT=\"$REPO_ROOT\""
-
-    touch "$zshrc_local"
-
-    if grep -Fxq "$dotfiles_line" "$zshrc_local" 2>/dev/null; then
-        return 0
-    fi
-
-    # loose match so a stale path or a bare assignment is upgraded in place
-    if grep -Eq "^(export )?DOTFILES_ROOT=" "$zshrc_local" 2>/dev/null; then
-        log "Updating DOTFILES_ROOT in .zshrc.local"
-        # macOS sed -i takes a backup suffix argument; GNU sed takes none
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -E -i '' "s|^(export )?DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
-        else
-            sed -E -i "s|^(export )?DOTFILES_ROOT=.*|$dotfiles_line|" "$zshrc_local"
-        fi
-    else
-        log "Adding DOTFILES_ROOT to .zshrc.local"
-        echo "$dotfiles_line" >>"$zshrc_local"
-    fi
 }
 
 teardown_zsh() {
