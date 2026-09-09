@@ -16,6 +16,12 @@ return {
                 cmp = true,
                 gitsigns = true,
             },
+            -- Reapplied with the colorscheme, unlike a highlight set at config time
+            custom_highlights = {
+                Folded = { bg = "NONE" },
+                FoldColumn = { fg = "NONE" },
+                NeoTreeDotfile = { fg = "#aaaaaa" },
+            },
             dim_inactive = {
                 enabled = true,
                 shade = "dark",

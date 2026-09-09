@@ -44,6 +44,5 @@ return {
                 },
             },
         })
-        vim.o.laststatus = 3 -- Ensure statusline is always shown
     end,
 }

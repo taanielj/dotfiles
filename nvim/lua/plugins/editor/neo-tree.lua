@@ -72,6 +72,5 @@ return {
                 },
             },
         })
-        vim.api.nvim_set_hl(0, "NeoTreeDotfile", { fg = "#aaaaaa", bg = nil, italic = false })
     end,
 }

@@ -10,6 +10,8 @@ return {
     breakpoint_rejected = "\u{F05E}",
     stopped = "\u{F0A4}",
     open = "\u{EB7F}",
+    fold_open = "\u{F078}",
+    fold_closed = "\u{F054}",
     vsplit = "\u{EB56}",
     hsplit = "\u{EB57}",
     new_file = "\u{F501}",
