@@ -28,14 +28,14 @@ _docker_compose() {
 }
 
 # Basic aliases
-dc() { _docker_compose "$@"; }                    # docker compose
-dcu() { _docker_compose up -d --build "$@"; }     # compose up detached with build
-dcd() { _docker_compose down "$@"; }              # compose down
-dcr() { dcd && dcu "$@"; }                        # compose restart (down + up)
-dcD() { _docker_compose down -v "$@"; }           # compose down with volumes
-dcR() { dcD && dcu "$@"; }                        # compose restart with volumes
-ds() { docker ps "$@"; }                          # list containers
-di() { docker images "$@"; }                      # list images
+dc() { _docker_compose "$@"; }
+dcu() { _docker_compose up -d --build "$@"; }
+dcd() { _docker_compose down "$@"; }
+dcr() { dcd && dcu "$@"; }
+dcD() { _docker_compose down -v "$@"; }
+dcR() { dcD && dcu "$@"; }
+ds() { docker ps "$@"; }
+di() { docker images "$@"; }
 
 drmi() {
     if [[ $# -gt 0 ]]; then
@@ -56,7 +56,7 @@ drmi() {
     echo "Removing selected images..."
     echo "$image_ids" | xargs docker rmi
 }
-dprune() { docker system prune "$@"; }            # cleanup unused resources
+dprune() { docker system prune "$@"; }
 
 # ─────────────────────────────────────────────────────────────
 # Container FZF Picker

@@ -7,6 +7,8 @@
 #   HERDR_SESSION_LABEL   workspace label, e.g. "work" (arg $1 overrides)
 #   HERDR_SESSION_REPOS   "tab:path;tab:path;..." - path under ${GIT_PATH:-$HOME/git}
 #                         unless absolute; repos whose dir is missing are skipped
+#
+# Nothing in this repo calls this; it is an extension point for ~/.zshrc.local.
 set -euo pipefail
 
 herdr="${HERDR_BIN_PATH:-herdr}"

@@ -15,8 +15,8 @@ resume_agents_on_restore = true
 [keys]
 prefix = "ctrl+space"
 
-# reload config (ctrl+r is resurrect restore per your tmux, so shift+r here)
-reload_config = "prefix+ctrl+r"
+# reload config (ctrl+r is resurrect restore, as in tmux, so shift+r here)
+reload_config = "prefix+shift+r"
 
 # tmux: M-Left/M-Right = previous/next window; kept alongside herdr's prefix+p/n
 previous_tab = ["prefix+p", "alt+left"]
@@ -171,7 +171,7 @@ type = "plugin_action"
 command = "ntindle.herdr-resurrect.save"
 description = "resurrect: save"
 [[keys.command]]
-key = "prefix+ctrl+e"
+key = "prefix+ctrl+r"
 type = "plugin_action"
 command = "ntindle.herdr-resurrect.restore"
 description = "resurrect: restore"

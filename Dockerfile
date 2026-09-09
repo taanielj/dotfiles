@@ -1,4 +1,3 @@
-# FROM ubuntu:24.04
 FROM debian:bookworm
 # Install minimal tools needed to bootstrap
 RUN apt-get update && \

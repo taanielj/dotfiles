@@ -16,8 +16,8 @@ config.font_rules = {
 config.font_size = 18.0
 config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
 config.window_decorations = "RESIZE | MACOS_FORCE_SQUARE_CORNERS"
-config.window_background_opacity = 0.8
-config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
+config.window_background_opacity = 1.0
+config.window_padding = { left = 2, right = 2, top = 2, bottom = 2 }
 config.enable_tab_bar = false
 config.enable_kitty_keyboard = true
 config.default_cursor_style = "BlinkingBar"
@@ -114,6 +114,7 @@ if wezterm.target_triple:find("darwin") then
 		{ key = "Delete", mods = "CMD", action = act.SendKey({ key = "Delete", mods = "CTRL" }) },
 		{ key = " ", mods = "CMD", action = act.SendString("\x00") }, -- ctrl+space
 		{ key = "'", mods = "CMD", action = act.SendKey({ key = "'", mods = "CTRL" }) },
+		{ key = '"', mods = "CMD", action = act.SendKey({ key = '"', mods = "CTRL" }) },
 
 		-- macOS actions (keep on Cmd)
 		{ key = "n", mods = "CMD|SHIFT", action = act.SpawnCommandInNewWindow({ cwd = wezterm.home_dir }) },

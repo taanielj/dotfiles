@@ -1,11 +1,7 @@
-# ----------------------------
-# Basic Aliases
-# ----------------------------
-
 [[ -z "$(command -v kubectl)" ]] && return
 
-alias k="kubectl"                                                   # kubectl shorthand
-ka() { kubectl --as admin --as-group system:masters "$@"; }        # kubectl with admin privileges
+alias k="kubectl"
+ka() { kubectl --as admin --as-group system:masters "$@"; }
 
 # kubectl completion is slow to generate - cache until the binary changes
 if [[ -o interactive ]]; then
@@ -19,11 +15,7 @@ if [[ -o interactive ]]; then
     unset _kubectl_comp
 fi
 
-# ----------------------------
-# Context and Namespace Selectors
-# ----------------------------
-
-kc() {                                                              # switch context (with fzf if no arg)
+kc() {
     local context="$1"
     if [ -z "$context" ]; then
         context=$(kubectl config get-contexts -o name | fzf)
@@ -37,7 +29,7 @@ kc() {                                                              # switch con
     [ -n "$context" ] && kubectl config use-context "$context"
 }
 
-kn() {                                                              # switch namespace (with fzf if no arg)
+kn() {
     local namespace="$1"
     if [ -z "$(kubectl config current-context 2>/dev/null)" ]; then
         kc
@@ -54,29 +46,25 @@ kn() {                                                              # switch nam
     [ -n "$namespace" ] && kubectl config set-context --current --namespace "$namespace"
 }
 
-kcn() {                                                             # switch context and namespace
+kcn() {
     kc "$1"
     kn "$2"
 }
 
-kcnp() {                                                            # switch context, namespace, show pods
+kcnp() {
     kc "$1"
     kn "$2"
     kp
 }
 
-kcl() {                                                             # clear all kubectl config
+kcl() {
     kubectl config unset current-context
     kubectl config unset contexts
     kubectl config unset users
     kubectl config unset clusters
 }
 
-# ----------------------------
-# Pod Utils (context-aware)
-# ----------------------------
-
-kp() {                                                              # list pods (context-aware)
+kp() {
     local all="$1"
 
     if [[ "$all" == "--all" || "$all" == "-a" ]]; then
@@ -95,13 +83,13 @@ kp() {                                                              # list pods 
     kubectl get pods "$@"
 }
 
-kd() {                                                              # describe pod (with fzf selection)
+kd() {
     kp >/dev/null
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
     [ -n "$pod" ] && kubectl describe pod "$pod"
 }
 
-kl() {                                                              # tail pod logs (with fzf selection)
+kl() {
     kp >/dev/null || return
 
     local query pod
@@ -126,9 +114,7 @@ kl() {                                                              # tail pod l
     kubectl logs "$pod" -f "$@" | _pipe_json_if_valid
 }
 
-
-
-kauth() {                                                           # check kubernetes permissions
+kauth() {
     local verb="$1"
     local resource="$2"
     [ -z "$verb" ] && read "verb?Verb (e.g. get): "
@@ -136,11 +122,7 @@ kauth() {                                                           # check kube
     kubectl auth can-i "$verb" "$resource" --as self
 }
 
-# ----------------------------
-# Exec with fuzzy pod/container pick
-# ----------------------------
-
-kxe() {                                                             # exec into pod with admin (fzf selection)
+kxe() {
     kp >/dev/null || return
 
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
@@ -153,12 +135,9 @@ kxe() {                                                             # exec into 
         kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- sh
 }
 
-# ----------------------------
-# Stern (log tailing) with helpers
-# ----------------------------
 [[ -z "$(command -v stern)" ]] && return
 
-s() {                                                               # stern logs (with fzf if no args)
+s() {
     if [[ $# -gt 0 ]]; then
         stern "$@"
         return
@@ -169,7 +148,7 @@ s() {                                                               # stern logs
     [[ -n "$pod" ]] && stern "$pod"
 }
 
-sj() {                                                              # stern logs with pretty JSON output
+sj() {
     if [[ $# -gt 0 ]]; then
         stern --output ppextjson "$@"
         return
@@ -180,7 +159,7 @@ sj() {                                                              # stern logs
     [[ -n "$pod" ]] && stern --output ppextjson "$pod"
 }
 
-sg() {                                                              # stern logs with grep pattern
+sg() {
     kp >/dev/null || return
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
     [[ -z "$pod" ]] && return
@@ -189,13 +168,13 @@ sg() {                                                              # stern logs
     stern "$pod" | rg --color=always "$pattern"
 }
 
-sd() {                                                              # stern logs for deployment
+sd() {
     kp >/dev/null || return
     local deployment=$(kubectl get deploy -o name | fzf | cut -d'/' -f2)
     [[ -n "$deployment" ]] && stern "$deployment"
 }
 
-sc() {                                                              # stern logs with container selection
+sc() {
     kp >/dev/null || return
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
     [[ -z "$pod" ]] && return

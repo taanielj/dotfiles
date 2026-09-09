@@ -1,7 +1,7 @@
 # dotfiles
 
 My dotfiles repository with easy setup and teardown scripts.
-Supports Ubuntu, termux, and macOS, possibly debian.
+Supports Ubuntu, Debian, termux, and macOS.
 Constantly updated, no guarantees, implied or otherwise, that it will work on your system.
 
 **Use at your own risk.**
@@ -9,7 +9,7 @@ Constantly updated, no guarantees, implied or otherwise, that it will work on yo
 ## Quick Start
 
 ```bash
-# Install everything
+# Interactive menu: System only, All, Custom, or Teardown - pick All to install everything
 bash setup.sh
 
 # Tear down (undo) everything
@@ -31,9 +31,17 @@ bash setup.sh --teardown --remove-cargo
 - [mise](setup/mise.sh): version manager for language runtimes, with an fzf picker for which to install
 - [nvim](setup/nvim.sh): latest stable Neovim and the lazy.nvim config under [nvim](nvim)
 - [cargo](setup/cargo.sh): Rust plus the cargo-installed CLI tools aliased in [zsh/interactive/aliases.zsh](zsh/interactive/aliases.zsh)
-- [lazygit](setup/lazygit.sh): Linux only
+- [lazygit](setup/lazygit.sh): config everywhere, plus the binary itself where brew does not provide it
 - [win32yank](setup/win32yank.sh): Windows clipboard tool for zsh, tmux and nvim, WSL only
-- [kitty](setup/kitty.sh) and [wezterm](setup/wezterm.sh): macOS only
+- [kitty](setup/kitty.sh) and [wezterm](setup/wezterm.sh): terminal emulators installed as casks, macOS only
+- [karabiner](setup/karabiner.sh): [karabiner.json](karabiner/karabiner.json) for Karabiner-Elements, macOS only
+
+The [Dockerfile](Dockerfile) and [compose.yaml](compose.yaml) build a throwaway Debian container to try the setup in:
+
+```bash
+docker compose up -d --build
+docker compose exec ubuntu-dev bash
+```
 
 ## Teardown
 

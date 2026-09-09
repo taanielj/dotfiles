@@ -1,5 +1,3 @@
-# zmodload zsh/zprof
-
 ### ────────────────────────────────
 ###  Powerlevel10k Setup
 ### ────────────────────────────────
@@ -72,9 +70,6 @@ zinit wait lucid for \
 # Oh-My-Zsh git plugin (snippet form)
 zinit ice wait'1' lucid
 zinit snippet OMZP::git
-
-# Precompile plugins once in a while (manual: `zinit compile`)
-# zinit compile
 
 ### ────────────────────────────────
 ###  History Settings

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Weather for the herdr tab bar via wttr.in. The 30m gate lives here rather
+# Weather for the herdr tab bar via wttr.in. The 15m gate lives here rather
 # than in interval_seconds because config reloads re-run command entries.
 set -euo pipefail
 
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/herdr-weather"
 mkdir -p "$(dirname "$cache")"
-max_age=1800
+max_age=900
 
 # GNU stat first: it reads "-f %m" as a filename, erroring on stdout rather
 # than to stderr. BSD stat rejects "-c" cleanly, so this order is safe on both.

@@ -7,7 +7,6 @@ main_mise() {
     install_mise
     mise_binary=$(resolve_mise)
     activate_mise
-    unset mise
     install_tools
 }
 
@@ -69,33 +68,6 @@ install_mise_termux() {
     # WIP, does not work yet properly
     warn "Use asdf for now, mise is not fully supported on termux yet"
     return 0
-    run_quiet "Installing musl version of mise" bash -c "curl https://mise.jdx.dev/mise-latest-linux-arm64-musl > $HOME/.local/bin/mise"
-    chmod +x "$HOME/.local/bin/mise"
-    mkdir -p "$HOME/.config/mise"
-
-    declare -A rc_files=(
-        [bash]="$HOME/.bashrc"
-        [zsh]="$HOME/.zshrc"
-    )
-
-    local certs_dir="$PREFIX/etc/tls/certs"
-    mkdir -p "$certs_dir"
-    ln -sf "$PREFIX/etc/tls/cert.pem" "$PREFIX/etc/tls/certs.pem"
-    ln -sf "$PREFIX/etc/tls/cert.pem" "$certs_dir/ca-certificates.crt"
-
-    for shell in "${!rc_files[@]}"; do
-        rc="${rc_files[$shell]}"
-
-        grep -q "mise activate $shell" "$rc" 2>/dev/null ||
-            echo "eval \"\$($HOME/.local/bin/mise activate $shell)\"" >>"$rc"
-
-        grep -q "proot -b" "$rc" 2>/dev/null || cat <<EOF >>"$rc"
-mise() {
-    proot -b $PREFIX/etc/resolv.conf -b $PREFIX/etc/tls:/etc/ssl mise "\$@"
-}
-EOF
-    done
-    activate_mise
 }
 
 install_tools() {
