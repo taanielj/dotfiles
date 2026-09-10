@@ -154,15 +154,13 @@ type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
 description = "scrollback in $EDITOR"
 
-# Reload with the result shown in a popup; the built-in reload_config on the
-# same key is silent. Toasts stay OS-level for agents heard outside the terminal.
+# Reload with the result shown in the tab bar; the built-in reload_config on
+# the same key is silent.
 [[keys.command]]
 key = "prefix+shift+r"
-type = "popup"
+type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-reload.sh"'
 description = "reload config"
-width = 44
-height = 3
 
 # lazygit popup from plugins/lazygit; nvim's <leader>gg opens the same pane.
 # prefix+l is left to herdr's default focus_pane_right.
@@ -191,6 +189,7 @@ toast.delivery = "system"
 # Tab bar right side (tmux status-right equivalent). Separate command entries
 # so each refreshes at its own pace.
 tab_bar_right = [
+    { type = "command", command = "$HOME/.config/herdr/bin/herdr-reload-status.sh", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-netspeed.sh", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-sysmon.sh", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-weather.sh", interval_seconds = 900, timeout_seconds = 10 },
