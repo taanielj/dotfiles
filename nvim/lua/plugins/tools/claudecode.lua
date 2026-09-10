@@ -2,9 +2,18 @@
 -- provider; a second setup() here would start the server twice.
 local inside_herdr = require("lib.herdr").inside()
 
--- Claude in a snacks window; inside herdr the pane provider ignores the layout,
--- so these keys exist only outside it.
-local layout_keys = inside_herdr and {}
+-- Keys that depend on where Claude runs. Inside herdr, a prompt about the lines
+-- under the cursor goes to the Claude pane. Outside it, Claude is a snacks window
+-- with layouts, which the herdr pane provider ignores.
+local host_keys = inside_herdr
+        and {
+            {
+                "<leader>ap",
+                function() require("ui.claude_prompt").prompt() end,
+                mode = { "n", "v" },
+                desc = "Prompt Claude about these lines",
+            },
+        }
     or {
         -- A layout applies on a fresh open; close Claude first to switch.
         {
@@ -65,5 +74,5 @@ return {
         },
         { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
         { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
-    }, layout_keys),
+    }, host_keys),
 }
