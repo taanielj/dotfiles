@@ -107,6 +107,12 @@ vim.api.nvim_create_autocmd("WinClosed", {
     end,
 })
 
+-- Text columns, the count or up to the colorcolumn, plus this window's gutters
+local function width(win)
+    local columns = vim.v.count ~= 0 and vim.v.count or tonumber(vim.wo[win].colorcolumn) or 120
+    return columns + vim.fn.getwininfo(win)[1].textoff
+end
+
 -- linebreak is the flag this sets; wrap is on by default and cannot signal the state
 function M.toggle()
     local win = vim.api.nvim_get_current_win()
@@ -126,7 +132,7 @@ function M.toggle()
     vim.wo.linebreak = true
     vim.wo.breakindent = true
     vim.wo.breakindentopt = "list:2"
-    open_wrap_spacer(win, vim.v.count ~= 0 and vim.v.count or 125)
+    open_wrap_spacer(win, width(win))
 end
 
 return M
