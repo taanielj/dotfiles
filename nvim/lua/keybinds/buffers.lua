@@ -20,7 +20,7 @@ map({
     { "n", "<leader>bse",                          "<Cmd>BufferLineSortByExtension<CR>",            "Sort by extension" },
 
     -- <leader>q  Close
-    { "n", "<leader>q!",                           function() require("ui.close_buffer").close({ force = true }) end, "Close buffer without saving" },
+    { "n", { "ZQ", "<leader>q!" },                 function() require("ui.close_buffer").close({ force = true }) end, "Close buffer without saving" },
     { "n", "<leader>qa",                           "<Cmd>wa<CR><Cmd>qa<CR>",                        "Quit and save all" },
     { "n", "<leader>qfy",                          "<Cmd>qa!<CR>",                                  "Quit without saving?" },
 
