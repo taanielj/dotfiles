@@ -1,6 +1,29 @@
 -- Inside herdr, herdr-agents.nvim calls claudecode.setup() itself with its pane
 -- provider; a second setup() here would start the server twice.
-local inside_herdr = require("lib.herdr").socket() ~= nil
+local inside_herdr = require("lib.herdr").inside()
+
+-- Claude in a snacks window; inside herdr the pane provider ignores the layout,
+-- so these keys exist only outside it.
+local layout_keys = inside_herdr and {}
+    or {
+        -- A layout applies on a fresh open; close Claude first to switch.
+        {
+            "<leader>ah",
+            function()
+                require("claudecode.terminal").simple_toggle({ snacks_win_opts = { position = "bottom", height = 0.3 } })
+            end,
+            desc = "Toggle Claude (horizontal)",
+        },
+        {
+            "<leader>aF",
+            function()
+                require("claudecode.terminal").simple_toggle({
+                    snacks_win_opts = { position = "float", width = 0.95, height = 0.95 },
+                })
+            end,
+            desc = "Toggle Claude (float)",
+        },
+    }
 
 return {
     "coder/claudecode.nvim",
@@ -26,26 +49,9 @@ return {
         "ClaudeCodeDiffDeny",
         "ClaudeCodeCloseAllDiffs",
     },
-    keys = {
+    keys = vim.list_extend({
         { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
         { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
-        -- A layout applies on a fresh open; close Claude first to switch.
-        {
-            "<leader>ah",
-            function()
-                require("claudecode.terminal").simple_toggle({ snacks_win_opts = { position = "bottom", height = 0.3 } })
-            end,
-            desc = "Toggle Claude (horizontal)",
-        },
-        {
-            "<leader>aF",
-            function()
-                require("claudecode.terminal").simple_toggle({
-                    snacks_win_opts = { position = "float", width = 0.95, height = 0.95 },
-                })
-            end,
-            desc = "Toggle Claude (float)",
-        },
         { "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
         { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
         { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
@@ -59,5 +65,5 @@ return {
         },
         { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
         { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
-    },
+    }, layout_keys),
 }

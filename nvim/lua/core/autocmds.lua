@@ -102,14 +102,13 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("claude_term_nav"),
     pattern = "snacks_terminal",
     callback = function(ev)
-        local nav = require("lib.herdr").inside() and "herdr-splits" or "smart-splits"
-        local dirs = { h = "move_cursor_left", j = "move_cursor_down", k = "move_cursor_up", l = "move_cursor_right" }
-        for key, fn in pairs(dirs) do
+        local dirs = { h = "left", j = "down", k = "up", l = "right" }
+        for key, dir in pairs(dirs) do
             vim.keymap.set(
                 "t",
                 "<C-" .. key .. ">",
-                function() require(nav)[fn]() end,
-                { buffer = ev.buf, silent = true, desc = "Window nav " .. key }
+                function() require("lib.splits").move(dir) end,
+                { buffer = ev.buf, silent = true, desc = "Window " .. dir }
             )
         end
     end,

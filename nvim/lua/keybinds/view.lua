@@ -18,15 +18,19 @@ map({
     { { "n", "v", "x", "i" }, "<PageUp>",   function() require("neoscroll").ctrl_u({ duration = 100, easing = "quadratic" }) end,        "Scroll up half a page" },
     { { "n", "v", "x", "i" }, "<PageDown>", function() require("neoscroll").ctrl_d({ duration = 100, easing = "quadratic" }) end,        "Scroll down half a page" },
 
-    -- Resize splits; inside herdr, herdr-splits takes these keys
-    { "n", "<M-h>",     "2<C-w><",                                             "Resize split left" },
-    { "n", "<M-l>",     "2<C-w>>",                                             "Resize split right" },
-    { "n", "<M-j>",     "2<C-w>+",                                             "Resize split down" },
-    { "n", "<M-k>",     "2<C-w>-",                                             "Resize split up" },
-    { "n", "<M-H>",     "<C-w><",                                              "Resize split left (fine)" },
-    { "n", "<M-L>",     "<C-w>>",                                              "Resize split right (fine)" },
-    { "n", "<M-J>",     "<C-w>+",                                              "Resize split down (fine)" },
-    { "n", "<M-K>",     "<C-w>-",                                              "Resize split up (fine)" },
+    -- Window navigation and resize cross into the multiplexer's panes
+    { "n", "<C-h>",     function() require("lib.splits").move("left") end,          "Window left" },
+    { "n", "<C-j>",     function() require("lib.splits").move("down") end,          "Window down" },
+    { "n", "<C-k>",     function() require("lib.splits").move("up") end,            "Window up" },
+    { "n", "<C-l>",     function() require("lib.splits").move("right") end,         "Window right" },
+    { "n", "<M-h>",     function() require("lib.splits").resize("left") end,        "Resize split left" },
+    { "n", "<M-j>",     function() require("lib.splits").resize("down") end,        "Resize split down" },
+    { "n", "<M-k>",     function() require("lib.splits").resize("up") end,          "Resize split up" },
+    { "n", "<M-l>",     function() require("lib.splits").resize("right") end,       "Resize split right" },
+    { "n", "<M-H>",     function() require("lib.splits").resize("left", true) end,  "Resize split left (fine)" },
+    { "n", "<M-J>",     function() require("lib.splits").resize("down", true) end,  "Resize split down (fine)" },
+    { "n", "<M-K>",     function() require("lib.splits").resize("up", true) end,    "Resize split up (fine)" },
+    { "n", "<M-L>",     function() require("lib.splits").resize("right", true) end, "Resize split right (fine)" },
 
     -- <leader>w  Wrap
     { "n", "<leader>w", function() require("ui.wrap").toggle() end,           "Toggle wrap window" },
