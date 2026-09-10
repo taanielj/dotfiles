@@ -4,12 +4,7 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
 main_wezterm() {
-    if ! command -v brew >/dev/null 2>&1; then
-        error "Homebrew is not installed. Please install Homebrew first."
-        exit 1
-    fi
-
-    run_quiet "Installing WezTerm" brew install --cask wezterm
+    install_cask wezterm || exit 1
 
     configure_wezterm
 }
@@ -26,10 +21,7 @@ teardown_wezterm() {
 
     unlink_file "$REPO_ROOT/wezterm" "$HOME/.config/wezterm"
 
-    if command -v brew >/dev/null 2>&1 && brew list --cask | grep -q "^wezterm$"; then
-        log "Uninstalling WezTerm via Homebrew"
-        brew uninstall --cask wezterm
-    fi
+    uninstall_cask wezterm
 
     success "WezTerm configuration removed."
 }

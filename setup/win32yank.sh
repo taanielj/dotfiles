@@ -3,8 +3,8 @@
 REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
-# win32yank is the Windows clipboard tool zsh, tmux and nvim use on WSL.
-# Lives in ~/.local/bin like lazygit; nvim's clipboard provider finds it on PATH.
+# win32yank is the Windows clipboard tool behind pbcopy (clipboard/) and nvim
+# on WSL. Lives in ~/.local/bin like lazygit, so both find it on PATH.
 WIN32YANK_BIN="$HOME/.local/bin/win32yank.exe"
 
 main_win32yank() {

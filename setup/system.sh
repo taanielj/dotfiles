@@ -38,6 +38,7 @@ TERMUX_PACKAGES=(
 MACOS_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
     "lazygit"
+    "herdr"
     "fastfetch"
     "mise"
     "tmux-mem-cpu-load" # tmux.conf status line calls the bare binary; no apt package exists

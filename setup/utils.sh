@@ -52,6 +52,23 @@ ensure_real_dir() {
     mkdir -p "$d"
 }
 
+# Usage: install_cask <cask>
+install_cask() {
+    if ! command -v brew >/dev/null 2>&1; then
+        error "Homebrew is not installed. Please install Homebrew first."
+        return 1
+    fi
+    run_quiet "Installing $1" brew install --cask "$1"
+}
+
+# Usage: uninstall_cask <cask>
+uninstall_cask() {
+    if command -v brew >/dev/null 2>&1 && brew list --cask 2>/dev/null | grep -qx "$1"; then
+        log "Uninstalling $1 via Homebrew"
+        brew uninstall --cask "$1"
+    fi
+}
+
 # Usage: link_file <source-in-repo> <dest-path>
 # Idempotent symlink; backs up a real dest to <dest>.backup.<epoch> first.
 link_file() {

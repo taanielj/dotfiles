@@ -1,0 +1,12 @@
+#!/bin/sh
+# pbcopy for Linux and WSL: zsh, tmux and scripts call the macOS name everywhere.
+# win32yank is installed by setup/win32yank.sh.
+if command -v win32yank.exe >/dev/null 2>&1; then
+    exec win32yank.exe -i --crlf
+elif command -v wl-copy >/dev/null 2>&1; then
+    exec wl-copy
+elif command -v xclip >/dev/null 2>&1; then
+    exec xclip -selection clipboard
+fi
+echo "pbcopy: no clipboard tool found (win32yank, wl-copy, xclip)" >&2
+exit 1

@@ -18,6 +18,7 @@ SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/lazygit.sh" # brew installs the binary on macOS
 )
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh")
+[[ "$OSTYPE" != "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/clipboard.sh")
 [[ -n "$WSL_DISTRO_NAME" ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/win32yank.sh")
 
 show_help() {
@@ -85,7 +86,9 @@ show_banner() {
         log "  • Text editor (neovim with plugins)"
         log "  • Rust tools (cargo packages like eza, ripgrep, bat)"
         log "  • Git TUI (lazygit)"
+        log "  • Terminal workspace manager (herdr)"
         [[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, wezterm) and Karabiner-Elements"
+        [[ "$OSTYPE" != "darwin"* ]] && log "  • Clipboard shims (pbcopy, pbpaste)"
         [[ -n "$WSL_DISTRO_NAME" ]] && log "  • Windows clipboard tool (win32yank)"
         echo ""
     fi

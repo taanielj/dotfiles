@@ -3,8 +3,23 @@
 REPO_ROOT=$(git rev-parse --show-toplevel)
 source "$REPO_ROOT/setup/utils.sh"
 
+HERDR_BIN="$HOME/.local/bin/herdr"
+
 main_herdr() {
+    # macOS gets herdr from brew (setup/system.sh); elsewhere from herdr.dev.
+    if [[ "$(uname -s)" != "Darwin" ]]; then
+        install_herdr
+    fi
     configure_herdr
+}
+
+install_herdr() {
+    if command -v herdr &>/dev/null; then
+        log "✅ herdr is already installed at $(command -v herdr)"
+        return
+    fi
+    # The script installs to ~/.local/bin, which zprofile puts on PATH.
+    run_quiet "Installing herdr" sh -c "curl -fsSL https://herdr.dev/install.sh | sh"
 }
 
 configure_herdr() {
@@ -56,6 +71,10 @@ teardown_herdr() {
     unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
         "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
     herdr plugin unlink lazygit &>/dev/null || true
+    if [[ -f "$HERDR_BIN" ]]; then
+        log "Removing herdr installation from $HERDR_BIN"
+        rm -f "$HERDR_BIN"
+    fi
     success "herdr configuration removed."
 }
 

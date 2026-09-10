@@ -1,0 +1,11 @@
+#!/bin/sh
+# pbpaste for Linux and WSL; the counterpart of pbcopy in this directory.
+if command -v win32yank.exe >/dev/null 2>&1; then
+    exec win32yank.exe -o --lf
+elif command -v wl-paste >/dev/null 2>&1; then
+    exec wl-paste --no-newline
+elif command -v xclip >/dev/null 2>&1; then
+    exec xclip -selection clipboard -o
+fi
+echo "pbpaste: no clipboard tool found (win32yank, wl-paste, xclip)" >&2
+exit 1
