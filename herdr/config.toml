@@ -15,8 +15,6 @@ resume_agents_on_restore = true
 [keys]
 prefix = "ctrl+space"
 
-# ctrl+r is resurrect restore, as in tmux, so reload takes shift+r
-reload_config = "prefix+shift+r"
 
 # tmux: M-Left/M-Right = previous/next window; kept alongside herdr's prefix+p/n
 previous_tab = ["prefix+p", "alt+left"]
@@ -155,6 +153,16 @@ key = "prefix+slash"
 type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
 description = "scrollback in $EDITOR"
+
+# Reload with the result shown in a popup; the built-in reload_config on the
+# same key is silent. Toasts stay OS-level for agents heard outside the terminal.
+[[keys.command]]
+key = "prefix+shift+r"
+type = "popup"
+command = 'bash "$HOME/.config/herdr/bin/herdr-reload.sh"'
+description = "reload config"
+width = 44
+height = 3
 
 # lazygit popup from plugins/lazygit; nvim's <leader>gg opens the same pane.
 # prefix+l is left to herdr's default focus_pane_right.
