@@ -54,6 +54,13 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     callback = function() vim.cmd("normal! G") end,
 })
 
+-- An agent writes files while this window keeps focus, which nothing checks
+-- for by default; the check itself is one stat per buffer.
+vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+    group = augroup("agent_writes"),
+    command = "checktime",
+})
+
 -- Files change while focus is elsewhere: herdr's lazygit popup, an agent in a
 -- sibling pane.
 vim.api.nvim_create_autocmd("FocusGained", {
@@ -132,6 +139,14 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.keymap.set("n", "gx", function() require("ui.markdown_links").follow() end, {
             buffer = ev.buf,
             desc = "Follow link under cursor",
+        })
+        vim.keymap.set("n", "gX", function() require("ui.markdown_links").to_reference() end, {
+            buffer = ev.buf,
+            desc = "Turn link under cursor into a reference",
+        })
+        vim.keymap.set("x", "gX", function() require("ui.markdown_links").references_in_selection() end, {
+            buffer = ev.buf,
+            desc = "Turn links into references",
         })
     end,
 })
