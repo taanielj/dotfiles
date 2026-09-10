@@ -23,8 +23,14 @@ local function diagnostics(first, last)
     for _, d in ipairs(vim.diagnostic.get(0)) do
         local line = d.lnum + 1
         if line >= first and line <= last then
-            local tag = table.concat({ d.source, d.code and tostring(d.code) }, " ")
-            items[#items + 1] = ("%d [%s] %s"):format(line, tag, d.message)
+            local tag = {}
+            if d.source then
+                tag[#tag + 1] = d.source
+            end
+            if d.code then
+                tag[#tag + 1] = tostring(d.code)
+            end
+            items[#items + 1] = ("%d [%s] %s"):format(line, table.concat(tag, " "), d.message)
         end
     end
     return #items > 0 and ("diagnostics: " .. table.concat(items, "; ")) or nil
