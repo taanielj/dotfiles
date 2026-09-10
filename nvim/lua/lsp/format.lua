@@ -12,12 +12,16 @@ local function organize_imports(bufnr)
     for client_id, response in pairs(results or {}) do
         local client = vim.lsp.get_client_by_id(client_id)
         for _, action in ipairs(response.result or {}) do
-            if not action.edit and client and client:supports_method("codeAction/resolve") then
-                local resolved = client:request_sync("codeAction/resolve", action, 2000, bufnr)
-                action = resolved and resolved.result or action
-            end
-            if action.edit and client then
-                vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+            -- `only` is a hint some servers ignore: marksman answers with its
+            -- table-of-contents action regardless.
+            if client and action.kind and vim.startswith(action.kind, "source.organizeImports") then
+                if not action.edit and client:supports_method("codeAction/resolve") then
+                    local resolved = client:request_sync("codeAction/resolve", action, 2000, bufnr)
+                    action = resolved and resolved.result or action
+                end
+                if action.edit then
+                    vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+                end
             end
         end
     end
