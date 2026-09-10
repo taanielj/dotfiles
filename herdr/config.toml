@@ -40,8 +40,6 @@ settings         = "prefix+shift+s"
 # covers tabs and workspaces that have no pane to preview.
 goto = "prefix+shift+f"
 
-# tmux: prefix / opened the scrollback in nvim
-edit_scrollback = ["prefix+e", "prefix+slash"]
 
 # nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
 # herdr-splits plugin; the nvim half is nvim/lua/plugins/tools/herdr-splits.lua.
@@ -145,6 +143,18 @@ key = "prefix+space"
 type = "plugin_action"
 command = "layouts.cycle"
 description = "cycle layout"
+
+# edit_scrollback, unless the pane has nothing to scroll back to (tmux: prefix /)
+[[keys.command]]
+key = "prefix+e"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
+description = "scrollback in $EDITOR"
+[[keys.command]]
+key = "prefix+slash"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
+description = "scrollback in $EDITOR"
 
 # lazygit popup from plugins/lazygit; nvim's <leader>gg opens the same pane.
 # prefix+l is left to herdr's default focus_pane_right.
