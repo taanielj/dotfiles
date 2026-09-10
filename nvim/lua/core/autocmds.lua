@@ -46,6 +46,14 @@ vim.api.nvim_create_autocmd("FileType", {
     callback = function() vim.opt_local.conceallevel = 0 end,
 })
 
+-- herdr's edit_scrollback opens the dump at its first line; the recent end
+-- is what was wanted.
+vim.api.nvim_create_autocmd("BufReadPost", {
+    group = augroup("herdr_scrollback"),
+    pattern = "herdr-scrollback-*.txt",
+    callback = function() vim.cmd("normal! G") end,
+})
+
 -- Files change while focus is elsewhere: herdr's lazygit popup, an agent in a
 -- sibling pane.
 vim.api.nvim_create_autocmd("FocusGained", {

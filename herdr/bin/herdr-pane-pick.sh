@@ -1,6 +1,12 @@
-# Sourced by the pane pickers. Lists panes labelled the way the UI shows them
-# and runs fzf over them with a preview of each pane's screen, in its own
-# colours. Previews run in a non-interactive shell, so aliases do not apply.
+#!/usr/bin/env bash
+# Pick another pane with fzf over a preview of its screen, then jump to it or
+# pull it into the current tab. Panes are labelled the way the UI shows them.
+# Previews run in a non-interactive shell, so aliases do not apply.
+#
+# Usage: herdr-pane-pick.sh goto
+#        herdr-pane-pick.sh join <right|down>
+set -euo pipefail
+
 herdr="${HERDR_BIN_PATH:-herdr}"
 
 # TSV per pane: pane_id, tab_id, workspace_id, label. The current pane is left
@@ -36,3 +42,23 @@ pick_pane() {
             --preview-window=down,50% |
         cut -f1-3
 }
+
+case "${1:-}" in
+goto)
+    # The CLI focuses workspaces and tabs, so this lands on the pane's tab.
+    IFS=$'\t' read -r _ tab_id workspace_id < <(pick_pane "goto > ") || true
+    [[ -n "${tab_id:-}" ]] || exit 0
+    "$herdr" workspace focus "$workspace_id"
+    "$herdr" tab focus "$tab_id"
+    ;;
+join)
+    dir="${2:?usage: herdr-pane-pick.sh join <right|down>}"
+    IFS=$'\t' read -r pane_id _ _ < <(pick_pane "join pane ($dir) > " "${HERDR_ACTIVE_TAB_ID:-}") || true
+    [[ -n "${pane_id:-}" ]] || exit 0
+    "$herdr" pane move "$pane_id" --tab "${HERDR_ACTIVE_TAB_ID}" --split "$dir" --focus
+    ;;
+*)
+    echo "usage: herdr-pane-pick.sh goto | join <right|down>" >&2
+    exit 2
+    ;;
+esac

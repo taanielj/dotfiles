@@ -40,6 +40,9 @@ settings         = "prefix+shift+s"
 # covers tabs and workspaces that have no pane to preview.
 goto = "prefix+shift+f"
 
+# tmux: prefix / opened the scrollback in nvim
+edit_scrollback = ["prefix+e", "prefix+slash"]
+
 # nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
 # herdr-splits plugin; the nvim half is nvim/lua/plugins/tools/herdr-splits.lua.
 [[keys.command]]
@@ -115,7 +118,7 @@ description = "break pane to new tab"
 [[keys.command]]
 key = "prefix+f"
 type = "popup"
-command = 'bash "$HOME/.config/herdr/bin/herdr-goto.sh"'
+command = 'bash "$HOME/.config/herdr/bin/herdr-pane-pick.sh" goto'
 description = "goto pane (preview)"
 width = "70%"
 height = "60%"
@@ -124,14 +127,14 @@ height = "60%"
 [[keys.command]]
 key = "prefix+m"
 type = "popup"
-command = 'bash "$HOME/.config/herdr/bin/herdr-join.sh" right'
+command = 'bash "$HOME/.config/herdr/bin/herdr-pane-pick.sh" join right'
 description = "join a pane (split right)"
 width = "70%"
 height = "60%"
 [[keys.command]]
 key = "prefix+shift+m"
 type = "popup"
-command = 'bash "$HOME/.config/herdr/bin/herdr-join.sh" down'
+command = 'bash "$HOME/.config/herdr/bin/herdr-pane-pick.sh" join down'
 description = "join a pane (split down)"
 width = "70%"
 height = "60%"
@@ -150,15 +153,6 @@ key = "prefix+g"
 type = "shell"
 command = '"$HERDR_BIN_PATH" plugin pane open --plugin lazygit --entrypoint lazygit --cwd "$HERDR_ACTIVE_PANE_CWD" --focus'
 description = "lazygit"
-
-# tmux: capture-pane into an editor
-[[keys.command]]
-key = "prefix+slash"
-type = "popup"
-command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
-description = "scrollback in nvim"
-width = "90%"
-height = "90%"
 
 # session save/restore (tmux-resurrect: prefix C-s save, prefix C-r restore)
 [[keys.command]]
