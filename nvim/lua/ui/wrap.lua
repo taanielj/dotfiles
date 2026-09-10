@@ -124,6 +124,7 @@ function M.toggle()
         vim.wo.winfixwidth = false
         local entry = spacer_by_window[win]
         vim.wo.fillchars = entry and entry.decorations.fillchars or ""
+        vim.wo.colorcolumn = entry and entry.decorations.colorcolumn or ""
         close_wrap_spacer(win)
         return
     end
@@ -133,6 +134,8 @@ function M.toggle()
     vim.wo.breakindent = true
     vim.wo.breakindentopt = "list:2"
     open_wrap_spacer(win, width(win))
+    -- The window edge is the colorcolumn now
+    vim.wo.colorcolumn = ""
 end
 
 return M
