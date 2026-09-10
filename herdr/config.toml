@@ -143,15 +143,13 @@ type = "plugin_action"
 command = "layouts.cycle"
 description = "cycle layout"
 
-# lazygit overlay (nvim has its own prefix+gg; this is for non-nvim panes).
+# lazygit popup from plugins/lazygit; nvim's <leader>gg opens the same pane.
 # prefix+l is left to herdr's default focus_pane_right.
 [[keys.command]]
 key = "prefix+g"
-type = "popup"
-command = "lazygit"
+type = "shell"
+command = '"$HERDR_BIN_PATH" plugin pane open --plugin lazygit --entrypoint lazygit --cwd "$HERDR_ACTIVE_PANE_CWD" --focus'
 description = "lazygit"
-width = "90%"
-height = "90%"
 
 # tmux: capture-pane into an editor
 [[keys.command]]

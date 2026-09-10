@@ -34,6 +34,10 @@ configure_herdr() {
     fi
     link_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
         "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
+    # The lazygit popup behind prefix+g and nvim's <leader>gg.
+    if ! herdr plugin list 2>/dev/null | grep -q "^- lazygit "; then
+        run_quiet "Linking herdr lazygit plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/lazygit"
+    fi
 
     if ! herdr config check; then
         warn "herdr config check reported issues (see above)."
@@ -51,6 +55,7 @@ teardown_herdr() {
     unlink_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
     unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
         "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
+    herdr plugin unlink lazygit &>/dev/null || true
     success "herdr configuration removed."
 }
 

@@ -4,6 +4,9 @@ local M = {}
 
 function M.inside() return vim.env.HERDR_ENV == "1" end
 
+---@return string the herdr executable, as herdr announces it to its panes
+function M.bin() return vim.env.HERDR_BIN_PATH or "herdr" end
+
 ---@return string? the agent bridge socket
 function M.socket()
     local path = vim.env.HERDR_SOCKET_PATH

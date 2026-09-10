@@ -1,0 +1,16 @@
+# One lazygit popup for every pane: herdr's prefix+g and nvim's <leader>gg both
+# open this pane, so its size and command live only here.
+id = "lazygit"
+name = "lazygit"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "lazygit in a popup over the current pane"
+platforms = ["linux", "macos"]
+
+[[panes]]
+id = "lazygit"
+title = "lazygit"
+command = ["lazygit"]
+placement = "popup"
+width = "90%"
+height = "90%"

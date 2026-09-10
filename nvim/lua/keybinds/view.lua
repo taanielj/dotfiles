@@ -7,6 +7,7 @@ map({
     { "n", "<leader>e", "<Cmd>Neotree filesystem reveal left toggle=true<CR>", "Show files" },
     { "n", "<leader>A", "<Cmd>Alpha<CR>",                                      "Dashboard" },
     { "n", "<leader>z", function() require("ui.zen").toggle() end,                "Toggle zen mode" },
+    { "n", "<leader>gg", function() require("ui.lazygit").open() end,             "LazyGit" },
     { "n", { "-", "<BS>" }, "<Cmd>Oil<CR>",                                    "Open parent directory" },
     { "n", "zR",        function() require("ufo").openAllFolds() end,          "Open all folds" },
     { "n", "zM",        function() require("ufo").closeAllFolds() end,         "Close all folds" },

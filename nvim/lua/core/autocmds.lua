@@ -46,6 +46,18 @@ vim.api.nvim_create_autocmd("FileType", {
     callback = function() vim.opt_local.conceallevel = 0 end,
 })
 
+-- Files change while focus is elsewhere: herdr's lazygit popup, an agent in a
+-- sibling pane.
+vim.api.nvim_create_autocmd("FocusGained", {
+    group = augroup("neotree_refresh"),
+    callback = function()
+        local tree = require("ui.tree")
+        if tree.window() then
+            tree.refresh()
+        end
+    end,
+})
+
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("neotree"),
     pattern = { "neo-tree", "neotree" },
