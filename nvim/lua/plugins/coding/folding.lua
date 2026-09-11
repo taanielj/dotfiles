@@ -40,7 +40,7 @@ return {
                 desc = "Restore Folds",
                 group = vim.api.nvim_create_augroup("restore_folds_view", { clear = true }),
 
-                callback = function() vim.cmd("silent! loadview") end,
+                callback = function() require("lib.view").load() end,
             })
 
             ---@diagnostic disable-next-line
