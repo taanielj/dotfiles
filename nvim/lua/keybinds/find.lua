@@ -13,9 +13,9 @@ require("lib.keymap").rows({
     { "n", "<leader>hf", builtin("find_files", { hidden = true, no_ignore = true }), "Find hidden files" },
     { "n", "<leader>hb", builtin("buffers", { show_all_buffers = true, no_ignore = true }), "Find hidden buffers" },
     { "n", "<leader>hg", builtin("live_grep", {
-        file_ignore_patterns = { ".venv", ".idea", ".git" },
+        file_ignore_patterns = { "%.venv/", "%.idea/", "%.git/" },
         additional_args = function()
-            return { "--hidden" }
+            return { "--hidden", "--no-ignore" }
         end,
     }), "Find in hidden files" },
 })

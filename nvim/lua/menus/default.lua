@@ -11,7 +11,7 @@ return function(ctx)
 
     local rows = menu.rows()
 
-    rows.item(icons.browser, "Open in web browser", "gx", ctx.url)
+    rows.item(icons.browser, "Open in web browser", function() vim.ui.open(ctx.url) end, ctx.url ~= nil)
     rows.item(
         icons.definition,
         "Go to definition",
@@ -33,7 +33,7 @@ return function(ctx)
     rows.item(
         icons.rename,
         "Rename symbol",
-        vim.lsp.buf.rename,
+        function() vim.api.nvim_feedkeys(":IncRename " .. vim.fn.expand("<cword>"), "n", false) end,
         ctx.symbol and ctx.modifiable and ctx.supports("textDocument/rename")
     )
     rows.item(

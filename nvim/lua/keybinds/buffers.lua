@@ -11,7 +11,7 @@ map({
     { "n", "<leader>bl",                           "<Cmd>BufferLineMoveNext<CR>",                   "Move buffer right" },
     { "n", "<leader>bP",                           "<Cmd>BufferLinePick<CR>",                       "Pick buffer" },
     { "n", "<leader>bt",                           "<Cmd>BufferLineTogglePin<CR>",                  "Pin buffer" },
-    { "n", { "ZZ", "<leader>bq", "<leader>qb" },   function() require("ui.close_buffer").close() end,    "Save and close buffer" },
+    { "n", { "ZZ", "<leader>bq", "<leader>qb" },   function() require("ui.close_buffer").close({ save = true }) end, "Save and close buffer" },
     { "n", "<leader>bch",                          "<Cmd>BufferLineCloseLeft<CR>",                  "Close buffers to the left" },
     { "n", "<leader>bcl",                          "<Cmd>BufferLineCloseRight<CR>",                 "Close buffers to the right" },
     { "n", "<leader>bca",                          "<Cmd>BufferLineCloseOthers<CR>",                "Close other buffers" },

@@ -16,7 +16,10 @@ local function walk(root)
     for name, type in
         vim.fs.dir(root, {
             depth = 16,
-            skip = function(dir) return dir ~= ".git" and dir ~= "node_modules" end,
+            skip = function(dir)
+                local base = vim.fs.basename(dir)
+                return base ~= ".git" and base ~= "node_modules"
+            end,
         })
     do
         if type == "file" and require("lib.markdown").is_file(name) then
@@ -121,7 +124,11 @@ function M.attach(client)
     vim.api.nvim_create_autocmd("LspDetach", {
         group = group,
         callback = function(event)
-            if event.data.client_id == client.id then
+            if event.data.client_id ~= client.id then
+                return
+            end
+            -- LspDetach fires per buffer, with the leaving buffer still attached
+            if vim.tbl_count(client.attached_buffers) <= 1 then
                 tracked[client.id] = nil
                 vim.schedule(function() pcall(vim.api.nvim_del_augroup_by_id, group) end)
             end

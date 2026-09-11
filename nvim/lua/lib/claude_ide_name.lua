@@ -5,6 +5,7 @@ local M = {}
 
 local workspace_label
 local tab_label
+local written_path
 local written_name
 
 local function lock_path()
@@ -33,7 +34,7 @@ end
 -- The lock exists once the server is up; before that there is nothing to name
 function M.write()
     local path = lock_path()
-    if not path or vim.fn.filereadable(path) == 0 or name() == written_name then
+    if not path or vim.fn.filereadable(path) == 0 or (path == written_path and name() == written_name) then
         return
     end
     local ok, lock = pcall(vim.json.decode, table.concat(vim.fn.readfile(path)))
@@ -42,7 +43,7 @@ function M.write()
     end
     lock.ideName = name()
     vim.fn.writefile({ vim.json.encode(lock) }, path)
-    written_name = lock.ideName
+    written_path, written_name = path, lock.ideName
 end
 
 ---@param kind "tab"|"workspace"
