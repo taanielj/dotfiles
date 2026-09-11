@@ -3,9 +3,9 @@
 -- file.
 local M = {}
 
-local workspace -- the herdr workspace label, fetched once
-local tab -- the herdr tab label, fetched once
-local written -- the name in the lock file now
+local workspace_label
+local tab_label
+local written_name
 
 local function lock_path()
     local port = require("claudecode").state.port
@@ -17,11 +17,11 @@ end
 
 local function name()
     local parts = { "Neovim" }
-    if workspace then
-        parts[#parts + 1] = workspace
+    if workspace_label then
+        parts[#parts + 1] = workspace_label
     end
-    if tab then
-        parts[#parts + 1] = tab
+    if tab_label then
+        parts[#parts + 1] = tab_label
     end
     local file = vim.fn.expand("%:t")
     if file ~= "" then
@@ -33,7 +33,7 @@ end
 -- The lock exists once the server is up; before that there is nothing to name
 function M.write()
     local path = lock_path()
-    if not path or vim.fn.filereadable(path) == 0 or name() == written then
+    if not path or vim.fn.filereadable(path) == 0 or name() == written_name then
         return
     end
     local ok, lock = pcall(vim.json.decode, table.concat(vim.fn.readfile(path)))
@@ -42,7 +42,7 @@ function M.write()
     end
     lock.ideName = name()
     vim.fn.writefile({ vim.json.encode(lock) }, path)
-    written = lock.ideName
+    written_name = lock.ideName
 end
 
 ---@param kind "tab"|"workspace"
@@ -61,9 +61,9 @@ function M.setup()
             if not tab_info then
                 return
             end
-            tab = tab_info.label
+            tab_label = tab_info.label
             herdr_get("workspace", tab_info.workspace_id, function(workspace_info)
-                workspace = workspace_info and workspace_info.label
+                workspace_label = workspace_info and workspace_info.label
                 M.write()
             end)
         end)

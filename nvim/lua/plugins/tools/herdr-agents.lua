@@ -12,7 +12,7 @@ return {
         local remember = require("lib.claude_port").remember
         local ide_name = require("lib.claude_ide_name")
         ide_name.setup()
-        -- saved once the server is up, and again on exit in case the port changed
+        -- once the server is up, and the port again on exit in case it changed
         vim.defer_fn(function()
             remember()
             ide_name.write()
