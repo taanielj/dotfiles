@@ -31,7 +31,12 @@ function M.hunk_to_index(cmd)
         if not view then
             return
         end
-        local range = vim.fn.mode():match("^[vV]") and "'<,'>" or ""
+        local range = ""
+        if vim.fn.mode():match("^[vV]") then
+            local first, last = require("lib.yank").line_range()
+            range = first .. "," .. last
+            vim.cmd("normal! \27")
+        end
         vim.cmd(("silent! %s%s"):format(range, cmd))
         write_index_buffers(view)
     end

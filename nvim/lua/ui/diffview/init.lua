@@ -118,14 +118,16 @@ M.pick_commits = toggle(function()
                     picked = { state.get_selected_entry() }
                 end
                 actions.close(prompt_bufnr)
-                local from, to = picked[1].value, "HEAD"
-                if picked[2] then
-                    to = picked[2].value
-                    if git.is_ancestor(to, from) then
-                        from, to = to, from
-                    end
+                local from = picked[1].value
+                if not picked[2] then
+                    vim.cmd.DiffviewOpen(git.diff_base(from))
+                    return
                 end
-                vim.cmd.DiffviewOpen(from .. "^.." .. to)
+                local to = picked[2].value
+                if git.is_ancestor(to, from) then
+                    from, to = to, from
+                end
+                vim.cmd.DiffviewOpen(git.diff_base(from) .. ".." .. to)
             end)
             return true
         end,

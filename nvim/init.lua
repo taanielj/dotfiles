@@ -13,7 +13,6 @@ vim.opt.rtp:prepend(lazypath)
 
 require("core.options")
 require("keybinds")
-require("ui.zen")
 require("core.autocmds")
 require("ui.md2html")
 require("menus").setup()

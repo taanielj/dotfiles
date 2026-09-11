@@ -54,10 +54,7 @@ local function submit(text)
 end
 
 function M.prompt()
-    local first, last = vim.fn.line("v"), vim.fn.line(".")
-    if first > last then
-        first, last = last, first
-    end
+    local first, last = require("lib.yank").line_range()
     local span, found = lines(first, last), diagnostics(first, last)
     if vim.fn.mode():match("[vV\22]") then
         vim.cmd("normal! \27")

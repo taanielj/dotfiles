@@ -84,4 +84,11 @@ function M.is_ancestor(ancestor, rev)
     return vim.system({ "git", "merge-base", "--is-ancestor", ancestor, rev }):wait().code == 0
 end
 
+function M.diff_base(rev)
+    if M.run({ "rev-parse", "--verify", "--quiet", rev .. "^" }) ~= "" then
+        return rev .. "^"
+    end
+    return M.run({ "hash-object", "-t", "tree", "/dev/null" })
+end
+
 return M

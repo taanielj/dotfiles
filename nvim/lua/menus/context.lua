@@ -41,7 +41,7 @@ function M.get()
     return {
         bufnr = bufnr,
         -- _get_urls() falls back to <cfile>, so any word would count
-        url = vim.iter(vim.ui._get_urls()):any(function(url) return url:match("^%a[%w+.-]*://") ~= nil end),
+        url = vim.iter(vim.ui._get_urls()):find(function(url) return url:match("^%a[%w+.-]*://") ~= nil end),
         symbol = symbol,
         in_call = in_call,
         supports = function(method) return #vim.lsp.get_clients({ bufnr = bufnr, method = method }) > 0 end,

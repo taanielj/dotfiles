@@ -78,12 +78,25 @@ local function target_under_cursor()
     return definition(label ~= nil and label ~= "" and label or text), true
 end
 
-local function github_slug(heading) return (heading:lower():gsub("[^%w%s-]", ""):gsub("%s+", "-")) end
+local function github_slug(heading)
+    local slug = {}
+    for _, char in ipairs(vim.fn.split(vim.fn.tolower(heading), [[\zs]])) do
+        -- charclass 2 is a word character; classes past 3 are scripts such as CJK
+        local class = #char > 1 and vim.fn.charclass(char) or 0
+        if char == " " then
+            slug[#slug + 1] = "-"
+        elseif char:match("^[%w_-]$") or class == 2 or class > 3 then
+            slug[#slug + 1] = char
+        end
+    end
+    return table.concat(slug)
+end
 
 local function jump_to_heading(anchor)
+    local slug = vim.fn.tolower(vim.uri_decode(anchor))
     for row, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
         local heading = line:match("^#+%s+(.-)%s*$")
-        if heading and github_slug(heading) == anchor:lower() then
+        if heading and github_slug(heading) == slug then
             vim.api.nvim_win_set_cursor(0, { row, 0 })
             return
         end
@@ -270,10 +283,7 @@ function M.to_reference()
 end
 
 function M.references_in_selection()
-    local first, last = vim.fn.line("v"), vim.fn.line(".")
-    if first > last then
-        first, last = last, first
-    end
+    local first, last = require("lib.yank").line_range()
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
     to_references(first, last)
 end

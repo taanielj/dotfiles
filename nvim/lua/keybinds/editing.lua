@@ -16,10 +16,10 @@ map({
     { "n",               "<C-Down>",                   ":silent! m .+1<CR>==",                          "Move line down" },
     { "n",               "<C-Left>",                   "<<hhhh",                                        "Unindent line" },
     { "n",               "<C-Right>",                  ">>llll",                                        "Indent line" },
-    { "v",               "<C-Up>",                     ":<C-u>silent! '<,'>m '<-2<CR>gv=gv",            "Move line up" },
-    { "v",               "<C-Down>",                   ":<C-u>silent! '<,'>m '>+1<CR>gv=gv",            "Move line down" },
-    { "v",               "<C-Left>",                   "<gvhhhh",                                       "Unindent line" },
-    { "v",               "<C-Right>",                  ">gvllll",                                       "Indent line" },
+    { "x",               "<C-Up>",                     ":<C-u>silent! '<,'>m '<-2<CR>gv=gv",            "Move line up" },
+    { "x",               "<C-Down>",                   ":<C-u>silent! '<,'>m '>+1<CR>gv=gv",            "Move line down" },
+    { "x",               "<C-Left>",                   "<gvhhhh",                                       "Unindent line" },
+    { "x",               "<C-Right>",                  ">gvllll",                                       "Indent line" },
 
     -- Selecting text
     { "n",               "<S-Down>",                   "vj",                                            "Select down" },
@@ -38,17 +38,17 @@ map({
     { "i",               "<S-End>",                    "<Esc>lv$h",                                     "Select to end of line" },
     { "i",               "<Home>",                     "<Esc>^i",                                       "Move to beginning of text" },
 
-    { "v",               "<S-Up>",                     "k",                                             "Move up" },
-    { "v",               "<S-Down>",                   "j",                                             "Move down" },
-    { "v",               "<S-Left>",                   "h",                                             "Move left" },
-    { "v",               "<S-Right>",                  "l",                                             "Move right" },
-    { "v",               "<S-Home>",                   "0",                                             "Move to beginning of line" },
-    { "v",               "<Home>",                     "^",                                             "Move to beginning of text" },
-    { "v",               "<S-End>",                    "$",                                             "Move to end of line" },
-    { "v",               "<End>",                      "$h",                                            "Move to end of line" },
+    { "x",               "<S-Up>",                     "k",                                             "Move up" },
+    { "x",               "<S-Down>",                   "j",                                             "Move down" },
+    { "x",               "<S-Left>",                   "h",                                             "Move left" },
+    { "x",               "<S-Right>",                  "l",                                             "Move right" },
+    { "x",               "<S-Home>",                   "0",                                             "Move to beginning of line" },
+    { "x",               "<Home>",                     "^",                                             "Move to beginning of text" },
+    { "x",               "<S-End>",                    "$",                                             "Move to end of line" },
+    { "x",               "<End>",                      "$h",                                            "Move to end of line" },
 
     { "n",               "<C-a>",                      "ggVG",                                          "Select all" },
-    { "v",               "<C-a>",                      "ggVG",                                          "Select all" },
+    { "x",               "<C-a>",                      "ggVG",                                          "Select all" },
     { "i",               "<C-a>",                      "<Esc>ggVG",                                     "Select all" },
 
     -- Some terminals send these for Home and End
@@ -56,9 +56,9 @@ map({
     { { "n", "i", "v", "c", "t", "o" }, "<Select>",    "<End>",                                         "End" },
 
     -- Copy and paste
-    { "v",               "<C-c>",                      '"+y',                                           "Copy" },
-    { "v",               "<C-x>",                      '"+x',                                           "Cut" },
-    { "x",               "<C-v>",                      '"0dP',                                          "Paste without overwriting unnamed reg" },
+    { "x",               "<C-c>",                      '"+y',                                           "Copy" },
+    { "x",               "<C-x>",                      '"+x',                                           "Cut" },
+    { "x",               "<C-v>",                      "P",                                             "Paste without yanking the replaced text" },
     { "i",               "<C-v>",                      "<C-o>P",                                        "Paste" },
 
     -- Navigation with wrap enabled
@@ -72,32 +72,37 @@ map({
     { "x",               "<Down>",                     "gj",                                            "Move down (visual line)" },
 
     -- Surround replacement
-    { "v",               "'",                          "\"zc''<Esc>\"zP",                               "Add single quotes" },
-    { "v",               '"',                          '"zc""<Esc>"zP',                                 "Add double quotes" },
-    { "v",               "`",                          '"zc``<Esc>"zP',                                 "Add backticks" },
-    { "v",               { "(", ")" },                 '"zc()<Esc>"zP',                                 "Add parentheses" },
-    { "v",               { "[", "]" },                 '"zc[]<Esc>"zP',                                 "Add brackets" },
-    { "v",               { "{", "}" },                 '"zc{}<Esc>"zP',                                 "Add curly braces" },
-    { "v",               { "<", ">" },                 '"zc<><Esc>"zP',                                 "Add angle brackets" },
+    { "x",               "'",                          "\"zc''<Esc>\"zP",                               "Add single quotes" },
+    { "x",               '"',                          '"zc""<Esc>"zP',                                 "Add double quotes" },
+    { "x",               "`",                          '"zc``<Esc>"zP',                                 "Add backticks" },
+    { "x",               { "(", ")" },                 '"zc()<Esc>"zP',                                 "Add parentheses" },
+    { "x",               { "[", "]" },                 '"zc[]<Esc>"zP',                                 "Add brackets" },
+    { "x",               { "{", "}" },                 '"zc{}<Esc>"zP',                                 "Add curly braces" },
+    { "x",               { "<", ">" },                 '"zc<><Esc>"zP',                                 "Add angle brackets" },
 
-    { "v",               "<Leader>'",                  "\"zc''''''<Esc>2h\"zP",                         "Add triple single quotes" },
-    { "v",               '<Leader>"',                  '"zc""""""<Esc>2h"zP',                           "Add triple double quotes" },
-    { "v",               "<Leader>`",                  '"zc``````<Esc>2h"zP',                           "Add triple backticks" },
+    { "x",               "<Leader>'",                  "\"zc''''''<Esc>2h\"zP",                         "Add triple single quotes" },
+    { "x",               '<Leader>"',                  '"zc""""""<Esc>2h"zP',                           "Add triple double quotes" },
+    { "x",               "<Leader>`",                  '"zc``````<Esc>2h"zP',                           "Add triple backticks" },
 
-    { "v",               { "<Leader>(", "<Leader>)" }, '"zc(())<Esc>2h"zp',                             "Add double parentheses" },
-    { "v",               { "<Leader>[", "<Leader>]" }, '"zc[[]]<Esc>2h"zp',                             "Add double brackets" },
-    { "v",               { "<Leader>{", "<Leader>}" }, '"zc{{}}<Esc>2h"zp',                             "Add double curly braces" },
-    { "v",               { "<Leader><", "<Leader>>" }, '"zc<<>><Esc>2h"zp',                             "Add double angle brackets" },
+    { "x",               { "<Leader>(", "<Leader>)" }, '"zc(())<Esc>2h"zp',                             "Add double parentheses" },
+    { "x",               { "<Leader>[", "<Leader>]" }, '"zc[[]]<Esc>2h"zp',                             "Add double brackets" },
+    { "x",               { "<Leader>{", "<Leader>}" }, '"zc{{}}<Esc>2h"zp',                             "Add double curly braces" },
+    { "x",               { "<Leader><", "<Leader>>" }, '"zc<<>><Esc>2h"zp',                             "Add double angle brackets" },
 
-    { "v",               { "<Leader>b", "<Leader>*" }, '"zc****<Esc>2h"zp',                             "Add bold" },
-    { "v",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
-    { "v",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
+    { "x",               { "<Leader>b", "<Leader>*" }, '"zc****<Esc>2h"zp',                             "Add bold" },
+    { "x",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
+    { "x",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
 
     -- <leader>c  Copilot
     { "n",               "<leader>cc",                 "<Cmd>Copilot<CR>",                              "Copilot" },
     { "n",               "<leader>cd",                 "<Cmd>Copilot disable<CR>",                      "Copilot disable" },
     { "n",               "<leader>ce",                 "<Cmd>Copilot enable<CR>",                       "Copilot enable" },
 })
+
+-- While the built-in gcc exists, gc waits timeoutlen for it
+local toggle_comment_line = vim.fn.maparg("gcc", "n", false, true).callback
+vim.keymap.del("n", "gcc")
+vim.keymap.set("n", "gc", toggle_comment_line, { expr = true, silent = true, desc = "Toggle comment line" })
 
 -- Insert-mode editing
 local function move_cursor_visual(lines)
@@ -123,6 +128,11 @@ vim.keymap.set(
 vim.keymap.set("i", "<C-w>", function()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
     if col == 0 then
+        if row > 1 and vim.tbl_contains(vim.opt.backspace:get(), "eol") then
+            local previous = vim.api.nvim_buf_get_lines(0, row - 2, row - 1, false)[1]
+            vim.api.nvim_buf_set_text(0, row - 2, #previous, row - 1, 0, { "" })
+            vim.api.nvim_win_set_cursor(0, { row - 1, #previous })
+        end
         return
     end
     local line = vim.api.nvim_get_current_line()
@@ -130,7 +140,11 @@ vim.keymap.set("i", "<C-w>", function()
     -- Position cursor for normal-mode wordmotion (at EOL, back up one)
     vim.api.nvim_win_set_cursor(0, { row, math.min(col, #line - 1) })
     vim.fn["wordmotion#motion"](1, "n", "b", 0, {})
-    local _, target = unpack(vim.api.nvim_win_get_cursor(0))
+    local target_row, target = unpack(vim.api.nvim_win_get_cursor(0))
+    -- Like the built-in <C-w>, only a delete from column 0 crosses the line break
+    if target_row < row then
+        target = 0
+    end
 
     vim.api.nvim_buf_set_text(0, row - 1, target, row - 1, col, { "" })
     vim.api.nvim_win_set_cursor(0, { row, target })
@@ -145,9 +159,10 @@ vim.keymap.set("i", "<C-Del>", function()
 
     vim.api.nvim_win_set_cursor(0, { row, col })
     vim.fn["wordmotion#motion"](1, "n", "e", 0, {})
-    local _, target = unpack(vim.api.nvim_win_get_cursor(0))
+    local target_row, target = unpack(vim.api.nvim_win_get_cursor(0))
+    local stop = target_row > row and #line or target + 1
 
-    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, target + 1, { "" })
+    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, stop, { "" })
     vim.api.nvim_win_set_cursor(0, { row, col })
 end, { silent = true, desc = "Ctrl-Delete = delete next word (wordmotion-aware)" })
 
