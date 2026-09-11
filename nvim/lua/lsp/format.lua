@@ -37,7 +37,7 @@ function M.buffer()
     organize_imports(bufnr)
     vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 5000 })
     vim.cmd("retab")
-    vim.cmd("silent! loadview")
+    require("lib.view").load()
     vim.cmd("retab")
 end
 
