@@ -6,46 +6,7 @@ return {
                 "j-hui/fidget.nvim",
                 opts = {},
             },
-            {
-                "mfussenegger/nvim-dap",
-                config = function()
-                    local dap = require("dap")
-                    local icons = require("lib.icons")
-
-                    vim.fn.sign_define("DapBreakpoint", { text = icons.breakpoint .. " ", texthl = "DiagnosticError" })
-                    vim.fn.sign_define(
-                        "DapBreakpointCondition",
-                        { text = icons.breakpoint_condition .. " ", texthl = "DiagnosticWarn" }
-                    )
-                    vim.fn.sign_define(
-                        "DapBreakpointRejected",
-                        { text = icons.breakpoint_rejected .. " ", texthl = "DiagnosticHint" }
-                    )
-                    vim.fn.sign_define(
-                        "DapStopped",
-                        { text = icons.stopped .. " ", texthl = "DiagnosticWarn", linehl = "CursorLine" }
-                    )
-
-                    dap.configurations.scala = {
-                        {
-                            type = "scala",
-                            request = "launch",
-                            name = "RunOrTest",
-                            metals = {
-                                runType = "runOrTestFile",
-                            },
-                        },
-                        {
-                            type = "scala",
-                            request = "launch",
-                            name = "Test Target",
-                            metals = {
-                                runType = "testTarget",
-                            },
-                        },
-                    }
-                end,
-            },
+            "mfussenegger/nvim-dap",
         },
         ft = { "scala", "sbt", "java" },
         opts = function()
@@ -71,25 +32,30 @@ return {
                 -- <leader>m (keybinds/editing.lua) already formats through the LSP
 
                 map("n", "<leader>lo", function() require("metals").hover_worksheet() end, "Hover worksheet")
-
-                map("n", "<leader>dc", function() require("dap").continue() end, "Continue")
-
-                map("n", "<leader>dr", function() require("dap").repl.toggle() end, "Toggle REPL")
-
-                map("n", "<leader>dK", function() require("dap.ui.widgets").hover() end, "Hover value")
-
-                map("n", "<leader>dt", function() require("dap").toggle_breakpoint() end, "Toggle breakpoint")
-
-                map("n", "<leader>dso", function() require("dap").step_over() end, "Step over")
-
-                map("n", "<leader>dsi", function() require("dap").step_into() end, "Step into")
-
-                map("n", "<leader>dl", function() require("dap").run_last() end, "Run last")
             end
 
             return metals_config
         end,
         config = function(self, metals_config)
+            require("dap").configurations.scala = {
+                {
+                    type = "scala",
+                    request = "launch",
+                    name = "RunOrTest",
+                    metals = {
+                        runType = "runOrTestFile",
+                    },
+                },
+                {
+                    type = "scala",
+                    request = "launch",
+                    name = "Test Target",
+                    metals = {
+                        runType = "testTarget",
+                    },
+                },
+            }
+
             local nvim_metals_group = vim.api.nvim_create_augroup("nvim-metals", { clear = true })
             vim.api.nvim_create_autocmd("FileType", {
                 pattern = self.ft,

@@ -35,6 +35,11 @@ return {
                 },
                 lualine_x = {
                     {
+                        function() return "DEBUG" end,
+                        cond = function() return require("ui.debug_mode").is_active() end,
+                        color = "DiagnosticWarn",
+                    },
+                    {
                         require("noice").api.status.mode.get,
                         cond = require("noice").api.status.mode.has,
                         color = { fg = "#ff9e64" },

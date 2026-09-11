@@ -14,6 +14,7 @@ local groups = {
     { "<leader>bc", group = "Close" },
     { "<leader>bs", group = "Sort" },
     { "<leader>c",  group = "Copilot / Codesnap" },
+    { "<leader>d",  group = "Debug" },
     { "<leader>f",  group = "Find" },
     { "<leader>g",  group = "Git" },
     { "<leader>h",  group = "Find hidden" },

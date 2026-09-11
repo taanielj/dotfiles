@@ -48,6 +48,8 @@ function M.get()
         line_diagnostics = #vim.diagnostic.get(bufnr, { lnum = row }) > 0,
         diagnostics = #vim.diagnostic.get(bufnr) > 0,
         modifiable = vim.bo[bufnr].modifiable,
+        file = vim.bo[bufnr].buftype == "" and vim.api.nvim_buf_get_name(bufnr) ~= "",
+        test_file = require("lib.debug_test").in_test_file(bufnr),
         empty = vim.api.nvim_buf_line_count(bufnr) == 1 and vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] == "",
         clipboard = vim.fn.getreg("+") ~= "",
     }

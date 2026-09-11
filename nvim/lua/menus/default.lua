@@ -53,6 +53,10 @@ return function(ctx)
     rows.item(icons.list, "All diagnostics", vim.diagnostic.setqflist, ctx.diagnostics)
     rows.add({ separator = true })
 
+    rows.item(icons.breakpoint, "Toggle breakpoint", function() require("dap").toggle_breakpoint() end, ctx.file)
+    rows.item(icons.debug, "Debug test", function() require("lib.debug_test").run() end, ctx.test_file)
+    rows.add({ separator = true })
+
     rows.item(icons.cut, "Cut", '"+x', ctx.modifiable, "v")
     rows.item(icons.copy, "Copy", '"+y', nil, "v")
     rows.item(icons.paste, "Paste", '"+gP', ctx.modifiable and ctx.clipboard, "n")
