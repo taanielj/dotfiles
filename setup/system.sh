@@ -42,6 +42,7 @@ MACOS_PACKAGES=(
     "fastfetch"
     "mise"
     "tmux-mem-cpu-load" # tmux.conf status line calls the bare binary; no apt package exists
+    "delve"             # nvim-dap-go finds dlv on PATH
     # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
 )
 
