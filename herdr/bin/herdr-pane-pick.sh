@@ -23,7 +23,7 @@ pane_lines() {
         | .[0].result.panes[]
         | select(.pane_id != $cur and .tab_id != $skip_tab)
         | $tabs[.tab_id] as $t
-        | (.cwd | split("/") | last) as $dirname
+        | ((.cwd // "") | split("/") | last) as $dirname
         | [ .pane_id, .tab_id, .workspace_id,
             ($ws[.workspace_id].label // .workspace_id)
               + " · " + (($t.number // "?") | tostring) + ":" + ($t.label // "")
