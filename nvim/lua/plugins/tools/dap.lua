@@ -1,4 +1,3 @@
--- Single-key stepping while a session runs is ui/debug_mode.lua.
 local function conditional_breakpoint()
     vim.ui.input({ prompt = "Break when: " }, function(condition)
         if condition and condition ~= "" then
