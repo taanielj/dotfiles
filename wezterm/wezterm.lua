@@ -13,7 +13,7 @@ config.font_rules = {
 	{ italic = true, font = wezterm.font("JetBrains Mono NL", { weight = "Medium", italic = true }) },
 	{ intensity = "Bold", italic = true, font = wezterm.font("JetBrains Mono NL", { weight = "ExtraBold", italic = true }) },
 }
-config.font_size = 18.0
+config.font_size = 14.0
 config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
 config.window_decorations = "RESIZE | MACOS_FORCE_SQUARE_CORNERS"
 config.window_background_opacity = 1.0

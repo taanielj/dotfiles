@@ -46,5 +46,6 @@ teardown_zsh() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -e
     main_zsh "$@"
 fi

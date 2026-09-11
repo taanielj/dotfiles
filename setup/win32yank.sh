@@ -47,5 +47,6 @@ teardown_win32yank() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -e
     main_win32yank "$@"
 fi

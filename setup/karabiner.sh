@@ -26,5 +26,6 @@ teardown_karabiner() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -e
     main_karabiner "$@"
 fi
