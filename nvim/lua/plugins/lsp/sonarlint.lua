@@ -1,5 +1,49 @@
 local mason = require("lib.mason")
 
+---@param root_dir string
+---@return string?
+local function project_key(root_dir)
+    local f = io.open(vim.fs.joinpath(root_dir, "sonar-project.properties"), "r")
+    if not f then
+        return nil
+    end
+    local key
+    for line in f:lines() do
+        key = line:match("^sonar%.projectKey=(.+)")
+        if key then
+            break
+        end
+    end
+    f:close()
+    return key
+end
+
+---@param root_dir string
+local function connected_mode(root_dir)
+    -- Connected mode needs both; set them in ~/.zshrc.local per machine.
+    local token = os.getenv("SONAR_TOKEN")
+    local server_url = os.getenv("SONAR_HOST_URL")
+    local key = token and server_url and project_key(root_dir)
+    if not key then
+        return nil
+    end
+    return {
+        connections = {
+            sonarqube = {
+                {
+                    connectionId = "default",
+                    serverUrl = server_url,
+                    token = token,
+                },
+            },
+        },
+        project = {
+            connectionId = "default",
+            projectKey = key,
+        },
+    }
+end
+
 return {
     "https://gitlab.com/schrieveslaach/sonarlint.nvim",
     ft = { "python", "java" },
@@ -13,48 +57,10 @@ return {
                     mason.path("share/sonarlint-analyzers/sonarpython.jar"),
                     mason.path("share/sonarlint-analyzers/sonarjava.jar"),
                 },
-                settings = {
-                    sonarlint = (function()
-                        -- Connected mode needs both; set them in ~/.zshrc.local per machine.
-                        local token = os.getenv("SONAR_TOKEN")
-                        local server_url = os.getenv("SONAR_HOST_URL")
-                        if not token or not server_url then
-                            return {}
-                        end
-                        local props = vim.fn.getcwd() .. "/sonar-project.properties"
-                        local project_key = nil
-                        local f = io.open(props, "r")
-                        if f then
-                            for line in f:lines() do
-                                project_key = line:match("^sonar%.projectKey=(.+)")
-                                if project_key then
-                                    break
-                                end
-                            end
-                            f:close()
-                        end
-                        if not project_key then
-                            return {}
-                        end
-                        return {
-                            connectedMode = {
-                                connections = {
-                                    sonarqube = {
-                                        {
-                                            connectionId = "default",
-                                            serverUrl = server_url,
-                                            token = token,
-                                        },
-                                    },
-                                },
-                                project = {
-                                    connectionId = "default",
-                                    projectKey = project_key,
-                                },
-                            },
-                        }
-                    end)(),
-                },
+                -- sonarlint.nvim replaces on_init; config.settings is the client's own table
+                before_init = function(_, config)
+                    config.settings.sonarlint.connectedMode = connected_mode(config.root_dir)
+                end,
             },
             filetypes = { "python", "java" },
         })

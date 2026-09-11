@@ -2,6 +2,7 @@ return {
     {
         "kevinhwang91/nvim-ufo",
         dependencies = { "kevinhwang91/promise-async" },
+        event = "BufReadPost",
         config = function()
             local handler = function(virtText, lnum, endLnum, width, truncate)
                 local newVirtText = {}
@@ -34,7 +35,12 @@ return {
                 desc = "Save Folds",
                 group = vim.api.nvim_create_augroup("save_folds_view", { clear = true }),
 
-                callback = function() vim.cmd("mkview") end,
+                -- :wa writes a hidden buffer from the autocmd window, which has no folds
+                callback = function()
+                    if vim.fn.win_gettype() ~= "autocmd" then
+                        vim.cmd("mkview")
+                    end
+                end,
             })
             vim.api.nvim_create_autocmd("BufReadPost", {
                 desc = "Restore Folds",

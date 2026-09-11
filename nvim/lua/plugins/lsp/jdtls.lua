@@ -9,6 +9,8 @@ return {
         return {
             cmd = { jdtls_path, "-data", workspace_dir },
             root_dir = vim.fs.root(0, { "mvnw", "pom.xml", "gradlew", "build.gradle", ".git" }),
+            -- nvim-jdtls starts jdtls with vim.lsp.start, which skips the vim.lsp.config("*") defaults
+            capabilities = require("lsp.capabilities").get(),
             settings = {
                 java = {
                     signatureHelp = { enabled = true },
