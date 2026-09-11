@@ -65,7 +65,7 @@ _get_compose_services() {
     done
 
     [[ -z "$compose_file" ]] && return 1
-    command -v yq >/dev/null || return 1
+    command -v yq &>/dev/null || return 1
 
     yq e '.services | keys | .[]' "$compose_file" 2>/dev/null
 }

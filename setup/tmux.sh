@@ -31,7 +31,7 @@ configure_tmux() {
     fi
 
     run_quiet "Installing tmux plugins" "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
-    tmux source-file ~/.tmux.conf || warn "tmux reported errors in ~/.tmux.conf."
+    tmux source-file "$HOME/.tmux.conf" || warn "tmux reported errors in ~/.tmux.conf."
     # Only our own session is on this server, so killing it takes nothing else down.
     if [[ "$started_server" -eq 1 ]]; then
         tmux kill-server

@@ -17,16 +17,14 @@ install_win32yank() {
         return
     fi
 
-    WIN32YANK_VERSION=$(
-        curl -fsSL "https://api.github.com/repos/equalsraf/win32yank/releases/latest" |
-            sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
-    )
+    WIN32YANK_VERSION=$(github_latest_version equalsraf/win32yank)
     [[ -z "$WIN32YANK_VERSION" ]] && error "Could not determine the latest win32yank version" && return 1
 
     mkdir -p "$HOME/.local/bin"
 
     log "📦 Installing win32yank v$WIN32YANK_VERSION"
 
+    local tmp_dir
     tmp_dir=$(mktemp -d)
     run_quiet "Downloading win32yank" curl -fsSL "https://github.com/equalsraf/win32yank/releases/download/v${WIN32YANK_VERSION}/win32yank-x64.zip" \
         -o "$tmp_dir/win32yank.zip"

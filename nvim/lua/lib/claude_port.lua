@@ -4,9 +4,9 @@
 local M = {}
 
 local function store()
-    local dir = vim.fn.stdpath("data") .. "/claudecode-ports"
+    local dir = vim.fs.joinpath(vim.fn.stdpath("data"), "claudecode-ports")
     vim.fn.mkdir(dir, "p")
-    return dir .. "/" .. vim.fn.sha256(vim.fn.getcwd()):sub(1, 16) .. ".json"
+    return vim.fs.joinpath(dir, vim.fn.sha256(vim.fn.getcwd()):sub(1, 16) .. ".json")
 end
 
 ---@return { port: integer, token: string? }?

@@ -5,7 +5,7 @@ source "$REPO_ROOT/setup/utils.sh"
 
 main_lazygit() {
     # macOS gets lazygit from brew (setup/system.sh); elsewhere from the release tarball.
-    if [[ "$(uname -s)" != "Darwin" ]]; then
+    if [[ "$OSTYPE" != "darwin"* ]]; then
         install_lazygit
     fi
 
@@ -14,16 +14,12 @@ main_lazygit() {
 }
 
 install_lazygit() {
-    LAZYGIT_VERSION=$(
-        curl -fsSL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" |
-            sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
-    )
+    LAZYGIT_VERSION=$(github_latest_version jesseduffield/lazygit)
     [[ -z "$LAZYGIT_VERSION" ]] && error "Could not determine the latest lazygit version" && return 1
     LAZYGIT_BIN="$HOME/.local/bin/lazygit"
 
-    local arch=""
-    [[ "$(uname -m)" == "aarch64" ]] && arch="arm64"
-    [[ "$(uname -m)" == "x86_64" ]] && arch="x86_64"
+    local arch
+    arch=$(release_arch)
     [[ -z "$arch" ]] && error "Unsupported architecture: $(uname -m)" && return 1
 
     mkdir -p "$HOME/.local/bin"
@@ -40,6 +36,7 @@ install_lazygit() {
         log "📦 Installing lazygit v$LAZYGIT_VERSION"
     fi
 
+    local tmp_dir
     tmp_dir=$(mktemp -d)
     run_quiet "Downloading lazygit" curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${arch}.tar.gz" \
         -o "$tmp_dir/lazygit.tar.gz"

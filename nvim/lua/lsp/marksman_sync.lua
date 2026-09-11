@@ -23,7 +23,7 @@ local function walk(root)
         })
     do
         if type == "file" and require("lib.markdown").is_file(name) then
-            files[root .. "/" .. name] = true
+            files[vim.fs.joinpath(root, name)] = true
         end
     end
     return files
@@ -47,7 +47,7 @@ local function list(root, done)
             end
             local files = {}
             for _, rel in ipairs(vim.split(res.stdout or "", "\0", { trimempty = true })) do
-                local path = root .. "/" .. rel
+                local path = vim.fs.joinpath(root, rel)
                 -- ls-files still reports files deleted from the working tree.
                 if vim.uv.fs_stat(path) then
                     files[path] = true

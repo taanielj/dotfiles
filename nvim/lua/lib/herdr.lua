@@ -14,4 +14,16 @@ function M.pane_id()
     return nil
 end
 
+---Run herdr in the background, reporting a failure.
+---@param args string[] everything after the executable
+function M.run(args)
+    vim.system(vim.list_extend({ M.bin() }, args), { text = true }, function(res)
+        if res.code ~= 0 then
+            vim.schedule(
+                function() vim.notify("herdr: " .. vim.trim(res.stderr or res.stdout or ""), vim.log.levels.ERROR) end
+            )
+        end
+    end)
+end
+
 return M

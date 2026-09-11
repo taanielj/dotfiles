@@ -3,8 +3,8 @@ typeset -gix P9K_SSH=0
 typeset -gx _P9K_SSH_TTY=$TTY
 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-[ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
-[ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+[[ ! -d "$ZINIT_HOME" ]] && mkdir -p "$(dirname "$ZINIT_HOME")"
+[[ ! -d "$ZINIT_HOME/.git" ]] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 
 source "${ZINIT_HOME}/zinit.zsh"
 
@@ -24,7 +24,7 @@ export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
-fpath+=~/.zfunc
+fpath+="$HOME/.zfunc"
 
 # Adding or removing a completion file bumps its fpath dir's mtime. The dump is
 # removed first because compinit reuses one whose fpath file count still matches.
@@ -63,7 +63,7 @@ zinit snippet OMZP::git
 
 HISTSIZE=1000000
 SAVEHIST=1000000
-HISTFILE=~/.zsh_history
+HISTFILE="$HOME/.zsh_history"
 
 setopt SHARE_HISTORY
 setopt HIST_EXPIRE_DUPS_FIRST
@@ -79,7 +79,7 @@ setopt HIST_SAVE_NO_DUPS
 export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
-mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [ -x "$mise_bin" ] && eval "$("$mise_bin" activate zsh)"
+mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [[ -x "$mise_bin" ]] && eval "$("$mise_bin" activate zsh)"
 unset mise_bin
 
 export COLORTERM=truecolor
@@ -95,16 +95,16 @@ setopt CORRECT
 # (herdr, tmux) spawn non-login shells that never read it. -U keeps path deduped.
 typeset -U path
 path=("$HOME/.local/nvim/bin" "$HOME/.local/bin" $path)
-command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
+command -v nvim &>/dev/null && export EDITOR="nvim"
 
 # Lazygit reads ~/Library/Application Support on macOS unless pointed elsewhere
 [[ -f "$HOME/.config/lazygit/config.yml" ]] && export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
 # Machine-local settings (e.g. work git hosts); lazygit exits on a missing listed file
 [[ -n $LG_CONFIG_FILE && -f "$HOME/.config/lazygit/config.local.yml" ]] && LG_CONFIG_FILE+=",$HOME/.config/lazygit/config.local.yml"
 
-if command -v fdfind >/dev/null 2>&1; then
+if command -v fdfind &>/dev/null; then
     export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'
-elif command -v fd >/dev/null 2>&1; then
+elif command -v fd &>/dev/null; then
     export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 else
     export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.*"'
@@ -114,7 +114,7 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
 [[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="always"
 
-command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 
 # HOMEBREW_PREFIX comes from zprofile, which only login shells read, so probe
 # the same two brew prefixes it does.

@@ -11,7 +11,7 @@ configure_karabiner() {
     log "Configuring Karabiner-Elements..."
 
     # Without brew the config is still linked for a hand-installed Karabiner.
-    if command -v brew >/dev/null 2>&1; then
+    if command -v brew &>/dev/null; then
         install_cask karabiner-elements
     fi
     link_file "$REPO_ROOT/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"

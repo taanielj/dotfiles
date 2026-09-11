@@ -54,7 +54,7 @@ ensure_real_dir() {
 
 # Usage: install_cask <cask>
 install_cask() {
-    if ! command -v brew >/dev/null 2>&1; then
+    if ! command -v brew &>/dev/null; then
         error "Homebrew is not installed. Please install Homebrew first."
         return 1
     fi
@@ -64,7 +64,7 @@ install_cask() {
 # Usage: load_brew
 # Puts an installed Homebrew on PATH when this shell has not loaded it yet.
 load_brew() {
-    command -v brew >/dev/null 2>&1 && return 0
+    command -v brew &>/dev/null && return 0
     local brew
     for brew in /opt/homebrew/bin/brew /usr/local/bin/brew; do
         if [[ -x "$brew" ]]; then
@@ -83,9 +83,25 @@ fetch_installer() {
     printf '%s\n' "$script"
 }
 
+# Usage: github_latest_version <owner/repo>
+# Prints the latest release tag without its leading v; nothing on failure.
+github_latest_version() {
+    curl -fsSL "https://api.github.com/repos/$1/releases/latest" |
+        sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
+}
+
+# Usage: release_arch
+# Prints this machine's arch as release archives name it; nothing if unsupported.
+release_arch() {
+    case "$(uname -m)" in
+    aarch64 | arm64) echo "arm64" ;;
+    x86_64) echo "x86_64" ;;
+    esac
+}
+
 # Usage: uninstall_cask <cask>
 uninstall_cask() {
-    if command -v brew >/dev/null 2>&1 && brew list --cask 2>/dev/null | grep -qx "$1"; then
+    if command -v brew &>/dev/null && brew list --cask 2>/dev/null | grep -qx "$1"; then
         log "Uninstalling $1 via Homebrew"
         brew uninstall --cask "$1"
     fi

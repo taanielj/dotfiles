@@ -4,12 +4,7 @@ local function augroup(name) return vim.api.nvim_create_augroup("user_" .. name,
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = augroup("indentkeys"),
     pattern = "*",
-    callback = function()
-        vim.cmd("setlocal indentkeys-=<:>")
-        vim.cmd("setlocal indentkeys-=0}")
-        vim.cmd("setlocal indentkeys-=0]")
-        vim.cmd("setlocal indentkeys-=0-")
-    end,
+    callback = function() vim.opt_local.indentkeys:remove({ "<:>", "0}", "0]", "0-" }) end,
 })
 
 -- Relative numbers are for jumps; in insert mode the absolute line is the useful one
@@ -93,15 +88,15 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("indent_filetypes"),
     pattern = indent_filetypes,
     callback = function()
-        vim.cmd("setlocal shiftwidth=2")
-        vim.cmd("setlocal tabstop=2")
+        vim.opt_local.shiftwidth = 2
+        vim.opt_local.tabstop = 2
     end,
 })
 
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("makefile_tabs"),
     pattern = "make",
-    callback = function() vim.cmd("setlocal noexpandtab") end,
+    callback = function() vim.opt_local.expandtab = false end,
 })
 
 -- Scoped to snacks_terminal buffers so shells in other :terminals keep <C-l> etc.
@@ -109,14 +104,10 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("claude_term_nav"),
     pattern = "snacks_terminal",
     callback = function(ev)
+        local map = require("lib.keymap").buffer(ev.buf)
         local dirs = { h = "left", j = "down", k = "up", l = "right" }
         for key, dir in pairs(dirs) do
-            vim.keymap.set(
-                "t",
-                "<C-" .. key .. ">",
-                function() require("lib.splits").move(dir) end,
-                { buffer = ev.buf, silent = true, desc = "Window " .. dir }
-            )
+            map("t", "<C-" .. key .. ">", function() require("lib.splits").move(dir) end, "Window " .. dir)
         end
     end,
 })
@@ -136,17 +127,22 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("markdown_links"),
     pattern = "markdown",
     callback = function(ev)
-        vim.keymap.set("n", "gx", function() require("ui.markdown_links").follow() end, {
-            buffer = ev.buf,
-            desc = "Follow link under cursor",
-        })
-        vim.keymap.set("n", "gX", function() require("ui.markdown_links").to_reference() end, {
-            buffer = ev.buf,
-            desc = "Turn link under cursor into a reference",
-        })
-        vim.keymap.set("x", "gX", function() require("ui.markdown_links").references_in_selection() end, {
-            buffer = ev.buf,
-            desc = "Turn links into references",
-        })
+        local map = require("lib.keymap").buffer(ev.buf)
+        local loud = { silent = false }
+        map("n", "gx", function() require("ui.markdown_links").follow() end, "Follow link under cursor", loud)
+        map(
+            "n",
+            "gX",
+            function() require("ui.markdown_links").to_reference() end,
+            "Turn link under cursor into a reference",
+            loud
+        )
+        map(
+            "x",
+            "gX",
+            function() require("ui.markdown_links").references_in_selection() end,
+            "Turn links into references",
+            loud
+        )
     end,
 })
