@@ -93,7 +93,22 @@ end
 
 -- Marksman resolves an inline target where it is attached, so anchors and
 -- [[wiki links]] land on the right heading; for a target from a definition it
--- goes to the label line, so those are opened here.
+-- goes to the label line instead.
+local function marksman_resolves(from_definition)
+    return not from_definition and next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) ~= nil
+end
+
+---@param path string empty for this buffer
+local function edit_at_anchor(path, target)
+    if path ~= "" then
+        vim.cmd.edit(vim.fn.fnameescape(path))
+    end
+    local anchor = target:match("#(.+)$")
+    if anchor then
+        jump_to_heading(anchor)
+    end
+end
+
 function M.follow()
     local target, from_definition = target_under_cursor()
     target = target or vim.fn.expand("<cfile>")
@@ -110,18 +125,11 @@ function M.follow()
     end
 
     if path == "" or require("lib.markdown").is_file(path) then
-        if not from_definition and next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) then
+        if marksman_resolves(from_definition) then
             return vim.lsp.buf.definition()
         end
         if path == "" or vim.uv.fs_stat(path) then
-            if path ~= "" then
-                vim.cmd.edit(vim.fn.fnameescape(path))
-            end
-            local anchor = target:match("#(.+)$")
-            if anchor then
-                jump_to_heading(anchor)
-            end
-            return
+            return edit_at_anchor(path, target)
         end
     elseif vim.uv.fs_stat(path) then
         return vim.ui.open(path)
