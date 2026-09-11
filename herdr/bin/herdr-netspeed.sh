@@ -12,7 +12,8 @@ if [[ -d /sys/class/net ]]; then
 else
     iface=$(route -n get default 2>/dev/null | awk '/interface:/ {print $2}')
     [[ -n "${iface:-}" ]] || { printf "󰖪 offline"; exit 0; }
-    read -r rx tx < <(netstat -ibn -I "$iface" | awk 'NR==2 {print $7, $10}')
+    # counted from the end: interfaces without a link address (utun VPNs) lack the Address column
+    read -r rx tx < <(netstat -ibn -I "$iface" | awk 'NR==2 {print $(NF-4), $(NF-1)}')
 fi
 now=$(date +%s)
 

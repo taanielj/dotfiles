@@ -167,7 +167,7 @@ description = "reload config"
 [[keys.command]]
 key = "prefix+g"
 type = "shell"
-command = '"$HERDR_BIN_PATH" plugin pane open --plugin lazygit --entrypoint lazygit --cwd "$HERDR_ACTIVE_PANE_CWD" --focus'
+command = '"${HERDR_BIN_PATH:-herdr}" plugin pane open --plugin lazygit --entrypoint lazygit --cwd "$HERDR_ACTIVE_PANE_CWD" --focus'
 description = "lazygit"
 
 # session save/restore (tmux-resurrect: prefix C-s save, prefix C-r restore)

@@ -125,7 +125,8 @@ if wezterm.target_triple:find("darwin") then
 			mods = "CMD|ALT|SHIFT",
 			action = wezterm.action_callback(function(window, _)
 				local overrides = window:get_config_overrides() or {}
-				if overrides.window_background_opacity == 1.0 then
+				local opacity = overrides.window_background_opacity or config.window_background_opacity
+				if opacity == 1.0 then
 					overrides.window_background_opacity = 0.8
 				else
 					overrides.window_background_opacity = 1.0
