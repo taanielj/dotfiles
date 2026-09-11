@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 # Applied only where the key is unset, so a value changed by hand survives a rerun.
@@ -26,7 +26,7 @@ ensure_git_identity() {
     local key="$1" prompt="$2" value
     git config --global --get "$key" >/dev/null && return 0
     log -n "$prompt: "
-    read -r value
+    read -r value || true
     [[ -z "$value" ]] && warn "Skipping $key; set it later with: git config --global $key \"...\"" && return 0
     run_quiet "Setting $key" git config --global "$key" "$value"
 }

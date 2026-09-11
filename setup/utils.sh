@@ -61,6 +61,28 @@ install_cask() {
     run_quiet "Installing $1" brew install --cask "$1"
 }
 
+# Usage: load_brew
+# Puts an installed Homebrew on PATH when this shell has not loaded it yet.
+load_brew() {
+    command -v brew >/dev/null 2>&1 && return 0
+    local brew
+    for brew in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+        if [[ -x "$brew" ]]; then
+            eval "$("$brew" shellenv)"
+            return 0
+        fi
+    done
+}
+
+# Usage: fetch_installer <url>
+# Fails on an empty download too, which `curl | sh` would run as a script that succeeds.
+fetch_installer() {
+    local script
+    script=$(curl -fsSL "$1") || return 1
+    [[ -n "$script" ]] || return 1
+    printf '%s\n' "$script"
+}
+
 # Usage: uninstall_cask <cask>
 uninstall_cask() {
     if command -v brew >/dev/null 2>&1 && brew list --cask 2>/dev/null | grep -qx "$1"; then
@@ -228,6 +250,17 @@ run_quiet() {
     fi
 }
 
+# Usage: fzf_select <fzf-args...>
+# Like fzf, but a cancel (Esc, CTRL-C, or no match) is an empty selection.
+fzf_select() {
+    local status=0
+    fzf "$@" || status=$?
+    if [[ $status -eq 1 || $status -eq 130 ]]; then
+        return 0
+    fi
+    return "$status"
+}
+
 # Usage: interactive_choice "prompt" "option1" "option2" "option3" ...
 interactive_choice() {
     local prompt="$1"
@@ -235,12 +268,13 @@ interactive_choice() {
     local options=("$@")
 
     if command -v fzf &>/dev/null; then
-        printf "%s\n" "${options[@]}" | fzf --height=40% --prompt="$prompt"
+        printf "%s\n" "${options[@]}" | fzf_select --height=40% --prompt="$prompt"
     else
-        echo "$prompt"
+        echo "$prompt" >&2
         select choice in "${options[@]}"; do
             [[ -n "$choice" ]] && echo "$choice" && break
         done
+        return 0
     fi
 }
 
@@ -251,16 +285,18 @@ interactive_multi_choice() {
     local options=("$@")
 
     if command -v fzf &>/dev/null; then
-        printf "%s\n" "${options[@]}" | fzf --multi --prompt="$prompt" --header="TAB to select, ENTER to confirm"
+        printf "%s\n" "${options[@]}" | fzf_select --multi --prompt="$prompt" --header="TAB to select, ENTER to confirm"
     else
-        echo "$prompt"
-        echo "Enter numbers separated by spaces (e.g., '1 3 5'), or 'all' for everything:"
+        {
+            echo "$prompt"
+            echo "Enter numbers separated by spaces (e.g., '1 3 5'), or 'all' for everything:"
 
-        for i in "${!options[@]}"; do
-            echo "$((i+1))) ${options[$i]}"
-        done
+            for i in "${!options[@]}"; do
+                echo "$((i+1))) ${options[$i]}"
+            done
 
-        echo -n "Selection: "
+            echo -n "Selection: "
+        } >&2
         read -r input
 
         if [[ "$input" == "all" ]]; then
@@ -268,7 +304,9 @@ interactive_multi_choice() {
         else
             for num in $input; do
                 idx=$((num - 1))
-                [[ $idx -ge 0 && $idx -lt ${#options[@]} ]] && echo "${options[$idx]}"
+                if [[ $idx -ge 0 && $idx -lt ${#options[@]} ]]; then
+                    echo "${options[$idx]}"
+                fi
             done
         fi
     fi

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 TOOLS=(
@@ -63,14 +63,14 @@ teardown_cargo() {
     done
 
     if [[ "$remove_cargo" == true ]]; then
-        if [[ -d "$HOME/.cargo" ]]; then
-            log "Removing cargo installation directory"
-            rm -rf "$HOME/.cargo"
-        fi
-
         if command -v rustup &>/dev/null; then
             log "Removing rustup installation"
             rustup self uninstall -y
+        fi
+
+        if [[ -d "$HOME/.cargo" ]]; then
+            log "Removing cargo installation directory"
+            rm -rf "$HOME/.cargo"
         fi
 
         rc_remove_lines ".cargo/bin"

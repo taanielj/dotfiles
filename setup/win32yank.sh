@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 # win32yank is the Windows clipboard tool behind pbcopy (clipboard/) and nvim
@@ -12,26 +12,27 @@ main_win32yank() {
 }
 
 install_win32yank() {
-    WIN32YANK_VERSION=$(
-        curl -s "https://api.github.com/repos/equalsraf/win32yank/releases/latest" |
-            sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
-    )
-
-    mkdir -p "$HOME/.local/bin"
-
     if [[ -x "$WIN32YANK_BIN" ]]; then
         log "✅ win32yank is already installed at $WIN32YANK_BIN"
         return
     fi
 
+    WIN32YANK_VERSION=$(
+        curl -fsSL "https://api.github.com/repos/equalsraf/win32yank/releases/latest" |
+            sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
+    )
+    [[ -z "$WIN32YANK_VERSION" ]] && error "Could not determine the latest win32yank version" && return 1
+
+    mkdir -p "$HOME/.local/bin"
+
     log "📦 Installing win32yank v$WIN32YANK_VERSION"
 
     tmp_dir=$(mktemp -d)
-    curl -sSL "https://github.com/equalsraf/win32yank/releases/download/v${WIN32YANK_VERSION}/win32yank-x64.zip" \
+    run_quiet "Downloading win32yank" curl -fsSL "https://github.com/equalsraf/win32yank/releases/download/v${WIN32YANK_VERSION}/win32yank-x64.zip" \
         -o "$tmp_dir/win32yank.zip"
 
-    unzip -q "$tmp_dir/win32yank.zip" win32yank.exe -d "$tmp_dir"
-    install -m 755 "$tmp_dir/win32yank.exe" "$WIN32YANK_BIN"
+    run_quiet "Extracting win32yank" unzip -q "$tmp_dir/win32yank.zip" win32yank.exe -d "$tmp_dir"
+    install -m 755 "$tmp_dir/win32yank.exe" "$WIN32YANK_BIN" || return 1
     rm -rf "$tmp_dir"
 
     log "✅ win32yank v$WIN32YANK_VERSION installed to $WIN32YANK_BIN"

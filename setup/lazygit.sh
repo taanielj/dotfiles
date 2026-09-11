@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 main_lazygit() {
@@ -15,9 +15,10 @@ main_lazygit() {
 
 install_lazygit() {
     LAZYGIT_VERSION=$(
-        curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" |
+        curl -fsSL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" |
             sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
     )
+    [[ -z "$LAZYGIT_VERSION" ]] && error "Could not determine the latest lazygit version" && return 1
     LAZYGIT_BIN="$HOME/.local/bin/lazygit"
 
     local arch=""
@@ -40,11 +41,11 @@ install_lazygit() {
     fi
 
     tmp_dir=$(mktemp -d)
-    curl -sSL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${arch}.tar.gz" \
+    run_quiet "Downloading lazygit" curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_${arch}.tar.gz" \
         -o "$tmp_dir/lazygit.tar.gz"
 
-    tar -xzf "$tmp_dir/lazygit.tar.gz" -C "$tmp_dir"
-    install -m 755 "$tmp_dir/lazygit" "$LAZYGIT_BIN"
+    run_quiet "Extracting lazygit" tar -xzf "$tmp_dir/lazygit.tar.gz" -C "$tmp_dir"
+    install -m 755 "$tmp_dir/lazygit" "$LAZYGIT_BIN" || return 1
     rm -rf "$tmp_dir"
 
     log "✅ lazygit v$LAZYGIT_VERSION installed to $LAZYGIT_BIN"

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
+
+# mikefarah's yq, whose `yq e` syntax zsh/modules/docker.zsh uses
+GLOBAL_TOOLS=("yq@4")
 
 main_mise() {
     install_mise
-    mise_binary=$(resolve_mise)
-    activate_mise
     install_tools
 }
 
@@ -49,18 +50,13 @@ install_mise() {
     fi
 }
 
-activate_mise() {
-    current_shell=$(ps -p $$ -ocomm= | sed 's/^-//')
-    if [[ -z "$current_shell" ]]; then
-        error "Could not detect current shell for mise activation"
-        exit 1
-    fi
-
-    eval "$("$mise_binary" activate "$current_shell")"
-}
-
 install_mise_from_script() {
-    run_quiet "Installing mise" bash -c "curl https://mise.run | sh"
+    local installer
+    if ! installer=$(fetch_installer https://mise.run); then
+        error "❌ Failed to download the mise installer."
+        return 1
+    fi
+    run_quiet "Installing mise" sh -c "$installer"
 }
 
 install_mise_termux() {
@@ -79,13 +75,17 @@ install_tools() {
 
     log "Parsing .tool-versions for available tools..."
 
-    mapfile -t all_tools < <(awk '!/^#/ && NF { print $1 "@" $2 }' "$toolfile")
+    local all_tools=() tool
+    while IFS= read -r tool; do
+        all_tools+=("$tool")
+    done < <(awk '!/^#/ && NF { print $1 "@" $2 }' "$toolfile")
+    all_tools+=("${GLOBAL_TOOLS[@]}")
 
-    log "📦 Install tools from .tool-versions?"
+    log "📦 Install tools from .tool-versions and ${GLOBAL_TOOLS[*]}?"
     install_mode=$(interactive_choice "Choose action: " "All" "Custom" "Skip")
 
     case "$install_mode" in
-    "Skip")
+    "Skip" | "")
         warn "⚠️  Skipping tool installation."
         return 0
         ;;
