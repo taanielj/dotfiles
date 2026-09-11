@@ -13,7 +13,7 @@ local function lock_path()
     if not port then
         return nil
     end
-    return require("claudecode.lockfile").lock_dir .. "/" .. port .. ".lock"
+    return vim.fs.joinpath(require("claudecode.lockfile").lock_dir, port .. ".lock")
 end
 
 local function name()

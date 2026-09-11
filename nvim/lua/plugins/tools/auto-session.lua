@@ -1,5 +1,6 @@
 return {
     "rmagatti/auto-session",
+    -- the session restore runs on VimEnter
     lazy = false,
 
     config = function()

@@ -284,7 +284,7 @@ end
 
 function M.references_in_selection()
     local first, last = require("lib.yank").line_range()
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+    vim.cmd("normal! \27")
     to_references(first, last)
 end
 

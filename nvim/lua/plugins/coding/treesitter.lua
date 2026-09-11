@@ -1,5 +1,6 @@
 return {
     "nvim-treesitter/nvim-treesitter",
+    -- upstream does not support lazy-loading
     lazy = false,
     branch = "main",
     build = ":TSUpdate",

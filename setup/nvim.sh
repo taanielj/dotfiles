@@ -13,15 +13,12 @@ install_nvim() {
     log "Installing Neovim (latest stable release)..."
 
     local github_url="https://github.com/neovim/neovim/releases/latest/download/"
-    local archive_name=""
-    if [[ "$OS" == "Darwin" ]]; then
-        [[ "$(uname -m)" == "arm64" ]] && archive_name="nvim-macos-arm64.tar.gz"
-        [[ "$(uname -m)" == "x86_64" ]] && archive_name="nvim-macos-x86_64.tar.gz"
-    elif [[ "$OS" == "Linux" ]]; then
-        [[ "$(uname -m)" == "aarch64" ]] && archive_name="nvim-linux-arm64.tar.gz"
-        [[ "$(uname -m)" == "x86_64" ]] && archive_name="nvim-linux-x86_64.tar.gz"
-    fi
-    [[ -z "$archive_name" ]] && error "Unsupported architecture: $(uname -m)" && return 1
+    local os="" arch
+    [[ "$OS" == "Darwin" ]] && os="macos"
+    [[ "$OS" == "Linux" ]] && os="linux"
+    arch=$(release_arch)
+    [[ -z "$os" || -z "$arch" ]] && error "Unsupported architecture: $(uname -m)" && return 1
+    local archive_name="nvim-$os-$arch.tar.gz"
 
     local tmp_dir
     tmp_dir=$(mktemp -d)

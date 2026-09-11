@@ -1,4 +1,4 @@
-[[ -z "$(command -v kubectl)" ]] && return
+command -v kubectl &>/dev/null || return
 
 alias k="kubectl"
 ka() { kubectl --as admin --as-group system:masters "$@"; }
@@ -17,7 +17,7 @@ fi
 
 kc() {
     local context="$1"
-    if [ -z "$context" ]; then
+    if [[ -z "$context" ]]; then
         context=$(kubectl config get-contexts -o name | fzf)
     else
         if ! kubectl config use-context "$context" 2>/dev/null; then
@@ -26,15 +26,15 @@ kc() {
             return 0
         fi
     fi
-    [ -n "$context" ] && kubectl config use-context "$context"
+    [[ -n "$context" ]] && kubectl config use-context "$context"
 }
 
 kn() {
     local namespace="$1"
-    if [ -z "$(kubectl config current-context 2>/dev/null)" ]; then
+    if [[ -z "$(kubectl config current-context 2>/dev/null)" ]]; then
         kc
     fi
-    if [ -z "$namespace" ]; then
+    if [[ -z "$namespace" ]]; then
         namespace=$(kubectl get namespaces -o name | fzf | cut -d'/' -f2)
     else
         if ! kubectl config set-context --current --namespace "$namespace" 2>/dev/null; then
@@ -43,7 +43,7 @@ kn() {
             return 0
         fi
     fi
-    [ -n "$namespace" ] && kubectl config set-context --current --namespace "$namespace"
+    [[ -n "$namespace" ]] && kubectl config set-context --current --namespace "$namespace"
 }
 
 kcn() {
@@ -72,11 +72,11 @@ kp() {
         shift
     fi
 
-    if [ -z "$(kubectl config current-context 2>/dev/null)" ]; then
+    if [[ -z "$(kubectl config current-context 2>/dev/null)" ]]; then
         kc
     fi
 
-    if [ -z "$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)" ]; then
+    if [[ -z "$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)" ]]; then
         kn
     fi
 
@@ -86,7 +86,7 @@ kp() {
 kd() {
     kp >/dev/null
     local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [ -n "$pod" ] && kubectl describe pod "$pod"
+    [[ -n "$pod" ]] && kubectl describe pod "$pod"
 }
 
 kl() {
@@ -117,8 +117,8 @@ kl() {
 kauth() {
     local verb="$1"
     local resource="$2"
-    [ -z "$verb" ] && read "verb?Verb (e.g. get): "
-    [ -z "$resource" ] && read "resource?Resource (e.g. pods): "
+    [[ -z "$verb" ]] && read "verb?Verb (e.g. get): "
+    [[ -z "$resource" ]] && read "resource?Resource (e.g. pods): "
     kubectl auth can-i "$verb" "$resource" --as self
 }
 
@@ -135,7 +135,7 @@ kxe() {
         sh -c 'command -v bash >/dev/null && exec bash || exec sh'
 }
 
-[[ -z "$(command -v stern)" ]] && return
+command -v stern &>/dev/null || return
 
 s() {
     if [[ $# -gt 0 ]]; then

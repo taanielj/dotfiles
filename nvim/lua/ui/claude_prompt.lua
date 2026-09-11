@@ -43,14 +43,7 @@ local function submit(text)
         vim.notify("No Claude pane for this nvim", vim.log.levels.WARN)
         return
     end
-    local herdr = require("lib.herdr")
-    vim.system({ herdr.bin(), "agent", "prompt", pane, text }, { text = true }, function(res)
-        if res.code ~= 0 then
-            vim.schedule(
-                function() vim.notify("herdr: " .. vim.trim(res.stderr or res.stdout or ""), vim.log.levels.ERROR) end
-            )
-        end
-    end)
+    require("lib.herdr").run({ "agent", "prompt", pane, text })
 end
 
 function M.prompt()

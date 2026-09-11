@@ -1,6 +1,7 @@
 return {
     "ctbaum/herdr-agents.nvim",
     cond = require("lib.herdr").inside(),
+    -- setup starts the claudecode server that an agent pane attaches to
     lazy = false,
     dependencies = {
         { "coder/claudecode.nvim", dependencies = { "folke/snacks.nvim" } },

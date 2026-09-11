@@ -33,6 +33,11 @@ function M.default_branch()
     end
 end
 
+---Top of the repository holding path; nil outside one.
+---@param path string
+---@return string?
+function M.root(path) return vim.fs.root(path, ".git") end
+
 ---The origin's web URL for a file on the checked-out branch, with a line
 ---anchor when lines are given; nil outside a repository or without origin.
 ---@param path string
@@ -40,7 +45,7 @@ end
 ---@param last integer?
 ---@return string?
 function M.remote_url(path, first, last)
-    local root = vim.fs.root(path, ".git")
+    local root = M.root(path)
     if not root then
         return nil
     end

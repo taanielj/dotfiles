@@ -1,5 +1,6 @@
 return {
     "catppuccin/nvim",
+    -- config applies the colorscheme at startup
     lazy = false,
     name = "catppuccin",
     priority = 1000,

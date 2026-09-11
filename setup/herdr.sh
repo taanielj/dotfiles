@@ -7,7 +7,7 @@ HERDR_BIN="$HOME/.local/bin/herdr"
 
 main_herdr() {
     # macOS gets herdr from brew (setup/system.sh); elsewhere from herdr.dev.
-    if [[ "$(uname -s)" != "Darwin" ]]; then
+    if [[ "$OSTYPE" != "darwin"* ]]; then
         install_herdr
     fi
     configure_herdr

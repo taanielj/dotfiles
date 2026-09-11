@@ -102,7 +102,7 @@ map({
 -- While the built-in gcc exists, gc waits timeoutlen for it
 local toggle_comment_line = vim.fn.maparg("gcc", "n", false, true).callback
 vim.keymap.del("n", "gcc")
-vim.keymap.set("n", "gc", toggle_comment_line, { expr = true, silent = true, desc = "Toggle comment line" })
+map({ { "n", "gc", toggle_comment_line, "Toggle comment line", true } })
 
 -- Insert-mode editing
 local function move_cursor_visual(lines)
@@ -111,21 +111,7 @@ local function move_cursor_visual(lines)
     vim.cmd.normal({ tostring(count) .. key, bang = true })
 end
 
-vim.keymap.set(
-    "i",
-    "<Up>",
-    function() move_cursor_visual(-1) end,
-    { silent = true, desc = "Move up in insert mode (visual line)" }
-)
-
-vim.keymap.set(
-    "i",
-    "<Down>",
-    function() move_cursor_visual(1) end,
-    { silent = true, desc = "Move down in insert mode (visual line)" }
-)
-
-vim.keymap.set("i", "<C-w>", function()
+local function delete_word_backward()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
     if col == 0 then
         if row > 1 and vim.tbl_contains(vim.opt.backspace:get(), "eol") then
@@ -148,9 +134,9 @@ vim.keymap.set("i", "<C-w>", function()
 
     vim.api.nvim_buf_set_text(0, row - 1, target, row - 1, col, { "" })
     vim.api.nvim_win_set_cursor(0, { row, target })
-end, { silent = true, desc = "Delete previous word (wordmotion-aware)" })
+end
 
-vim.keymap.set("i", "<C-Del>", function()
+local function delete_word_forward()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
     local line = vim.api.nvim_get_current_line()
     if col >= #line then
@@ -164,7 +150,14 @@ vim.keymap.set("i", "<C-Del>", function()
 
     vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, stop, { "" })
     vim.api.nvim_win_set_cursor(0, { row, col })
-end, { silent = true, desc = "Ctrl-Delete = delete next word (wordmotion-aware)" })
+end
+
+map({
+    { "i", "<Up>", function() move_cursor_visual(-1) end, "Move up in insert mode (visual line)" },
+    { "i", "<Down>", function() move_cursor_visual(1) end, "Move down in insert mode (visual line)" },
+    { "i", "<C-w>", delete_word_backward, "Delete previous word (wordmotion-aware)" },
+    { "i", "<C-Del>", delete_word_forward, "Ctrl-Delete = delete next word (wordmotion-aware)" },
+})
 
 vim.keymap.set("i", "<Esc>", function()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -182,11 +175,18 @@ vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word for
 vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })
 vim.keymap.set("x", "<C-S-Right>", "e", { remap = true, desc = "Extend selection word forward" })
 vim.keymap.set("x", "<C-S-Left>", "b", { remap = true, desc = "Extend selection word backward" })
-vim.keymap.set("i", "<C-S-Left>", function()
-    vim.cmd("stopinsert")
-    vim.cmd("normal! v")
-    vim.fn["wordmotion#motion"](1, "v", "b", 0, {})
-end, { silent = true, desc = "Select word backward" })
+map({
+    {
+        "i",
+        "<C-S-Left>",
+        function()
+            vim.cmd("stopinsert")
+            vim.cmd("normal! v")
+            vim.fn["wordmotion#motion"](1, "v", "b", 0, {})
+        end,
+        "Select word backward",
+    },
+})
 
 -- Copilot in insert
 local function suggestion_shown() return vim.fn["copilot#GetDisplayedSuggestion"]().text ~= "" end
@@ -200,22 +200,15 @@ vim.keymap.set(
 vim.keymap.set("i", "<C-l>", "<Plug>(copilot-next)", { remap = true, desc = "Next suggestion" })
 vim.keymap.set("i", "<C-h>", "<Plug>(copilot-previous)", { remap = true, desc = "Previous suggestion" })
 
-vim.keymap.set("i", "<C-Right>", function()
+local function accept_word_or_move()
     if suggestion_shown() then
         vim.api.nvim_feedkeys(vim.fn["copilot#AcceptWord"](), "n", false)
     else
         vim.fn["wordmotion#motion"](1, "n", "", 0, {})
     end
-end, { silent = true, desc = "Accept a word, or move a word" })
+end
 
-vim.keymap.set(
-    "i",
-    "<C-Left>",
-    function() vim.fn["wordmotion#motion"](1, "n", "b", 0, {}) end,
-    { silent = true, desc = "Move back a word" }
-)
-
-vim.keymap.set("i", "<C-S-Right>", function()
+local function accept_line_or_select_word()
     if suggestion_shown() then
         vim.api.nvim_feedkeys(vim.fn["copilot#AcceptLine"](), "n", false)
         return
@@ -229,4 +222,10 @@ vim.keymap.set("i", "<C-S-Right>", function()
     end
     vim.cmd("normal! v")
     vim.fn["wordmotion#motion"](1, "v", "e", 0, {})
-end, { silent = true, desc = "Accept a line, or select a word" })
+end
+
+map({
+    { "i", "<C-Right>", accept_word_or_move, "Accept a word, or move a word" },
+    { "i", "<C-Left>", function() vim.fn["wordmotion#motion"](1, "n", "b", 0, {}) end, "Move back a word" },
+    { "i", "<C-S-Right>", accept_line_or_select_word, "Accept a line, or select a word" },
+})

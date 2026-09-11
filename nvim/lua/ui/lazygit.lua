@@ -8,8 +8,7 @@ function M.open()
         vim.cmd("LazyGit")
         return
     end
-    vim.system({
-        herdr.bin(),
+    herdr.run({
         "plugin",
         "pane",
         "open",
@@ -20,13 +19,7 @@ function M.open()
         "--cwd",
         vim.fn.getcwd(),
         "--focus",
-    }, { text = true }, function(res)
-        if res.code ~= 0 then
-            vim.schedule(
-                function() vim.notify("herdr: " .. vim.trim(res.stderr or res.stdout or ""), vim.log.levels.ERROR) end
-            )
-        end
-    end)
+    })
 end
 
 return M

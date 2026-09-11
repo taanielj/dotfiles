@@ -18,5 +18,5 @@ return function(rows, path)
         if url then
             yank.copy(url, "git URL")
         end
-    end, vim.fs.root(path, ".git") ~= nil)
+    end, require("lib.git").root(path) ~= nil)
 end

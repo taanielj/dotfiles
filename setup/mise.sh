@@ -13,7 +13,7 @@ main_mise() {
 
 resolve_mise() {
     local path
-    if command -v mise >/dev/null 2>&1; then
+    if command -v mise &>/dev/null; then
         path=$(command -v mise)
     else
         path="$HOME/.local/bin/mise"
