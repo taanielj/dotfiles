@@ -26,14 +26,18 @@ ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
 fpath+=~/.zfunc
 
-# Rebuild the completion cache when stale; skip the security check when cached
+# Adding or removing a completion file bumps its fpath dir's mtime. The dump is
+# removed first because compinit reuses one whose fpath file count still matches.
 autoload -Uz compinit
-if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP.zwc -ot $ZSH_COMPDUMP ]]; then
+newer_fpath_dirs=( ${^fpath}(N-/e:'[[ $REPLY -nt $ZSH_COMPDUMP.zwc ]]':) )
+if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP.zwc -ot $ZSH_COMPDUMP || -n $newer_fpath_dirs ]]; then
+    rm -f "$ZSH_COMPDUMP"
     compinit -d "$ZSH_COMPDUMP"
     zcompile "$ZSH_COMPDUMP"
 else
     compinit -C -d "$ZSH_COMPDUMP"
 fi
+unset newer_fpath_dirs
 autoload -Uz _zinit
 ((${+_comps})) && _comps[zinit]=_zinit
 autoload -U select-word-style
@@ -95,6 +99,8 @@ command -v nvim >/dev/null 2>&1 && export EDITOR="nvim"
 
 # Lazygit reads ~/Library/Application Support on macOS unless pointed elsewhere
 [[ -f "$HOME/.config/lazygit/config.yml" ]] && export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml"
+# Machine-local settings (e.g. work git hosts); lazygit exits on a missing listed file
+[[ -n $LG_CONFIG_FILE && -f "$HOME/.config/lazygit/config.local.yml" ]] && LG_CONFIG_FILE+=",$HOME/.config/lazygit/config.local.yml"
 
 if command -v fdfind >/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'

@@ -37,7 +37,7 @@ if command -v eza &>/dev/null; then
     alias l="eza"
 
     _eza_wrapper() {
-        eza --group-directories-first --icons --color=always --git -h "$@"
+        eza --group-directories-first --icons --color=auto --git -h "$@"
     }
     alias ls="_eza_wrapper"
     alias la="_eza_wrapper -l -a"
@@ -83,6 +83,18 @@ reset_repo() {
         return 1
     fi
 
+    local UNPUSHED=$(git log --branches --not --remotes --oneline)
+    if [[ -n "$UNPUSHED" ]]; then
+        echo -e "\033[1;33mUnpushed commits and local-only branches will be lost:\033[0m"
+        echo "$UNPUSHED"
+    fi
+
+    local IGNORED=$(git status --ignored --porcelain | grep '^!!')
+    if [[ -n "$IGNORED" ]]; then
+        echo -e "\033[1;33mIgnored files will be lost:\033[0m"
+        echo "$IGNORED"
+    fi
+
     echo -n "Type YES to confirm: "
     local CONFIRM
     read CONFIRM
@@ -102,13 +114,14 @@ reset_repo() {
 }
 
 nvim() {
+    local term=$TERM
     # xterm-kitty terminfo gives nvim a blinking cursor
-    [[ "$TERM_PROGRAM" == "kitty" ]] && export TERM="xterm-kitty"
+    [[ "$TERM_PROGRAM" == "kitty" ]] && term="xterm-kitty"
     if [[ -z $VIRTUAL_ENV && -x .venv/bin/python ]]; then
-        VIRTUAL_ENV="$PWD/.venv" PATH="$PWD/.venv/bin:$PATH" command nvim "$@"
+        TERM=$term VIRTUAL_ENV="$PWD/.venv" PATH="$PWD/.venv/bin:$PATH" command nvim "$@"
         return
     fi
-    command nvim "$@"
+    TERM=$term command nvim "$@"
 }
 
 nvimf() {
