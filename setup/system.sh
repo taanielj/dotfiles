@@ -196,5 +196,6 @@ install_packages() {
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -e
     main_system "$@"
 fi

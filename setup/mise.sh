@@ -115,5 +115,6 @@ install_tools() {
     done <<<"$selected_tools"
 }
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    set -e
     main_mise "$@"
 fi
