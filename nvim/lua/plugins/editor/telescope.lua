@@ -42,7 +42,6 @@ return {
                     "--line-number",
                     "--column",
                     "--smart-case",
-                    "-u",
                 },
                 history = {
                     path = history_file,
@@ -58,7 +57,7 @@ return {
             },
         })
         require("telescope").load_extension("ui-select")
-        require("telescope").load_extension("fzf")
+        pcall(require("telescope").load_extension, "fzf")
         require("telescope").load_extension("smart_history")
     end,
 }

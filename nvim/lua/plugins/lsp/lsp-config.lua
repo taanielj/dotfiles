@@ -55,13 +55,19 @@ return {
                     end
                     map("n", "gd", builtin("lsp_definitions"), "Go to definition")
                     map("n", "gi", builtin("lsp_implementations"), "Go to implementation")
-                    map("n", "gr", builtin("lsp_references"), "Find references")
+                    map("n", "gr", builtin("lsp_references"), "Find references", { nowait = true })
                     map("n", "gs", builtin("lsp_document_symbols"), "Document symbols")
                     map("n", "<leader>lt", builtin("lsp_type_definitions"), "Go to type definition")
                     map("n", "<leader>lw", builtin("lsp_workspace_symbols"), "Workspace symbols")
                     map("n", "<leader>lq", builtin("diagnostics"), "Search diagnostics")
                     map("n", "gD", vim.lsp.buf.declaration, "Go to declaration")
-                    map("n", "<leader>lr", vim.lsp.buf.rename, "Rename symbol")
+                    map(
+                        "n",
+                        "<leader>lr",
+                        function() return ":IncRename " .. vim.fn.expand("<cword>") end,
+                        "Rename symbol",
+                        { expr = true }
+                    )
                     map("n", "<leader>le", vim.diagnostic.open_float, "Show diagnostics")
                     map({ "n", "x" }, "<leader>la", vim.lsp.buf.code_action, "Code action")
                     map(
@@ -131,14 +137,12 @@ return {
                 end,
             })
 
-            local capabilities = require("lsp.capabilities").get()
+            vim.lsp.config("*", { capabilities = require("lsp.capabilities").get() })
 
             local servers = {
                 lua_ls = {
                     settings = {
                         Lua = {
-                            format_on_save = false,
-                            formatter = nil,
                             runtime = { version = "LuaJIT" },
                             -- lazydev supplies the library, so lua_ls needs no
                             -- third-party workspace directories
@@ -176,19 +180,19 @@ return {
             }
 
             for name, cfg in pairs(servers) do
-                cfg.capabilities = cfg.capabilities or capabilities
                 vim.lsp.config(name, cfg)
                 vim.lsp.enable(name)
             end
-            -- Scala; nvim-metals supplies the config.
-            vim.lsp.enable("metals")
 
             -- ensure_installed has no metals: mason-lspconfig does not carry it.
             local ensure_installed = vim.tbl_keys(servers)
             table.insert(ensure_installed, "jdtls")
-            -- automatic_enable stays on: it also enables installed servers with no
-            -- entry above, such as jdtls and stylua
-            require("mason-lspconfig").setup({ ensure_installed = ensure_installed })
+            -- automatic_enable also enables installed servers with no entry above,
+            -- such as stylua; nvim-jdtls starts jdtls itself
+            require("mason-lspconfig").setup({
+                ensure_installed = ensure_installed,
+                automatic_enable = { exclude = { "jdtls" } },
+            })
 
             local icons = require("lib.icons")
             vim.diagnostic.config({
@@ -202,8 +206,12 @@ return {
                 },
                 virtual_text = {
                     prefix = "●",
-                    source = "if_many",
-                    format = function(diagnostic) return string.format("%s %s", diagnostic.source, diagnostic.message) end,
+                    format = function(diagnostic)
+                        if not diagnostic.source then
+                            return diagnostic.message
+                        end
+                        return string.format("%s %s", diagnostic.source, diagnostic.message)
+                    end,
                 },
             })
         end,

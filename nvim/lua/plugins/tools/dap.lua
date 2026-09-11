@@ -11,7 +11,8 @@ return {
     dependencies = {
         "igorlfs/nvim-dap-view",
         "leoluz/nvim-dap-go",
-        "mfussenegger/nvim-dap-python",
+        -- Its rockspec makes lazy.nvim load it at startup unless marked lazy
+        { "mfussenegger/nvim-dap-python", lazy = true },
         { "jay-babu/mason-nvim-dap.nvim", dependencies = { "williamboman/mason.nvim" } },
     },
     -- stylua: ignore

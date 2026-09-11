@@ -40,8 +40,8 @@ return {
                         color = "DiagnosticWarn",
                     },
                     {
-                        require("noice").api.status.mode.get,
-                        cond = require("noice").api.status.mode.has,
+                        function() return require("noice").api.status.mode.get() end,
+                        cond = function() return package.loaded["noice"] and require("noice").api.status.mode.has() end,
                         color = { fg = "#ff9e64" },
                     },
                 },

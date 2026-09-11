@@ -10,7 +10,7 @@ local host_keys = inside_herdr
             {
                 "<leader>ap",
                 function() require("ui.claude_prompt").prompt() end,
-                mode = { "n", "v" },
+                mode = { "n", "x" },
                 desc = "Prompt Claude about these lines",
             },
         }
