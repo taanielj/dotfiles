@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 COMMON_PACKAGES=(
@@ -140,13 +140,12 @@ setup_package_manager() {
 setup_apt() {
     local update_requested="$1"
 
-    run_quiet "Preparing apt" bash -c '
-        export DEBIAN_FRONTEND=noninteractive
-        sudo ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-        sudo apt-get update -y
-    '
+    if [[ ! -e /etc/localtime ]]; then
+        run_quiet "Setting timezone to UTC" sudo ln -s /usr/share/zoneinfo/UTC /etc/localtime
+    fi
+    run_quiet "Updating apt" sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
     if [[ "$update_requested" == true ]]; then
-        run_quiet "Upgrading apt packages" sudo apt-get -y upgrade
+        run_quiet "Upgrading apt packages" sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     fi
 }
 
@@ -155,12 +154,21 @@ add_apt_repositories() {
     for repo in "${repos[@]}"; do
         run_quiet "Adding PPA: $repo" sudo add-apt-repository -y "$repo"
     done
-    [[ "${#repos[@]}" -gt 0 ]] && run_quiet "Refreshing apt after adding PPAs" sudo apt-get -y update
+    if [[ "${#repos[@]}" -gt 0 ]]; then
+        run_quiet "Refreshing apt after adding PPAs" sudo DEBIAN_FRONTEND=noninteractive apt-get -y update
+    fi
 }
 
 setup_brew() {
     if ! command -v brew &>/dev/null; then
-        run_quiet "Installing Homebrew" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        local installer
+        if ! installer=$(fetch_installer https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh); then
+            error "❌ Failed to download the Homebrew installer."
+            return 1
+        fi
+        sudo -v
+        run_quiet "Installing Homebrew" env NONINTERACTIVE=1 /bin/bash -c "$installer"
+        load_brew
     fi
 
     if [[ "$1" == true ]]; then
@@ -176,7 +184,7 @@ install_packages() {
 
     case "$DISTRO" in
     ubuntu | debian)
-        run_quiet "Installing apt packages" sudo apt-get install -y "${packages[@]}"
+        run_quiet "Installing apt packages" sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${packages[@]}"
         ;;
     termux)
         run_quiet "Installing pkg packages" pkg install -y "${packages[@]}"

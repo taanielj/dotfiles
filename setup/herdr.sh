@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 HERDR_BIN="$HOME/.local/bin/herdr"
@@ -18,8 +18,13 @@ install_herdr() {
         log "✅ herdr is already installed at $(command -v herdr)"
         return
     fi
+    local installer
+    if ! installer=$(fetch_installer https://herdr.dev/install.sh); then
+        error "❌ Failed to download the herdr installer."
+        return 1
+    fi
     # The script installs to ~/.local/bin, which zprofile puts on PATH.
-    run_quiet "Installing herdr" sh -c "curl -fsSL https://herdr.dev/install.sh | sh"
+    run_quiet "Installing herdr" sh -c "$installer"
 }
 
 configure_herdr() {
@@ -47,8 +52,13 @@ configure_herdr() {
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-plugin-workspace-manager"; then
         run_quiet "Installing herdr workspace-manager plugin" herdr plugin install razajamil/herdr-plugin-workspace-manager --yes
     fi
-    link_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
-        "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
+    local config_dir
+    config_dir=$(herdr plugin config-dir herdr-plugin-workspace-manager)
+    if [[ -n "$config_dir" ]]; then
+        link_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" "$config_dir/config.yml"
+    else
+        warn "No herdr config dir for workspace-manager; skipping its config."
+    fi
     # The lazygit popup behind prefix+g and nvim's <leader>gg.
     if ! herdr plugin list 2>/dev/null | grep -q "^- lazygit "; then
         run_quiet "Linking herdr lazygit plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/lazygit"
@@ -68,9 +78,13 @@ teardown_herdr() {
     log "Removing herdr configuration..."
     unlink_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     unlink_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
-    unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
-        "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
-    herdr plugin unlink lazygit &>/dev/null || true
+    if command -v herdr &>/dev/null; then
+        unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
+            "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
+        herdr plugin unlink lazygit &>/dev/null || true
+    else
+        warn "herdr is not installed. Skipping its plugin teardown."
+    fi
     if [[ -f "$HERDR_BIN" ]]; then
         log "Removing herdr installation from $HERDR_BIN"
         rm -f "$HERDR_BIN"

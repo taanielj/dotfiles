@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 main_tmux() {
@@ -15,7 +15,7 @@ configure_tmux() {
     fi
 
     if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
-        git -C "$HOME/.tmux/plugins/tpm" pull &>/dev/null
+        git -C "$HOME/.tmux/plugins/tpm" pull &>/dev/null || warn "Could not update tpm."
     else
         run_quiet "Cloning tpm" git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
     fi
@@ -31,7 +31,7 @@ configure_tmux() {
     fi
 
     run_quiet "Installing tmux plugins" "$HOME/.tmux/plugins/tpm/scripts/install_plugins.sh"
-    tmux source-file ~/.tmux.conf
+    tmux source-file ~/.tmux.conf || warn "tmux reported errors in ~/.tmux.conf."
     # Only our own session is on this server, so killing it takes nothing else down.
     if [[ "$started_server" -eq 1 ]]; then
         tmux kill-server

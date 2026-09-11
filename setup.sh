@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 source "$REPO_ROOT/setup/utils.sh"
 
@@ -109,7 +109,7 @@ select_scripts() {
     mode=$(interactive_choice "Mode: " "System only" "All" "Custom" "Teardown" "Exit")
 
     case "$mode" in
-    "Exit")
+    "Exit" | "")
         log "Exiting setup."
         exit 0
         ;;
@@ -154,8 +154,10 @@ run_setup() {
         title "Running [$(basename "$file" .sh)] setup script"
         divider
         echo ""
-        # Each component runs in its own shell, so an exit inside it ends only that component
-        (source "$file" && "main_$(basename "$file" .sh)") ||
+        # A Homebrew installed by system.sh is not on this shell's PATH yet
+        load_brew
+        # A separate bash -e keeps errexit on inside the component, which a || list would turn off
+        bash -ec 'source "$1" && "main_$2"' _ "$file" "$(basename "$file" .sh)" ||
             warn "[$(basename "$file" .sh)] setup did not complete; continuing."
         echo ""
     done
@@ -169,7 +171,7 @@ run_teardown() {
         echo ""
         local args=()
         [[ "$(basename "$file" .sh)" == cargo && "$remove_cargo" == true ]] && args=(--remove-cargo)
-        (source "$file" && "teardown_$(basename "$file" .sh)" "${args[@]}") ||
+        bash -ec 'source "$1" && "teardown_$2" "${@:3}"' _ "$file" "$(basename "$file" .sh)" "${args[@]}" ||
             warn "[$(basename "$file" .sh)] teardown did not complete; continuing."
         echo ""
     done

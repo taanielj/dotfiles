@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 main_kitty() {

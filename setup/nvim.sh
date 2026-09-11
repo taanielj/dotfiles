@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 OS=$(uname -s)
 source "$REPO_ROOT/setup/utils.sh"
 
@@ -25,7 +25,7 @@ install_nvim() {
 
     local tmp_dir
     tmp_dir=$(mktemp -d)
-    run_quiet "Downloading Neovim" curl -Lo "$tmp_dir/nvim.tar.gz" "$github_url$archive_name"
+    run_quiet "Downloading Neovim" curl -fsSL -o "$tmp_dir/nvim.tar.gz" "$github_url$archive_name"
 
     run_quiet "Extracting Neovim" tar -C "$tmp_dir" -xzf "$tmp_dir/nvim.tar.gz"
     local nvim_path
