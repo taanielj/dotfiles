@@ -5,13 +5,12 @@ local M = {}
 
 ---@param first integer
 ---@param last integer
----@return string
-local function location(first, last)
-    local name = vim.fn.expand("%:t")
+---@return string ":first" or ":first-last"
+local function lines(first, last)
     if first == last then
-        return ("%s:%d"):format(name, first)
+        return (":%d"):format(first)
     end
-    return ("%s:%d-%d"):format(name, first, last)
+    return (":%d-%d"):format(first, last)
 end
 
 ---Diagnostics on the selected lines, one line of text, or nil when there are none.
@@ -59,13 +58,16 @@ function M.prompt()
     if first > last then
         first, last = last, first
     end
-    local where, found = location(first, last), diagnostics(first, last)
+    local span, found = lines(first, last), diagnostics(first, last)
     if vim.fn.mode():match("[vV\22]") then
         vim.cmd("normal! \27")
     end
-    vim.ui.input({ prompt = where .. ": " }, function(instruction)
+    -- The short name is for the eye; Claude gets the full path, which resolves
+    -- from wherever its pane is
+    local path = vim.fn.expand("%:p")
+    vim.ui.input({ prompt = vim.fn.expand("%:t") .. span .. ": " }, function(instruction)
         if instruction and instruction ~= "" then
-            submit(table.concat({ where .. ": " .. instruction, found }, " - "))
+            submit(table.concat({ path .. span .. ": " .. instruction, found }, " - "))
         end
     end)
 end
