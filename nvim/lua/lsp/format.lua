@@ -4,6 +4,9 @@ local M = {}
 -- the edit has to land before the format request goes out, so it is fetched
 -- and applied synchronously rather than through vim.lsp.buf.code_action.
 local function organize_imports(bufnr)
+    if not next(vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/codeAction" })) then
+        return
+    end
     local results = vim.lsp.buf_request_sync(bufnr, "textDocument/codeAction", function(client)
         local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
         params.context = { diagnostics = {}, only = { "source.organizeImports" } }

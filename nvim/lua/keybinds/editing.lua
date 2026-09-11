@@ -12,12 +12,12 @@ map({
     { "n",               "<Esc>",                      "<Cmd>nohlsearch<CR>",                           "Clear search highlight" },
 
     -- Line movement and indentation
-    { "n",               "<C-Up>",                     ":m .-2<CR>==",                                  "Move line up" },
-    { "n",               "<C-Down>",                   ":m .+1<CR>==",                                  "Move line down" },
+    { "n",               "<C-Up>",                     ":silent! m .-2<CR>==",                          "Move line up" },
+    { "n",               "<C-Down>",                   ":silent! m .+1<CR>==",                          "Move line down" },
     { "n",               "<C-Left>",                   "<<hhhh",                                        "Unindent line" },
     { "n",               "<C-Right>",                  ">>llll",                                        "Indent line" },
-    { "v",               "<C-Up>",                     ":m '<-2<CR>gv=gv",                              "Move line up" },
-    { "v",               "<C-Down>",                   ":m '>+1<CR>gv=gv",                              "Move line down" },
+    { "v",               "<C-Up>",                     ":<C-u>silent! '<,'>m '<-2<CR>gv=gv",            "Move line up" },
+    { "v",               "<C-Down>",                   ":<C-u>silent! '<,'>m '>+1<CR>gv=gv",            "Move line down" },
     { "v",               "<C-Left>",                   "<gvhhhh",                                       "Unindent line" },
     { "v",               "<C-Right>",                  ">gvllll",                                       "Indent line" },
 

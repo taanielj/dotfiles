@@ -1,5 +1,3 @@
--- Marksman resolves the target where it is attached, so anchors and
--- [[wiki links]] land on the right heading.
 local M = {}
 
 local INLINE = "%[([^%]]*)%]%(([^)]+)%)"
@@ -55,26 +53,51 @@ local function captures_under_cursor(line, col, pattern)
     end
 end
 
--- Inline [text](target), then reference [text][label], [text][] and [text]
+-- Inline [text](target) and a definition line carry their target; a
+-- reference [text][label], [text][] or [text] goes through its definition
+---@return string? target
+---@return boolean by_reference the target came from a definition
 local function target_under_cursor()
     local line = vim.api.nvim_get_current_line()
     local col = vim.api.nvim_win_get_cursor(0)[2] + 1
     local _, inline_target = captures_under_cursor(line, col, INLINE)
     if inline_target then
-        return inline_target
+        return inline_target, false
+    end
+    local _, defined = line:match(DEFINITION)
+    if defined then
+        return defined, true
     end
     local text, label = captures_under_cursor(line, col, "%[([^%]]*)%]%[([^%]]*)%]")
     if not text then
         text = captures_under_cursor(line, col, "%[([^%]]+)%]")
     end
     if not text then
-        return nil
+        return nil, false
     end
-    return definition(label ~= nil and label ~= "" and label or text)
+    return definition(label ~= nil and label ~= "" and label or text), true
 end
 
+-- Headings are matched by their GitHub-style slug
+local function slug(heading) return (heading:lower():gsub("[^%w%s-]", ""):gsub("%s+", "-")) end
+
+local function jump_to_heading(anchor)
+    for row, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
+        local heading = line:match("^#+%s+(.-)%s*$")
+        if heading and slug(heading) == anchor:lower() then
+            vim.api.nvim_win_set_cursor(0, { row, 0 })
+            return
+        end
+    end
+    vim.notify("No heading: " .. anchor, vim.log.levels.WARN)
+end
+
+-- Marksman resolves an inline target where it is attached, so anchors and
+-- [[wiki links]] land on the right heading; on a reference its definition
+-- is the label line, so those are opened here.
 function M.follow()
-    local target = target_under_cursor() or vim.fn.expand("<cfile>")
+    local target, by_reference = target_under_cursor()
+    target = target or vim.fn.expand("<cfile>")
     if target == "" then
         return
     end
@@ -88,11 +111,18 @@ function M.follow()
     end
 
     if path == "" or require("lib.markdown").is_file(path) then
-        if next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) then
+        if not by_reference and next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) then
             return vim.lsp.buf.definition()
         end
-        if vim.uv.fs_stat(path) then
-            return vim.cmd.edit(vim.fn.fnameescape(path))
+        if path == "" or vim.uv.fs_stat(path) then
+            if path ~= "" then
+                vim.cmd.edit(vim.fn.fnameescape(path))
+            end
+            local anchor = target:match("#(.+)$")
+            if anchor then
+                jump_to_heading(anchor)
+            end
+            return
         end
     elseif vim.uv.fs_stat(path) then
         return vim.ui.open(path)

@@ -13,7 +13,8 @@ return {
                     null_ls.builtins.formatting.prettier,
                     null_ls.builtins.formatting.buf,
                     null_ls.builtins.formatting.sqlfmt,
-                    null_ls.builtins.diagnostics.checkmake,
+                    -- checkmake also reports "violations found" on stderr whenever it finds any
+                    null_ls.builtins.diagnostics.checkmake.with({ ignore_stderr = true }),
                 },
             })
         end,

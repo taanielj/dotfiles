@@ -42,3 +42,7 @@ metals.sbt
 
 # direnv
 .envrc
+
+# make
+checkmake.ini
+
