@@ -1,8 +1,9 @@
--- claudecode.nvim names every nvim "Neovim" in its lock file, which is all
--- /ide shows for two of them in one workspace. The name is rewritten as the
--- herdr tab and the current file, so the picker tells them apart.
+-- claudecode.nvim names every nvim "Neovim" in its lock file, so /ide lists
+-- them alike. The name is rewritten as the herdr workspace, tab and current
+-- file.
 local M = {}
 
+local workspace -- the herdr workspace label, fetched once
 local tab -- the herdr tab label, fetched once
 local written -- the name in the lock file now
 
@@ -16,6 +17,9 @@ end
 
 local function name()
     local parts = { "Neovim" }
+    if workspace then
+        parts[#parts + 1] = workspace
+    end
     if tab then
         parts[#parts + 1] = tab
     end
@@ -41,13 +45,27 @@ function M.write()
     written = lock.ideName
 end
 
+---@param kind "tab"|"workspace"
+---@param on_result fun(info: table?)
+local function herdr_get(kind, id, on_result)
+    vim.system({ require("lib.herdr").bin(), kind, "get", id }, { text = true }, function(res)
+        local ok, data = pcall(vim.json.decode, res.stdout or "")
+        vim.schedule(function() on_result(ok and vim.tbl_get(data, "result", kind) or nil) end)
+    end)
+end
+
 function M.setup()
     local tab_id = vim.env.HERDR_TAB_ID
     if tab_id and tab_id ~= "" then
-        vim.system({ require("lib.herdr").bin(), "tab", "get", tab_id }, { text = true }, function(res)
-            local ok, data = pcall(vim.json.decode, res.stdout or "")
-            tab = ok and vim.tbl_get(data, "result", "tab", "label") or nil
-            vim.schedule(M.write)
+        herdr_get("tab", tab_id, function(tab_info)
+            if not tab_info then
+                return
+            end
+            tab = tab_info.label
+            herdr_get("workspace", tab_info.workspace_id, function(workspace_info)
+                workspace = workspace_info and workspace_info.label
+                M.write()
+            end)
         end)
     end
     -- Named file buffers only: neo-tree, a terminal or a scratch buffer keeps
