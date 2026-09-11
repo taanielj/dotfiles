@@ -9,6 +9,7 @@ return {
     breakpoint_condition = "\u{F059}",
     breakpoint_rejected = "\u{F05E}",
     stopped = "\u{F0A4}",
+    debug = "\u{F188}",
     open = "\u{EB7F}",
     fold_open = "\u{F078}",
     fold_closed = "\u{F054}",
