@@ -35,7 +35,9 @@ function M.buffer()
     local bufnr = vim.api.nvim_get_current_buf()
     vim.cmd("mkview")
     organize_imports(bufnr)
-    vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 5000 })
+    if next(vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/formatting" })) then
+        vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 5000 })
+    end
     vim.cmd("retab")
     require("lib.view").load()
     vim.cmd("retab")
