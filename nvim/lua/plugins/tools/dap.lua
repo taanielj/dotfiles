@@ -53,6 +53,7 @@ return {
             auto_toggle = "keep_terminal",
             virtual_text = { enabled = true },
         })
+        require("lib.herdr_debug_pane").setup()
 
         require("dap-go").setup()
 
