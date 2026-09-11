@@ -8,16 +8,16 @@ _pipe_json_if_valid() {
             content="$match[1]"
         fi
 
-        [[ "$content" == \{*\} ]] || { echo "$line"; continue }
+        [[ "$content" == \{*\} ]] || { print -r -- "$line"; continue }
 
-        if parsed=$(echo "$content" | jq . 2>/dev/null); then
+        if parsed=$(print -r -- "$content" | jq . 2>/dev/null); then
             if command -v bat &>/dev/null; then
-                echo "$parsed" | bat --color=always --language=json --style=plain --paging=never
+                print -r -- "$parsed" | bat --color=always --language=json --style=plain --paging=never
             else
-                echo "$parsed"
+                print -r -- "$parsed"
             fi
         else
-            echo "$line"
+            print -r -- "$line"
         fi
     done
 }

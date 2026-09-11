@@ -76,7 +76,7 @@ _filter_containers_by_services() {
         BEGIN { split(s, svc, " ") }
         {
             for (i in svc) {
-                if (index($1, "_" svc[i] "_") || $1 == svc[i]) {
+                if (index($1, "-" svc[i] "-") || $1 == svc[i]) {
                     print
                     break
                 }
@@ -151,9 +151,6 @@ dl() {
     fi
 
     [[ -z "$container" ]] && echo "No container selected" && return 1
-
-    # Force color; tools drop it when stdout is not a tty
-    export CLICOLOR_FORCE=1
 
     if docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null | grep -q true; then
         docker logs -f --tail 1000 "$container" "$@" | _pipe_json_if_valid

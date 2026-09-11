@@ -100,7 +100,7 @@ kl() {
         local matches
         matches=$(kubectl get pods -o name | grep "$query" || true)
 
-        if [[ $(echo "$matches" | wc -l) -eq 1 ]]; then
+        if [[ -n "$matches" && $(echo "$matches" | wc -l) -eq 1 ]]; then
             pod=$(echo "$matches" | cut -d'/' -f2)
         else
             pod=$(kubectl get pods -o name | fzf --query="$query" --select-1 --exit-0 | cut -d'/' -f2)
@@ -131,8 +131,8 @@ kxe() {
     local container=$(kubectl get pod "$pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | fzf)
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
-    kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- bash || \
-        kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- sh
+    kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- \
+        sh -c 'command -v bash >/dev/null && exec bash || exec sh'
 }
 
 [[ -z "$(command -v stern)" ]] && return
