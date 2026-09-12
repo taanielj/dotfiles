@@ -20,8 +20,9 @@ now=$(date +%s)
 state="${XDG_CACHE_HOME:-$HOME/.cache}/herdr-netspeed"
 mkdir -p "$(dirname "$state")"
 prev_now=0 prev_rx=$rx prev_tx=$tx
-[[ -f $state ]] && read -r prev_now prev_rx prev_tx < "$state"
-printf '%s %s %s\n' "$now" "$rx" "$tx" > "$state"
+# a half-written state file (killed mid-tick) must not abort the script
+[[ -f $state ]] && { read -r prev_now prev_rx prev_tx < "$state" || prev_now=0; }
+printf '%s %s %s\n' "$now" "$rx" "$tx" > "$state.tmp" && mv -f "$state.tmp" "$state"
 
 elapsed=$(( now - prev_now ))
 rx_rate=0 tx_rate=0
