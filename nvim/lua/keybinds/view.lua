@@ -1,22 +1,32 @@
 local map = require("lib.keymap").rows
 
+-- A fifth of the window, cursor staying put; snacks.scroll animates the jump
+local function scroll(key)
+    return function()
+        local lines = math.max(1, math.floor(vim.api.nvim_win_get_height(0) / 5))
+        vim.cmd("normal! " .. lines .. vim.keycode(key))
+    end
+end
+local function half_page(key)
+    return function() vim.cmd("normal! " .. vim.keycode(key)) end
+end
+
 -- stylua: ignore
 map({
     -- Right-click uses Neovim's own popup_setpos; this is the keyboard route
     { "n", "<leader>.", function() require("menus").popup_at_cursor() end,     "Open menu" },
     { "n", "<leader>e", "<Cmd>Neotree filesystem reveal left toggle=true<CR>", "Show files" },
-    { "n", "<leader>A", "<Cmd>Alpha<CR>",                                      "Dashboard" },
+    { "n", "<leader>A", function() Snacks.dashboard() end,                     "Dashboard" },
     { "n", "<leader>z", function() require("ui.zen").toggle() end,                "Toggle zen mode" },
     { "n", "<leader>gg", function() require("ui.lazygit").open() end,             "LazyGit" },
     { "n", { "-", "<BS>" }, "<Cmd>Oil<CR>",                                    "Open parent directory" },
     { "n", "zR",        function() require("ufo").openAllFolds() end,          "Open all folds" },
     { "n", "zM",        function() require("ufo").closeAllFolds() end,         "Close all folds" },
 
-    -- Animated scroll
-    { { "n", "x", "i" }, "<C-y>",      function() require("neoscroll").scroll(-0.2, { move_cursor = false, duration = 100 }) end, "Scroll up a little" },
-    { { "n", "x", "i" }, "<C-e>",      function() require("neoscroll").scroll(0.2, { move_cursor = false, duration = 100 }) end,  "Scroll down a little" },
-    { { "n", "x", "i" }, "<PageUp>",   function() require("neoscroll").ctrl_u({ duration = 100, easing = "quadratic" }) end,        "Scroll up half a page" },
-    { { "n", "x", "i" }, "<PageDown>", function() require("neoscroll").ctrl_d({ duration = 100, easing = "quadratic" }) end,        "Scroll down half a page" },
+    { { "n", "x", "i" }, "<C-y>",      scroll("<C-y>"),                                "Scroll up a little" },
+    { { "n", "x", "i" }, "<C-e>",      scroll("<C-e>"),                                "Scroll down a little" },
+    { { "n", "x", "i" }, "<PageUp>",   half_page("<C-u>"),                             "Scroll up half a page" },
+    { { "n", "x", "i" }, "<PageDown>", half_page("<C-d>"),                             "Scroll down half a page" },
 
     -- Window navigation and resize cross into the multiplexer's panes
     { "n", "<C-h>",     function() require("lib.splits").move("left") end,          "Window left" },

@@ -26,8 +26,7 @@ return {
                 "~/Desktop",
             },
             bypass_save_filetypes = {
-                "dashboard",
-                "alpha",
+                "snacks_dashboard",
                 "neo-tree",
             },
             cwd_change_handling = true,
@@ -49,7 +48,7 @@ return {
                     end
                     if only_no_name then
                         vim.cmd("%bd!")
-                        vim.cmd("Alpha")
+                        Snacks.dashboard()
                         vim.cmd("tabdo bd#")
                     else
                         vim.cmd("Neotree show")
@@ -64,7 +63,7 @@ return {
             post_delete_cmds = {
                 function()
                     return {
-                        vim.cmd("Alpha"),
+                        Snacks.dashboard(),
                         vim.cmd("bd#"),
                     }
                 end,
