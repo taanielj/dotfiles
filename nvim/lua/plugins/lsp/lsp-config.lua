@@ -56,6 +56,8 @@ return {
                     map("n", "gd", builtin("lsp_definitions"), "Go to definition")
                     map("n", "gi", builtin("lsp_implementations"), "Go to implementation")
                     map("n", "gr", builtin("lsp_references"), "Find references", { nowait = true })
+                    map("n", "<leader>lk", builtin("lsp_incoming_calls"), "Callers")
+                    map("n", "<leader>lj", builtin("lsp_outgoing_calls"), "Callees")
                     map("n", "gs", builtin("lsp_document_symbols"), "Document symbols")
                     map("n", "<leader>lt", builtin("lsp_type_definitions"), "Go to type definition")
                     map("n", "<leader>lw", builtin("lsp_workspace_symbols"), "Workspace symbols")
