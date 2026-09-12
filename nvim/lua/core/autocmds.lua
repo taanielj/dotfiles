@@ -4,7 +4,7 @@ local function augroup(name) return vim.api.nvim_create_augroup("user_" .. name,
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = augroup("indentkeys"),
     pattern = "*",
-    callback = function() vim.opt_local.indentkeys:remove({ "<:>", "0}", "0]", "0-" }) end,
+    callback = function() vim.opt_local.indentkeys:remove({ "<:>", "0}", "0]", "0-", "0)", ")" }) end,
 })
 
 -- Relative numbers are for jumps; in insert mode the absolute line is the useful one
@@ -144,5 +144,19 @@ vim.api.nvim_create_autocmd("FileType", {
             "Turn links into references",
             loud
         )
+    end,
+})
+
+-- :q on the last file window: see ui/dashboard.lua
+vim.api.nvim_create_autocmd("WinClosed", {
+    group = vim.api.nvim_create_augroup("user_dashboard_fallback", { clear = true }),
+    callback = function(ev)
+        local closed = tonumber(ev.match)
+        vim.schedule(function()
+            local dashboard = require("ui.dashboard")
+            if dashboard.only_tree_left(closed) then
+                dashboard.open_beside_tree()
+            end
+        end)
     end,
 })
