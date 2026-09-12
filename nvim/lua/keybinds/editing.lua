@@ -16,6 +16,7 @@ map({
     { "n",               "<C-Down>",                   ":silent! m .+1<CR>==",                          "Move line down" },
     { "n",               "<C-Left>",                   "<<hhhh",                                        "Unindent line" },
     { "n",               "<C-Right>",                  ">>llll",                                        "Indent line" },
+    { "x",               "v",                          function() require("lib.select_node").grow() end, "Grow selection to the enclosing node" },
     { "x",               "<C-Up>",                     ":<C-u>silent! '<,'>m '<-2<CR>gv=gv",            "Move line up" },
     { "x",               "<C-Down>",                   ":<C-u>silent! '<,'>m '>+1<CR>gv=gv",            "Move line down" },
     { "x",               "<C-Left>",                   "<gvhhhh",                                       "Unindent line" },
