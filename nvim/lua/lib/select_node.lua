@@ -1,51 +1,112 @@
--- v in visual mode grows the selection to the smallest treesitter node that
--- is bigger than it; repeated presses climb the tree.
+-- In charwise visual mode v grows the selection to the enclosing treesitter
+-- node and V shrinks it back, leaving visual mode once the stack is empty.
+-- A bracketed node is two steps: its contents, then with the brackets.
+-- Linewise and blockwise visual keep their native v and V.
 local M = {}
 
-local function selection()
-    local s, e = vim.fn.getpos("v"), vim.fn.getpos(".")
-    if s[2] > e[2] or (s[2] == e[2] and s[3] > e[3]) then
-        s, e = e, s
+---@class select_node.Step
+---@field node TSNode
+---@field inner boolean without the surrounding pair
+
+local stack = {} ---@type select_node.Step[]
+vim.api.nvim_create_autocmd("ModeChanged", {
+    group = vim.api.nvim_create_augroup("select_node", { clear = true }),
+    pattern = "v:*",
+    callback = function() stack = {} end,
+})
+
+local pairs_ = { ["("] = ")", ["["] = "]", ["{"] = "}", ['"'] = '"', ["'"] = "'", ["`"] = "`" }
+
+-- The opening and closing children, when the node is wrapped in a pair
+local function brackets(node)
+    local first, last = node:child(0), node:child(node:child_count() - 1)
+    if first and last and first ~= last and pairs_[first:type()] == last:type() then
+        return first, last
     end
-    return s[2] - 1, s[3] - 1, e[2] - 1, e[3] - 1
 end
 
-local function contains(node, sr, sc, er, ec)
-    local nsr, nsc, ner, nec = node:range()
-    -- node end columns are exclusive, the selection's is inclusive
-    nec = nec - 1
-    local starts_before = nsr < sr or (nsr == sr and nsc <= sc)
-    local ends_after = ner > er or (ner == er and nec >= ec)
-    return starts_before and ends_after
+-- End columns are exclusive, so a range ending at column 0 of a later line
+-- is brought back to the end of the line before
+---@param step select_node.Step
+local function range(step)
+    local sr, sc, er, ec
+    if step.inner then
+        local first, last = brackets(step.node)
+        _, _, sr, sc = first:range()
+        er, ec = last:range()
+    else
+        sr, sc, er, ec = step.node:range()
+    end
+    if ec == 0 and er > sr then
+        er = er - 1
+        ec = #vim.fn.getline(er + 1)
+    end
+    return sr, sc, er, ec
 end
 
-local function same(node, sr, sc, er, ec)
-    local nsr, nsc, ner, nec = node:range()
-    return nsr == sr and nsc == sc and ner == er and nec - 1 == ec
+-- Moves both ends without leaving visual mode
+---@param step select_node.Step
+local function select(step)
+    local sr, sc, er, ec = range(step)
+    vim.api.nvim_win_set_cursor(0, { sr + 1, sc })
+    vim.cmd("normal! o")
+    vim.api.nvim_win_set_cursor(0, { er + 1, math.max(ec - 1, 0) })
+end
+
+---@param step select_node.Step
+local function covers(step)
+    local s, e = vim.fn.getpos("v"), vim.fn.getpos(".")
+    local sr, sc, er, ec =
+        math.min(s[2], e[2]) - 1, math.min(s[3], e[3]) - 1, math.max(s[2], e[2]) - 1, math.max(s[3], e[3])
+    local nsr, nsc, ner, nec = range(step)
+    return (nsr < sr or (nsr == sr and nsc <= sc))
+        and (ner > er or (ner == er and nec >= ec))
+        and not (nsr == sr and nsc == sc and ner == er and nec == ec)
 end
 
 function M.grow()
-    local sr, sc, er, ec = selection()
-    local ok, node = pcall(vim.treesitter.get_node, { pos = { sr, sc } })
-    if not ok or not node then
-        return
+    local top = stack[#stack]
+    local node = top and top.node
+    if top and top.inner then
+        top = { node = node, inner = false }
+    else
+        node = node and node:parent() or vim.treesitter.get_node()
+        top = nil
+        while node and not top do
+            for _, inner in ipairs({ true, false }) do
+                local step = { node = node, inner = inner }
+                if not top and (not inner or brackets(node)) and covers(step) then
+                    top = step
+                end
+            end
+            node = node:parent()
+        end
     end
-    while node and not (contains(node, sr, sc, er, ec) and not same(node, sr, sc, er, ec)) do
-        node = node:parent()
+    if top then
+        table.insert(stack, top)
+        select(top)
     end
-    if not node then
-        return
+end
+
+function M.shrink()
+    table.remove(stack)
+    if stack[#stack] then
+        select(stack[#stack])
+    else
+        vim.cmd("normal! \27")
     end
-    local nsr, nsc, ner, nec = node:range()
-    -- a node ending at column 0 of a later line ends on the line before
-    if nec == 0 and ner > nsr then
-        ner = ner - 1
-        nec = #vim.fn.getline(ner + 1)
+end
+
+-- The key itself outside charwise visual, so V still means linewise there
+---@param key "v"|"V"
+function M.map(key)
+    local action = key == "v" and "grow" or "shrink"
+    return function()
+        if vim.fn.mode() ~= "v" then
+            return key
+        end
+        return "<Cmd>lua require('lib.select_node')." .. action .. "()<CR>"
     end
-    vim.cmd("normal! \27")
-    vim.api.nvim_win_set_cursor(0, { nsr + 1, nsc })
-    vim.cmd("normal! v")
-    vim.api.nvim_win_set_cursor(0, { ner + 1, math.max(nec - 1, 0) })
 end
 
 return M
