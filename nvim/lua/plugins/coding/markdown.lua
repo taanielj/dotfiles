@@ -11,7 +11,10 @@ return {
         "toppair/peek.nvim",
         ft = "markdown",
         build = "deno task --quiet build",
-        opts = {},
+        opts = {
+            -- Preview in the default browser; peek's "browser" shells out to xdg-open, absent on WSL.
+            app = vim.fn.has("wsl") == 1 and { "wslview" } or "browser",
+        },
         keys = {
             {
                 "<leader>p",

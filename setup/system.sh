@@ -70,6 +70,9 @@ main_system() {
         ;;
     esac
 
+    # wslu provides wslview, which nvim's markdown preview uses to reach the Windows browser.
+    [[ -n "$WSL_DISTRO_NAME" ]] && PACKAGES+=("wslu")
+
     install_packages "${PACKAGES[@]}"
 }
 
