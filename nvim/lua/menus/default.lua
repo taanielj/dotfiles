@@ -47,7 +47,7 @@ return function(ctx)
         icons.format,
         "Format buffer",
         require("lsp.format").buffer,
-        ctx.modifiable and ctx.supports("textDocument/formatting")
+        ctx.modifiable and require("lsp.format").available(ctx.bufnr)
     )
     rows.item(icons.diagnostics, "Show diagnostics", vim.diagnostic.open_float, ctx.line_diagnostics)
     rows.item(icons.list, "All diagnostics", vim.diagnostic.setqflist, ctx.diagnostics)

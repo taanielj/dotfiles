@@ -30,14 +30,23 @@ local function organize_imports(bufnr)
     end
 end
 
+-- A conform formatter for the filetype, or a server that formats. The PopUp
+-- menu is first built before lazy.nvim has loaded conform.
+function M.available(bufnr)
+    local ok, conform = pcall(require, "conform")
+    if not ok then
+        return false
+    end
+    local formatters, lsp = conform.list_formatters_to_run(bufnr)
+    return #formatters > 0 or lsp
+end
+
 -- mkview/loadview keep the folds across the rewrite.
 function M.buffer()
     local bufnr = vim.api.nvim_get_current_buf()
     vim.cmd("mkview")
     organize_imports(bufnr)
-    if next(vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/formatting" })) then
-        vim.lsp.buf.format({ bufnr = bufnr, timeout_ms = 5000 })
-    end
+    require("conform").format({ bufnr = bufnr, timeout_ms = 5000 })
     vim.cmd("retab")
     require("lib.view").load()
     vim.cmd("retab")
