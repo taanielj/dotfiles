@@ -30,6 +30,8 @@ return {
                     ensure_installed = {
                         "stylua",
                         "shfmt",
+                        "prettier",
+                        "sqlfmt",
                         "buf", -- Protobuf
                         "checkmake", -- Makefile linter
                         "sonarlint-language-server",
