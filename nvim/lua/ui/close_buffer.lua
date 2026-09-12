@@ -1,5 +1,6 @@
 -- Closing keeps the window layout, and the last listed buffer going quits
--- nvim. Inside a diffview the view closes instead: its buffers are not ours.
+-- nvim, or shows the dashboard when neo-tree is open (ui/dashboard.lua).
+-- Inside a diffview the view closes instead: its buffers are not ours.
 local M = {}
 
 ---@class ui.close_buffer.Opts: snacks.bufdelete.Opts
@@ -21,6 +22,12 @@ function M.close(opts)
     end
 
     if vim.bo[buf].buflisted and #buffers.listed() <= 1 then
+        local dashboard = require("ui.dashboard")
+        if dashboard.tree_open() then
+            dashboard.open()
+            vim.cmd((opts.force and "bdelete! " or "bdelete ") .. buf)
+            return
+        end
         vim.cmd(opts.force and "qa!" or "qa")
         return
     end
