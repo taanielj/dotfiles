@@ -16,7 +16,7 @@ map({
     -- Right-click uses Neovim's own popup_setpos; this is the keyboard route
     { "n", "<leader>.", function() require("menus").popup_at_cursor() end,     "Open menu" },
     { "n", "<leader>e", "<Cmd>Neotree filesystem reveal left toggle=true<CR>", "Show files" },
-    { "n", "<leader>A", function() Snacks.dashboard() end,                     "Dashboard" },
+    { "n", "<leader>A", function() require("ui.dashboard").open() end,                     "Dashboard" },
     { "n", "<leader>z", function() require("ui.zen").toggle() end,                "Toggle zen mode" },
     { "n", "<leader>gg", function() require("ui.lazygit").open() end,             "LazyGit" },
     { "n", { "-", "<BS>" }, "<Cmd>Oil<CR>",                                    "Open parent directory" },

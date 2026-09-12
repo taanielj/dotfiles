@@ -146,3 +146,17 @@ vim.api.nvim_create_autocmd("FileType", {
         )
     end,
 })
+
+-- :q on the last file window: see ui/dashboard.lua
+vim.api.nvim_create_autocmd("WinClosed", {
+    group = vim.api.nvim_create_augroup("user_dashboard_fallback", { clear = true }),
+    callback = function(ev)
+        local closed = tonumber(ev.match)
+        vim.schedule(function()
+            local dashboard = require("ui.dashboard")
+            if dashboard.only_tree_left(closed) then
+                dashboard.open_beside_tree()
+            end
+        end)
+    end,
+})

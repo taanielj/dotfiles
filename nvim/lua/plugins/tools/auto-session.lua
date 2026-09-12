@@ -48,7 +48,7 @@ return {
                     end
                     if only_no_name then
                         vim.cmd("%bd!")
-                        Snacks.dashboard()
+                        Snacks.dashboard({ win = 0 })
                         vim.cmd("tabdo bd#")
                     else
                         vim.cmd("Neotree show")
@@ -63,7 +63,7 @@ return {
             post_delete_cmds = {
                 function()
                     return {
-                        Snacks.dashboard(),
+                        Snacks.dashboard({ win = 0 }),
                         vim.cmd("bd#"),
                     }
                 end,
