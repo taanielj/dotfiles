@@ -184,6 +184,7 @@ description = "resurrect: restore"
 
 [ui]
 pane_gaps = false
+host_cursor = "native"
 toast.delivery = "system"
 
 # Tab bar right side (tmux status-right equivalent). Separate command entries
