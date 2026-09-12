@@ -23,7 +23,6 @@ return {
                     },
                 },
             },
-            "hrsh7th/cmp-nvim-lsp",
             "mason-org/mason-lspconfig.nvim",
             {
                 "WhoIsSethDaniel/mason-tool-installer.nvim",

@@ -11,7 +11,7 @@ return {
                 neotree = true,
                 telescope = true,
                 treesitter = true,
-                cmp = true,
+                blink_cmp = true,
                 gitsigns = true,
             },
             -- Reapplied with the colorscheme, unlike a highlight set at config time

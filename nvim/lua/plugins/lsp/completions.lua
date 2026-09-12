@@ -6,38 +6,44 @@ return {
         init = function() vim.g.copilot_no_tab_map = true end,
     },
     {
-        "L3MON4D3/LuaSnip",
+        "saghen/blink.cmp",
         event = "InsertEnter",
-        dependencies = {
-            "saadparwaiz1/cmp_luasnip",
-            "rafamadriz/friendly-snippets",
-        },
-        opts = {},
-    },
-    {
-        "hrsh7th/nvim-cmp",
-        event = "InsertEnter",
-        dependencies = { "hrsh7th/cmp-buffer" },
-        config = function()
-            local cmp = require("cmp")
-            require("luasnip.loaders.from_vscode").lazy_load()
-            cmp.setup({
-                snippet = {
-                    expand = function(args) require("luasnip").lsp_expand(args.body) end,
+        dependencies = { "saghen/blink.lib", "rafamadriz/friendly-snippets" },
+        build = function() require("blink.cmp").build():pwait() end,
+        ---@module 'blink.cmp'
+        ---@type blink.cmp.Config
+        opts = {
+            keymap = {
+                preset = "enter",
+                ["<C-k>"] = {}, -- C-hjkl move between panes
+            },
+            completion = { documentation = { auto_show = true, auto_show_delay_ms = 200 } },
+            cmdline = {
+                -- The preset walks the list with Left and Right; Up and Down walk directories
+                keymap = {
+                    preset = "cmdline",
+                    ["<Down>"] = { "accept", "fallback" },
+                    ["<Up>"] = {
+                        function(cmp)
+                            if not cmp.is_menu_visible() then
+                                return false
+                            end
+                            local line = vim.fn.getcmdline()
+                            local parent = line:gsub("[^/ ]+/?$", "")
+                            if parent == line then
+                                return false
+                            end
+                            vim.fn.setcmdline(parent)
+                            return cmp.show()
+                        end,
+                        "fallback",
+                    },
                 },
-                mapping = cmp.mapping.preset.insert({
-                    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                    ["<C-Space>"] = cmp.mapping.complete(),
-                    ["<C-e>"] = cmp.mapping.abort(),
-                    ["<CR>"] = cmp.mapping.confirm({ select = false }),
-                }),
-                sources = cmp.config.sources({
-                    { name = "nvim_lsp" },
-                    { name = "luasnip" },
-                    { name = "buffer" },
-                }, {}),
-            })
-        end,
+                completion = { menu = { auto_show = function() return vim.fn.getcmdtype() == ":" end } },
+            },
+            sources = { default = { "lsp", "path", "snippets", "buffer" } },
+            fuzzy = { implementation = "rust" },
+        },
+        opts_extend = { "sources.default" },
     },
 }
