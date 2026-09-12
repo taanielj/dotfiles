@@ -22,6 +22,7 @@ local groups = {
     { "<leader>q",  group = "Close" },
     { "<leader>qf", group = "Force quit" },
     { "<leader>y",  group = "Yank" },
+    { "gz",         group = "Surround" },
 }
 
 require("keybinds.buffers")
