@@ -20,19 +20,4 @@ return {
             })
         end,
     },
-    {
-        "jay-babu/mason-null-ls.nvim",
-        dependencies = { "williamboman/mason.nvim" },
-        event = { "BufReadPre", "BufNewFile" },
-        opts = {
-            automatic_installation = true,
-            ensure_installed = {
-                "stylua",
-                "shfmt",
-                "buf", -- Protobuf
-                "checkmake", -- Makefile linter
-                "sonarlint-language-server",
-            },
-        },
-    },
 }
