@@ -13,6 +13,7 @@ return {
                 treesitter = true,
                 blink_cmp = true,
                 gitsigns = true,
+                snacks = true,
             },
             -- Reapplied with the colorscheme, unlike a highlight set at config time
             custom_highlights = {

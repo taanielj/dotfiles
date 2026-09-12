@@ -1,11 +1,11 @@
 -- Inside herdr, lazygit is herdr's own popup, the plugin pane behind prefix+g,
--- so one lazygit looks the same from every pane; elsewhere it is lazygit.nvim.
+-- so one lazygit looks the same from every pane; elsewhere it is snacks' float.
 local M = {}
 
 function M.open()
     local herdr = require("lib.herdr")
     if not herdr.inside() then
-        vim.cmd("LazyGit")
+        Snacks.lazygit()
         return
     end
     herdr.run({
