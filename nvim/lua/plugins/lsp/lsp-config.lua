@@ -11,7 +11,7 @@ return {
     {
         "neovim/nvim-lspconfig",
         dependencies = {
-            { "williamboman/mason.nvim", opts = {} },
+            { "mason-org/mason.nvim", opts = {} },
             {
                 "j-hui/fidget.nvim",
                 opts = {
@@ -24,7 +24,19 @@ return {
                 },
             },
             "hrsh7th/cmp-nvim-lsp",
-            "williamboman/mason-lspconfig.nvim",
+            "mason-org/mason-lspconfig.nvim",
+            {
+                "WhoIsSethDaniel/mason-tool-installer.nvim",
+                opts = {
+                    ensure_installed = {
+                        "stylua",
+                        "shfmt",
+                        "buf", -- Protobuf
+                        "checkmake", -- Makefile linter
+                        "sonarlint-language-server",
+                    },
+                },
+            },
         },
         config = function()
             -- vim.lsp.buf.document_highlight() applies the reply without checking
