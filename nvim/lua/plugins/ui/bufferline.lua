@@ -1,6 +1,7 @@
 return {
     "akinsho/bufferline.nvim",
     version = "*",
+    event = "VeryLazy",
     dependencies = {
         "nvim-tree/nvim-web-devicons",
         "folke/snacks.nvim", -- buffer closing that keeps the window layout
