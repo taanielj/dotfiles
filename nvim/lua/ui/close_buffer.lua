@@ -26,6 +26,7 @@ function M.close(opts)
         if dashboard.tree_open() then
             dashboard.open()
             vim.cmd((opts.force and "bdelete! " or "bdelete ") .. buf)
+            require("ui.session").forget()
             return
         end
         vim.cmd(opts.force and "qa!" or "qa")
@@ -33,6 +34,28 @@ function M.close(opts)
     end
 
     require("snacks.bufdelete").delete(opts)
+end
+
+---Back to an empty workspace: every listed buffer goes and the dashboard
+---stands in. Unsaved work refuses the reset rather than prompting per buffer,
+---so the answer is the same whichever buffer is current.
+function M.close_all()
+    local session = require("ui.session")
+    local unsaved = session.unsaved()
+    if #unsaved > 0 then
+        vim.notify("Unsaved: " .. table.concat(unsaved, ", "), vim.log.levels.WARN)
+        return
+    end
+
+    local diffview = require("ui.diffview")
+    if diffview.is_open() then
+        diffview.close()
+    end
+
+    -- The dashboard takes the window first, so no delete lands on the last one
+    require("ui.dashboard").open()
+    require("snacks.bufdelete").delete({ filter = function() return true end })
+    session.forget()
 end
 
 return M
