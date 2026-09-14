@@ -38,13 +38,31 @@ end
 ---@return string?
 function M.root(path) return vim.fs.root(path, ".git") end
 
----The origin's web URL for a file on the checked-out branch, with a line
----anchor when lines are given; nil outside a repository or without origin.
+---The ref a web URL hangs off: the checked-out branch, or the commit when
+---detached or pinning, since a forge cannot resolve the literal "HEAD" that
+---git names a detached checkout by.
+---@param root string
+---@param permalink boolean?
+---@return string
+local function web_ref(root, permalink)
+    if not permalink then
+        local branch = M.run({ "-C", root, "rev-parse", "--abbrev-ref", "HEAD" })
+        if branch ~= "" and branch ~= "HEAD" then
+            return branch
+        end
+    end
+    return M.run({ "-C", root, "rev-parse", "HEAD" })
+end
+
+---The origin's web URL for a file, with a line anchor when lines are given;
+---nil outside a repository or without origin. Pinning hangs the URL off the
+---commit instead of the branch, so it still points at these lines later.
 ---@param path string
 ---@param first integer?
 ---@param last integer?
+---@param opts { permalink: boolean? }?
 ---@return string?
-function M.remote_url(path, first, last)
+function M.remote_url(path, first, last, opts)
     local root = M.root(path)
     if not root then
         return nil
@@ -54,7 +72,7 @@ function M.remote_url(path, first, last)
         return nil
     end
     origin = origin:gsub("^git@([^:]+):", "https://%1/"):gsub("%.git$", "")
-    local branch = M.run({ "-C", root, "rev-parse", "--abbrev-ref", "HEAD" })
+    local ref = web_ref(root, opts and opts.permalink)
     local file = path:sub(#root + 2)
 
     local blob, anchor = "/blob/%s/%s", { "#L%d", "-L%d" }
@@ -63,7 +81,7 @@ function M.remote_url(path, first, last)
     elseif origin:match("bitbucket") then
         blob, anchor = "/src/%s/%s", { "#lines-%d", ":%d" }
     end
-    local url = origin .. blob:format(branch, file)
+    local url = origin .. blob:format(ref, file)
     if first then
         url = url .. anchor[1]:format(first)
         if last and last ~= first then
@@ -75,8 +93,8 @@ end
 
 ---`remote_url`, warning when there is none to give.
 ---@return string?
-function M.web_url(path, first, last)
-    local url = M.remote_url(path, first, last)
+function M.web_url(path, first, last, opts)
+    local url = M.remote_url(path, first, last, opts)
     if not url then
         vim.notify("No git remote for this file", vim.log.levels.WARN)
     end
