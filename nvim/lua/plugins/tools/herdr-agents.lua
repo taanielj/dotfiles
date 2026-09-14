@@ -1,5 +1,7 @@
 return {
     "ctbaum/herdr-agents.nvim",
+    -- main requires herdr-agents.status, which that commit never added
+    commit = "ed5774360f61a6de155657769d7d84a32037972f",
     cond = require("lib.herdr").inside(),
     -- setup starts the claudecode server that an agent pane attaches to
     lazy = false,
