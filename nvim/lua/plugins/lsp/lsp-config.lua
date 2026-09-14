@@ -5,6 +5,7 @@ return {
         opts = {
             library = {
                 { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+                { path = "snacks.nvim", words = { "Snacks" } },
             },
         },
     },
@@ -34,6 +35,7 @@ return {
                         "sqlfmt",
                         "buf", -- Protobuf
                         "checkmake", -- Makefile linter
+                        "shellcheck", -- Shell linter
                         "sonarlint-language-server",
                     },
                 },

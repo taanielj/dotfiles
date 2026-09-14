@@ -18,6 +18,9 @@ map({
     { "n", "<leader>e", "<Cmd>Neotree filesystem reveal left toggle=true<CR>", "Show files" },
     { "n", "<leader>A", function() require("ui.dashboard").open() end,                     "Dashboard" },
     { "n", "<leader>z", function() require("ui.zen").toggle() end,                "Toggle zen mode" },
+    -- Keyed by cwd, branch and filetype; a count opens a second one
+    { "n", "<leader>n", function() Snacks.scratch() end,                          "Scratch buffer" },
+    { "n", "<leader>N", function() Snacks.scratch.select() end,                   "Pick a scratch buffer" },
     { "n", "<leader>gg", function() require("ui.lazygit").open() end,             "LazyGit" },
     { "n", { "-", "<BS>" }, "<Cmd>Oil<CR>",                                    "Open parent directory" },
     { "n", "zR",        function() require("ufo").openAllFolds() end,          "Open all folds" },

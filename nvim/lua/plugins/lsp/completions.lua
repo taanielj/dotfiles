@@ -17,7 +17,12 @@ return {
                 preset = "enter",
                 ["<C-k>"] = {}, -- C-hjkl move between panes
             },
-            completion = { documentation = { auto_show = true, auto_show_delay_ms = 200 } },
+            completion = {
+                documentation = { auto_show = true, auto_show_delay_ms = 200 },
+                -- Enter accepts only what was navigated to, not the first match
+                list = { selection = { preselect = false } },
+            },
+            signature = { enabled = true },
             cmdline = {
                 -- The preset walks the list with Left and Right; Up and Down walk directories
                 keymap = {
