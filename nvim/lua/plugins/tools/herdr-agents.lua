@@ -4,7 +4,7 @@ return {
     commit = "ed5774360f61a6de155657769d7d84a32037972f",
     cond = require("lib.herdr").inside(),
     -- setup starts the claudecode server that an agent pane attaches to
-    lazy = false,
+    event = "VeryLazy",
     dependencies = {
         { "coder/claudecode.nvim", dependencies = { "folke/snacks.nvim" } },
         { "ishiooon/codex.nvim", dependencies = { "folke/snacks.nvim" } },

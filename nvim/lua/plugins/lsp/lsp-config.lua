@@ -28,6 +28,7 @@ return {
             {
                 "WhoIsSethDaniel/mason-tool-installer.nvim",
                 opts = {
+                    start_delay = 3000,
                     ensure_installed = {
                         "stylua",
                         "shfmt",
