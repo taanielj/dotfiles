@@ -15,6 +15,7 @@ map({
     { "n", "<leader>bch",                          "<Cmd>BufferLineCloseLeft<CR>",                  "Close buffers to the left" },
     { "n", "<leader>bcl",                          "<Cmd>BufferLineCloseRight<CR>",                 "Close buffers to the right" },
     { "n", "<leader>bca",                          "<Cmd>BufferLineCloseOthers<CR>",                "Close other buffers" },
+    { "n", "<leader>bcA",                          function() require("ui.close_buffer").close_all() end, "Close all buffers" },
     { "n", "<leader>bsd",                          "<Cmd>BufferLineSortByDirectory<CR>",            "Sort by directory" },
     { "n", "<leader>bst",                          "<Cmd>BufferLineSortByTabs<CR>",                 "Sort by tabs" },
     { "n", "<leader>bse",                          "<Cmd>BufferLineSortByExtension<CR>",            "Sort by extension" },
