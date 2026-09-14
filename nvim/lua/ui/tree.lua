@@ -14,6 +14,14 @@ function M.display_name()
     return state and state.display_name
 end
 
+function M.toggle()
+    if require("ui.diffview").is_open() then
+        vim.notify("No tree inside a diffview", vim.log.levels.INFO)
+        return
+    end
+    vim.cmd("Neotree filesystem reveal left toggle=true")
+end
+
 function M.refresh()
     local state = require("neo-tree.sources.manager").get_state("filesystem")
     require("neo-tree.sources.filesystem.commands").refresh(state)

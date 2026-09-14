@@ -191,14 +191,23 @@ local function listed()
     return set
 end
 
+-- The bufferline lists buffers the view is not about
+local showtabline
+
 M.hooks = {
     diff_buf_read = function(bufnr)
         if vim.api.nvim_buf_get_name(bufnr):match("^diffview://") then
             require("ui.diffview.stage").map_keys(bufnr)
         end
     end,
-    view_opened = function(view) listed_before[view.tabpage] = listed() end,
+    view_opened = function(view)
+        listed_before[view.tabpage] = listed()
+        showtabline = showtabline or vim.o.showtabline
+        vim.o.showtabline = 0
+    end,
     view_closed = function(view)
+        vim.o.showtabline = showtabline
+        showtabline = nil
         local before = listed_before[view.tabpage] or {}
         listed_before[view.tabpage] = nil
         for buf in pairs(listed()) do
