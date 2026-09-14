@@ -5,6 +5,7 @@ return {
         "nvim-tree/nvim-web-devicons",
     },
     config = function()
+        vim.o.showcmdloc = "statusline"
         require("lualine").setup({
             options = {
                 theme = "catppuccin-nvim", -- follows the active catppuccin flavour (catppuccin.lua)
@@ -41,12 +42,18 @@ return {
                         color = "DiagnosticWarn",
                     },
                     {
-                        function() return require("noice").api.status.mode.get() end,
-                        cond = function() return package.loaded["noice"] and require("noice").api.status.mode.has() end,
+                        function() return "recording @" .. vim.fn.reg_recording() end,
+                        cond = function() return vim.fn.reg_recording() ~= "" end,
                         color = { fg = "#ff9e64" },
                     },
+                    "%S",
                 },
             },
+        })
+        vim.api.nvim_create_autocmd({ "RecordingEnter", "RecordingLeave" }, {
+            group = vim.api.nvim_create_augroup("lualine_recording", { clear = true }),
+            -- reg_recording() still names the register during RecordingLeave
+            callback = function() vim.schedule(require("lualine").refresh) end,
         })
     end,
 }
