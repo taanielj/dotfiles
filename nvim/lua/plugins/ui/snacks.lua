@@ -57,8 +57,10 @@ return {
                 { section = "recent_files", cwd = true, limit = 8, padding = 1 },
                 { title = "Projects", padding = 1 },
                 { section = "projects", padding = 1 },
+                { section = "startup" },
             },
         },
+        bigfile = { enabled = true },
         indent = {
             enabled = true,
             indent = { char = "▏", hl = rainbow_groups },

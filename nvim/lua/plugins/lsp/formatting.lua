@@ -46,9 +46,14 @@ return {
     },
     {
         "mfussenegger/nvim-lint",
-        ft = "make",
+        -- shellcheck rejects zsh, so zsh is formatted but not linted
+        ft = { "make", "sh", "bash" },
         config = function()
-            require("lint").linters_by_ft = { make = { "checkmake" } }
+            require("lint").linters_by_ft = {
+                make = { "checkmake" },
+                sh = { "shellcheck" },
+                bash = { "shellcheck" },
+            }
             vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost" }, {
                 group = vim.api.nvim_create_augroup("lint", { clear = true }),
                 callback = function() require("lint").try_lint() end,
