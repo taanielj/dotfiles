@@ -29,11 +29,6 @@ function M.restart()
     end
 
     require("auto-session").auto_save_session()
-
-    -- noice's UI handler errors on the restart event, so it is detached first
-    if package.loaded["noice"] then
-        require("noice").disable()
-    end
     vim.cmd.restart()
 end
 
