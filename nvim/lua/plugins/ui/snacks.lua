@@ -66,7 +66,10 @@ return {
             indent = { char = "▏", hl = rainbow_groups },
             scope = { char = "▎", hl = rainbow_groups },
         },
-        input = { enabled = true },
+        input = {
+            enabled = true,
+            win = { keys = { i_esc = { "<esc>", { "cmp_close", "cancel" }, mode = "i", expr = true } } },
+        },
         notifier = { enabled = true, style = "fancy" },
         scroll = { enabled = true },
         -- Outside herdr only; ui/lazygit.lua opens herdr's own popup inside it
