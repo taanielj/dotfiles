@@ -6,21 +6,27 @@ local M = {}
 ---@class ui.close_buffer.Opts: snacks.bufdelete.Opts
 ---@field save? boolean
 
----@param opts? ui.close_buffer.Opts
-function M.close(opts)
-    opts = opts or {}
-    local diffview = require("ui.diffview")
-    if not opts.buf and diffview.is_open() then
-        diffview.close()
-        return
+-- An unnamed buffer with changes asks where to write them; nothing happens
+-- when the prompt is cancelled
+local function save(buf, done)
+    if vim.bo[buf].buftype ~= "" or vim.bo[buf].readonly or not vim.bo[buf].modified then
+        return done()
     end
-
-    local buffers = require("lib.buffers")
-    local buf = opts.buf or vim.api.nvim_get_current_buf()
-    if opts.save and buffers.is_file(buf) and not vim.bo[buf].readonly then
+    if require("lib.buffers").is_file(buf) then
         vim.api.nvim_buf_call(buf, function() vim.cmd.update() end)
+        return done()
     end
+    vim.ui.input({ prompt = "Save as (Esc to cancel): ", completion = "file" }, function(name)
+        if not name or name == "" then
+            return
+        end
+        vim.api.nvim_buf_call(buf, function() vim.cmd("write " .. vim.fn.fnameescape(name)) end)
+        done()
+    end)
+end
 
+local function close(opts, buf)
+    local buffers = require("lib.buffers")
     if vim.bo[buf].buflisted and #buffers.listed() <= 1 then
         local dashboard = require("ui.dashboard")
         if dashboard.tree_open() then
@@ -34,6 +40,23 @@ function M.close(opts)
     end
 
     require("snacks.bufdelete").delete(opts)
+end
+
+---@param opts? ui.close_buffer.Opts
+function M.close(opts)
+    opts = opts or {}
+    local diffview = require("ui.diffview")
+    if not opts.buf and diffview.is_open() then
+        diffview.close()
+        return
+    end
+
+    local buf = opts.buf or vim.api.nvim_get_current_buf()
+    if opts.save then
+        save(buf, function() close(opts, buf) end)
+    else
+        close(opts, buf)
+    end
 end
 
 ---Back to an empty workspace: every listed buffer goes and the dashboard
