@@ -7,6 +7,20 @@ end
 local function swap(direction, query)
     return function() require("nvim-treesitter-textobjects.swap")[direction](query, "textobjects") end
 end
+-- In markdown, i` and a` reach the fenced block when the line has no backtick
+-- pair of its own
+local function backticks(side)
+    return function()
+        local line = vim.api.nvim_get_current_line()
+        local _, count = line:gsub("`", "")
+        if vim.bo.filetype ~= "markdown" or (count >= 2 and not line:match("^%s*```")) then
+            return side:sub(1, 1) .. "`"
+        end
+        return ("<Cmd>lua require('nvim-treesitter-textobjects.select').select_textobject('@block.%s', 'textobjects')<CR>"):format(
+            side
+        )
+    end
+end
 
 return {
     "nvim-treesitter/nvim-treesitter-textobjects",
@@ -32,6 +46,8 @@ return {
         { "ii", mode = { "x", "o" }, select("@conditional.inner"), desc = "Conditional body" },
         { "al", mode = { "x", "o" }, select("@loop.outer"),        desc = "Loop" },
         { "il", mode = { "x", "o" }, select("@loop.inner"),        desc = "Loop body" },
+        { "i`", mode = { "x", "o" }, backticks("inner"), expr = true, desc = "Backticks or fenced block body" },
+        { "a`", mode = { "x", "o" }, backticks("outer"), expr = true, desc = "Backticks or fenced block" },
         { "]f", mode = { "n", "x", "o" }, move("goto_next_start", "@function.outer"),     desc = "Next function" },
         { "[f", mode = { "n", "x", "o" }, move("goto_previous_start", "@function.outer"), desc = "Previous function" },
         { "]a", mode = { "n", "x", "o" }, move("goto_next_start", "@parameter.inner"),    desc = "Next argument" },
