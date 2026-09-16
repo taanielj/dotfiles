@@ -47,13 +47,17 @@ return {
     {
         "mfussenegger/nvim-lint",
         -- shellcheck rejects zsh, so zsh is formatted but not linted
-        ft = { "make", "sh", "bash" },
+        ft = { "make", "sh", "bash", "go" },
         config = function()
-            require("lint").linters_by_ft = {
+            local lint = require("lint")
+            lint.linters_by_ft = {
                 make = { "checkmake" },
                 sh = { "shellcheck" },
                 bash = { "shellcheck" },
+                go = { "golangcilint" },
             }
+            -- gopls owns staticcheck and vet; see its entry in lsp-config.lua
+            table.insert(lint.linters.golangcilint.args, 2, "--disable=staticcheck,govet")
             vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost" }, {
                 group = vim.api.nvim_create_augroup("lint", { clear = true }),
                 callback = function() require("lint").try_lint() end,

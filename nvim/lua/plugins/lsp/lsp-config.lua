@@ -192,7 +192,25 @@ return {
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
                 marksman = {},
                 dockerls = {},
-                gopls = {},
+                -- The six analyses off here are the ones golangci-lint's default
+                -- staticcheck config excludes, so gopls reports what CI reports.
+                -- nvim-lint then runs golangci-lint without staticcheck and govet,
+                -- so each check has one owner (see formatting.lua).
+                gopls = {
+                    settings = {
+                        gopls = {
+                            staticcheck = true,
+                            analyses = {
+                                ST1000 = false,
+                                ST1003 = false,
+                                ST1016 = false,
+                                ST1020 = false,
+                                ST1021 = false,
+                                ST1022 = false,
+                            },
+                        },
+                    },
+                },
                 eslint = {},
                 cssls = {},
                 terraformls = {},
