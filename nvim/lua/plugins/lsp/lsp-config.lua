@@ -192,11 +192,8 @@ return {
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
                 marksman = {},
                 dockerls = {},
-                -- `local` groups the workspace's own imports apart from third
-                -- party, as goimports -local does; the module comes from go.mod.
-                -- Build tags are per project: set buildFlags in its .nvim.lua.
-                -- The client copies its settings reference before before_init
-                -- runs, so the table is filled in place rather than replaced.
+                -- `local` is goimports -local. Filled in place: the client
+                -- copied its settings reference before before_init runs.
                 gopls = {
                     settings = { gopls = {} },
                     before_init = function(_, config)
