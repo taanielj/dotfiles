@@ -29,6 +29,7 @@ local formatters_by_ft = {
     proto = { "buf" },
     sql = { "sqlfmt" },
     jinja = { "sqlfmt" },
+    go = { "golangci-lint" },
 }
 for _, ft in ipairs(prettier) do
     formatters_by_ft[ft] = { "prettier" }
@@ -49,8 +50,6 @@ return {
         -- shellcheck rejects zsh, so zsh is formatted but not linted
         ft = { "make", "sh", "bash", "go" },
         config = function()
-            -- golangci-lint runs with the project's own config, so the buffer
-            -- shows what CI shows
             require("lint").linters_by_ft = {
                 make = { "checkmake" },
                 sh = { "shellcheck" },
