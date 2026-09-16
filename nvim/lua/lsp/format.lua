@@ -46,7 +46,13 @@ function M.buffer()
     local bufnr = vim.api.nvim_get_current_buf()
     vim.cmd("mkview")
     organize_imports(bufnr)
-    require("conform").format({ bufnr = bufnr, timeout_ms = 5000 })
+    -- gofmt rejects a file that does not parse: surface the position and
+    -- reason instead of conform's full RPC error dump
+    require("conform").format({ bufnr = bufnr, timeout_ms = 5000, quiet = true }, function(err)
+        if err then
+            vim.notify(err:match('message = "(.*)"$') or err, vim.log.levels.WARN)
+        end
+    end)
     vim.cmd("retab")
     require("lib.view").load()
     vim.cmd("retab")

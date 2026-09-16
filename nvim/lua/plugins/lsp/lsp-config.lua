@@ -192,24 +192,16 @@ return {
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
                 marksman = {},
                 dockerls = {},
-                -- The six analyses off here are the ones golangci-lint's default
-                -- staticcheck config excludes, so gopls reports what CI reports.
-                -- nvim-lint then runs golangci-lint without staticcheck and govet,
-                -- so each check has one owner (see formatting.lua).
+                -- `local` groups the workspace's own imports apart from third
+                -- party, as goimports -local does; the module comes from go.mod.
+                -- Build tags are per project: set buildFlags in its .nvim.lua.
+                -- The client copies its settings reference before before_init
+                -- runs, so the table is filled in place rather than replaced.
                 gopls = {
-                    settings = {
-                        gopls = {
-                            staticcheck = true,
-                            analyses = {
-                                ST1000 = false,
-                                ST1003 = false,
-                                ST1016 = false,
-                                ST1020 = false,
-                                ST1021 = false,
-                                ST1022 = false,
-                            },
-                        },
-                    },
+                    settings = { gopls = {} },
+                    before_init = function(_, config)
+                        config.settings.gopls["local"] = require("lsp.go").module(config.root_dir)
+                    end,
                 },
                 eslint = {},
                 cssls = {},
