@@ -11,6 +11,7 @@ VENV/
 .vscode/
 session.vim
 Session.vim
+.nvim.lua
 
 # Python specific
 __pycache__/
