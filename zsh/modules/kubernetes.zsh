@@ -99,7 +99,7 @@ kauth() {
     kubectl auth can-i "$verb" "$resource" --as self
 }
 
-kxe() {
+ke() {
     local pod container
     pod=$(_k8s_pick pod) || return
     container=$(_k8s_pick_container "$pod") || return
