@@ -102,15 +102,15 @@ command -v nvim &>/dev/null && export EDITOR="nvim"
 # Machine-local settings (e.g. work git hosts); lazygit exits on a missing listed file
 [[ -n $LG_CONFIG_FILE && -f "$HOME/.config/lazygit/config.local.yml" ]] && LG_CONFIG_FILE+=",$HOME/.config/lazygit/config.local.yml"
 
-if command -v fdfind &>/dev/null; then
-    export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --exclude .git'
-elif command -v fd &>/dev/null; then
+# setup/system.sh links apt's batcat and fdfind to these names
+if command -v fd &>/dev/null; then
     export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 else
     export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.*"'
 fi
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+command -v bat &>/dev/null && export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=header,numbers --line-range :500 {}'"
 
 [[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="always"
 

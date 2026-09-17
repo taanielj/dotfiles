@@ -16,6 +16,7 @@ SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/nvim.sh"
     "$REPO_ROOT/setup/cargo.sh"
     "$REPO_ROOT/setup/lazygit.sh" # brew installs the binary on macOS
+    "$REPO_ROOT/setup/bat.sh"
 )
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh")
 [[ "$OSTYPE" != "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/clipboard.sh")

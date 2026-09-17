@@ -74,6 +74,21 @@ main_system() {
     [[ -n "$WSL_DISTRO_NAME" ]] && PACKAGES+=("wslu")
 
     install_packages "${PACKAGES[@]}"
+    link_apt_names
+}
+
+# The zsh config knows only the upstream names
+link_apt_names() {
+    local pair apt_name upstream
+    for pair in batcat:bat fdfind:fd; do
+        apt_name=${pair%%:*}
+        upstream=${pair##*:}
+        command -v "$upstream" &>/dev/null && continue
+        command -v "$apt_name" &>/dev/null || continue
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$(command -v "$apt_name")" "$HOME/.local/bin/$upstream"
+        log "Linked $upstream -> $apt_name"
+    done
 }
 
 detect_os() {
