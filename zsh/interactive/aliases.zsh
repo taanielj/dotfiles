@@ -119,38 +119,35 @@ if command -v claude &>/dev/null; then
     }
 fi
 
+# Reads "id<TAB>label" lines and prints the id picked in fzf.
+_pick_session() {
+    fzf --prompt="$1" --delimiter='\t' --with-nth=2.. | cut -f1
+}
+
+_mtime() { zmodload -F zsh/stat b:zstat; zstat -F "%Y-%m-%d %H:%M" +mtime "$1" }
+
+# Resume an Antigravity conversation that mentions this directory.
 agyr() {
-    if ! command -v fzf &>/dev/null; then
-        echo "Error: fzf is not installed." >&2
-        return 1
-    fi
-
     local brain_dir="$HOME/.gemini/antigravity-cli/brain"
-    if [[ ! -d "$brain_dir" ]]; then
-        echo "Error: Directory $brain_dir does not exist." >&2
-        return 1
-    fi
-
-    local files=$(grep -l "$PWD" "$brain_dir"/*/.system_generated/logs/transcript.jsonl 2>/dev/null)
-
-    if [[ -z "$files" ]]; then
-        echo "No conversations found for $PWD."
-        return 0
-    fi
-
-    zmodload -F zsh/stat b:zstat
-    local options=""
-    for file in ${(f)files}; do
-        local uuid=${${file#$brain_dir/}%%/*}
-        local date=$(zstat -F "%Y-%m-%d %H:%M:%S" +mtime "$file")
-        options+="$date | $uuid\n"
+    local file id lines=()
+    for file in $(grep -l "$PWD" "$brain_dir"/*/.system_generated/logs/transcript.jsonl 2>/dev/null); do
+        lines+=("${${file#$brain_dir/}%%/*}\t$(_mtime "$file")")
     done
+    (( ${#lines} )) || { echo "No conversations found for $PWD" >&2; return 1 }
+    id=$(print -l -- "${lines[@]}" | _pick_session "Resume conversation: ")
+    [[ -n "$id" ]] && agy --conversation "$id"
+}
 
-    local selected=$(echo -e "$options" | awk 'NF' | fzf --prompt="Select conversation to resume: ")
-
-    if [[ -n "$selected" ]]; then
-        local selected_uuid=$(echo "$selected" | awk -F'|' '{print $2}' | xargs)
-        echo "Resuming $selected_uuid..."
-        agy --conversation "$selected_uuid"
-    fi
+# Resume a Claude Code session started in this directory, listed by title.
+clauder() {
+    local dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/projects/${${PWD//\//-}//./-}"
+    local file id title lines=()
+    for file in "$dir"/*.jsonl(Nom); do
+        title=$(grep -h '"type":"ai-title"\|"type":"last-prompt"' "$file" |
+            jq -rs '(map(select(.type=="ai-title")) | last | .aiTitle) // (map(select(.type=="last-prompt")) | last | .lastPrompt) // "(untitled)"')
+        lines+=("${file:t:r}\t$(_mtime "$file")  $title")
+    done
+    (( ${#lines} )) || { echo "No Claude sessions for $PWD" >&2; return 1 }
+    id=$(print -l -- "${lines[@]}" | _pick_session "Resume session: ")
+    [[ -n "$id" ]] && claude --resume "$id"
 }
