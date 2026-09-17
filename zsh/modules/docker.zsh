@@ -1,26 +1,15 @@
 command -v docker &>/dev/null || return
 
-_find_compose_file() {
-    find . -type f \( -iname '*compose*.yaml' -o -iname '*compose*.yml' \) | fzf --select-1 --exit-0
+_compose_file() {
+    find . -type f \( -iname '*compose*.yaml' -o -iname '*compose*.yml' \) | _choose "compose file" --select-1 --exit-0
 }
 
+# --find picks the compose file in fzf; everything else passes through
 _docker_compose() {
-    local find_mode=0
-    local compose_file=""
-    local args=()
-
-    # --find picks a compose file via fzf; -f passes through to docker compose
-    for arg in "$@"; do
-        [[ "$arg" == "--find" ]] && find_mode=1 || args+=("$arg")
-    done
-
-    if ((find_mode)); then
-        compose_file=$(_find_compose_file)
-        [[ -z "$compose_file" ]] && echo "No compose file selected" && return 1
-        docker compose -f "$compose_file" "${args[@]}"
-    else
-        docker compose "${args[@]}"
-    fi
+    local file args=("${(@)@:#--find}")
+    (( $#args == $# )) && { docker compose "$@"; return }
+    file=$(_compose_file) || return
+    docker compose -f "$file" "${args[@]}"
 }
 
 dc() { _docker_compose "$@"; }
@@ -29,133 +18,72 @@ dcd() { _docker_compose down "$@"; }
 dcr() { dcd && dcu "$@"; }
 dcD() { _docker_compose down -v "$@"; }
 dcR() { dcD && dcu "$@"; }
-ds() { docker ps "$@"; }
-di() { docker images "$@"; }
+alias ds="docker ps"
+alias di="docker images"
+alias dprune="docker system prune"
 
 drmi() {
-    if [[ $# -gt 0 ]]; then
-        docker rmi "$@"
+    (( $# )) && { docker rmi "$@"; return }
+    setopt localoptions pipefail
+    local ids
+    ids=$(docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}' |
+        _choose image --multi --header-lines=1 --prompt="Remove images: " | awk '{print $3}') || return
+    docker rmi ${=ids}
+}
+
+_compose_services() {
+    command -v yq &>/dev/null || return
+    local root file
+    root=$(git rev-parse --show-toplevel 2>/dev/null) || root=.
+    for file in "$root"/{docker-,}compose.{yml,yaml}; do
+        [[ -f "$file" ]] || continue
+        yq e '.services | keys | .[]' "$file" 2>/dev/null
         return
-    fi
-
-    local images
-    images=$(docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}" | fzf --multi --header-lines=1 --prompt="Select images to remove: " --header="Use TAB to select multiple, ENTER to confirm")
-
-    [[ -z "$images" ]] && echo "No images selected" && return 1
-
-    local image_ids
-    image_ids=$(echo "$images" | awk '{print $3}')
-
-    [[ -z "$image_ids" ]] && echo "No valid image IDs found" && return 1
-
-    echo "Removing selected images..."
-    echo "$image_ids" | xargs docker rmi
-}
-dprune() { docker system prune "$@"; }
-
-_git_root() {
-    git rev-parse --show-toplevel 2>/dev/null || echo "."
-}
-
-_get_compose_services() {
-    local root=$(_git_root)
-    local compose_file=""
-    for f in docker-compose.yml docker-compose.yaml compose.yml compose.yaml; do
-        [[ -f "$root/$f" ]] && compose_file="$root/$f" && break
     done
-
-    [[ -z "$compose_file" ]] && return 1
-    command -v yq &>/dev/null || return 1
-
-    yq e '.services | keys | .[]' "$compose_file" 2>/dev/null
+    return 1
 }
 
-_filter_containers_by_services() {
-    local services=("$@")
-    docker ps -a --format '{{.Names}} {{.Status}}' | awk -v s="${services[*]}" '
-        BEGIN { split(s, svc, " ") }
-        {
-            for (i in svc) {
-                if (index($1, "-" svc[i] "-") || $1 == svc[i]) {
-                    print
-                    break
-                }
-            }
-        }
-    '
+# Lists "name status" for every container, this repo's compose services first.
+_containers() {
+    local all services pattern
+    all=$(docker ps -a --format '{{.Names}} {{.Status}}')
+    services=(${(f)"$(_compose_services)"})
+    (( $#services )) || { print -r -- "$all"; return }
+    pattern="^([^ ]*[-_])?(${(j:|:)services})([-_][^ ]*)? "
+    print -r -- "$all" | grep -E "$pattern"
+    print -r -- "$all" | grep -Ev "$pattern"
 }
 
-_select_container() {
-    local services=()
-    local container_list=""
-
-    if services=($(_get_compose_services)); then
-        container_list=$(_filter_containers_by_services "${services[@]}")
-    fi
-
-    [[ -z "$container_list" ]] && container_list=$(docker ps -a --format '{{.Names}} {{.Status}}')
-    echo "$container_list" | fzf --select-1 --exit-0 | awk '{print $1}'
+_pick_container() {
+    local pick
+    pick=$(_containers | _choose container "$@") || return
+    print -r -- "${pick%% *}"
 }
 
-# ─────────────────────────────────────────────────────────────
-# Docker Exec (into container)
-# ─────────────────────────────────────────────────────────────
-
+# de [container] [command]
 de() {
     local container
-    [[ $# -gt 0 ]] && container="$1" && shift || container="$(_select_container)"
-    [[ -z "$container" ]] && echo "No container selected" && return 1
-
-    local cmd=(docker exec -it -e TERM=xterm-256color "$container")
-
-    if (($#)); then
-        if "${cmd[@]}" sh -c "command -v $1" &>/dev/null; then
-            "${cmd[@]}" "$@"
-        else
-            echo "Command '$1' not found in container: $container"
-            return 127
-        fi
-        return
-    fi
-
-    if "${cmd[@]}" sh -c 'command -v bash' &>/dev/null; then
-        "${cmd[@]}" bash
-    elif "${cmd[@]}" sh -c 'command -v sh' &>/dev/null; then
-        "${cmd[@]}" sh
+    if (( $# )); then
+        container=$1; shift
     else
-        echo "No suitable shell found in container: $container"
-        return 1
+        container=$(_pick_container) || return
     fi
+    local exec=(docker exec -it -e TERM=xterm-256color "$container")
+    (( $# )) && { "${exec[@]}" "$@"; return }
+    "${exec[@]}" sh -c 'command -v bash >/dev/null && exec bash || exec sh'
 }
 
-# ─────────────────────────────────────────────────────────────
-# Docker Logs (interactive or static if not running)
-# ─────────────────────────────────────────────────────────────
-
+# dl [container-substring] [docker logs args]
 dl() {
-    local query container=""
-
-    if [[ $# -gt 0 ]]; then
-        query="$1"
-        shift
+    local container=$1
+    if ! docker container inspect "$container" &>/dev/null; then
+        container=$(_pick_container --exact --select-1 --exit-0 ${1:+--query="$1"}) || return
     fi
-
-    if [[ -n "$query" ]]; then
-        if docker ps -a --format '{{.Names}}' | grep -Fxq "$query"; then
-            container="$query"
-        else
-            container=$(docker ps -a --format '{{.Names}} {{.Status}}' | fzf --query="$query" --select-1 --exit-0 | awk '{print $1}')
-        fi
-    else
-        container="$(_select_container)"
-    fi
-
-    [[ -z "$container" ]] && echo "No container selected" && return 1
-
-    if docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null | grep -q true; then
+    (( $# )) && shift
+    if [[ $(docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null) == true ]]; then
         jsonl docker logs -f --tail 1000 "$container" "$@"
     else
-        echo "Container $container is not running — showing full logs"
+        echo "$container is not running, showing full logs" >&2
         jsonl docker logs "$container" "$@"
     fi
 }

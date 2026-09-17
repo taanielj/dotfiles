@@ -13,19 +13,11 @@ source "$_kubectl_comp"
 compdef _kubectl k
 unset _kubectl_comp
 
-# Reads names on stdin and prints the fzf pick.
-_k8s_choose() {
-    local what=$1 name; shift
-    name=$(fzf "$@") && [[ -n "$name" ]] && { print -r -- "$name"; return }
-    echo "No $what selected" >&2
-    return 1
-}
-
 # Applies $target directly when kubectl accepts it, else picks one from the list seeded with it.
 _k8s_use() {
     local apply=$1 list=$2 target=$3
     [[ -n "$target" ]] && ${=apply} "$target" 2>/dev/null && return
-    target=$(${=list} | _k8s_choose "${list##* }" ${target:+--query="$target"}) || return
+    target=$(${=list} | _choose "${list##* }" ${target:+--query="$target"}) || return
     ${=apply} "$target"
 }
 
@@ -40,11 +32,11 @@ _k8s_ensure_context() {
 _k8s_pick() {
     local resource=$1; shift
     _k8s_ensure_context || return
-    _k8s_names "$resource" | _k8s_choose "$resource" "$@"
+    _k8s_names "$resource" | _choose "$resource" "$@"
 }
 
 _k8s_pick_container() {
-    kubectl get pod "$1" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | _k8s_choose container
+    kubectl get pod "$1" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | _choose container
 }
 
 kc() { _k8s_use "kubectl config use-context" "kubectl config get-contexts -o name" "$1" }
