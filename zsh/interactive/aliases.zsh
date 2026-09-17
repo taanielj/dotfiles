@@ -119,9 +119,9 @@ if command -v claude &>/dev/null; then
     }
 fi
 
-# Reads "id<TAB>label" lines and prints the id picked in fzf.
+# Reads "id<TAB>label" lines and prints the id picked in fzf; $2 previews {1}, the id.
 _pick_session() {
-    fzf --prompt="$1" --delimiter='\t' --with-nth=2.. | cut -f1
+    fzf --prompt="$1" --delimiter='\t' --with-nth=2.. --preview="$2" --preview-window=right:60%:wrap | cut -f1
 }
 
 _mtime() { zmodload -F zsh/stat b:zstat; zstat -F "%Y-%m-%d %H:%M" +mtime "$1" }
@@ -134,7 +134,8 @@ agyr() {
         lines+=("${${file#$brain_dir/}%%/*}\t$(_mtime "$file")")
     done
     (( ${#lines} )) || { echo "No conversations found for $PWD" >&2; return 1 }
-    id=$(print -l -- "${lines[@]}" | _pick_session "Resume conversation: ")
+    id=$(print -l -- "${lines[@]}" | _pick_session "Resume conversation: " \
+        "jq -r 'select(.type==\"USER_INPUT\") | .content | split(\"<USER_REQUEST>\\n\")[1] // empty | \"❯ \" + split(\"\\n</USER_REQUEST>\")[0]' \"$brain_dir/\"{1}/.system_generated/logs/transcript.jsonl")
     [[ -n "$id" ]] && agy --conversation "$id"
 }
 
@@ -148,6 +149,7 @@ clauder() {
         lines+=("${file:t:r}\t$(_mtime "$file")  $title")
     done
     (( ${#lines} )) || { echo "No Claude sessions for $PWD" >&2; return 1 }
-    id=$(print -l -- "${lines[@]}" | _pick_session "Resume session: ")
+    id=$(print -l -- "${lines[@]}" | _pick_session "Resume session: " \
+        "jq -r 'select(.type==\"last-prompt\") | \"❯ \" + .lastPrompt' \"$dir/\"{1}.jsonl | uniq")
     [[ -n "$id" ]] && claude --resume "$id"
 }
