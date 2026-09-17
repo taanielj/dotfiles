@@ -153,9 +153,9 @@ dl() {
     [[ -z "$container" ]] && echo "No container selected" && return 1
 
     if docker inspect -f '{{.State.Running}}' "$container" 2>/dev/null | grep -q true; then
-        docker logs -f --tail 1000 "$container" "$@" | _pipe_json_if_valid
+        jsonl docker logs -f --tail 1000 "$container" "$@"
     else
         echo "Container $container is not running — showing full logs"
-        docker logs "$container" "$@" | _pipe_json_if_valid
+        jsonl docker logs "$container" "$@"
     fi
 }

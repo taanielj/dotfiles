@@ -1,5 +1,11 @@
 # Streams stdin, pretty-printing JSON log lines and passing others through.
-_pipe_json_if_valid() {
+jsonl() {
+    # Command form merges stderr, where loggers usually write
+    if (( $# )); then
+        setopt localoptions pipefail
+        "$@" 2>&1 | jsonl
+        return
+    fi
     local line content parsed
     while IFS= read -r line; do
         content="$line"
