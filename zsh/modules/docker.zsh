@@ -1,4 +1,4 @@
-[[ -x $(command -v docker) ]] || return
+command -v docker &>/dev/null || return
 
 _find_compose_file() {
     find . -type f \( -iname '*compose*.yaml' -o -iname '*compose*.yml' \) | fzf --select-1 --exit-0
