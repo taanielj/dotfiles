@@ -138,6 +138,52 @@ nvimf() {
 
 alias gflog='git log --follow --stat --date=format:%Y-%m-%d --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
 
+_todo_backend() {
+    if command -v rg &>/dev/null; then
+        echo rg
+    elif command -v git &>/dev/null && git rev-parse --is-inside-work-tree &>/dev/null; then
+        echo git
+    elif command -v grep &>/dev/null; then
+        echo grep
+    else
+        echo "todos: needs rg, git (inside a repo) or grep, none found" >&2
+        return 1
+    fi
+}
+_todo_grep() {
+    local backend=$1 mode=$2; shift 2
+    # todo-comments.nvim's default keywords
+    local pattern='(^|[^[:alnum:]_])(TODO|FIX|FIXME|BUG|FIXIT|ISSUE|HACK|WARN|WARNING|XXX|PERF|OPTIM|OPTIMIZE|PERFORMANCE|NOTE|INFO|TEST|TESTING|PASSED|FAILED):'
+    local -a opts=(-nH --color=never)
+    [[ $mode == verbose ]] && opts=(-nH -C 3 --color=always)
+
+    case $backend in
+        rg)   rg "${opts[@]}" -e "$pattern" -- "$@" ;;
+        git)  git --no-pager grep -EI --untracked "${opts[@]}" -e "$pattern" -- "$@" ;;
+        grep) grep -rEI --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.venv "${opts[@]}" -e "$pattern" -- "$@" ;;
+    esac
+}
+todos() {
+    local backend
+    backend=$(_todo_backend) || return 1
+    setopt localoptions pipefail
+    _todo_grep "$backend" terse "$@" | cut -d: -f1,2
+}
+todosv() {
+    if ! command -v bat &>/dev/null; then
+        local backend
+        backend=$(_todo_backend) || return 1
+        _todo_grep "$backend" verbose "$@"
+        return
+    fi
+    setopt localoptions pipefail
+    local file line
+    todos "$@" | while IFS=: read -r file line; do
+        bat --style=header,numbers --color=always --paging=never \
+            --highlight-line "$line" --line-range "$(( line > 3 ? line - 3 : 1 )):$(( line + 3 ))" -- "$file"
+    done
+}
+
 if command -v claude &>/dev/null; then
     alias clask='claude -p'
     clmd() {

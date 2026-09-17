@@ -13,6 +13,7 @@ require("lib.keymap").rows({
     { "n", "<leader>fc", builtin("commands"),                                    "Find commands" },
     { "n", "<leader>fk", builtin("keymaps"),                                     "Find keymaps" },
     { "n", "<leader>fh", builtin("help_tags"),                                   "Find help" },
+    { "n", "<leader>ft", "<cmd>TodoTelescope<cr>",                              "Find todo comments" },
     { "n", "<leader>hf", builtin("find_files", { hidden = true, no_ignore = true }), "Find hidden files" },
     { "n", "<leader>hb", builtin("buffers", { show_all_buffers = true, no_ignore = true }), "Find hidden buffers" },
     { "n", "<leader>hg", builtin("live_grep", {
