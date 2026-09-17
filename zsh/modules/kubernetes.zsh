@@ -4,46 +4,54 @@ alias k="kubectl"
 ka() { kubectl --as admin --as-group system:masters "$@"; }
 
 # kubectl completion is slow to generate - cache until the binary changes
-if [[ -o interactive ]]; then
-    _kubectl_comp="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/kubectl-completion.zsh"
-    if [[ ! -s "$_kubectl_comp" || "${commands[kubectl]}" -nt "$_kubectl_comp" ]]; then
-        mkdir -p "${_kubectl_comp:h}"
-        kubectl completion zsh >| "$_kubectl_comp"
-    fi
-    source "$_kubectl_comp"
-    compdef _kubectl k
-    unset _kubectl_comp
+_kubectl_comp="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/kubectl-completion.zsh"
+if [[ ! -s "$_kubectl_comp" || "${commands[kubectl]}" -nt "$_kubectl_comp" ]]; then
+    mkdir -p "${_kubectl_comp:h}"
+    kubectl completion zsh >| "$_kubectl_comp"
 fi
+source "$_kubectl_comp"
+compdef _kubectl k
+unset _kubectl_comp
 
-kc() {
-    local context="$1"
-    if [[ -z "$context" ]]; then
-        context=$(kubectl config get-contexts -o name | fzf)
-    else
-        if ! kubectl config use-context "$context" 2>/dev/null; then
-            context=$(kubectl config get-contexts -o name | fzf --query="$context")
-        else
-            return 0
-        fi
-    fi
-    [[ -n "$context" ]] && kubectl config use-context "$context"
+# Reads names on stdin and prints the fzf pick.
+_k8s_choose() {
+    local what=$1 name; shift
+    name=$(fzf "$@") && [[ -n "$name" ]] && { print -r -- "$name"; return }
+    echo "No $what selected" >&2
+    return 1
 }
 
+# Applies $target directly when kubectl accepts it, else picks one from the list seeded with it.
+_k8s_use() {
+    local apply=$1 list=$2 target=$3
+    [[ -n "$target" ]] && ${=apply} "$target" 2>/dev/null && return
+    target=$(${=list} | _k8s_choose "${list##* }" ${target:+--query="$target"}) || return
+    ${=apply} "$target"
+}
+
+_k8s_names() { kubectl get "$@" -o custom-columns=:metadata.name --no-headers }
+
+_k8s_ensure_context() {
+    [[ -n "$(kubectl config current-context 2>/dev/null)" ]] || kc || return
+    [[ -n "$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)" ]] || kn
+}
+
+# _k8s_pick <resource> [fzf args]
+_k8s_pick() {
+    local resource=$1; shift
+    _k8s_ensure_context || return
+    _k8s_names "$resource" | _k8s_choose "$resource" "$@"
+}
+
+_k8s_pick_container() {
+    kubectl get pod "$1" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | _k8s_choose container
+}
+
+kc() { _k8s_use "kubectl config use-context" "kubectl config get-contexts -o name" "$1" }
+
 kn() {
-    local namespace="$1"
-    if [[ -z "$(kubectl config current-context 2>/dev/null)" ]]; then
-        kc
-    fi
-    if [[ -z "$namespace" ]]; then
-        namespace=$(kubectl get namespaces -o name | fzf | cut -d'/' -f2)
-    else
-        if ! kubectl config set-context --current --namespace "$namespace" 2>/dev/null; then
-            namespace=$(kubectl get namespaces -o name | fzf --query="$namespace" | cut -d'/' -f2)
-        else
-            return 0
-        fi
-    fi
-    [[ -n "$namespace" ]] && kubectl config set-context --current --namespace "$namespace"
+    [[ -n "$(kubectl config current-context 2>/dev/null)" ]] || kc || return
+    _k8s_use "kubectl config set-context --current --namespace" "_k8s_names namespaces" "$1"
 }
 
 kcn() {
@@ -65,52 +73,25 @@ kcl() {
 }
 
 kp() {
-    local all="$1"
-
-    if [[ "$all" == "--all" || "$all" == "-a" ]]; then
+    if [[ "$1" == "--all" || "$1" == "-a" ]]; then
         kcn
         shift
     fi
-
-    if [[ -z "$(kubectl config current-context 2>/dev/null)" ]]; then
-        kc
-    fi
-
-    if [[ -z "$(kubectl config view --minify -o jsonpath='{..namespace}' 2>/dev/null)" ]]; then
-        kn
-    fi
-
+    _k8s_ensure_context || return
     kubectl get pods "$@"
 }
 
 kd() {
-    kp >/dev/null
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [[ -n "$pod" ]] && kubectl describe pod "$pod"
+    local pod
+    pod=$(_k8s_pick pod) || return
+    kubectl describe pod "$pod"
 }
 
+# kl [pod-substring] [kubectl logs args]
 kl() {
-    kp >/dev/null || return
-
-    local query pod
-    if [[ $# -gt 0 ]]; then
-        query="$1"
-        shift
-
-        local matches
-        matches=$(kubectl get pods -o name | grep "$query" || true)
-
-        if [[ -n "$matches" && $(echo "$matches" | wc -l) -eq 1 ]]; then
-            pod=$(echo "$matches" | cut -d'/' -f2)
-        else
-            pod=$(kubectl get pods -o name | fzf --query="$query" --select-1 --exit-0 | cut -d'/' -f2)
-        fi
-    else
-        pod=$(kubectl get pods -o name | fzf --select-1 --exit-0 | cut -d'/' -f2)
-    fi
-
-    [[ -z "$pod" ]] && echo "No pod selected" && return 1
-
+    local pod query
+    (( $# )) && { query=$1; shift }
+    pod=$(_k8s_pick pod --exact --select-1 --exit-0 ${query:+--query="$query"}) || return
     kubectl logs "$pod" -f "$@" | jsonl
 }
 
@@ -123,14 +104,9 @@ kauth() {
 }
 
 kxe() {
-    kp >/dev/null || return
-
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [[ -z "$pod" ]] && echo "No pod selected" && return 1
-
-    local container=$(kubectl get pod "$pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | fzf)
-    [[ -z "$container" ]] && echo "No container selected" && return 1
-
+    local pod container
+    pod=$(_k8s_pick pod) || return
+    container=$(_k8s_pick_container "$pod") || return
     kubectl exec -it "$pod" -c "$container" --as admin --as-group system:masters -- \
         sh -c 'command -v bash >/dev/null && exec bash || exec sh'
 }
@@ -138,47 +114,33 @@ kxe() {
 command -v stern &>/dev/null || return
 
 s() {
-    if [[ $# -gt 0 ]]; then
-        stern "$@"
-        return
-    fi
-
-    kp >/dev/null || return
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [[ -n "$pod" ]] && stern "$pod"
+    local pod
+    (( $# )) || pod=$(_k8s_pick pod) || return
+    stern "${@:-$pod}"
 }
 
 sj() {
-    if [[ $# -gt 0 ]]; then
-        stern --output ppextjson "$@"
-        return
-    fi
-
-    kp >/dev/null || return
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [[ -n "$pod" ]] && stern --output ppextjson "$pod"
+    local pod
+    (( $# )) || pod=$(_k8s_pick pod) || return
+    stern --output ppextjson "${@:-$pod}"
 }
 
 sg() {
-    kp >/dev/null || return
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [[ -z "$pod" ]] && return
-    local pattern
+    local pod pattern
+    pod=$(_k8s_pick pod) || return
     read -r "pattern?Search pattern: "
     stern "$pod" | rg --color=always "$pattern"
 }
 
 sd() {
-    kp >/dev/null || return
-    local deployment=$(kubectl get deploy -o name | fzf | cut -d'/' -f2)
-    [[ -n "$deployment" ]] && stern "$deployment"
+    local deployment
+    deployment=$(_k8s_pick deployment) || return
+    stern "$deployment"
 }
 
 sc() {
-    kp >/dev/null || return
-    local pod=$(kubectl get pods -o name | fzf | cut -d'/' -f2)
-    [[ -z "$pod" ]] && return
-    local container=$(kubectl get pod "$pod" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | fzf)
-    [[ -z "$container" ]] && return
+    local pod container
+    pod=$(_k8s_pick pod) || return
+    container=$(_k8s_pick_container "$pod") || return
     stern "$pod" -c "$container"
 }
