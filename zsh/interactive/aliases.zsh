@@ -34,83 +34,17 @@ envload() {
 
 if command -v eza &>/dev/null; then
     alias l="eza"
-
-    _eza_wrapper() {
-        eza --group-directories-first --icons --color=auto --git -h "$@"
-    }
-    alias ls="_eza_wrapper"
-    alias la="_eza_wrapper -l -a"
+    alias ls="eza --group-directories-first --icons --color=auto --git -h"
     alias tree="eza --tree"
 else
     alias l="ls"
     alias ls="ls --color=auto"
-    alias la="ls -la --color=auto"
 fi
+alias la="ls -la"
 
 alias cl="clear && printf '\e[3J'"
 alias cle="clear && printf '\e[3J' && exec zsh"
 alias cld="cd && clear && printf '\e[3J' && exec zsh"
-
-reset_repo() {
-    echo -e "\033[1;33mWARNING: This will DELETE and RECLONE the repo!\033[0m"
-
-    local REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-    if [[ -z "$REPO_ROOT" ]]; then
-        echo -e "\033[1;31mError: Not in a git repository. Please navigate to a git repo and try again.\033[0m"
-        return 1
-    fi
-    cd "$REPO_ROOT" || return 1
-    local GIT_REMOTE=$(git remote get-url origin 2>/dev/null)
-    if [[ -z "$GIT_REMOTE" ]]; then
-        echo -e "\033[1;31mError: No remote repository found. Are you in a git repo?\033[0m"
-        return 1
-    fi
-
-    echo -e "Root Repo Path: \033[1;34m$REPO_ROOT\033[0m"
-    echo -e "Git Remote: \033[1;34m$GIT_REMOTE\033[0m"
-    echo -e "New Clone Path: \033[1;34m$REPO_ROOT/\033[0m"
-
-    if [[ -n "$(git status --porcelain)" ]]; then
-        echo -e "\033[1;31mError: You have uncommitted changes. Commit or discard them before proceeding.\033[0m"
-        git status --short
-        return 1
-    fi
-
-    if [[ -n "$(git stash list)" ]]; then
-        echo -e "\033[1;31mError: You have stashed changes. Apply or drop them before proceeding.\033[0m"
-        git stash list
-        return 1
-    fi
-
-    local UNPUSHED=$(git log --branches --not --remotes --oneline)
-    if [[ -n "$UNPUSHED" ]]; then
-        echo -e "\033[1;33mUnpushed commits and local-only branches will be lost:\033[0m"
-        echo "$UNPUSHED"
-    fi
-
-    local IGNORED=$(git status --ignored --porcelain | grep '^!!')
-    if [[ -n "$IGNORED" ]]; then
-        echo -e "\033[1;33mIgnored files will be lost:\033[0m"
-        echo "$IGNORED"
-    fi
-
-    echo -n "Type YES to confirm: "
-    local CONFIRM
-    read CONFIRM
-    if [[ "$CONFIRM" != "YES" ]]; then
-        echo -e "\033[1;31mOperation cancelled.\033[0m"
-        return 1
-    fi
-
-    echo -e "\033[1;33mDeleting and recloning into: $REPO_ROOT\033[0m"
-
-    cd $REPO_ROOT && cd .. || return 1
-    rm -rf "$REPO_ROOT" || return 1
-    git clone "$GIT_REMOTE" "$REPO_ROOT" || return 1
-    cd "$REPO_ROOT" || return 1
-
-    echo -e "\033[1;32mRepository reset complete.\033[0m"
-}
 
 nvim() {
     local term=$TERM
@@ -204,10 +138,10 @@ agyr() {
         return 0
     fi
 
+    zmodload -F zsh/stat b:zstat
     local options=""
     for file in ${(f)files}; do
-        local uuid=$(echo "$file" | awk -F'/' '{print $7}')
-        zmodload -F zsh/stat b:zstat
+        local uuid=${${file#$brain_dir/}%%/*}
         local date=$(zstat -F "%Y-%m-%d %H:%M:%S" +mtime "$file")
         options+="$date | $uuid\n"
     done
