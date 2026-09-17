@@ -13,11 +13,12 @@ source "$_kubectl_comp"
 compdef _kubectl k
 unset _kubectl_comp
 
+# _k8s_use <apply> <list> <target> [fzf args]
 # Applies $target directly when kubectl accepts it, else picks one from the list seeded with it.
 _k8s_use() {
-    local apply=$1 list=$2 target=$3
+    local apply=$1 list=$2 target=$3; shift 3
     [[ -n "$target" ]] && ${=apply} "$target" 2>/dev/null && return
-    target=$(${=list} | _choose "${list##* }" ${target:+--query="$target"}) || return
+    target=$(${=list} | _choose "${list##* }" ${target:+--query="$target"} "$@") || return
     ${=apply} "$target"
 }
 
@@ -30,20 +31,23 @@ _k8s_ensure_context() {
 
 # _k8s_pick <resource> [fzf args]
 _k8s_pick() {
-    local resource=$1; shift
+    local resource=$1 preview=(); shift
     _k8s_ensure_context || return
-    _k8s_names "$resource" | _choose "$resource" "$@"
+    [[ $resource == pod ]] && preview=(--preview "$(_log_preview 'kubectl logs --tail 40 --all-containers {}')")
+    _k8s_names "$resource" | _choose "$resource" "${preview[@]}" "$@"
 }
 
 _k8s_pick_container() {
-    kubectl get pod "$1" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' | _choose container
+    kubectl get pod "$1" -o jsonpath='{.spec.containers[*].name}' | tr ' ' '\n' |
+        _choose container --preview "$(_log_preview "kubectl logs --tail 40 $1 -c {}")"
 }
 
 kc() { _k8s_use "kubectl config use-context" "kubectl config get-contexts -o name" "$1" }
 
 kn() {
     [[ -n "$(kubectl config current-context 2>/dev/null)" ]] || kc || return
-    _k8s_use "kubectl config set-context --current --namespace" "_k8s_names namespaces" "$1"
+    _k8s_use "kubectl config set-context --current --namespace" "_k8s_names namespaces" "$1" \
+        --preview 'kubectl get pods -n {} 2>&1'
 }
 
 kcn() {

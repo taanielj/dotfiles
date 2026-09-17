@@ -1,7 +1,8 @@
 command -v docker &>/dev/null || return
 
 _compose_file() {
-    find . -type f \( -iname '*compose*.yaml' -o -iname '*compose*.yml' \) | _choose "compose file" --select-1 --exit-0
+    find . -type f \( -iname '*compose*.yaml' -o -iname '*compose*.yml' \) |
+        FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" _choose "compose file" --select-1 --exit-0
 }
 
 # --find picks the compose file in fzf; everything else passes through
@@ -56,7 +57,7 @@ _containers() {
 
 _pick_container() {
     local pick
-    pick=$(_containers | _choose container "$@") || return
+    pick=$(_containers | _choose container --preview "$(_log_preview 'docker logs --tail 40 {1}')" "$@") || return
     print -r -- "${pick%% *}"
 }
 
