@@ -12,14 +12,13 @@ if command -v nvim &>/dev/null; then
     }
 fi
 if command -v bat &>/dev/null; then
-    _bat_bin=bat
-elif command -v batcat &>/dev/null; then
-    _bat_bin=batcat
-fi
-[[ -n "$_bat_bin" ]] && alias cat="$_bat_bin -p --paging=never"
-
-if ! command -v fd &>/dev/null && command -v fdfind &>/dev/null; then
-    alias fd="fdfind"
+    alias cat="bat -p --paging=never"
+    alias less="bat -p --paging=always"
+    alias more="bat -p --paging=always"
+    tailf() { tail -f "$@" | bat -p --paging=never -l log }
+    # roff overstrikes and SGR codes stripped before the man lexer
+    export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -l man'"
+    alias -g -- --help='--help 2>&1 | bat -p -l help'
 fi
 
 alias x="exit"
@@ -125,15 +124,9 @@ nvim() {
 }
 
 nvimf() {
-    local file
-    local preview="cat {}"
-    [[ -n "$_bat_bin" ]] && preview="$_bat_bin --color=always --style=header,grid --line-range :500 {}"
-    if [[ -n "$1" && -d "$1" ]]; then
-        file=$(fd . "$1" | fzf --preview "$preview")
-    else
-        file=$(fd --type f --hidden | fzf --preview "$preview")
-    fi
-    [[ -n "$file" ]] && nvim "$file"
+    local dir=${1:-.} file
+    file=$(cd "$dir" && FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" fzf) || return
+    nvim "$dir/$file"
 }
 
 alias gflog='git log --follow --stat --date=format:%Y-%m-%d --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
