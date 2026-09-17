@@ -111,7 +111,7 @@ kl() {
 
     [[ -z "$pod" ]] && echo "No pod selected" && return 1
 
-    kubectl logs "$pod" -f "$@" | _pipe_json_if_valid
+    kubectl logs "$pod" -f "$@" | jsonl
 }
 
 kauth() {
