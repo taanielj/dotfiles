@@ -38,6 +38,7 @@ TERMUX_PACKAGES=(
 MACOS_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
     "lazygit"
+    "superfile"
     "herdr"
     "fastfetch"
     "mise"
