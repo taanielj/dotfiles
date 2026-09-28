@@ -48,6 +48,8 @@ return {
                     },
                     "%S",
                 },
+                -- %v is the screen column the colorcolumn counts in; the default location counts a tab as one
+                lualine_z = { "%3l:%-2v" },
             },
         })
         vim.api.nvim_create_autocmd({ "RecordingEnter", "RecordingLeave" }, {

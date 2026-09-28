@@ -107,9 +107,11 @@ vim.api.nvim_create_autocmd("WinClosed", {
     end,
 })
 
--- Text columns, the count or up to the colorcolumn, plus this window's gutters
+-- Text columns, the count or the textwidth, plus this window's gutters
 local function width(win)
-    local columns = vim.v.count ~= 0 and vim.v.count or tonumber(vim.wo[win].colorcolumn) or 120
+    local textwidth = vim.bo[vim.api.nvim_win_get_buf(win)].textwidth
+    -- a buffer can switch its textwidth off; the global one still holds the configured width
+    local columns = vim.v.count ~= 0 and vim.v.count or textwidth ~= 0 and textwidth or vim.go.textwidth
     return columns + vim.fn.getwininfo(win)[1].textoff
 end
 

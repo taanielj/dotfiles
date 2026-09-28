@@ -25,7 +25,8 @@ vim.opt.listchars = {
 vim.opt.inccommand = "split"
 vim.opt.termguicolors = true
 
-vim.opt.colorcolumn = "121"
+vim.opt.textwidth = 120
+vim.opt.colorcolumn = "+1"
 
 vim.opt.undofile = true
 vim.opt.undolevels = 1000
