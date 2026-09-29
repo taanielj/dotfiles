@@ -43,6 +43,18 @@ return {
         opts = {
             formatters_by_ft = formatters_by_ft,
             default_format_opts = { lsp_format = "fallback" },
+            formatters = {
+                prettier = {
+                    -- Prettier also skips what .gitignore lists, and hands such a file back unchanged
+                    prepend_args = function(_, ctx)
+                        local args = { "--ignore-path", ".prettierignore" }
+                        if vim.bo[ctx.buf].filetype:match("^markdown") then
+                            vim.list_extend(args, { "--prose-wrap", "never" })
+                        end
+                        return args
+                    end,
+                },
+            },
         },
     },
     {
