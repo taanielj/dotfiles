@@ -1,6 +1,6 @@
 -- A prompt about the cursor line or the visual selection, typed into the
--- Claude pane connected to this nvim. Inside herdr only: herdr-agents.nvim
--- finds the pane, `herdr agent prompt` submits the text there.
+-- Claude pane connected to this nvim. Inside herdr only: `herdr agent prompt`
+-- submits the text there.
 local M = {}
 
 ---@param first integer
@@ -35,17 +35,6 @@ local function diagnostics(first, last)
     return #items > 0 and ("diagnostics: " .. table.concat(items, "; ")) or nil
 end
 
----@param text string
-local function submit(text)
-    local provider = require("herdr-agents.claude").provider
-    local pane = provider and provider.pane()
-    if not pane then
-        vim.notify("No Claude pane for this nvim", vim.log.levels.WARN)
-        return
-    end
-    require("lib.herdr").run({ "agent", "prompt", pane, text })
-end
-
 function M.prompt()
     local first, last = require("lib.yank").line_range()
     local span, found = lines(first, last), diagnostics(first, last)
@@ -54,11 +43,14 @@ function M.prompt()
     end
     -- The short name is for the eye; Claude gets the full path, which resolves
     -- from wherever its pane is
-    local path = vim.fn.expand("%:p")
-    vim.ui.input({ prompt = vim.fn.expand("%:t") .. span .. ": " }, function(instruction)
-        if instruction and instruction ~= "" then
-            submit(table.concat({ path .. span .. ": " .. instruction, found }, " - "))
-        end
+    local path, name = vim.fn.expand("%:p"), vim.fn.expand("%:t")
+    require("lib.claude_pane").pick(function(pane)
+        vim.ui.input({ prompt = name .. span .. ": " }, function(instruction)
+            if instruction and instruction ~= "" then
+                local text = table.concat({ path .. span .. ": " .. instruction, found }, " - ")
+                require("lib.herdr").run({ "agent", "prompt", pane, text })
+            end
+        end)
     end)
 end
 
