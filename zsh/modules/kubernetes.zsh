@@ -62,6 +62,9 @@ kcnp() {
 }
 
 kcl() {
+    local n=$(kubectl config get-contexts -o name 2>/dev/null | wc -l | tr -d ' ')
+    read -q "?Wipe all $n contexts, users and clusters from kubeconfig? [y/N] " || { echo; return 1 }
+    echo
     kubectl config unset current-context
     kubectl config unset contexts
     kubectl config unset users
