@@ -18,6 +18,7 @@ bindkey "^[[1;5B" down-line-or-history
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 
+bindkey "^[[3~" delete-char         # delete
 bindkey "^[[3;5~" kill-word         # ctrl delete
 bindkey "^?" backward-delete-char   # backspace
 
