@@ -9,7 +9,17 @@ return {
     },
     {
         "brianhuster/live-preview.nvim",
+        -- local fork: editing in the preview, on branch edit-in-preview
+        dir = "~/git/live-preview.nvim",
         cmd = "LivePreview",
+        config = function()
+            -- the shared default port sends a second nvim's browser to the first nvim's server
+            local probe = vim.uv.new_tcp()
+            probe:bind("127.0.0.1", 0)
+            local port = probe:getsockname().port
+            probe:close()
+            require("livepreview.config").set({ port = port })
+        end,
         keys = {
             {
                 "<leader>p",
