@@ -1,4 +1,4 @@
-# Streams stdin, pretty-printing JSON log lines and colouring the whole stream as a log.
+# Streams stdin, pretty-printing JSON log lines; bat colours them as JSON and the rest as a log.
 jsonl() {
     # Command form merges stderr, where loggers usually write
     if (( $# )); then
@@ -7,13 +7,13 @@ jsonl() {
         return
     fi
     if command -v bat &>/dev/null; then
-        _jsonl_pretty | bat -pp -l log --color=always
+        _jsonl_pretty | bat -pp -l "JSON Log" --color=always # bat/syntaxes/json-log.sublime-syntax
     else
         _jsonl_pretty
     fi
 }
 
-# bat mangles pre-coloured input, so JSON stays uncoloured here and gets the log colours downstream
+# bat mangles pre-coloured input, so output stays uncoloured here and gets its colours downstream
 _jsonl_pretty() {
     local line content parsed
     while IFS= read -r line; do

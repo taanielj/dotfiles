@@ -7,17 +7,17 @@ main_bat() {
     link_file "$REPO_ROOT/bat" "$HOME/.config/bat"
 
     if ! command -v bat &>/dev/null; then
-        warn "bat is not installed, the theme cache builds on the next setup run"
+        warn "bat is not installed, the theme and syntax cache builds on the next setup run"
         return 0
     fi
-    # Custom themes load only from the cache; the vendored one covers bat releases without bundled Catppuccin
-    run_quiet "Building bat theme cache" bat cache --build
+    # Custom themes and syntaxes load only from the cache; the vendored theme covers bat releases without bundled Catppuccin
+    run_quiet "Building bat theme and syntax cache" bat cache --build
 }
 
 teardown_bat() {
     unlink_file "$REPO_ROOT/bat" "$HOME/.config/bat"
 
-    command -v bat &>/dev/null && run_quiet "Clearing bat theme cache" bat cache --clear
+    command -v bat &>/dev/null && run_quiet "Clearing bat theme and syntax cache" bat cache --clear
     success "bat configuration removed."
 }
 
