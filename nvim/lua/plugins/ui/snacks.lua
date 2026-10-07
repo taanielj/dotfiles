@@ -61,6 +61,7 @@ return {
             },
         },
         bigfile = { enabled = true },
+        image = { enabled = true },
         indent = {
             enabled = true,
             indent = { char = "▏", hl = rainbow_groups },

@@ -44,6 +44,7 @@ MACOS_PACKAGES=(
     "mise"
     "tmux-mem-cpu-load" # tmux.conf status line calls the bare binary; no apt package exists
     "delve"             # nvim-dap-go finds dlv on PATH
+    "imagemagick"       # snacks.nvim image converts non-PNG formats with magick
     # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
 )
 
