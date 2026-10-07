@@ -111,6 +111,16 @@ local function marksman_resolves(from_definition)
     return not from_definition and next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) ~= nil
 end
 
+-- GitHub's #L42 line anchor; heading slugs are lowercase, so the two never clash
+local function jump_to_anchor(anchor)
+    local line = anchor:match("^L(%d+)")
+    if not line then
+        return jump_to_heading(anchor)
+    end
+    vim.api.nvim_win_set_cursor(0, { math.min(tonumber(line), vim.api.nvim_buf_line_count(0)), 0 })
+    vim.cmd("normal! ^")
+end
+
 ---@param path string empty for this buffer
 local function edit_at_anchor(path, target)
     if path ~= "" then
@@ -118,8 +128,19 @@ local function edit_at_anchor(path, target)
     end
     local anchor = target:match("#(.+)$")
     if anchor then
-        jump_to_heading(anchor)
+        jump_to_anchor(anchor)
     end
+end
+
+-- git's test: a NUL in the first 8000 bytes makes a file binary
+local function is_binary(path)
+    local file = io.open(path, "rb")
+    if not file then
+        return false
+    end
+    local head = file:read(8000) or ""
+    file:close()
+    return head:find("\0", 1, true) ~= nil
 end
 
 function M.follow()
@@ -137,17 +158,16 @@ function M.follow()
         path = vim.fs.normalize(path:sub(1, 1) == "/" and path or vim.fs.joinpath(vim.fn.expand("%:p:h"), path))
     end
 
-    if path == "" or require("lib.markdown").is_file(path) then
-        if marksman_resolves(from_definition) then
-            return vim.lsp.buf.definition()
-        end
-        if path == "" or vim.uv.fs_stat(path) then
-            return edit_at_anchor(path, target)
-        end
-    elseif vim.uv.fs_stat(path) then
+    if (path == "" or require("lib.markdown").is_file(path)) and marksman_resolves(from_definition) then
+        return vim.lsp.buf.definition()
+    end
+    if path ~= "" and not vim.uv.fs_stat(path) then
+        return vim.notify("No such file: " .. path, vim.log.levels.WARN)
+    end
+    if path ~= "" and is_binary(path) then
         return vim.ui.open(path)
     end
-    vim.notify("No such file: " .. path, vim.log.levels.WARN)
+    edit_at_anchor(path, target)
 end
 
 -- A target already defined keeps its label; a new one takes the lowest free number
