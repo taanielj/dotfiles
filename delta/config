@@ -1,0 +1,14 @@
+# Catppuccin's official delta palette, vendored from github.com/catppuccin/delta
+[include]
+	path = catppuccin.gitconfig
+
+[delta]
+	features = catppuccin-macchiato
+	paging = never
+	keep-plus-minus-markers = true
+	hunk-header-style = raw
+	file-decoration-style = none
+	hunk-header-decoration-style = none
+	# Used only with --side-by-side
+	line-numbers-left-format = ""
+	line-numbers-right-format = "│"
