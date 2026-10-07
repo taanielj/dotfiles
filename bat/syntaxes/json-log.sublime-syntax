@@ -1,0 +1,15 @@
+%YAML 1.2
+---
+# jsonl output (zsh/lib/json-logs.zsh): pretty-printed JSON objects between plain log lines
+name: JSON Log
+scope: text.log.json
+hidden: true
+contexts:
+  main:
+    # Every line jq prints for an object starts with "{", "}" or indentation
+    - match: '^(?=\{)'
+      embed: scope:source.json
+      escape: '^(?![ \t{}])'
+    - match: '^'
+      embed: scope:text.log
+      escape: '^(?=\{)'
