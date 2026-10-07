@@ -1,3 +1,10 @@
+git:
+  diffRenderers:
+    # delta ignores the COLUMNS lazygit sets for the panel width
+    - command: delta --config ~/.config/delta/config --width=$COLUMNS
+    - command: delta --config ~/.config/delta/config --width=$COLUMNS --side-by-side
+      name: side-by-side
+
 customCommands:
   - key: 'o'
     context: 'localBranches'

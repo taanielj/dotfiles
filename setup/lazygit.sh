@@ -11,6 +11,7 @@ main_lazygit() {
 
     # LG_CONFIG_FILE, exported in zshrc.zsh, points lazygit at this link.
     link_file "$REPO_ROOT/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
+    link_file "$REPO_ROOT/delta" "$HOME/.config/delta"
 }
 
 install_lazygit() {
@@ -52,6 +53,7 @@ teardown_lazygit() {
     LAZYGIT_BIN="$HOME/.local/bin/lazygit"
 
     unlink_file "$REPO_ROOT/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
+    unlink_file "$REPO_ROOT/delta" "$HOME/.config/delta"
 
     if [[ -f "$LAZYGIT_BIN" ]]; then
         log "Removing lazygit installation from $LAZYGIT_BIN"

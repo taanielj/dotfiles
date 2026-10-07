@@ -7,6 +7,7 @@ TOOLS=(
     "eza"
     "zoxide"
     "bat"
+    "git-delta" # lazygit diff renderer
     "ripgrep"
     "fd-find"
 )
