@@ -46,3 +46,4 @@ metals.sbt
 # make
 checkmake.ini
 
+.env
