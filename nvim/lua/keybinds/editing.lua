@@ -230,3 +230,15 @@ map({
     { "i", "<C-Left>", function() vim.fn["wordmotion#motion"](1, "n", "b", 0, {}) end, "Move back a word" },
     { "i", "<C-S-Right>", accept_line_or_select_word, "Accept a line, or select a word" },
 })
+
+-- =  Calculate, replacing the reindent operator
+local calc = require("lib.calc")
+-- stylua: ignore
+map({
+    { { "n", "x" }, "==", calc.evaluate,     "Evaluate the expression, or edit the number", true },
+    { { "n", "x" }, "=+", calc.operate("+"), "Add the count, default 1", true },
+    { { "n", "x" }, "=-", calc.operate("-"), "Subtract the count, default 1", true },
+    { { "n", "x" }, "=*", calc.operate("*"), "Multiply by the count, default 2", true },
+    { { "n", "x" }, "=/", calc.operate("/"), "Divide by the count, default 2", true },
+    { { "n", "x" }, "=^", calc.operate("^"), "Raise to the count, default 2", true },
+})
