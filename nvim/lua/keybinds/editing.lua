@@ -50,7 +50,6 @@ map({
     { "x",               "<End>",                      "$h",                                            "Move to end of line" },
 
     { "n",               "<C-a>",                      "ggVG",                                          "Select all" },
-    { "x",               "<C-a>",                      "ggVG",                                          "Select all" },
     { "i",               "<C-a>",                      "<Esc>ggVG",                                     "Select all" },
 
     -- Some terminals send these for Home and End
