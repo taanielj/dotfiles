@@ -9,6 +9,10 @@ VENV/
 # IDE specific
 .idea/
 .vscode/
+# jdtls (Eclipse) project metadata
+.project
+.classpath
+.settings/
 session.vim
 Session.vim
 
@@ -20,6 +24,7 @@ __pycache__/
 # AI Agents & LLM Tooling
 AGENTS.md
 CLAUDE.md
+CLAUDE.local.md
 .claude/
 .cursorrules
 .cline/
