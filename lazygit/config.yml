@@ -23,3 +23,16 @@ customCommands:
       *) O "$U/compare/$B?expand=1" ;;
       esac
     output: log
+  - key: 'O'
+    context: 'localBranches'
+    description: 'Log the newest pull/merge request of each local branch'
+    command: >-
+      U=$(git remote get-url origin | sed -E 's#^git@([^:]+):#https://\1/#; s#\.git$##');
+      H=$(printf '%s\n' "$U" | sed -E 's#^[a-z]+://##; s#^[^@/]*@##; s#[/:].*##');
+      if command -v glab >/dev/null 2>&1 && [ -n "$(glab config get token --host "$H" 2>/dev/null)" ]; then
+      glab mr list --all --per-page 100 -F json --jq '.[] | select(.source_project_id == .target_project_id) | "\(.source_branch)\t!\(.iid) \(.state)\t\(.title)"';
+      else gh pr list --state all --limit 100 --json headRefName,isCrossRepository,number,state,title --jq '.[] | select(.isCrossRepository | not) | "\(.headRefName)\t#\(.number) \(.state)\t\(.title)"'; fi |
+      while IFS="$(printf '\t')" read -r B N T; do
+      case " $SEEN " in *" $B "*) continue ;; esac; SEEN="$SEEN $B";
+      if git show-ref --quiet --verify "refs/heads/$B"; then printf '%s  %s  %s\n' "$N" "$B" "$T"; fi; done
+    output: log
