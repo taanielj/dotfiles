@@ -2,6 +2,9 @@
 typeset -gix P9K_SSH=0
 typeset -gx _P9K_SSH_TTY=$TTY
 
+# zprofile sources this too, but multiplexer panes start non-login shells
+source "$HOME/.config/zsh/source-cached.zsh"
+
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [[ ! -d "$ZINIT_HOME" ]] && mkdir -p "$(dirname "$ZINIT_HOME")"
 [[ ! -d "$ZINIT_HOME/.git" ]] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
@@ -50,13 +53,17 @@ zinit ice depth=1 lucid
 zinit light romkatv/powerlevel10k
 source "$HOME/.config/zsh/p10k.zsh"
 
-# Autosuggestions loads eagerly so suggestions appear from the first prompt
+# Autosuggestions loads eagerly so suggestions appear from the first prompt.
+# Manual rebind wraps zle widgets once at the first prompt instead of at every
+# prompt; the atload re-wraps after the turbo plugins below add theirs, so any
+# plugin defining widgets must load before it.
+export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 zinit ice lucid
 zinit light zsh-users/zsh-autosuggestions
 
 zinit wait lucid for \
     Aloxaf/fzf-tab \
-    zsh-users/zsh-syntax-highlighting
+    atload'_zsh_autosuggest_bind_widgets' zsh-users/zsh-syntax-highlighting
 
 zinit ice wait'1' lucid
 zinit snippet OMZP::git
@@ -114,7 +121,7 @@ command -v bat &>/dev/null && export FZF_CTRL_T_OPTS="--preview 'bat --color=alw
 
 [[ -z "$MISE_STATUS_MESSAGE_MISSING_TOOLS" ]] && export MISE_STATUS_MESSAGE_MISSING_TOOLS="always"
 
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+command -v direnv &>/dev/null && source_cached direnv hook zsh
 
 # HOMEBREW_PREFIX comes from zprofile, which only login shells read, so probe
 # the same two brew prefixes it does.

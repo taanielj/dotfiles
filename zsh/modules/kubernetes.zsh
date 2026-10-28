@@ -3,15 +3,8 @@ command -v kubectl &>/dev/null || return
 alias k="kubectl"
 ka() { kubectl --as admin --as-group system:masters "$@"; }
 
-# kubectl completion is slow to generate - cache until the binary changes
-_kubectl_comp="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/kubectl-completion.zsh"
-if [[ ! -s "$_kubectl_comp" || "${commands[kubectl]}" -nt "$_kubectl_comp" ]]; then
-    mkdir -p "${_kubectl_comp:h}"
-    kubectl completion zsh >| "$_kubectl_comp"
-fi
-source "$_kubectl_comp"
+source_cached kubectl completion zsh
 compdef _kubectl k
-unset _kubectl_comp
 
 # _k8s_use <apply> <list> <target> [fzf args]
 # Applies $target directly when kubectl accepts it, else picks one from the list seeded with it.

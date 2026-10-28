@@ -2,10 +2,12 @@
 # only the user-local bins so non-login multiplexer panes get them too.
 typeset -U path
 
+source "$HOME/.config/zsh/source-cached.zsh"
+
 if [[ -x /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+    source_cached /opt/homebrew/bin/brew shellenv
 elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    source_cached /home/linuxbrew/.linuxbrew/bin/brew shellenv
 fi
 
 path=("$HOME/.local/nvim/bin" "$HOME/.local/bin" $path)
