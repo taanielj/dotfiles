@@ -49,7 +49,7 @@ return {
                     prepend_args = function(_, ctx)
                         local args = { "--ignore-path", ".prettierignore" }
                         if vim.bo[ctx.buf].filetype:match("^markdown") then
-                            vim.list_extend(args, { "--prose-wrap", "never" })
+                            vim.list_extend(args, { "--prose-wrap", "never", "--print-width", "120" })
                         end
                         return args
                     end,
