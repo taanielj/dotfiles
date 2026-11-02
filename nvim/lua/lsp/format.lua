@@ -8,9 +8,9 @@ local function organize_imports(bufnr)
         return
     end
     local results = vim.lsp.buf_request_sync(bufnr, "textDocument/codeAction", function(client)
-        local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
-        params.context = { diagnostics = {}, only = { "source.organizeImports" } }
-        return params
+        return vim.tbl_extend("force", vim.lsp.util.make_range_params(0, client.offset_encoding), {
+            context = { diagnostics = {}, only = { "source.organizeImports" } },
+        })
     end, 2000)
     for client_id, response in pairs(results or {}) do
         local client = vim.lsp.get_client_by_id(client_id)
