@@ -41,6 +41,23 @@ vim.api.nvim_create_autocmd("FileType", {
     callback = function() vim.opt_local.conceallevel = 0 end,
 })
 
+-- `nvim -` has no file name to detect by. Neovim's own sniffing of stdin knows
+-- shebangs, <?xml, HTML and diffs; this adds JSON, YAML and declaration-less XML
+-- by the first non-blank line, as a fallback any of those overrides.
+vim.api.nvim_create_autocmd("StdinReadPost", {
+    group = augroup("stdin_filetype"),
+    callback = function()
+        local first = vim.fn.getline(vim.fn.nextnonblank(1))
+        local ft = first:match("^%s*[{[]") and "json"
+            or first:match("^%s*<[%a_!]") and "xml"
+            or (first:match("^%-%-%-%s*$") or first:match("^%a[%w_.-]*:%s") or first:match("^%a[%w_.-]*:$"))
+                and "yaml"
+        if ft then
+            vim.cmd.setfiletype({ args = { "FALLBACK", ft } })
+        end
+    end,
+})
+
 -- herdr's edit_scrollback opens the dump at its first line; the recent end
 -- is what was wanted.
 vim.api.nvim_create_autocmd("BufReadPost", {
