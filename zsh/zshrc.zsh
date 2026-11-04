@@ -24,6 +24,8 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 
 export ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+# Space-led lines skip history (HIST_IGNORE_SPACE), so only completion would answer
+export ZSH_AUTOSUGGEST_COMPLETION_IGNORE=' *'
 
 ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
