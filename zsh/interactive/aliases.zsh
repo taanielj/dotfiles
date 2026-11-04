@@ -65,6 +65,23 @@ nvimf() {
 
 alias gflog='git log --follow --stat --date=format:%Y-%m-%d --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
 
+# Rebase onto origin's default branch. origin/HEAD is set at clone time;
+# set-head --auto asks the remote when the repo was cloned without it.
+function grm {
+    git fetch origin || return
+    local base
+    base=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null) ||
+        { git remote set-head origin --auto >/dev/null &&
+            base=$(git symbolic-ref --short refs/remotes/origin/HEAD) } || return
+    git rebase "$base" "$@"
+}
+
+function gsq {
+    grm || return
+    git reset --soft "$(git symbolic-ref --short refs/remotes/origin/HEAD)" &&
+        git commit "$@"
+}
+
 _todo_backend() {
     if command -v rg &>/dev/null; then
         echo rg

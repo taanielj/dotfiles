@@ -65,7 +65,9 @@ zinit wait lucid for \
     Aloxaf/fzf-tab \
     atload'_zsh_autosuggest_bind_widgets' zsh-users/zsh-syntax-highlighting
 
-zinit ice wait'1' lucid
+# Turbo-loaded, so its aliases land after interactive/*.zsh; atload drops the
+# ones that shadow functions defined there.
+zinit ice wait'1' lucid atload'unalias grm'
 zinit snippet OMZP::git
 
 HISTSIZE=1000000
