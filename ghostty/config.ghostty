@@ -1,0 +1,91 @@
+font-family = JetBrains Mono NL
+font-style-bold = ExtraBold
+font-style-italic = Medium Italic
+font-style-bold-italic = ExtraBold Italic
+font-size = 14
+
+# kitty's colours: its built-in palette under kitty.conf's background and foreground
+background = #24273a
+foreground = #cad3f5
+cursor-color = #cccccc
+cursor-text = #111111
+selection-background = #fffacd
+selection-foreground = #000000
+palette = 0=#000000
+palette = 1=#cc0403
+palette = 2=#19cb00
+palette = 3=#cecb00
+palette = 4=#0d73cc
+palette = 5=#cb1ed1
+palette = 6=#0dcdcd
+palette = 7=#dddddd
+palette = 8=#767676
+palette = 9=#f2201f
+palette = 10=#23fd00
+palette = 11=#fffd00
+palette = 12=#1a8fff
+palette = 13=#fd28ff
+palette = 14=#14ffff
+palette = 15=#ffffff
+
+cursor-style = bar
+cursor-style-blink = true
+copy-on-select = clipboard
+
+macos-titlebar-style = hidden
+window-padding-x = 6
+window-padding-y = 6
+macos-option-as-alt = left
+quit-after-last-window-closed = true
+
+# cmd works as ctrl, as in kitty: cmd+letter sends the control byte, except
+# cmd+m and cmd+q, which stay macOS's. Selecting copies, so cmd+c interrupts.
+keybind = super+a=text:\x01
+keybind = super+b=text:\x02
+keybind = super+c=text:\x03
+keybind = super+d=text:\x04
+keybind = super+e=text:\x05
+keybind = super+f=text:\x06
+keybind = super+g=text:\x07
+keybind = super+h=text:\x08
+keybind = super+i=text:\x09
+keybind = super+j=text:\x0a
+keybind = super+k=text:\x0b
+keybind = super+l=text:\x0c
+keybind = super+n=text:\x0e
+keybind = super+o=text:\x0f
+keybind = super+p=text:\x10
+keybind = super+r=text:\x12
+keybind = super+s=text:\x13
+keybind = super+t=text:\x14
+keybind = super+u=text:\x15
+keybind = super+v=text:\x16
+keybind = super+w=text:\x17
+keybind = super+x=text:\x18
+keybind = super+y=text:\x19
+keybind = super+z=text:\x1a
+keybind = super+/=text:\x1f
+keybind = super+backslash=text:\x1c
+keybind = super+space=text:\x00
+keybind = super+backspace=text:\x17
+keybind = super+delete=csi:3;5~
+keybind = super+arrow_up=csi:1;5A
+keybind = super+arrow_down=csi:1;5B
+keybind = super+arrow_right=csi:1;5C
+keybind = super+arrow_left=csi:1;5D
+keybind = super+shift+arrow_up=csi:1;6A
+keybind = super+shift+arrow_down=csi:1;6B
+keybind = super+shift+arrow_right=csi:1;6C
+keybind = super+shift+arrow_left=csi:1;6D
+keybind = super+shift+v=paste_from_clipboard
+keybind = super+shift+n=new_window
+keybind = super+ctrl+,=reload_config
+keybind = super+enter=unbind
+keybind = ctrl+tab=unbind
+keybind = ctrl+shift+tab=unbind
+# option+left/right switch herdr tabs instead of jumping words
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
+keybind = super+==increase_font_size:2
+keybind = super++=increase_font_size:2
+keybind = super+-=decrease_font_size:2

@@ -41,17 +41,17 @@
                         ]
                     },
                     {
-                        "description": "Open WezTerm with Ctrl-Alt-W",
+                        "description": "Open GhosTTY with Ctrl-Alt-T",
                         "manipulators": [
                             {
                                 "from": {
-                                    "key_code": "w",
+                                    "key_code": "t",
                                     "modifiers": {
                                         "mandatory": ["command", "option"],
                                         "optional": ["caps_lock"]
                                     }
                                 },
-                                "to": [{ "shell_command": "open /Applications/WezTerm.app/" }],
+                                "to": [{ "shell_command": "open -a Ghostty" }],
                                 "type": "basic"
                             }
                         ]
@@ -847,11 +847,11 @@
                         ]
                     },
                     {
-                        "description": "Open Kitty Terminal with Ctrl-Alt-T",
+                        "description": "Open Kitty Terminal with Ctrl-Alt-K",
                         "manipulators": [
                             {
                                 "from": {
-                                    "key_code": "t",
+                                    "key_code": "k",
                                     "modifiers": {
                                         "mandatory": ["command", "option"],
                                         "optional": ["caps_lock"]

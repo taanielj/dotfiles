@@ -34,7 +34,7 @@ bash setup.sh --teardown --remove-cargo
 - [lazygit](setup/lazygit.sh): config everywhere, plus the binary itself where brew does not provide it
 - [clipboard](setup/clipboard.sh): pbcopy and pbpaste shims for zsh, tmux and scripts, Linux and WSL only
 - [win32yank](setup/win32yank.sh): Windows clipboard tool behind the shims and nvim, WSL only
-- [kitty](setup/kitty.sh) and [wezterm](setup/wezterm.sh): terminal emulators installed as casks, macOS only
+- [kitty](setup/kitty.sh), [ghostty](setup/ghostty.sh) and [wezterm](setup/wezterm.sh): terminal emulators installed as casks, macOS only
 - [karabiner](setup/karabiner.sh): [karabiner.json](karabiner/karabiner.json) for Karabiner-Elements, macOS only
 - [hammerspoon](setup/hammerspoon.sh): [init.lua](hammerspoon/init.lua) moves window focus with cmd+hjkl and resizes with alt+hjkl, carrying on from herdr panes and nvim windows; macOS only
 
