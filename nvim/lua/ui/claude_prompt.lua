@@ -47,7 +47,8 @@ function M.prompt()
     require("lib.claude_pane").pick(function(pane)
         vim.ui.input({ prompt = name .. span .. ": " }, function(instruction)
             if instruction and instruction ~= "" then
-                local text = table.concat({ path .. span .. ": " .. instruction, found }, " - ")
+                -- The location goes last, so a slash command typed first still runs
+                local text = table.concat({ instruction .. " " .. path .. span, found }, " - ")
                 require("lib.herdr").run({ "agent", "prompt", pane, text })
             end
         end)
