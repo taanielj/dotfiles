@@ -23,8 +23,10 @@ map({
     { "n", "<leader>N", function() Snacks.scratch.select() end,                   "Pick a scratch buffer" },
     { "n", "<leader>gg", function() require("ui.lazygit").open() end,             "LazyGit" },
     { "n", { "-", "<BS>" }, "<Cmd>Oil<CR>",                                    "Open parent directory" },
-    { "n", "zR",        function() require("ufo").openAllFolds() end,          "Open all folds" },
-    { "n", "zM",        function() require("ufo").closeAllFolds() end,         "Close all folds" },
+    { "n", "zR",        function() require("lib.folds").show(math.huge) end,   "Open all folds" },
+    { "n", "zM",        function() require("lib.folds").show(0) end,           "Close all folds" },
+    { "n", "zr",        function() require("lib.folds").step(1) end,           "Open a fold level, or to [count]" },
+    { "n", "zm",        function() require("lib.folds").step(-1) end,          "Close a fold level, or to [count]" },
 
     { { "n", "x", "i" }, "<C-y>",      scroll("<C-y>"),                                "Scroll up a little" },
     { { "n", "x", "i" }, "<C-e>",      scroll("<C-e>"),                                "Scroll down a little" },
