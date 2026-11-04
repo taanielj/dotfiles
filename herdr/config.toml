@@ -205,7 +205,7 @@ tab_bar_right_separator = " · "
 agent_panel_sort = "priority"
 [theme]
 name = "catppuccin"
-auto_switch = true
+auto_switch = false
 
 [experimental]
 pane_history = true
