@@ -4,6 +4,53 @@
             "complex_modifications": {
                 "rules": [
                     {
+                        "description": "Zen: Option + Up/Down to previous/next tab",
+                        "manipulators": [
+                            {
+                                "conditions": [
+                                    {
+                                        "bundle_identifiers": [
+                                            "^app\\.zen-browser\\.zen$"
+                                        ],
+                                        "type": "frontmost_application_if"
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "up_arrow",
+                                    "modifiers": { "mandatory": ["option"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "up_arrow",
+                                        "modifiers": ["command", "option"]
+                                    }
+                                ],
+                                "type": "basic"
+                            },
+                            {
+                                "conditions": [
+                                    {
+                                        "bundle_identifiers": [
+                                            "^app\\.zen-browser\\.zen$"
+                                        ],
+                                        "type": "frontmost_application_if"
+                                    }
+                                ],
+                                "from": {
+                                    "key_code": "down_arrow",
+                                    "modifiers": { "mandatory": ["option"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "down_arrow",
+                                        "modifiers": ["command", "option"]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Show Desktop with Ctrl+D (Win+D)",
                         "manipulators": [
                             {
