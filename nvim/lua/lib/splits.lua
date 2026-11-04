@@ -5,12 +5,57 @@ local M = {}
 
 local function plugin() return require(require("lib.herdr").inside() and "herdr-splits" or "smart-splits") end
 
----@param dir "left"|"down"|"up"|"right"
-function M.move(dir) plugin()["move_cursor_" .. dir]() end
+local WINCMD = { left = "h", down = "j", up = "k", right = "l" }
+local AXIS = { left = { "left", "right" }, right = { "left", "right" }, up = { "up", "down" }, down = { "up", "down" } }
+
+---@param sides ("left"|"down"|"up"|"right")[]
+---@return boolean outer every side is both nvim's edge and its unzoomed herdr pane's
+---layout edge, so the next layer out is the macOS window (hammerspoon/init.lua)
+local function at_outer_edge(sides)
+    local herdr = require("lib.herdr")
+    if not herdr.inside() or vim.fn.executable("hs") == 0 then
+        return false
+    end
+    for _, side in ipairs(sides) do
+        if vim.fn.winnr(WINCMD[side]) ~= vim.fn.winnr() then
+            return false
+        end
+    end
+    local res = vim.system({ herdr.bin(), "pane", "edges", "--current" }, { text = true }):wait()
+    local ok, data = pcall(vim.json.decode, res.stdout or "")
+    local edges = ok and data.result and data.result.edges
+    if not edges or edges.layout.zoomed then
+        return false
+    end
+    for _, side in ipairs(sides) do
+        if not edges[side] then
+            return false
+        end
+    end
+    return true
+end
+
+---@param code string Lua for Hammerspoon to run
+---@return boolean ran and returned true
+local function hammerspoon(code)
+    local res = vim.system({ "hs", "-c", code }, { text = true }):wait()
+    return vim.trim(res.stdout or "") == "true"
+end
 
 ---@param dir "left"|"down"|"up"|"right"
----@param fine? boolean one cell, or one percent of a herdr pane
+function M.move(dir)
+    if at_outer_edge({ dir }) and hammerspoon(("focusWindow('%s')"):format(dir)) then
+        return
+    end
+    plugin()["move_cursor_" .. dir]()
+end
+
+---@param dir "left"|"down"|"up"|"right"
+---@param fine? boolean one cell, or one percent of a herdr pane or the screen
 function M.resize(dir, fine)
+    if at_outer_edge(AXIS[dir]) and hammerspoon(("resizeWindow('%s', %s)"):format(dir, fine and 0.01 or "nil")) then
+        return
+    end
     local amount = nil
     if fine then
         amount = require("lib.herdr").inside() and 0.01 or 1

@@ -41,67 +41,69 @@ goto = "prefix+shift+f"
 
 # nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
 # herdr-splits plugin; the nvim half is nvim/lua/plugins/tools/herdr-splits.lua.
+# Both go through bin/herdr-nav.sh and bin/herdr-resize.sh, which carry on into
+# macOS windows.
 [[keys.command]]
 key = "ctrl+h"
-type = "plugin_action"
-command = "herdr-splits.nav-left"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" left'
 description = "navigate left"
 [[keys.command]]
 key = "ctrl+j"
-type = "plugin_action"
-command = "herdr-splits.nav-down"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" down'
 description = "navigate down"
 [[keys.command]]
 key = "ctrl+k"
-type = "plugin_action"
-command = "herdr-splits.nav-up"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" up'
 description = "navigate up"
 [[keys.command]]
 key = "ctrl+l"
-type = "plugin_action"
-command = "herdr-splits.nav-right"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" right'
 description = "navigate right"
 [[keys.command]]
 key = "alt+h"
-type = "plugin_action"
-command = "herdr-splits.resize-left"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" left'
 description = "resize left"
 [[keys.command]]
 key = "alt+j"
-type = "plugin_action"
-command = "herdr-splits.resize-down"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" down'
 description = "resize down"
 [[keys.command]]
 key = "alt+k"
-type = "plugin_action"
-command = "herdr-splits.resize-up"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" up'
 description = "resize up"
 [[keys.command]]
 key = "alt+l"
-type = "plugin_action"
-command = "herdr-splits.resize-right"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" right'
 description = "resize right"
 
 # one-percent resize
 [[keys.command]]
 key = "alt+shift+h"
 type = "shell"
-command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" left'
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" left fine'
 description = "resize left (fine)"
 [[keys.command]]
 key = "alt+shift+j"
 type = "shell"
-command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" down'
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" down fine'
 description = "resize down (fine)"
 [[keys.command]]
 key = "alt+shift+k"
 type = "shell"
-command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" up'
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" up fine'
 description = "resize up (fine)"
 [[keys.command]]
 key = "alt+shift+l"
 type = "shell"
-command = 'bash "$HOME/.config/herdr/bin/herdr-resize-fine.sh" right'
+command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" right fine'
 description = "resize right (fine)"
 
 # tmux: prefix B = break-pane (herdr has no built-in action, so call the CLI)
@@ -184,6 +186,8 @@ description = "resurrect: restore"
 
 [ui]
 pane_gaps = false
+# hammerspoon/init.lua tells windows running herdr apart by this prefix
+window_title = "herdr · {workspace}"
 host_cursor = "native"
 toast.delivery = "system"
 
