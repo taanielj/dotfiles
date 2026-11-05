@@ -77,6 +77,11 @@ keybind = super+shift+arrow_up=csi:1;6A
 keybind = super+shift+arrow_down=csi:1;6B
 keybind = super+shift+arrow_right=csi:1;6C
 keybind = super+shift+arrow_left=csi:1;6D
+# ctrl+shift+hjkl, which plain control bytes can't tell from ctrl+hjkl
+keybind = super+shift+h=csi:104;6u
+keybind = super+shift+j=csi:106;6u
+keybind = super+shift+k=csi:107;6u
+keybind = super+shift+l=csi:108;6u
 keybind = super+shift+v=paste_from_clipboard
 keybind = super+shift+n=new_window
 keybind = super+ctrl+,=reload_config

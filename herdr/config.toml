@@ -64,6 +64,26 @@ type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" right'
 description = "navigate right"
 [[keys.command]]
+key = "ctrl+shift+h"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" left window'
+description = "window left"
+[[keys.command]]
+key = "ctrl+shift+j"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" down window'
+description = "window down"
+[[keys.command]]
+key = "ctrl+shift+k"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" up window'
+description = "window up"
+[[keys.command]]
+key = "ctrl+shift+l"
+type = "shell"
+command = 'bash "$HOME/.config/herdr/bin/herdr-nav.sh" right window'
+description = "window right"
+[[keys.command]]
 key = "alt+h"
 type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" left'
