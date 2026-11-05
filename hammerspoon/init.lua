@@ -35,11 +35,11 @@ local function runsHerdr(win)
         and win:title():sub(1, #HERDR_TITLE) == HERDR_TITLE
 end
 
-local FOCUS = {
-    left = "focusWindowWest",
-    right = "focusWindowEast",
-    up = "focusWindowNorth",
-    down = "focusWindowSouth",
+local WINDOWS_TO = {
+    left = "windowsToWest",
+    right = "windowsToEast",
+    up = "windowsToNorth",
+    down = "windowsToSouth",
 }
 
 ---Focus the nearest unoccluded window in a direction.
@@ -47,7 +47,13 @@ local FOCUS = {
 ---@return boolean focused false when there is no window that way
 function focusWindow(dir)
     local win = hs.window.focusedWindow()
-    return win ~= nil and win[FOCUS[dir]](win, nil, true, true)
+    local target = win and win[WINDOWS_TO[dir]](win, nil, true, true)[1]
+    if not target then return false end
+    target:focus()
+    -- Activating an app raises its last key window over the target, as with
+    -- two Zen windows; once the app is in front, focusing again sticks.
+    hs.timer.doAfter(0, function() target:focus() end)
+    return true
 end
 
 local function overlaps(a, b, pos, size) return a[pos] < b[pos] + b[size] and b[pos] < a[pos] + a[size] end
