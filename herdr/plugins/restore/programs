@@ -1,0 +1,4 @@
+# Programs the restore plugin reruns in their pane after a herdr server
+# restart, one executable name per line.
+nvim
+k9s

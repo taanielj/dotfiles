@@ -1,0 +1,9 @@
+id = "restore"
+name = "restore"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Rerun the programs listed in `programs` in their panes after a server restart"
+platforms = ["linux", "macos"]
+
+[[startup]]
+command = ["sh", "restore.sh"]
