@@ -36,8 +36,13 @@ local function at_outer_edge(sides)
 end
 
 ---@param code string Lua for Hammerspoon to run
----@return boolean ran and returned true
+---@return boolean ran and returned true; false while Hammerspoon is down, which
+---relaunches it, since `hs` would hang instead
 local function hammerspoon(code)
+    if vim.system({ "pgrep", "-xq", "Hammerspoon" }):wait().code ~= 0 then
+        vim.system({ "open", "-g", "-a", "Hammerspoon" })
+        return false
+    end
     local res = vim.system({ "hs", "-c", code }, { text = true }):wait()
     return vim.trim(res.stdout or "") == "true"
 end

@@ -9,3 +9,14 @@ runs_nvim() {
         "$herdr" pane process-info --pane "$1" 2>/dev/null |
         grep -qE '"name"\s*:\s*"(g?(view|l?n?vim?x?)(diff)?)"'
 }
+
+# Usage: hammerspoon <lua>
+# Prints what Hammerspoon returns for the Lua. While Hammerspoon isn't running, `hs`
+# hangs rather than fails; this fails instead and relaunches it in the background.
+hammerspoon() {
+    if ! pgrep -xq Hammerspoon; then
+        open -g -a Hammerspoon
+        return 1
+    fi
+    hs -c "$1" 2>/dev/null
+}

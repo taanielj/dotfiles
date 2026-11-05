@@ -11,7 +11,7 @@ dir="${1:?usage: herdr-nav.sh <left|down|up|right>}"
 if ! runs_nvim "${HERDR_ACTIVE_PANE_ID:-}"; then
     edges=$("$herdr" pane edges --current 2>/dev/null || true)
     if [[ "$edges" == *"\"$dir\":true"* && "$edges" != *'"zoomed":true'* &&
-        "$(hs -c "focusWindow('$dir')" 2>/dev/null)" == true ]]; then
+        "$(hammerspoon "focusWindow('$dir')")" == true ]]; then
         exit 0
     fi
 fi

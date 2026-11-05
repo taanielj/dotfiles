@@ -27,7 +27,7 @@ fi
 edges=$("$herdr" pane edges --current 2>/dev/null || true)
 if [[ "$edges" == *"\"${sides[0]}\":true"* && "$edges" == *"\"${sides[1]}\":true"* &&
     "$edges" != *'"zoomed":true'* &&
-    "$(hs -c "resizeWindow('$dir', $os_step)" 2>/dev/null)" == true ]]; then
+    "$(hammerspoon "resizeWindow('$dir', $os_step)")" == true ]]; then
     exit 0
 fi
 
