@@ -71,6 +71,10 @@ configure_herdr() {
     if ! herdr plugin list 2>/dev/null | grep -q "^- agent-titles "; then
         run_quiet "Linking herdr agent-titles plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/agent-titles"
     fi
+    # Sets the $tab sidebar token the space rows in config.toml show.
+    if ! herdr plugin list 2>/dev/null | grep -q "^- active-tab "; then
+        run_quiet "Linking herdr active-tab plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/active-tab"
+    fi
 
     if ! herdr config check; then
         warn "herdr config check reported issues (see above)."

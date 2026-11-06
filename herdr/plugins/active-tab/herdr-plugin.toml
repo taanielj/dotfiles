@@ -1,0 +1,30 @@
+id = "active-tab"
+name = "active-tab"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Show each workspace's active tab in the sidebar unless it still has its automatic number"
+platforms = ["linux", "macos"]
+
+# Tokens are not restored after a server restart.
+[[startup]]
+command = ["sh", "active-tab.sh"]
+
+[[events]]
+on = "tab.focused"
+command = ["sh", "active-tab.sh"]
+
+[[events]]
+on = "tab.renamed"
+command = ["sh", "active-tab.sh"]
+
+[[events]]
+on = "tab.created"
+command = ["sh", "active-tab.sh"]
+
+[[events]]
+on = "tab.closed"
+command = ["sh", "active-tab.sh"]
+
+[[events]]
+on = "tab.moved"
+command = ["sh", "active-tab.sh"]

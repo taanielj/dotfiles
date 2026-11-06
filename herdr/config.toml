@@ -235,6 +235,12 @@ rows = [
     [{ token = "machine", rules = [{ equals = "Local", hide = true }] }],
 ]
 
+[ui.sidebar.spaces]
+rows = [
+    ["state_icon", "workspace", "$tab"], # active tab when named, from plugins/active-tab
+    ["branch", "git_status"],
+]
+
 [theme]
 name = "catppuccin"
 auto_switch = false
