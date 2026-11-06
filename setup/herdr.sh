@@ -63,6 +63,10 @@ configure_herdr() {
     if ! herdr plugin list 2>/dev/null | grep -q "^- lazygit "; then
         run_quiet "Linking herdr lazygit plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/lazygit"
     fi
+    # Reruns the programs in herdr/plugins/restore/programs after a server restart.
+    if ! herdr plugin list 2>/dev/null | grep -q "^- restore "; then
+        run_quiet "Linking herdr restore plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/restore"
+    fi
 
     if ! herdr config check; then
         warn "herdr config check reported issues (see above)."
@@ -82,6 +86,7 @@ teardown_herdr() {
         unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
             "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
         herdr plugin unlink lazygit &>/dev/null || true
+        herdr plugin unlink restore &>/dev/null || true
     else
         warn "herdr is not installed. Skipping its plugin teardown."
     fi
