@@ -29,8 +29,9 @@ install_cargo_tools() {
     fi
 
     log "Installing cargo tools..."
+    # --locked builds with each tool's own lockfile; newest deps can break the build
     for tool in "${TOOLS[@]}"; do
-        run_quiet "📦 Installing $tool" cargo install "$tool"
+        run_quiet "📦 Installing $tool" cargo install --locked "$tool"
     done
 }
 
