@@ -1,8 +1,13 @@
 git:
   diffRenderers:
     # delta ignores the COLUMNS lazygit sets for the panel width
-    - command: delta --config ~/.config/delta/config --width=$COLUMNS
-    - command: delta --config ~/.config/delta/config --width=$COLUMNS --side-by-side
+    # Without delta, lazygit would show an empty diff, so pass git's diff through instead
+    - command: >-
+        if command -v delta >/dev/null; then delta --config ~/.config/delta/config --width=$COLUMNS;
+        else echo "delta not installed, showing plain diff"; cat; fi
+    - command: >-
+        if command -v delta >/dev/null; then delta --config ~/.config/delta/config --width=$COLUMNS --side-by-side;
+        else echo "delta not installed, showing plain diff"; cat; fi
       name: side-by-side
 
 customCommands:
