@@ -24,10 +24,11 @@ DEBIAN_PACKAGES=(
 UBUNTU_PACKAGES=(
     "${DEBIAN_PACKAGES[@]}"
     "software-properties-common" # for add-apt-repository
-    "fastfetch"                  # requires PPA
+    "fastfetch"
 )
-UBUNTU_PPA_REPOSITORIES=(
-    "ppa:zhangsongcui3371/fastfetch"
+# package:ppa for packages some Ubuntu releases lack; the PPA is added only when apt has no candidate
+UBUNTU_PPA_FALLBACKS=(
+    "fastfetch:ppa:zhangsongcui3371/fastfetch" # in Ubuntu from 25.04 on
 )
 
 TERMUX_PACKAGES=(
@@ -72,9 +73,7 @@ main_system() {
         ;;
     esac
 
-    # wslu provides wslview, which nvim's markdown preview uses to reach the Windows browser.
-    [[ -n "$WSL_DISTRO_NAME" ]] && PACKAGES+=("wslu")
-
+    [[ "$DISTRO" == "ubuntu" ]] && add_fallback_ppas
     install_packages "${PACKAGES[@]}"
     link_apt_names
 }
@@ -136,7 +135,6 @@ setup_package_manager() {
     case "$DISTRO" in
     ubuntu)
         setup_apt "$update_requested"
-        add_apt_repositories "${UBUNTU_PPA_REPOSITORIES[@]}"
         ;;
     debian)
         setup_apt "$update_requested"
@@ -167,6 +165,32 @@ setup_apt() {
     if [[ "$update_requested" == true ]]; then
         run_quiet "Upgrading apt packages" sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     fi
+}
+
+# Adds the UBUNTU_PPA_FALLBACKS PPA of each package in PACKAGES that apt can't install as is.
+# A package whose PPA doesn't publish this release either is dropped from PACKAGES.
+add_fallback_ppas() {
+    local pair pkg ppa codename ppas=()
+    codename=$(. /etc/os-release && echo "$VERSION_CODENAME")
+    for pair in "${UBUNTU_PPA_FALLBACKS[@]}"; do
+        pkg=${pair%%:*}
+        ppa=${pair#*:}
+        [[ " ${PACKAGES[*]} " == *" $pkg "* ]] || continue
+        apt-cache policy "$pkg" 2>/dev/null | grep -q 'Candidate: [^(]' && continue
+        if curl -fsI "https://ppa.launchpadcontent.net/${ppa#ppa:}/ubuntu/dists/$codename/Release" &>/dev/null; then
+            ppas+=("$ppa")
+        else
+            warn "Skipping $pkg: neither apt nor $ppa has it for $codename"
+            local p kept=()
+            for p in "${PACKAGES[@]}"; do [[ "$p" != "$pkg" ]] && kept+=("$p"); done
+            PACKAGES=("${kept[@]}")
+        fi
+    done
+    [[ ${#ppas[@]} -eq 0 ]] && return
+    if ! command -v add-apt-repository &>/dev/null; then
+        run_quiet "Installing add-apt-repository" sudo DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
+    fi
+    add_apt_repositories "${ppas[@]}"
 }
 
 add_apt_repositories() {
