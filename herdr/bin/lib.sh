@@ -14,6 +14,7 @@ runs_nvim() {
 # Prints what Hammerspoon returns for the Lua. While Hammerspoon isn't running, `hs`
 # hangs rather than fails; this fails instead and relaunches it in the background.
 hammerspoon() {
+    command -v hs >/dev/null || return 1
     if ! pgrep -xq Hammerspoon; then
         open -g -a Hammerspoon
         return 1
