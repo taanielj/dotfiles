@@ -20,6 +20,7 @@ SETUP_SCRIPTS=(
 )
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/ghostty.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh" "$REPO_ROOT/setup/hammerspoon.sh")
 [[ "$OSTYPE" != "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/clipboard.sh")
+[[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/superfile.sh") # brew installs it on macOS
 [[ -n "$WSL_DISTRO_NAME" ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/win32yank.sh")
 
 show_help() {

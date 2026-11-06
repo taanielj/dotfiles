@@ -57,8 +57,8 @@ return {
 
         require("dap-go").setup()
 
-        -- Without handlers mason-nvim-dap only installs; dap-python sets up the adapter
-        require("mason-nvim-dap").setup({ ensure_installed = { "python" } })
+        -- Without handlers mason-nvim-dap only installs; dap-python sets up the adapter, dap-go finds dlv on mason's PATH
+        require("mason-nvim-dap").setup({ ensure_installed = { "python", "delve" } })
         require("dap-python").setup(require("lib.mason").path("bin/debugpy-adapter"))
 
         local dap = require("dap")

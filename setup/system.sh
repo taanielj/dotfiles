@@ -18,6 +18,7 @@ DEBIAN_PACKAGES=(
     "libncursesw5-dev" "tk-dev"                                   # Terminal and UI libraries
     "libssl-dev" "libxml2-dev" "libxmlsec1-dev"                   # Networking and XML libraries
     "clang" "libclang-dev"
+    "imagemagick" # snacks.nvim image converts non-PNG formats with magick
 )
 
 UBUNTU_PACKAGES=(
@@ -43,7 +44,6 @@ MACOS_PACKAGES=(
     "fastfetch"
     "mise"
     "tmux-mem-cpu-load" # tmux.conf status line calls the bare binary; no apt package exists
-    "delve"             # nvim-dap-go finds dlv on PATH
     "imagemagick"       # snacks.nvim image converts non-PNG formats with magick
     # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
 )
