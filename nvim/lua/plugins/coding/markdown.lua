@@ -1,3 +1,5 @@
+local live_preview_fork = vim.fs.normalize("~/git/live-preview.nvim")
+
 return {
     {
         "MeanderingProgrammer/render-markdown.nvim",
@@ -10,7 +12,8 @@ return {
     {
         "brianhuster/live-preview.nvim",
         -- local fork: editing in the preview, on branch edit-in-preview
-        dir = "~/git/live-preview.nvim",
+        dir = live_preview_fork,
+        cond = vim.fn.isdirectory(live_preview_fork) == 1,
         cmd = "LivePreview",
         config = function()
             -- the shared default port sends a second nvim's browser to the first nvim's server
