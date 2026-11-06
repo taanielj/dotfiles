@@ -203,6 +203,7 @@ tab_bar_right = [
 tab_bar_right_separator = " · "
 
 agent_panel_sort = "priority"
+status_indicators = "symbols"
 [theme]
 name = "catppuccin"
 auto_switch = false
