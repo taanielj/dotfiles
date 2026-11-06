@@ -128,15 +128,15 @@ command -v bat &>/dev/null && export FZF_CTRL_T_OPTS="--preview 'bat --color=alw
 command -v direnv &>/dev/null && source_cached direnv hook zsh
 
 # HOMEBREW_PREFIX comes from zprofile, which only login shells read, so probe
-# the same two brew prefixes it does.
+# the same two brew prefixes it does. apt's SDK has gcloud on PATH already and ships only the completion.
 for _gcloud_sdk in "${HOMEBREW_PREFIX:-/opt/homebrew}/share/google-cloud-sdk" \
     "/home/linuxbrew/.linuxbrew/share/google-cloud-sdk" \
-    "$HOME/google-cloud-sdk"; do
-    if [[ -f "$_gcloud_sdk/path.zsh.inc" ]]; then
-        source "$_gcloud_sdk/path.zsh.inc"
-        [[ -f "$_gcloud_sdk/completion.zsh.inc" ]] && source "$_gcloud_sdk/completion.zsh.inc"
-        break
-    fi
+    "$HOME/google-cloud-sdk" \
+    "/usr/share/google-cloud-sdk"; do
+    [[ -f "$_gcloud_sdk/completion.zsh.inc" ]] || continue
+    [[ -f "$_gcloud_sdk/path.zsh.inc" ]] && source "$_gcloud_sdk/path.zsh.inc"
+    source "$_gcloud_sdk/completion.zsh.inc"
+    break
 done
 unset _gcloud_sdk
 
