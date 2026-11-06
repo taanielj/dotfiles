@@ -22,6 +22,8 @@ next_tab = ["prefix+n", "alt+right"]
 
 next_workspace     = "alt+down"
 previous_workspace = "alt+up"
+next_agent         = "alt+shift+down"
+previous_agent     = "alt+shift+up"
 
 # --- tmux muscle-memory aliases (secondary keys; prune once the herdr defaults stick) ---
 # settings takes prefix+shift+s, leaving prefix+s for the tmux session-picker key.
@@ -224,6 +226,15 @@ tab_bar_right_separator = " · "
 
 agent_panel_sort = "priority"
 status_indicators = "symbols"
+
+# Each entry names its workspace because priority sort interleaves workspaces.
+[ui.sidebar.agents]
+rows = [
+    ["state_icon", "workspace", "tab"],
+    ["$title"], # session title when agents share a tab, from plugins/agent-titles
+    [{ token = "machine", rules = [{ equals = "Local", hide = true }] }],
+]
+
 [theme]
 name = "catppuccin"
 auto_switch = false

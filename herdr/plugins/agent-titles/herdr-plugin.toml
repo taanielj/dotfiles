@@ -1,0 +1,32 @@
+id = "agent-titles"
+name = "agent-titles"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Show the session title in the sidebar only for agents that share a tab"
+platforms = ["linux", "macos"]
+
+# Tokens are not restored after a server restart.
+[[startup]]
+command = ["sh", "titles.sh"]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["sh", "titles.sh"]
+
+# A new title shows at the agent's next status change, because plugin hooks
+# can't subscribe to pane.updated, where title changes land.
+[[events]]
+on = "pane.agent_status_changed"
+command = ["sh", "titles.sh"]
+
+[[events]]
+on = "pane.moved"
+command = ["sh", "titles.sh"]
+
+[[events]]
+on = "pane.closed"
+command = ["sh", "titles.sh"]
+
+[[events]]
+on = "pane.exited"
+command = ["sh", "titles.sh"]

@@ -67,6 +67,10 @@ configure_herdr() {
     if ! herdr plugin list 2>/dev/null | grep -q "^- restore "; then
         run_quiet "Linking herdr restore plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/restore"
     fi
+    # Sets the $title sidebar token the agent rows in config.toml show.
+    if ! herdr plugin list 2>/dev/null | grep -q "^- agent-titles "; then
+        run_quiet "Linking herdr agent-titles plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/agent-titles"
+    fi
 
     if ! herdr config check; then
         warn "herdr config check reported issues (see above)."
