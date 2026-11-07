@@ -3,8 +3,19 @@
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
-# mikefarah's yq, whose `yq e` syntax zsh/modules/docker.zsh uses
-GLOBAL_TOOLS=("yq@4")
+GLOBAL_TOOLS=(
+    "deno@2.9"
+    "gh@2" # from upstream: Ubuntu's archive lags years behind GitHub's API
+    "go@1.27.3"
+    "java@zulu-27"
+    "node@26.13.0"
+    "poetry@2.5.1"
+    "python@3.15"
+    "ruby@4.0"
+    "rust@1.99.1"
+    "uv@0.13"
+    "yq@4" # mikefarah's yq, whose `yq e` syntax zsh/modules/docker.zsh uses
+)
 
 main_mise() {
     install_mise
@@ -65,23 +76,12 @@ install_mise_termux() {
 }
 
 install_tools() {
-    cd "$REPO_ROOT" || return 1
-
-    local toolfile="$REPO_ROOT/.tool-versions"
-    [[ ! -f "$toolfile" ]] && error "Missing .tool-versions file" && exit 1
-
     mkdir -p "$HOME/.config/mise"
     touch "$HOME/.config/mise/config.toml"
 
-    log "Parsing .tool-versions for available tools..."
+    local all_tools=("${GLOBAL_TOOLS[@]}")
 
-    local all_tools=() tool
-    while IFS= read -r tool; do
-        all_tools+=("$tool")
-    done < <(awk '!/^#/ && NF { print $1 "@" $2 }' "$toolfile")
-    all_tools+=("${GLOBAL_TOOLS[@]}")
-
-    log "📦 Install tools from .tool-versions and ${GLOBAL_TOOLS[*]}?"
+    log "📦 Install global tools: ${GLOBAL_TOOLS[*]}?"
     install_mode=$(interactive_choice "Choose action: " "All" "Custom" "Skip")
 
     case "$install_mode" in
