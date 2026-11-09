@@ -4,6 +4,22 @@
             "complex_modifications": {
                 "rules": [
                     {
+                        "description": "Open Herdr App with Ctrl-Alt-H",
+                        "manipulators": [
+                            {
+                                "from": {
+                                    "key_code": "h",
+                                    "modifiers": {
+                                        "mandatory": ["command", "option"],
+                                        "optional": ["caps_lock"]
+                                    }
+                                },
+                                "to": [{ "shell_command": "open -a Herdr" }],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Zen: Option + Up/Down to previous/next tab",
                         "manipulators": [
                             {
@@ -218,7 +234,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -247,7 +264,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -307,7 +325,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -336,7 +355,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -365,7 +385,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -394,7 +415,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -428,7 +450,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -457,7 +480,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -486,7 +510,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -515,7 +540,8 @@
                                             "^io\\.alacritty$",
                                             "^org\\.alacritty$",
                                             "^net\\.kovidgoyal\\.kitty$",
-                                            "^com\\.mitchellh\\.ghostty$"
+                                            "^com\\.mitchellh\\.ghostty$",
+                                            "^dev\\.herdr\\.app$"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
