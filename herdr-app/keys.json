@@ -113,7 +113,14 @@
     "cmd-l": "keys.nav-right",
     "cmd-shift-l": "keys.window-right",
     "alt-l": "keys.resize-right",
-    "alt-shift-l": "keys.resize-right-fine"
+    "alt-shift-l": "keys.resize-right-fine",
+    "cmd-space f": "keys.pick-goto",
+    "cmd-space m": "keys.pick-join-right",
+    "cmd-space shift-m": "keys.pick-join-down",
+    "cmd-space shift-b": "keys.break",
+    "cmd-space e": "keys.scrollback",
+    "cmd-space /": "keys.scrollback",
+    "cmd-space g": "keys.lazygit"
   },
   "terminal": {
     "cmd-a": "send:\u0001",

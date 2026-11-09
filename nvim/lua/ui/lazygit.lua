@@ -1,5 +1,6 @@
 -- Inside herdr, lazygit is herdr's own popup, the plugin pane behind prefix+g,
--- so one lazygit looks the same from every pane; elsewhere it is snacks' float.
+-- so one lazygit looks the same from every pane; inside the Herdr app, the
+-- dialog behind its prefix+g (herdr-app/mods/keys); elsewhere snacks' float.
 local M = {}
 
 ---@return snacks.image.Placement[]
@@ -41,6 +42,11 @@ local function hide_images_until_focus()
 end
 
 function M.open()
+    local app = require("lib.herdr_app")
+    if app.inside() then
+        app.run("keys.lazygit")
+        return
+    end
     local herdr = require("lib.herdr")
     if not herdr.inside() then
         Snacks.lazygit()
