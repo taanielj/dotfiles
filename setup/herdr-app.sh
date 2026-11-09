@@ -7,7 +7,7 @@ APP_HOME="$HOME/.config/herdr-app"
 # Files the app reads from its home; everything else there is the app's own state.
 # The app's file events don't follow these links: after editing a mod in the
 # repo, `touch -h` its link to reload it.
-APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys)
+APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status)
 
 main_herdr-app() {
     install_cask herdr-app || exit 1
