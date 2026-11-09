@@ -5,7 +5,9 @@ source "$REPO_ROOT/setup/utils.sh"
 
 APP_HOME="$HOME/.config/herdr-app"
 # Files the app reads from its home; everything else there is the app's own state.
-APP_FILES=(settings.json keys.json themes/ghostty.json)
+# The app's file events don't follow these links: after editing a mod in the
+# repo, `touch -h` its link to reload it.
+APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys)
 
 main_herdr-app() {
     install_cask herdr-app || exit 1
@@ -33,6 +35,8 @@ configure_herdr_app() {
     for file in "${APP_FILES[@]}"; do
         link_file "$REPO_ROOT/herdr-app/$file" "$APP_HOME/$file"
     done
+    # The layout docks the keys mod; a running window switches to it now.
+    herdr-app do layout.set --layout dotfiles &>/dev/null || true
     success "Herdr app configuration linked."
 }
 

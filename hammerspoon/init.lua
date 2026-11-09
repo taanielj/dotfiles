@@ -1,8 +1,9 @@
 -- Window focus (cmd+hjkl) and resize (alt+hjkl, alt+shift+hjkl for one
 -- percent) by direction: the macOS layer under nvim windows and herdr panes.
--- The terminals turn cmd+hjkl into herdr's ctrl+hjkl, so the keys stand down
--- while a window running herdr is in front; herdr and nvim reach these
--- functions through `hs -c` once they run out of panes.
+-- The terminals turn cmd+hjkl into herdr's ctrl+hjkl, and the Herdr app binds
+-- cmd+hjkl itself, so the keys stand down while a window running herdr or the
+-- app is in front; herdr, the app and nvim reach these functions through
+-- `hs -c` once they run out of panes.
 
 require("hs.ipc") -- serves the hs command the cask links into /opt/homebrew/bin
 hs.autoLaunch(true)
@@ -22,17 +23,18 @@ configWatcher = hs.pathwatcher -- global, or garbage collection stops it
 
 local TERMINALS = { "Ghostty", "kitty" }
 local HERDR_TITLE = "herdr · " -- how herdr's ui.window_title (herdr/config.toml) starts
+local HERDR_APP = "dev.herdr.app" -- the Herdr desktop app's bundle id (herdr-app/)
 local STEP = 0.05 -- of the screen, per resize press
 local FINE_STEP = 0.01
 local TOUCH = 10 -- px; windows this close share a border
 
 ---@param win? hs.window
----@return boolean herdr runs in the window, so it gets the keys first
+---@return boolean herdr or the Herdr app runs the window, so it gets the keys first
 local function runsHerdr(win)
     local app = win and win:application()
-    return app ~= nil
-        and hs.fnutils.contains(TERMINALS, app:name())
-        and win:title():sub(1, #HERDR_TITLE) == HERDR_TITLE
+    if app == nil then return false end
+    if app:bundleID() == HERDR_APP then return true end
+    return hs.fnutils.contains(TERMINALS, app:name()) and win:title():sub(1, #HERDR_TITLE) == HERDR_TITLE
 end
 
 local WINDOWS_TO = {
