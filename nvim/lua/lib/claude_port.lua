@@ -57,4 +57,11 @@ function M.remember()
     vim.fn.setfperm(store(), "rw-------")
 end
 
+---Remembers the running server's port now and again before nvim exits; a
+---restarted server can come up on another port.
+function M.track()
+    M.remember()
+    vim.api.nvim_create_autocmd("VimLeavePre", { callback = M.remember })
+end
+
 return M

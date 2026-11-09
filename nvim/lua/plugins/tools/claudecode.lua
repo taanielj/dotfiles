@@ -1,47 +1,53 @@
 -- Inside herdr, herdr-agents.nvim calls claudecode.setup() itself with its pane
--- provider; a second setup() here would start the server twice.
+-- provider; a second setup() here would start the server twice. Inside the
+-- Herdr app, lib/claude_app_terminal.lua is the pane provider.
 local inside_herdr = require("lib.herdr").inside()
 
--- Keys that depend on where Claude runs. Inside herdr, a prompt about the lines
--- under the cursor goes to the Claude pane. Outside it, Claude is a snacks window
--- with layouts, which the herdr pane provider ignores.
-local host_keys = inside_herdr
-        and {
-            {
-                "<leader>ap",
-                function() require("ui.claude_prompt").prompt() end,
-                mode = { "n", "x" },
-                desc = "Prompt Claude about these lines",
-            },
-            { "<leader>ae", function() require("ui.claude_editor").toggle() end, desc = "Toggle Claude prompt draft" },
-        }
-    or {
-        -- A layout applies on a fresh open; close Claude first to switch.
-        {
-            "<leader>ah",
-            function()
-                require("claudecode.terminal").simple_toggle({ snacks_win_opts = { position = "bottom", height = 0.3 } })
-            end,
-            desc = "Toggle Claude (horizontal)",
-        },
-        {
-            "<leader>aF",
-            function()
-                require("claudecode.terminal").simple_toggle({
-                    snacks_win_opts = { position = "float", width = 0.95, height = 0.95 },
-                })
-            end,
-            desc = "Toggle Claude (float)",
-        },
-    }
+local inside_app = require("lib.herdr_app").inside()
+
+-- Keys that depend on where Claude runs. Inside herdr or the Herdr app, a prompt
+-- about the lines under the cursor goes to the Claude pane. Outside both,
+-- Claude is a snacks window with layouts, which the pane providers ignore.
+local pane_keys = {
+    {
+        "<leader>ap",
+        function() require("ui.claude_prompt").prompt() end,
+        mode = { "n", "x" },
+        desc = "Prompt Claude about these lines",
+    },
+    { "<leader>ae", function() require("ui.claude_editor").toggle() end, desc = "Toggle Claude prompt draft" },
+}
+local window_keys = {
+    -- A layout applies on a fresh open; close Claude first to switch.
+    {
+        "<leader>aF",
+        function()
+            require("claudecode.terminal").simple_toggle({
+                snacks_win_opts = { position = "float", width = 0.95, height = 0.95 },
+            })
+        end,
+        desc = "Toggle Claude (float)",
+    },
+}
+local host_keys = (inside_herdr or inside_app) and pane_keys or window_keys
 
 return {
     "coder/claudecode.nvim",
     dependencies = { "folke/snacks.nvim" },
+    opts = { terminal = { snacks_win_opts = { position = "bottom", height = 0.3 } } },
     config = function(_, opts)
-        if not inside_herdr then
-            require("claudecode").setup(opts)
+        if inside_herdr then
+            return
         end
+        if not inside_app then
+            return require("claudecode").setup(opts)
+        end
+        require("claudecode").setup(vim.tbl_deep_extend("force", opts, {
+            port_range = require("lib.claude_port").reuse(),
+            terminal = { provider = require("lib.claude_app_terminal") },
+        }))
+        require("lib.claude_port").track()
+        require("lib.claude_ide_name").setup()
     end,
     cmd = {
         "ClaudeCode",

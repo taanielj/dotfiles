@@ -11,13 +11,19 @@ return {
     },
     opts = function() return { claude = { opts = { port_range = require("lib.claude_port").reuse() } } } end,
     config = function(_, opts)
+        -- The agent pane splits off right, with no option to change it; this
+        -- turns that split downwards
+        local herdr = require("herdr-agents.herdr")
+        local json = herdr.json
+        herdr.json = function(args)
+            if args[1] == "pane" and args[2] == "split" then
+                args = vim.deepcopy(args)
+                args[vim.fn.index(args, "--direction") + 2] = "down"
+            end
+            return json(args)
+        end
         require("herdr-agents").setup(opts)
-        local remember = require("lib.claude_port").remember
-        local ide_name = require("lib.claude_ide_name")
-        ide_name.setup()
-        remember()
-        ide_name.write()
-        -- a restarted server can come up on another port
-        vim.api.nvim_create_autocmd("VimLeavePre", { callback = remember })
+        require("lib.claude_port").track()
+        require("lib.claude_ide_name").setup()
     end,
 }

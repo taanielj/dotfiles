@@ -1,6 +1,6 @@
--- The herdr panes of the Claude sessions connected to this nvim's claudecode
--- server, found through the open connections themselves: a session attached
--- with /ide counts the same as one this nvim started.
+-- The herdr or Herdr app panes of the Claude sessions connected to this nvim's
+-- claudecode server, found through the open connections themselves: a session
+-- attached with /ide counts the same as one this nvim started.
 local M = {}
 
 ---@param cmd string[]
@@ -24,8 +24,9 @@ local function connected_pids()
 end
 
 ---@param pid integer
----@return string? the herdr pane the process runs in
-local function pane_of(pid)
+---@param var string the variable naming the process's pane
+---@return string? the pane the process runs in
+local function pane_of(pid, var)
     local environ = io.open(("/proc/%d/environ"):format(pid), "rb")
     local env
     if environ then
@@ -34,31 +35,28 @@ local function pane_of(pid)
     else
         env = (run({ "ps", "eww", "-o", "command=", "-p", tostring(pid) }) or ""):gsub(" ", "\n")
     end
-    return env:match("HERDR_PANE_ID=([^\n]+)")
+    return env:match(var .. "=([^\n]+)")
 end
 
----@param id string
----@return table? herdr's pane record
-local function pane_info(id)
-    local ok, data = pcall(vim.json.decode, run({ require("lib.herdr").bin(), "pane", "get", id }) or "")
-    return ok and vim.tbl_get(data, "result", "pane") or nil
-end
-
----@return table[] Claude panes, those in this nvim's tab first
+---@return lib.Pane[] Claude panes, those in this nvim's tab first
 local function candidates()
+    local host = require("lib.pane_host")()
+    if not host then
+        return {}
+    end
     local seen, panes = {}, {}
     for _, pid in ipairs(connected_pids()) do
-        local id = pane_of(pid)
+        local id = pane_of(pid, host.ENV)
         if id and not seen[id] then
             seen[id] = true
-            local pane = pane_info(id)
-            if pane and pane.agent == "claude" then
+            local pane = host.pane(id)
+            if pane and pane.claude then
                 panes[#panes + 1] = pane
             end
         end
     end
-    local tab = vim.env.HERDR_TAB_ID
-    local here = vim.tbl_filter(function(pane) return pane.tab_id == tab end, panes)
+    local tab = host.tab_id()
+    local here = vim.tbl_filter(function(pane) return pane.tab == tab end, panes)
     return #here > 0 and here or panes
 end
 
@@ -69,14 +67,14 @@ function M.pick(on_pane)
     if #panes == 0 then
         vim.notify("No Claude session connected to this nvim; /ide in Claude connects one", vim.log.levels.WARN)
     elseif #panes == 1 then
-        on_pane(panes[1].pane_id)
+        on_pane(panes[1].id)
     else
         vim.ui.select(panes, {
             prompt = "Claude pane",
-            format_item = function(pane) return ("%s  %s"):format(pane.terminal_title_stripped or "", pane.cwd or "") end,
+            format_item = function(pane) return ("%s  %s"):format(pane.title, pane.cwd) end,
         }, function(pane)
             if pane then
-                on_pane(pane.pane_id)
+                on_pane(pane.id)
             end
         end)
     end

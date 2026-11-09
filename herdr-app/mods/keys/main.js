@@ -227,6 +227,23 @@ async function nextLayout(cx) {
   if (here) await app("pane.focus", "--terminal", here);
 }
 
+// nvim's zen mode (nvim/lua/lib/mux.lua): the focused pane zoomed and the
+// window's bars hidden, until zen-out puts back what zen-in found.
+const BARS = ["sidebar", "tabs", "status"];
+let zenZoomed = null;
+
+async function zenIn() {
+  zenZoomed = focusedPane()?.zoomed ?? false;
+  if (!zenZoomed) await app("pane.zoom");
+  for (const id of BARS) await app("layout.hide", "--id", id);
+}
+
+async function zenOut() {
+  for (const id of BARS) await app("layout.show", "--id", id);
+  if (zenZoomed === false && focusedPane()?.zoomed) await app("pane.zoom");
+  zenZoomed = null;
+}
+
 // Commands that wait on a dialog run as their own task to keep navigation working.
 const DIALOGS = {
   "pick-goto": goto,
@@ -239,6 +256,8 @@ const DIALOGS = {
 const COMMANDS = {
   "break": breakPane,
   "layout-next": nextLayout,
+  "zen-in": zenIn,
+  "zen-out": zenOut,
 };
 for (const dir of Object.keys(LETTER)) {
   COMMANDS[`nav-${dir}`] = () => nav(dir);

@@ -157,33 +157,27 @@
           "gap": 8
         },
         {
-          "id": "status-row",
-          "type": "row",
+          "id": "status",
+          "type": "block",
+          "content": {
+            "mod": "status"
+          },
           "size": {
             "px": 28
-          },
-          "children": [
-            {
-              "id": "status",
-              "type": "block",
-              "content": {
-                "mod": "status"
-              }
-            },
-            {
-              "id": "keys",
-              "type": "block",
-              "content": {
-                "mod": "keys"
-              },
-              "size": {
-                "px": 0
-              }
-            }
-          ]
+          }
         }
       ],
       "resizable": false
+    },
+    {
+      "id": "keys",
+      "type": "block",
+      "content": {
+        "mod": "keys"
+      },
+      "size": {
+        "px": 0
+      }
     }
   ],
   "background": "canvas",

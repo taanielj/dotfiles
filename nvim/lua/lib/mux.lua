@@ -1,5 +1,6 @@
--- Zoom and chrome of the multiplexers nvim runs inside. Every one that is
--- present is driven, so nvim in tmux in herdr zooms both.
+-- Zoom and chrome of the multiplexers nvim runs inside: tmux, herdr or the
+-- Herdr app. Every one present is driven: nvim in tmux in herdr
+-- zooms both.
 local M = {}
 
 -- A multiplexer may be gone or hung, so a failure reads as "not zoomed"
@@ -42,6 +43,14 @@ local adapters = {
             run({ bin, "pane", "zoom", "--pane", herdr_pane(), on and "--on" or "--off" })
         end,
         -- The sidebar and tab bar are config-time only
+        set_chrome = function() end,
+    },
+    -- The app's CLI doesn't report zoom: its keys mod remembers the zoom zen-in
+    -- found, and hides and shows the bars along with it (herdr-app/mods/keys)
+    herdr_app = {
+        present = function() return require("lib.herdr_app").inside() end,
+        is_zoomed = function() return false end,
+        set_zoom = function(on) require("lib.herdr_app").run(on and "keys.zen-in" or "keys.zen-out") end,
         set_chrome = function() end,
     },
 }

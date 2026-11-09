@@ -1,8 +1,8 @@
--- Claude Code's external editor, served by the nvim in Claude's herdr tab:
--- herdr/bin/herdr-nvim.sh calls `edit` for ctrl+g and `view` for ctrl+o v
--- through this nvim's server socket. ctrl+g lands in the repo's prompt draft,
--- .scratch/prompt.md, which also submits to Claude on its own.
-local herdr = require("lib.herdr")
+-- Claude Code's external editor, served by the nvim in Claude's herdr or Herdr
+-- app tab: herdr/bin/herdr-nvim.sh calls `edit` for ctrl+g and `view` for
+-- ctrl+o v through this nvim's server socket. ctrl+g lands in the repo's prompt
+-- draft, .scratch/prompt.md, which also submits to Claude on its own.
+local host = require("lib.pane_host")
 
 local M = {}
 
@@ -12,7 +12,7 @@ local HEIGHT = 12
 ---@class ui.claude_editor.Edit
 ---@field path string Claude's prompt file, read back once the wrapper exits
 ---@field done string the fifo the wrapper waits on
----@field claude string Claude's herdr pane
+---@field claude string Claude's pane
 ---@field before string[] the draft before Claude's text was joined in
 
 ---@type ui.claude_editor.Edit?
@@ -101,7 +101,7 @@ local function release(text)
         vim.fn.writefile(text, edit.path)
     end
     wake(edit.done)
-    herdr.focus(edit.claude)
+    host().focus(edit.claude)
     return edit
 end
 
@@ -136,18 +136,10 @@ local function enter_when_shown(pane, text)
             break
         end
     end
-    local wait =
-        { herdr.bin(), "pane", "wait-output", pane, "--source", "visible", "--match", first, "--timeout", "3000" }
-    vim.system(
-        wait,
-        { text = true },
-        vim.schedule_wrap(function(res)
-            if res.code == 0 then
-                herdr.run({ "pane", "send-keys", pane, "enter" })
-            else
-                vim.notify("Claude didn't show the prompt; press Enter there", vim.log.levels.WARN)
-            end
-        end)
+    host().enter_when_shown(
+        pane,
+        first,
+        function() vim.notify("Claude didn't show the prompt; press Enter there", vim.log.levels.WARN) end
     )
 end
 
@@ -166,7 +158,7 @@ local function submit(buf)
         return
     end
     require("lib.claude_pane").pick(function(pane)
-        herdr.run({ "agent", "prompt", pane, table.concat(text, "\n") }, function() set_draft(buf, {}) end)
+        host().prompt(pane, table.concat(text, "\n"), function() set_draft(buf, {}) end)
     end)
 end
 
@@ -218,7 +210,7 @@ end
 ---ctrl+g: Claude's box text joins the draft, and Claude waits for ZZ or ZQ.
 ---@param path string Claude's prompt file
 ---@param done string the fifo the wrapper waits on
----@param claude string Claude's herdr pane
+---@param claude string Claude's pane
 ---@return integer 1, which the wrapper takes as nvim having it
 function M.edit(path, done, claude)
     -- Another Claude in the tab still waiting gives way
@@ -231,7 +223,7 @@ function M.edit(path, done, claude)
     end
     waiting = { path = path, done = done, claude = claude, before = before }
     show(buf, "claude_draft")
-    herdr.focus(assert(herdr.pane_id()))
+    host().focus(assert(host().pane_id()))
     return 1
 end
 
@@ -253,7 +245,7 @@ function M.view(path)
     end
     show(buf, "claude_transcript")
     vim.cmd("normal! G")
-    herdr.focus(assert(herdr.pane_id()))
+    host().focus(assert(host().pane_id()))
     return 1
 end
 

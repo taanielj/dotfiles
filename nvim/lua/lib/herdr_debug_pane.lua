@@ -1,11 +1,11 @@
--- Inside herdr, a program the debug adapter starts in a terminal runs in a
--- herdr pane below this nvim. The pane exits along with a program that
--- succeeds, stays open to read one that fails, and closes when the session is
--- terminated.
+-- Inside herdr or the Herdr app, a program the debug adapter starts in a
+-- terminal runs in a pane below this nvim. The pane exits along with a program
+-- that succeeds, stays open to read one that fails, and closes when the session
+-- is terminated.
 local M = {}
 
 ---@param label string
-local function close_panes(label)
+local function close_herdr_panes(label)
     local herdr = require("lib.herdr").bin()
     vim.system({ herdr, "pane", "list" }, { text = true }, function(res)
         if res.code ~= 0 then
@@ -20,20 +20,33 @@ local function close_panes(label)
 end
 
 function M.setup()
-    local pane_id = require("lib.herdr").pane_id()
+    local host = require("lib.pane_host")()
     -- A popup has no pane to split
+    local pane_id = host and host.pane_id()
     if not pane_id then
         return
     end
+    local app = host == require("lib.herdr_app")
+    -- herdr finds the panes by label; the app's script lists their terminals in a file
     local label = "debug " .. pane_id
+    local state = vim.fs.joinpath(vim.fn.stdpath("state"), "debug-terminals", pane_id)
+    local script = app and "~/.config/herdr-app/bin/dap-pane.sh" or "~/.config/herdr/bin/herdr-dap-pane.sh"
     local dap = require("dap")
     dap.defaults.fallback.force_external_terminal = true
     dap.defaults.fallback.external_terminal = {
         command = "bash",
-        args = { vim.fn.expand("~/.config/herdr/bin/herdr-dap-pane.sh"), label },
+        args = { vim.fn.expand(script), app and state or label },
     }
     -- dap.terminate() sends terminate when the adapter supports it, disconnect otherwise
-    local function on_terminate() close_panes(label) end
+    local function on_terminate()
+        if not app then
+            return close_herdr_panes(label)
+        end
+        for _, terminal in ipairs(vim.fn.filereadable(state) == 1 and vim.fn.readfile(state) or {}) do
+            vim.system({ "hc", "kill", terminal })
+        end
+        vim.fn.delete(state)
+    end
     dap.listeners.before.terminate.herdr_debug_pane = on_terminate
     dap.listeners.before.disconnect.herdr_debug_pane = on_terminate
 end

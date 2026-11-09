@@ -1,18 +1,39 @@
 #!/usr/bin/env bash
 # Claude Code's EDITOR, linked onto PATH as herdr-nvim. Its prompt (ctrl+g) and
-# transcript (ctrl+o v) open in the nvim running in the same herdr tab
-# (nvim/lua/ui/claude_editor.lua); without one, this is plain nvim.
+# transcript (ctrl+o v) open in the nvim running in the same herdr or Herdr app
+# tab (nvim/lua/ui/claude_editor.lua); without one, this is plain nvim.
 set -euo pipefail
 
 # Claude puts the file last, after +<line> for an editor it knows
 file="${*: -1}"
 
+# Usage: app_tab <terminal>
+# Prints the Herdr app tab showing the terminal.
+app_tab() {
+    jq -r --arg t "$1" '.spaces[].tabs[] | select(any(.terminals[]; .terminal == $t)) | .id' <<<"$app_ls"
+}
+
+# Usage: nvim_env <socket> <variable>
+# Prints the variable as the nvim behind the socket has it.
+nvim_env() {
+    nvim --clean --headless --server "$1" --remote-expr "\$$2" 2>/dev/null
+}
+
 server=""
 if [[ -n "${HERDR_TAB_ID:-}" ]]; then
+    pane="$HERDR_PANE_ID"
     for socket in "${TMPDIR:-/tmp}"/nvim."$USER"/*/nvim.*.0; do
-        # shellcheck disable=SC2016 # nvim's $HERDR_TAB_ID, not this shell's
-        tab=$(nvim --clean --headless --server "$socket" --remote-expr '$HERDR_TAB_ID' 2>/dev/null) || continue
-        if [[ "$tab" == "$HERDR_TAB_ID" ]]; then
+        if [[ "$(nvim_env "$socket" HERDR_TAB_ID)" == "$HERDR_TAB_ID" ]]; then
+            server=$socket
+            break
+        fi
+    done
+elif [[ -n "${HC_TERMINAL_ID:-}" ]] && app_ls=$(herdr-app ls 2>/dev/null); then
+    pane="$HC_TERMINAL_ID"
+    tab=$(app_tab "$HC_TERMINAL_ID")
+    for socket in "${TMPDIR:-/tmp}"/nvim."$USER"/*/nvim.*.0; do
+        terminal=$(nvim_env "$socket" HC_TERMINAL_ID) || continue
+        if [[ -n "$terminal" && "$(app_tab "$terminal")" == "$tab" ]]; then
             server=$socket
             break
         fi
@@ -39,7 +60,7 @@ mkfifo "$done_fifo"
 trap 'rm -f "$done_fifo"' EXIT
 
 nvim_pid=$(nvim --clean --headless --server "$server" --remote-expr 'getpid()')
-if [[ "$(call edit "['$file', '$done_fifo', '$HERDR_PANE_ID']")" != 1 ]]; then
+if [[ "$(call edit "['$file', '$done_fifo', '$pane']")" != 1 ]]; then
     rm -f "$done_fifo"
     exec nvim "$@"
 fi

@@ -73,7 +73,7 @@ return {
         },
         notifier = { enabled = true, style = "fancy" },
         scroll = { enabled = true },
-        -- Outside herdr only; ui/lazygit.lua opens herdr's own popup inside it
+        -- Outside herdr and the Herdr app; ui/lazygit.lua opens their own popups inside them
         lazygit = {
             win = { on_close = function() require("ui.tree").refresh() end },
         },

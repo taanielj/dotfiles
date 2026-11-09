@@ -1,6 +1,6 @@
 -- claudecode.nvim names every nvim "Neovim" in its lock file, so /ide lists
--- them alike. The name is rewritten as the herdr workspace, tab and current
--- file.
+-- them alike. The name is rewritten as the herdr workspace or Herdr app space,
+-- the tab and the current file.
 local M = {}
 
 local workspace_label
@@ -46,29 +46,14 @@ function M.write()
     written_path, written_name = path, lock.ideName
 end
 
----@param kind "tab"|"workspace"
----@param on_result fun(info: table?)
-local function herdr_get(kind, id, on_result)
-    vim.system({ require("lib.herdr").bin(), kind, "get", id }, { text = true }, function(res)
-        local ok, data = pcall(vim.json.decode, res.stdout or "")
-        vim.schedule(function() on_result(ok and vim.tbl_get(data, "result", kind) or nil) end)
-    end)
-end
-
 local function fetch_labels()
-    local tab_id = vim.env.HERDR_TAB_ID
-    if not tab_id or tab_id == "" then
+    local host = require("lib.pane_host")()
+    if not host then
         return
     end
-    herdr_get("tab", tab_id, function(tab_info)
-        if not tab_info then
-            return
-        end
-        tab_label = tab_info.label
-        herdr_get("workspace", tab_info.workspace_id, function(workspace_info)
-            workspace_label = workspace_info and workspace_info.label
-            M.write()
-        end)
+    host.labels(function(space, tab)
+        workspace_label, tab_label = space, tab
+        M.write()
     end)
 end
 
@@ -87,6 +72,7 @@ end
 function M.setup()
     fetch_labels()
     follow_current_file()
+    M.write()
 end
 
 return M

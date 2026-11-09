@@ -1,6 +1,6 @@
 -- A prompt about the cursor line or the visual selection, typed into the
--- Claude pane connected to this nvim. Inside herdr only: `herdr agent prompt`
--- submits the text there.
+-- Claude pane connected to this nvim. Inside herdr or the Herdr app only: the
+-- host submits the text there (lib/pane_host.lua).
 local M = {}
 
 ---@param first integer
@@ -49,7 +49,7 @@ function M.prompt()
             if instruction and instruction ~= "" then
                 -- The location goes last, so a slash command typed first still runs
                 local text = table.concat({ instruction .. " " .. path .. span, found }, " - ")
-                require("lib.herdr").run({ "agent", "prompt", pane, text })
+                require("lib.pane_host")().prompt(pane, text)
             end
         end)
     end)
