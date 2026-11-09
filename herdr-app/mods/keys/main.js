@@ -57,12 +57,55 @@ async function nav(dir) {
   await go(dir);
 }
 
-// A pane alone in its tab, or zoomed, resizes the macOS window.
+const SPLIT = { left: "row", right: "row", up: "column", down: "column" };
+
+// A tab's split tree as the app keeps it in herdr-core's herdr-app document;
+// the app's own commands don't expose it.
+async function tabTree(tab) {
+  const get = '{"jsonrpc":"2.0","id":1,"method":"doc.get","params":{"name":"herdr-app"}}';
+  const r = await exec("sh", ["-c", 'printf "%s\\n" "$1" | hc connect', "sh", get]);
+  const doc = JSON.parse(r.stdout).result.value;
+  return doc.spaces.flatMap((s) => s.tabs).find((t) => t.id === tab)?.root ?? null;
+}
+
+function pathTo(node, id) {
+  if (node.id === id) return [node];
+  for (const child of node.children ?? []) {
+    const path = pathTo(child, id);
+    if (path) return [node, ...path];
+  }
+  return null;
+}
+
+const weight = (node) => node.size?.weight ?? 1;
+
+// Moves the border of the pane's branch in the nearest split that runs that
+// way, like smart-splits: its far border when it has a neighbour there, else
+// its near one. Resolves false when the pane spans the tab along that axis.
+async function resizePane(pane, dir, step) {
+  const path = pathTo((await tabTree(pane.tab)) ?? {}, pane.pane) ?? [];
+  for (let i = path.length - 2; i >= 0; i--) {
+    const kids = path[i].children;
+    if (path[i].type !== SPLIT[dir] || kids.length < 2) continue;
+    const at = kids.indexOf(path[i + 1]);
+    const [a, b] = at < kids.length - 1 ? [kids[at], kids[at + 1]] : [kids[at - 1], kids[at]];
+    const total = kids.reduce((sum, k) => sum + weight(k), 0);
+    const delta = (dir === "left" || dir === "up" ? -step : step) * total;
+    const [wa, wb] = [weight(a) + delta, weight(b) - delta];
+    if (Math.min(wa, wb) >= 0.05 * total) {
+      await app("layout.resize", JSON.stringify({ id: a.id, weight: wa }));
+      await app("layout.resize", JSON.stringify({ id: b.id, weight: wb }));
+    }
+    return true;
+  }
+  return false;
+}
+
+// The focused pane, else the macOS window when the pane spans the tab or is zoomed.
 async function resizeOutside(dir, fine) {
   const pane = focusedPane();
-  if (!pane || pane.zoomed || panes().filter((p) => p.tab === pane.tab).length === 1) {
-    await hammerspoon(`resizeWindow('${dir}', ${fine ? 0.01 : "nil"})`);
-  }
+  if (pane && !pane.zoomed && (await resizePane(pane, dir, fine ? 0.01 : 0.03))) return;
+  await hammerspoon(`resizeWindow('${dir}', ${fine ? 0.01 : "nil"})`);
 }
 
 async function resize(dir, fine) {
