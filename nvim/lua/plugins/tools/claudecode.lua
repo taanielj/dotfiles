@@ -13,6 +13,7 @@ local host_keys = inside_herdr
                 mode = { "n", "x" },
                 desc = "Prompt Claude about these lines",
             },
+            { "<leader>ae", function() require("ui.claude_editor").toggle() end, desc = "Toggle Claude prompt draft" },
         }
     or {
         -- A layout applies on a fresh open; close Claude first to switch.

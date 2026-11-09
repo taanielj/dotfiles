@@ -37,6 +37,9 @@ configure_herdr() {
     link_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     # The whole directory, so a new script is visible to herdr without rerunning setup.
     link_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
+    # Claude Code's EDITOR, by a name its settings env can give: env values are
+    # not expanded, and ~/.local/bin is on PATH.
+    link_file "$REPO_ROOT/herdr/bin/herdr-nvim.sh" "$HOME/.local/bin/herdr-nvim"
 
     # Herd-side plugins the config binds to (nvim<->herdr nav/resize).
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-splits"; then
@@ -90,6 +93,7 @@ teardown_herdr() {
     log "Removing herdr configuration..."
     unlink_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
     unlink_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
+    unlink_file "$REPO_ROOT/herdr/bin/herdr-nvim.sh" "$HOME/.local/bin/herdr-nvim"
     if command -v herdr &>/dev/null; then
         unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
             "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"

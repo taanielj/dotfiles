@@ -66,6 +66,12 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     callback = function() vim.cmd("normal! G") end,
 })
 
+vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+    group = augroup("claude_draft"),
+    pattern = "*/.scratch/prompt.md",
+    callback = function(args) require("ui.claude_editor").attach(args.buf) end,
+})
+
 -- An agent writes files while this window keeps focus, which nothing checks
 -- for by default; the check itself is one stat per buffer.
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {

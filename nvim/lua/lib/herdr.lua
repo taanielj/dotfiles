@@ -16,13 +16,35 @@ end
 
 ---Run herdr in the background, reporting a failure.
 ---@param args string[] everything after the executable
-function M.run(args)
+---@param on_success? fun() runs in the main loop once herdr exits 0
+function M.run(args, on_success)
     vim.system(vim.list_extend({ M.bin() }, args), { text = true }, function(res)
         if res.code ~= 0 then
             vim.schedule(
                 function() vim.notify("herdr: " .. vim.trim(res.stderr or res.stdout or ""), vim.log.levels.ERROR) end
             )
+        elseif on_success then
+            vim.schedule(on_success)
         end
+    end)
+end
+
+---Focus a pane by id through herdr's socket, because the CLI focuses only by
+---direction.
+---@param pane string
+function M.focus(pane)
+    local pipe = assert(vim.uv.new_pipe())
+    pipe:connect(vim.env.HERDR_SOCKET_PATH, function(err)
+        if err then
+            return pipe:close()
+        end
+        pipe:write(vim.json.encode({ id = "focus", method = "pane.focus", params = { pane_id = pane } }) .. "\n")
+        -- Closes once herdr replies
+        pipe:read_start(function()
+            if not pipe:is_closing() then
+                pipe:close()
+            end
+        end)
     end)
 end
 
