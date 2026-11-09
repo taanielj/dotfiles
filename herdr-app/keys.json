@@ -120,7 +120,8 @@
     "cmd-space shift-b": "keys.break",
     "cmd-space e": "keys.scrollback",
     "cmd-space /": "keys.scrollback",
-    "cmd-space g": "keys.lazygit"
+    "cmd-space g": "keys.lazygit",
+    "cmd-space space": "keys.layout-next"
   },
   "terminal": {
     "cmd-a": "send:\u0001",
