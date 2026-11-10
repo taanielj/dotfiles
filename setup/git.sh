@@ -15,7 +15,11 @@ GIT_DEFAULTS=(
     "diff.algorithm=histogram"
     "merge.conflictStyle=zdiff3" # conflicts also show the common ancestor
     "branch.sort=-committerdate"
+    "core.untrackedCache=true"
 )
+# A watcher daemon per repo keeps git status fast in large repos; on Linux it
+# runs into inotify's per-user watch limit
+[[ "$OSTYPE" == darwin* ]] && GIT_DEFAULTS+=("core.fsmonitor=true")
 
 main_git() {
     configure_git
