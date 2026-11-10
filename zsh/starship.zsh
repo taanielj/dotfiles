@@ -90,15 +90,29 @@ TRAPWINCH() {
     zle && zle reset-prompt
 }
 
-# p10k's VCS icon for the origin remote's host; GITLAB_HOST (glab's) marks a
-# self-hosted GitLab. Worked out on cd, where a starship custom module would
-# start sh and git on every prompt. `config --local` fails with 128 outside a
-# repo and with 1 in a repo without that remote.
+# Icons for origin remotes by URL pattern, e.g. prompt_git_host_icons[*host.example*]=$'\U100000';
+# ~/.zshrc.local or an overlay it sources can add some before this file loads.
+typeset -gA prompt_git_host_icons
+
+# p10k's VCS icon for the origin remote's host, unless prompt_git_host_icons
+# names one; GITLAB_HOST (glab's) marks a self-hosted GitLab. Worked out on cd,
+# where a starship custom module would start sh and git on every prompt.
+# `config --local` fails with 128 outside a repo and with 1 in a repo without
+# that remote.
 _prompt_git_host() {
-    local url
+    local url pattern
     url=$(git config --local --get remote.origin.url 2>/dev/null)
-    case $?:$url in
-        128:*) unset STARSHIP_GIT_HOST ;;
+    if (( $? == 128 )); then
+        unset STARSHIP_GIT_HOST
+        return
+    fi
+    for pattern in ${(k)prompt_git_host_icons}; do
+        if [[ $url == ${~pattern} ]]; then
+            export STARSHIP_GIT_HOST=$prompt_git_host_icons[$pattern]
+            return
+        fi
+    done
+    case $url in
         *github*) export STARSHIP_GIT_HOST=$'\uF113' ;;
         *gitlab* | *${GITLAB_HOST:-gitlab.com}*) export STARSHIP_GIT_HOST=$'\uF296' ;;
         *bitbucket*) export STARSHIP_GIT_HOST=$'\uE703' ;;
