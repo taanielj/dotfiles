@@ -19,6 +19,45 @@ end
 ---@return string?
 function M.tab_id() return vim.env.HERDR_TAB_ID end
 
+-- The TUI client writes its sidebar state to a file under herdr's state dir,
+-- named by an FNV-1a hash of its client socket, a sibling of HERDR_SOCKET_PATH
+-- (herdr's src/client/shell/preferences.rs).
+local function client_state_path()
+    local socket = vim.fs.dirname(vim.env.HERDR_SOCKET_PATH) .. "/herdr-client.sock"
+    local ffi = require("ffi")
+    local hash = ffi.new("uint64_t", 0xcbf29ce484222325ULL)
+    for _, byte in ipairs({ socket:byte(1, -1) }) do
+        hash = bit.bxor(hash, ffi.new("uint64_t", byte)) * 0x100000001b3ULL
+    end
+    local state_dir = vim.env.XDG_STATE_HOME or (vim.env.HOME .. "/.local/state")
+    return state_dir .. "/herdr/client-shell/local-" .. bit.tohex(hash, 16) .. ".json"
+end
+
+---@return boolean false while the state is unreadable, as herdr starts expanded
+function M.sidebar_collapsed()
+    local file = io.open(client_state_path())
+    if not file then
+        return false
+    end
+    local ok, state = pcall(vim.json.decode, file:read("a"))
+    file:close()
+    return ok and state.sidebar_collapsed == true
+end
+
+---Hammerspoon types prefix+b (herdr/tui/config.toml) into the focused
+---terminal, because the TUI has no command for its sidebar and only that
+---binding toggles it.
+function M.toggle_sidebar()
+    local chord = 'hs.eventtap.keyStroke({ "ctrl" }, "space") hs.eventtap.keyStroke({}, "b")'
+    vim.system({ "hs", "-c", chord }, { text = true }, function(res)
+        if res.code ~= 0 then
+            vim.schedule(
+                function() vim.notify("hs: " .. vim.trim(res.stderr or res.stdout or ""), vim.log.levels.ERROR) end
+            )
+        end
+    end)
+end
+
 ---@param args string[]
 ---@param on_success? fun()
 function M.run(args, on_success)

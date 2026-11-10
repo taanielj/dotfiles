@@ -17,42 +17,72 @@ local function tmux_is_zoomed()
     return run({ "tmux", "list-panes", "-F", "#{?pane_active,#{window_zoomed_flag},}" }):match("1") ~= nil
 end
 
+local function tmux_set_zoom(on)
+    -- resize-pane -Z only toggles
+    if tmux_is_zoomed() ~= on then
+        run({ "tmux", "resize-pane", "-Z" })
+    end
+end
+
 -- herdr's --current follows the focused pane. This pane is addressed by id instead.
 local function herdr_pane() return require("lib.herdr").pane_id() end
 
+local function herdr_is_zoomed()
+    local bin = require("lib.herdr").bin()
+    return run({ bin, "pane", "layout", "--pane", herdr_pane() }):match('"zoomed"%s*:%s*true') ~= nil
+end
+
+local function herdr_set_zoom(on)
+    local bin = require("lib.herdr").bin()
+    run({ bin, "pane", "zoom", "--pane", herdr_pane(), on and "--on" or "--off" })
+end
+
+-- An adapter's enter returns what its leave needs to put the multiplexer back.
 local adapters = {
     tmux = {
         present = function() return vim.env.TMUX ~= nil end,
-        is_zoomed = tmux_is_zoomed,
-        set_zoom = function(on)
-            -- resize-pane -Z only toggles
-            if tmux_is_zoomed() ~= on then
-                run({ "tmux", "resize-pane", "-Z" })
-            end
+        enter = function()
+            local was = { zoomed = tmux_is_zoomed() }
+            run({ "tmux", "set", "status", "off" })
+            tmux_set_zoom(true)
+            return was
         end,
-        set_chrome = function(visible) run({ "tmux", "set", "status", visible and "on" or "off" }) end,
+        leave = function(was)
+            run({ "tmux", "set", "status", "on" })
+            tmux_set_zoom(was.zoomed)
+        end,
     },
+    -- The tab bar is config-time only. The sidebar toggles by keystroke, and
+    -- leave reads it again because the user may have toggled it during zen.
     herdr = {
         present = function() return herdr_pane() ~= nil end,
-        is_zoomed = function()
-            local bin = require("lib.herdr").bin()
-            return run({ bin, "pane", "layout", "--pane", herdr_pane() }):match('"zoomed"%s*:%s*true') ~= nil
+        enter = function()
+            local herdr = require("lib.herdr")
+            local was = { zoomed = herdr_is_zoomed(), sidebar = not herdr.sidebar_collapsed() }
+            herdr_set_zoom(true)
+            if was.sidebar then
+                herdr.toggle_sidebar()
+            end
+            return was
         end,
-        set_zoom = function(on)
-            local bin = require("lib.herdr").bin()
-            run({ bin, "pane", "zoom", "--pane", herdr_pane(), on and "--on" or "--off" })
+        leave = function(was)
+            local herdr = require("lib.herdr")
+            herdr_set_zoom(was.zoomed)
+            if was.sidebar and herdr.sidebar_collapsed() then
+                herdr.toggle_sidebar()
+            end
         end,
-        -- The sidebar and tab bar are config-time only
-        set_chrome = function() end,
     },
     -- herdr-app's CLI reports no zoom state. The app's keys mod
     -- (herdr/app/mods/keys) saves the zoom state at keys.zen-in, restores it at
     -- keys.zen-out, and hides and shows the bars with it.
     herdr_app = {
         present = function() return require("lib.herdr_app").inside() end,
-        is_zoomed = function() return false end,
-        set_zoom = function(on) require("lib.herdr_app").run(on and "keys.zen-in" or "keys.zen-out") end,
-        set_chrome = function() end,
+        enter = function()
+            require("lib.herdr_app").run("keys.zen-in")
+            return {}
+        end,
+        leave = function() require("lib.herdr_app").run("keys.zen-out") end,
     },
 }
 
@@ -66,22 +96,21 @@ local function present()
     return found
 end
 
----@return table<string, boolean> zoomed before, by multiplexer
+---@return table<string, table> what each multiplexer's leave restores
 function M.zoom_in()
     local was = {}
     for name, adapter in pairs(present()) do
-        was[name] = adapter.is_zoomed()
-        adapter.set_chrome(false)
-        adapter.set_zoom(true)
+        was[name] = adapter.enter()
     end
     return was
 end
 
----@param was table<string, boolean> from `zoom_in`
+---@param was table<string, table> from `zoom_in`
 function M.restore(was)
     for name, adapter in pairs(present()) do
-        adapter.set_chrome(true)
-        adapter.set_zoom(was[name] == true)
+        if was[name] then
+            adapter.leave(was[name])
+        end
     end
 end
 
