@@ -16,6 +16,8 @@ APP_HOME="$HOME/.config/herdr-app"
 # The app's file events don't follow these links: after editing a mod in the
 # repo, `touch -h` its link to reload it.
 APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons bin)
+# The zoom level committed in settings.json, whatever the app last zoomed to.
+APP_ZOOM=1.0
 
 main_herdr() {
     # macOS gets herdr from brew (setup/system.sh); elsewhere from herdr.dev.
@@ -131,6 +133,10 @@ configure_herdr_app() {
     for file in "${APP_FILES[@]}"; do
         link_file "$REPO_ROOT/herdr/app/$file" "$APP_HOME/$file"
     done
+    # The app writes its zoom level into settings.json on every zoom; git sees the
+    # committed level instead (filter named in .gitattributes).
+    git -C "$REPO_ROOT" config filter.herdr-zoom.clean \
+        "sed -E 's/\"zoom\": [0-9.]+/\"zoom\": $APP_ZOOM/'"
     # The layout docks the keys mod; a running window switches to it now.
     herdr-app "do" layout.set --layout dotfiles &>/dev/null || true
     success "Herdr app configuration linked."
@@ -161,6 +167,7 @@ teardown_herdr() {
         for file in "${APP_FILES[@]}"; do
             unlink_file "$REPO_ROOT/herdr/app/$file" "$APP_HOME/$file"
         done
+        git -C "$REPO_ROOT" config --unset filter.herdr-zoom.clean || true
         uninstall_cask herdr-app
     fi
     success "herdr configuration removed."
