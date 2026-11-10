@@ -10,6 +10,32 @@ local rainbow = {
 }
 local rainbow_groups = vim.tbl_map(function(pair) return pair[1] end, rainbow)
 
+-- snacks.indent walks every line from the window's top to its bottom on each redraw, the
+-- thousands inside a closed fold too; hand it the visible stretches between closed folds
+local function skip_closed_folds()
+    local indent = require("snacks.indent")
+    local on_win = indent.on_win
+    indent.on_win = function(win, buf, top, bottom)
+        local stretches = {}
+        vim.api.nvim_win_call(win, function()
+            local from = top
+            while from <= bottom do
+                local fold_start = from
+                while fold_start <= bottom and vim.fn.foldclosed(fold_start) == -1 do
+                    fold_start = fold_start + 1
+                end
+                if fold_start > from then
+                    stretches[#stretches + 1] = { from, fold_start - 1 }
+                end
+                from = fold_start <= bottom and vim.fn.foldclosedend(fold_start) + 1 or fold_start
+            end
+        end)
+        for _, stretch in ipairs(stretches) do
+            on_win(win, buf, stretch[1], stretch[2])
+        end
+    end
+end
+
 local function rainbow_highlights()
     for _, pair in ipairs(rainbow) do
         vim.api.nvim_set_hl(0, pair[1], { fg = pair[2] })
@@ -85,5 +111,6 @@ return {
             callback = rainbow_highlights,
         })
         require("snacks").setup(opts)
+        skip_closed_folds()
     end,
 }
