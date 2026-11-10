@@ -24,18 +24,8 @@ return {
             require("livepreview.config").set({ port = port })
         end,
         keys = {
-            {
-                "<leader>p",
-                function()
-                    if require("livepreview").is_running() then
-                        vim.cmd("LivePreview close")
-                    else
-                        vim.cmd("LivePreview start")
-                    end
-                end,
-                ft = "markdown",
-                desc = "Preview markdown",
-            },
+            -- always start: a closed browser tab leaves the server up, and a toggle would stop it instead
+            { "<leader>p", "<cmd>LivePreview start<cr>", ft = "markdown", desc = "Preview markdown" },
         },
     },
 }
