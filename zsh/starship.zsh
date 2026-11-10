@@ -7,7 +7,29 @@ eval "$(starship init zsh)"
 # starship's directory module can't shorten or colour the path the way p10k's
 # dir segment does (zsh/p10k.zsh). The OS icon renders once, here.
 typeset -g _prompt_os=$(starship module os)
+# `starship module` prints raw colour codes; %{ %} tells zsh they take no columns
+() {
+    emulate -L zsh -o extended_glob
+    _prompt_os=${_prompt_os//(#m)$'\e'\[[0-9;]#m/"%{$MATCH%}"}
+}
 PROMPT='${_prompt_os}${_prompt_dir}'$PROMPT
+
+# The path's colours: path, path_short and path_anchor from the palette
+# starship.toml selects
+typeset -gA _prompt_colors
+() {
+    emulate -L zsh -o extended_glob
+    local line palette section
+    for line in "${(@f)$(<$STARSHIP_CONFIG)}"; do
+        if [[ $line == \[(#b)(*)\] ]]; then
+            section=$match[1]
+        elif [[ -z $section && $line == palette[[:space:]]#=[[:space:]]#\"(#b)([^\"]#)\"* ]]; then
+            palette=$match[1]
+        elif [[ $section == palettes.$palette && $line == (#b)(path[a-z_]#)[[:space:]]#=[[:space:]]#\"([^\"]#)\"* ]]; then
+            _prompt_colors[$match[1]]=$match[2]
+        fi
+    done
+}
 
 # Folders holding one of these are anchors: never shortened, and bold. The
 # same list as anchor_files in zsh/p10k.zsh.
@@ -66,21 +88,21 @@ _prompt_dir() {
     done
     local out
     if (( $#names )); then
-        out="%F{31}$lead"
+        out="%F{$_prompt_colors[path]}$lead"
     elif [[ -n $lead ]]; then
-        out="%B%F{39}$lead%b"
+        out="%B%F{$_prompt_colors[path_anchor]}$lead%b"
     else
-        out="%B%F{39}/%b"
+        out="%B%F{$_prompt_colors[path_anchor]}/%b"
     fi
     for (( i = 1; i <= $#names; i++ )); do
         name=${shown[i]//\%/%%}
         case $kinds[i] in
-            anchor) out+="%F{31}/%B%F{39}$name%b" ;;
-            short) out+="%F{31}/%F{103}$name" ;;
-            *) out+="%F{31}/$name" ;;
+            anchor) out+="%F{$_prompt_colors[path]}/%B%F{$_prompt_colors[path_anchor]}$name%b" ;;
+            short) out+="%F{$_prompt_colors[path]}/%F{$_prompt_colors[path_short]}$name" ;;
+            *) out+="%F{$_prompt_colors[path]}/$name" ;;
         esac
     done
-    typeset -g _prompt_dir="%F{31}"$'\uF07C'" $out%f "
+    typeset -g _prompt_dir="%F{$_prompt_colors[path]}"$'\uF07C'" $out%f "
 }
 precmd_functions+=(_prompt_dir)
 

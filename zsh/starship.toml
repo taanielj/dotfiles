@@ -2,6 +2,10 @@
 
 add_newline = false
 
+# Colours by role: "p10k" keeps p10k's 256-colour defaults, "catppuccin_macchiato"
+# matches the terminal and nvim. zsh/starship.zsh reads the path's colours here too.
+palette = "catppuccin_macchiato"
+
 # Listing the modules keeps starship's per-language modules off.
 format = "${env_var.STARSHIP_GIT_HOST}$git_branch$git_commit$git_state$git_status$character"
 right_format = "$status$cmd_duration$jobs${env_var.DIRENV_DIR}$python$kubernetes$aws$gcloud$username$hostname$time"
@@ -13,7 +17,7 @@ right_format = "$status$cmd_duration$jobs${env_var.DIRENV_DIR}$python$kubernetes
 # itself
 [os]
 disabled = false
-style = ""
+style = "fg:os"
 format = "[$symbol]($style) "
 
 [os.symbols]
@@ -25,48 +29,48 @@ Android = "\uF17B"
 
 # p10k's VCS icon, the origin remote's host, set on cd by zsh/starship.zsh
 [env_var.STARSHIP_GIT_HOST]
-style = "fg:76"
+style = "fg:git"
 format = "[$env_value ]($style)"
 
 [git_branch]
 symbol = "\uF126 "
-style = "fg:76"
+style = "fg:git"
 format = "[$symbol$branch]($style) "
 truncation_length = 32
 truncation_symbol = "…"
 
 # Shown only on a detached HEAD, as @hash or #tag
 [git_commit]
-style = "fg:76"
+style = "fg:git"
 format = "[@$hash$tag]($style) "
 commit_hash_length = 8
 tag_disabled = false
 tag_symbol = " #"
 
 [git_state]
-style = "fg:196"
+style = "fg:error"
 format = "[$state( $progress_current/$progress_total)]($style) "
 
 [git_status]
 format = "$ahead_behind$stashed$conflicted$staged$modified$renamed$deleted$untracked"
-ahead = "[⇡$count](fg:76) "
-behind = "[⇣$count](fg:76) "
-diverged = "[⇣$behind_count ⇡$ahead_count](fg:76) "
-stashed = "[*$count](fg:76) "
-conflicted = "[~$count](fg:196) "
-staged = "[+$count](fg:178) "
-modified = "[!$count](fg:178) "
-renamed = "[»$count](fg:178) "
-deleted = "[✘$count](fg:178) "
-untracked = "[?$count](fg:39) "
+ahead = "[⇡$count](fg:git) "
+behind = "[⇣$count](fg:git) "
+diverged = "[⇣$behind_count ⇡$ahead_count](fg:git) "
+stashed = "[*$count](fg:git) "
+conflicted = "[~$count](fg:error) "
+staged = "[+$count](fg:git_changed) "
+modified = "[!$count](fg:git_changed) "
+renamed = "[»$count](fg:git_changed) "
+deleted = "[✘$count](fg:git_changed) "
+untracked = "[?$count](fg:git_untracked) "
 
 [character]
-success_symbol = "[❯](fg:76)"
-error_symbol = "[❯](fg:196)"
+success_symbol = "[❯](fg:git)"
+error_symbol = "[❯](fg:error)"
 
 [status]
 disabled = false
-style = "fg:160"
+style = "fg:status"
 format = "[✘$status]($style) "
 pipestatus = true
 pipestatus_format = "[✘$pipestatus]($style) "
@@ -74,22 +78,22 @@ pipestatus_segment_format = "$status"
 
 [cmd_duration]
 min_time = 3000
-style = "fg:101"
+style = "fg:duration"
 format = "[\uF252 $duration]($style) "
 
 [jobs]
 symbol = "\uF013 "
-style = "fg:70"
+style = "fg:jobs"
 format = "[$symbol]($style) "
 
 [env_var.DIRENV_DIR]
-style = "fg:178"
+style = "fg:direnv"
 format = "[▼]($style) "
 
 # Only an active venv, without the Python version
 [python]
 symbol = "\uE73C "
-style = "fg:37"
+style = "fg:python"
 format = "[$symbol$virtualenv]($style) "
 detect_extensions = []
 detect_files = []
@@ -100,7 +104,7 @@ detect_folders = []
 disabled = false
 detect_env_vars = ["STARSHIP_KUBE"]
 symbol = "󱃾 "
-style = "fg:134"
+style = "fg:kube"
 format = "[$symbol$context( /$namespace)]($style) "
 
 # EKS and GKE context names spell out account and region; show the cluster only
@@ -115,25 +119,67 @@ context_alias = "$cluster"
 [gcloud]
 detect_env_vars = ["STARSHIP_GCLOUD"]
 symbol = "󰊭 "
-style = "fg:32"
+style = "fg:gcloud"
 format = "[$symbol$project]($style) "
 
 [aws]
 symbol = "\uF270 "
-style = "fg:208"
+style = "fg:aws"
 format = "[$symbol$profile( $region)]($style) "
 
 [username]
-style_user = "fg:180"
-style_root = "bold fg:178"
+style_user = "fg:user"
+style_root = "bold fg:root"
 format = "[$user]($style)"
 
 [hostname]
-style = "fg:180"
+style = "fg:user"
 format = "[@$hostname]($style) "
 
 [time]
 disabled = false
-style = "fg:66"
+style = "fg:time"
 time_format = "%H:%M:%S"
 format = "[\uF017 $time]($style)"
+
+# os is left out, for the terminal's own foreground
+[palettes.p10k]
+path = "31"
+path_short = "103"
+path_anchor = "39"
+git = "76"
+git_changed = "178"
+git_untracked = "39"
+error = "196"
+status = "160"
+duration = "101"
+jobs = "70"
+direnv = "178"
+python = "37"
+kube = "134"
+gcloud = "32"
+aws = "208"
+user = "180"
+root = "178"
+time = "66"
+
+[palettes.catppuccin_macchiato]
+os = "#cad3f5"            # text
+path = "#8aadf4"          # blue
+path_short = "#8087a2"    # overlay1
+path_anchor = "#b7bdf8"   # lavender
+git = "#a6da95"           # green
+git_changed = "#eed49f"   # yellow
+git_untracked = "#7dc4e4" # sapphire
+error = "#ed8796"         # red
+status = "#ed8796"        # red
+duration = "#f5a97f"      # peach
+jobs = "#a6da95"          # green
+direnv = "#eed49f"        # yellow
+python = "#8bd5ca"        # teal
+kube = "#c6a0f6"          # mauve
+gcloud = "#8aadf4"        # blue
+aws = "#f5a97f"           # peach
+user = "#f0c6c6"          # flamingo
+root = "#eed49f"          # yellow
+time = "#a5adcb"          # subtext0
