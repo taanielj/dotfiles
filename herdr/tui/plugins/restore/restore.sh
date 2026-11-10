@@ -26,6 +26,7 @@ mkdir -p "$dir"
 #   pid  the pane's foreground program, when `programs` lists it
 #   -    the shell or an unlisted program is in the foreground
 #   ?    the pane's shell pid isn't in $shells yet
+# shellcheck disable=SC2016
 find_programs='
     BEGIN {
         while ((getline line < programs) > 0) if (line !~ /^#/ && line != "") want[line]

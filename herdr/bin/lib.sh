@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # setup/herdr.sh links the scripts in this directory onto PATH. Each script
 # sources this file through its resolved link:
 #   source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"

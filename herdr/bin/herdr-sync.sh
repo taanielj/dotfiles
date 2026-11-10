@@ -10,7 +10,7 @@ to="${1:-}"
 # The popup running this closes as soon as it exits
 trap 'status=$?; if ((status)); then printf "\nFailed. Press enter to close."; read -r _; fi' EXIT
 
-app() { herdr-app do "$@"; }
+app() { herdr-app 'do' "$@"; }
 
 # The herdr CLI has no command for layout.export and layout.apply
 tui_api() {
@@ -27,14 +27,14 @@ app_layout_doc() {
 
 # Usage: plan_pane <key> <cwd> [<program> <pid> <program cwd>]
 plan_pane() {
-    local key=$1 cwd=$2 name=${3:-} pid=${4:-} run="" session
+    local key=$1 cwd=$2 name=${3:-} pid=${4:-} run="" sessions
     case "${name##*/}" in
     nvim) run=nvim cwd=$5 pid="" ;;
     claude)
         # Claude records its session in <config dir>/sessions/<pid>.json
-        session=$(ls "$HOME"/.claude*/sessions/"$pid".json 2>/dev/null | head -1)
-        [[ -n "$session" ]] || { echo "no session file for Claude pid $pid" >&2; exit 1; }
-        run="claude --resume $(jq -r .sessionId "$session")" cwd=$5
+        sessions=("$HOME"/.claude*/sessions/"$pid".json)
+        [[ -e "${sessions[0]}" ]] || { echo "no session file for Claude pid $pid" >&2; exit 1; }
+        run="claude --resume $(jq -r .sessionId "${sessions[0]}")" cwd=$5
         ;;
     *) pid="" ;;
     esac
@@ -202,20 +202,20 @@ size_app_tab() {
 }
 
 to_app() {
-    local old plan_space tab ids i active pane
+    local old plan_space tab tab_ids ids i active pane
     old=$(herdr-app ls | jq -r '.spaces[] | select(.machine == null) | .id')
     confirm "the herdr TUI" "the Herdr app" "$(grep -c . <<<"$old")"
     stop_claudes
     declare -A app_terminal
     local spaces=() tabs=() space tab_id
     while read -r plan_space; do
-        space="" ids=""
+        space="" tab_ids=""
         while read -r tab; do
             build_app_tab "$tab" "$(jq -r .name <<<"$plan_space")"
-            ids+="$tab_id "
+            tab_ids+="$tab_id "
         done < <(jq -c '.tabs[]' <<<"$plan_space")
         spaces+=("$space")
-        tabs+=("$ids")
+        tabs+=("$tab_ids")
     done < <(jq -c '.spaces[]' <<<"$plan")
 
     # In parallel, because each hc send waits for a pause in typing
@@ -259,6 +259,7 @@ close_old_tui_workspaces() {
 # checkout's workspace while workspaces of its linked worktrees are open.
 close_popup_workspace() {
     jq -e --arg popup "$popup_workspace" 'any(.workspace_id == $popup)' <<<"$old" >/dev/null || return 0
+    # shellcheck disable=SC2016
     hc run --bg --no-parent --rm -- sh -c '
         for id in $2; do
             printf "{\"id\":\"sync\",\"method\":\"workspace.close\",\"params\":{\"workspace_id\":\"%s\"}}\n" "$id" | nc -U "$1"
@@ -269,14 +270,14 @@ space_cwd() { pane_field "$(jq -r '.tabs[0].root | until(.type == "pane"; .first
 
 # Usage: fill_tui_workspace <space index> <created workspace>
 fill_tui_workspace() {
-    local workspace initial tab applied key id ids=""
+    local workspace initial tab applied key id tab_ids=""
     workspace=$(jq -r .workspace.workspace_id <<<"$2")
     initial=$(jq -r .tab.tab_id <<<"$2")
     while read -r tab; do
         applied=$(tui_api layout.apply "$(jq -c --arg w "$workspace" --argjson panes "$panes" '
             def node: if .type == "pane" then {type, cwd: $panes[.key].cwd} else .first |= node | .second |= node end;
             {workspace_id: $w, tab_label: (if .name == "" then null else .name end), root: (.root | node)}' <<<"$tab")")
-        ids+="$(jq -r .layout.tab_id <<<"$applied") "
+        tab_ids+="$(jq -r .layout.tab_id <<<"$applied") "
         # The applied tree has the plan's shape
         while IFS=$'\t' read -r key id; do tui_pane[$key]=$id; done < <(jq -r --argjson applied "$applied" '
             def zip($a; $b): if $a.type == "pane" then [[$a.key, $b.pane_id]] else zip($a.first; $b.first) + zip($a.second; $b.second) end;
@@ -284,7 +285,7 @@ fill_tui_workspace() {
     done < <(jq -c '.tabs[]' <<<"${plan_spaces[$1]}")
     tui_id tab.close tab_id "$initial" >/dev/null
     workspaces[$1]=$workspace
-    tabs[$1]=$ids
+    tabs[$1]=$tab_ids
 }
 
 create_tui_workspace() {
@@ -293,7 +294,7 @@ create_tui_workspace() {
 }
 
 to_tui() {
-    local old popup_workspace="${HERDR_ACTIVE_WORKSPACE_ID:-}" popup_main_workspace panes i roots top main created key active
+    local old popup_workspace="${HERDR_ACTIVE_WORKSPACE_ID:-}" popup_main_workspace panes i roots top main created key active ids
     old=$("$herdr" workspace list | jq -c .result.workspaces)
     popup_main_workspace=$(jq -r --arg popup "$popup_workspace" '(.[] | select(.workspace_id == $popup and .worktree.is_linked_worktree)) as $p
         | first(.[] | select(.worktree.checkout_path == $p.worktree.repo_root and (.worktree.is_linked_worktree | not)) | .workspace_id) // empty' <<<"$old")

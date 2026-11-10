@@ -34,6 +34,7 @@ install_nvim() {
     rm -rf "$tmp_dir"
 
     # zsh/zshrc.zsh already prepends this, so only bash needs the line
+    # shellcheck disable=SC2016
     rc_append_line 'export PATH=$HOME/.local/nvim/bin:$PATH' "$HOME/.bashrc"
     export PATH="$HOME/.local/nvim/bin:$PATH"
     local nvim_version

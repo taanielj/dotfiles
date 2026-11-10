@@ -170,6 +170,7 @@ setup_apt() {
 # Adds the UBUNTU_PPA_FALLBACKS PPA of each package in PACKAGES that apt can't install as is.
 add_fallback_ppas() {
     local pair pkg ppa codename ppas=()
+    # shellcheck source=/dev/null
     codename=$(. /etc/os-release && echo "$VERSION_CODENAME")
     for pair in "${UBUNTU_PPA_FALLBACKS[@]}"; do
         pkg=${pair%%:*}

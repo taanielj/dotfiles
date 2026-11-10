@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Sourced by the herdr key scripts in this directory.
 
 herdr="${HERDR_BIN_PATH:-herdr}"

@@ -3,6 +3,6 @@
 [ $# -eq 1 ] || { echo "usage: wslview <url-or-path>" >&2; exit 2; }
 target=$1
 [ -e "$target" ] && target=$(wslpath -w "$target")
-cd /mnt/c 2>/dev/null # explorer.exe warns when started from a Linux directory
+cd /mnt/c 2>/dev/null || true # explorer.exe warns when started from a Linux directory
 explorer.exe "$target"
 exit 0 # explorer.exe exits 1 even when it opens the target
