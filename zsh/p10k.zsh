@@ -1395,7 +1395,7 @@
     [[ -r $config ]] || return
     for line in "${(@f)$(<$config)}"; do
       [[ $line == project[[:space:]]#=[[:space:]]#(#b)(*) ]] || continue
-      p10k segment -i GCLOUD_ICON -t "${match[1]//\%/%%}"
+      p10k segment -r -i GCLOUD_ICON -t "${match[1]//\%/%%}"
       return
     done
   }
