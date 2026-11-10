@@ -10,6 +10,7 @@ return {
             options = {
                 theme = "catppuccin-nvim", -- follows the active catppuccin flavour (catppuccin.lua)
                 globalstatus = true,
+                section_separators = { left = "", right = "" },
             },
             sections = {
                 lualine_a = {
