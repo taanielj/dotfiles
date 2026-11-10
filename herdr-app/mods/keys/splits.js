@@ -1,7 +1,7 @@
 // Cmd+hjkl moves through nvim windows, then panes, then macOS windows
 // (hammerspoon/init.lua); Alt+hjkl resizes the same way.
 import { exec, hc } from "herdr";
-import { app, focusedPane } from "./app.js";
+import { app, focusedPane, pathTo } from "./app.js";
 
 const LETTER = { left: "h", down: "j", up: "k", right: "l" };
 
@@ -56,15 +56,6 @@ async function tabTree(tab) {
   const r = await exec("sh", ["-c", 'printf "%s\\n" "$1" | hc connect', "sh", get]);
   const doc = JSON.parse(r.stdout).result.value;
   return doc.spaces.flatMap((s) => s.tabs).find((t) => t.id === tab)?.root ?? null;
-}
-
-function pathTo(node, id) {
-  if (node.id === id) return [node];
-  for (const child of node.children ?? []) {
-    const path = pathTo(child, id);
-    if (path) return [node, ...path];
-  }
-  return null;
 }
 
 const weight = (node) => node.size?.weight ?? 1;

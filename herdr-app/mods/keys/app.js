@@ -13,6 +13,16 @@ export async function app(...args) {
   return JSON.parse((await exec("herdr-app", ["do", ...args])).stdout || "{}");
 }
 
+// The nodes from a layout tree's root down to the node with that id.
+export function pathTo(node, id) {
+  if (node.id === id) return [node];
+  for (const child of node.children ?? []) {
+    const path = pathTo(child, id);
+    if (path) return [node, ...path];
+  }
+  return null;
+}
+
 export function focusedPane() {
   const id = focused()?.pane;
   return panes().find((p) => p.pane === id) ?? null;

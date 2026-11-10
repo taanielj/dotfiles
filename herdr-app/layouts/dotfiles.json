@@ -76,6 +76,18 @@
       "type": "column",
       "children": [
         {
+          "id": "zen-strip",
+          "type": "block",
+          "size": {
+            "px": 28
+          },
+          "hidden": true,
+          "window_drag": true,
+          "content": {
+            "mod": "strip"
+          }
+        },
+        {
           "id": "tabs",
           "type": "block",
           "content": {
