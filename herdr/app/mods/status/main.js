@@ -4,20 +4,21 @@ import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { spaces, agents, theme, run, window, keys, exec, home, settings } from "herdr";
 
-// Each script with how often it reruns; the weather script caches for 15 minutes itself.
+// Each script with its arguments and how often it reruns; the weather script
+// caches for 15 minutes itself.
 const SCRIPTS = [
-  ["herdr-netspeed", 1000],
-  ["herdr-sysmon", 1000],
-  ["herdr-weather", 900000],
+  ["herdr-netspeed", ["app"], 1000],
+  ["herdr-sysmon", [], 1000],
+  ["herdr-weather", [], 900000],
 ];
 
 export default class WorkspaceStatus extends View {
   init(_props, cx) {
     this.out = {};
     this.time = "";
-    for (const [script, ms] of SCRIPTS) {
+    for (const [script, args, ms] of SCRIPTS) {
       const refresh = (cx) => cx.spawn(async (cx) => {
-        const r = await exec(`${home()}/.local/bin/${script}`, [], { timeout: 10000 });
+        const r = await exec(`${home()}/.local/bin/${script}`, args, { timeout: 10000 });
         this.out[script] = r.code === 0 ? r.stdout.trim() : "";
         cx.notify();
       });

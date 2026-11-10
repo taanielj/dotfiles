@@ -217,7 +217,7 @@ toast.delivery = "system"
 # so each refreshes at its own pace.
 tab_bar_right = [
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-reload-status.sh", interval_seconds = 1, timeout_seconds = 2 },
-    { type = "command", command = "$HOME/.local/bin/herdr-netspeed", interval_seconds = 1, timeout_seconds = 2 },
+    { type = "command", command = "$HOME/.local/bin/herdr-netspeed tui", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.local/bin/herdr-sysmon", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.local/bin/herdr-weather", interval_seconds = 900, timeout_seconds = 10 },
     { type = "datetime", format = "%H:%M " },
