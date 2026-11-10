@@ -7,7 +7,7 @@ HERDR_BIN="$HOME/.local/bin/herdr"
 
 # The Herdr app's mods and Claude Code's EDITOR setting call these scripts by
 # bare name. Claude's settings env doesn't expand paths.
-SHARED_BIN=(herdr-nvim herdr-open herdr-netspeed herdr-sysmon herdr-weather)
+SHARED_BIN=(herdr-nvim herdr-open herdr-netspeed herdr-sysmon herdr-weather herdr-sync)
 
 APP_HOME="$HOME/.config/herdr-app"
 # Files the app reads from its home; everything else there is the app's own state.

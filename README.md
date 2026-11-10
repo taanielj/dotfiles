@@ -31,6 +31,7 @@ bash setup.sh --teardown --remove-cargo
   - On macOS, brew installs the herdr binary.
   - On macOS, the script also installs the Herdr desktop app and herdr-core, and links the app's [settings, keys, theme and mods](herdr/app) into `~/.config/herdr-app`.
   - The [scripts that both herdr and the Herdr app run](herdr/bin) are linked onto PATH.
+  - [herdr-sync](herdr/bin/herdr-sync.sh) rebuilds one side's workspaces, tabs and splits from the other's, moving nvim and Claude sessions across: `prefix Y` in herdr, `cmd-space Y` in the Herdr app.
 - [mise](setup/mise.sh): version manager for language runtimes, with an fzf picker for which to install
 - [nvim](setup/nvim.sh): latest stable Neovim and the lazy.nvim config under [nvim](nvim)
 - [cargo](setup/cargo.sh): Rust plus the cargo-installed CLI tools aliased in [zsh/interactive/aliases.zsh](zsh/interactive/aliases.zsh)

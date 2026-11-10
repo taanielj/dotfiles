@@ -154,6 +154,14 @@ description = "join a pane (split down)"
 width = "70%"
 height = "60%"
 
+[[keys.command]]
+key = "prefix+shift+y"
+type = "popup"
+command = "herdr-sync tui"
+description = "replace everything with the Herdr app's spaces"
+width = "60%"
+height = "60%"
+
 # tmux: prefix space = next-layout (side by side, stacked, main left, main top, tiled)
 [[keys.command]]
 key = "prefix+space"

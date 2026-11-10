@@ -121,6 +121,7 @@
     "cmd-space e": "layout.toggle:panel",
     "cmd-space /": "keys.scrollback",
     "cmd-space g": "keys.lazygit",
+    "cmd-space shift-y": "keys.sync-from-tui",
     "cmd-space space": "keys.layout-next"
   },
   "terminal": {

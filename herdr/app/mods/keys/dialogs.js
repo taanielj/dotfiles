@@ -87,12 +87,18 @@ async function lazygit(cx) {
   await runInDialog(cx, ["lazygit"], { cwd: focused()?.cwd ?? undefined, size: 0.9 });
 }
 
+// The dialog's terminal outlives the spaces the sync closes, because it sits outside every space
+async function syncFromTui(cx) {
+  await runInDialog(cx, ["herdr-sync", "app"]);
+}
+
 export const DIALOGS = {
   "pick-goto": goto,
   "pick-join-right": (cx) => join(cx, "right"),
   "pick-join-down": (cx) => join(cx, "down"),
   "scrollback": scrollback,
   "lazygit": lazygit,
+  "sync-from-tui": syncFromTui,
 };
 
 export const COMMANDS = { "break": breakPane };
