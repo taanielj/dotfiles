@@ -65,8 +65,9 @@ local function overlaps(a, b, pos, size) return a[pos] < b[pos] + b[size] and b[
 ---that side of the screen. A window flush against the moved border follows it.
 ---@param dir "left"|"down"|"up"|"right"
 ---@param step? number fraction of the screen, STEP by default
+---@param presses? number times to apply the step, 1 by default
 ---@return boolean resized false when no window has focus or the border is at the screen's side
-function resizeWindow(dir, step)
+function resizeWindow(dir, step, presses)
     local win = hs.window.focusedWindow()
     if not win then return false end
     local horizontal = dir == "left" or dir == "right"
@@ -76,7 +77,7 @@ function resizeWindow(dir, step)
     local f, s = win:frame(), win:screen():frame()
     local far = f[pos] + f[size] < s[pos] + s[size] - TOUCH
     local border = far and f[pos] + f[size] or f[pos]
-    local delta = s[size] * (step or STEP) * ((dir == "left" or dir == "up") and -1 or 1)
+    local delta = s[size] * (step or STEP) * (presses or 1) * ((dir == "left" or dir == "up") and -1 or 1)
     delta = math.max(s[pos], math.min(s[pos] + s[size], border + delta)) - border
     if delta == 0 then return false end
 

@@ -81,7 +81,8 @@ const weight = (node) => node.size?.weight ?? 1;
 
 // Moves the border of the pane's branch in the nearest split that runs that
 // way, like smart-splits: its far border when it has a neighbour there, else
-// its near one. Resolves false when the pane spans the tab along that axis.
+// its near one, keeping each side at least 5% of the split. Resolves false
+// when the pane spans the tab along that axis.
 async function resizePane(pane, dir, step) {
   const path = pathTo((await tabTree(pane.tab)) ?? {}, pane.pane) ?? [];
   for (let i = path.length - 2; i >= 0; i--) {
@@ -90,11 +91,12 @@ async function resizePane(pane, dir, step) {
     const at = kids.indexOf(path[i + 1]);
     const [a, b] = at < kids.length - 1 ? [kids[at], kids[at + 1]] : [kids[at - 1], kids[at]];
     const total = kids.reduce((sum, k) => sum + weight(k), 0);
-    const delta = (dir === "left" || dir === "up" ? -step : step) * total;
-    const [wa, wb] = [weight(a) + delta, weight(b) - delta];
-    if (Math.min(wa, wb) >= 0.05 * total) {
-      await app("layout.resize", JSON.stringify({ id: a.id, weight: wa }));
-      await app("layout.resize", JSON.stringify({ id: b.id, weight: wb }));
+    const want = (dir === "left" || dir === "up" ? -step : step) * total;
+    const min = 0.05 * total;
+    const delta = Math.max(min - weight(a), Math.min(weight(b) - min, want));
+    if (delta * want > 0) {
+      await app("layout.resize", JSON.stringify({ id: a.id, weight: weight(a) + delta }));
+      await app("layout.resize", JSON.stringify({ id: b.id, weight: weight(b) - delta }));
     }
     return true;
   }
@@ -102,20 +104,21 @@ async function resizePane(pane, dir, step) {
 }
 
 // The focused pane, else the macOS window when the pane spans the tab or is zoomed.
-async function resizeOutside(dir, fine) {
+async function resizeOutside(dir, fine, presses) {
   const pane = focusedPane();
-  if (pane && !pane.zoomed && (await resizePane(pane, dir, fine ? 0.01 : 0.03))) return;
-  await hammerspoon(`resizeWindow('${dir}', ${fine ? 0.01 : "nil"})`);
+  if (pane && !pane.zoomed && (await resizePane(pane, dir, (fine ? 0.01 : 0.03) * presses))) return;
+  await hammerspoon(`resizeWindow('${dir}', ${fine ? 0.01 : "nil"}, ${presses})`);
 }
 
-async function resize(dir, fine) {
+async function resize(dir, fine, presses) {
   const nvim = nvimTerminal();
   if (nvim) {
     // nvim's own <M-hjkl> comes back as keys.resize-outside-<dir> without a split on that axis
-    await hc(["keys", nvim, `${fine ? "alt+shift" : "alt"}+${LETTER[dir]}`]);
+    const key = `${fine ? "alt+shift" : "alt"}+${LETTER[dir]}`;
+    await hc(["keys", nvim, ...Array(presses).fill(key)]);
     return;
   }
-  await resizeOutside(dir, fine);
+  await resizeOutside(dir, fine, presses);
 }
 
 const sleep = (cx, ms) => new Promise((done) => cx.timer.after(ms, () => done()));
@@ -306,19 +309,47 @@ for (const dir of Object.keys(LETTER)) {
   COMMANDS[`nav-${dir}`] = () => nav(dir);
   COMMANDS[`go-${dir}`] = () => go(dir);
   COMMANDS[`window-${dir}`] = () => hammerspoon(`focusWindow('${dir}')`);
-  COMMANDS[`resize-${dir}`] = () => resize(dir, false);
-  COMMANDS[`resize-${dir}-fine`] = () => resize(dir, true);
-  COMMANDS[`resize-outside-${dir}`] = () => resizeOutside(dir, false);
-  COMMANDS[`resize-outside-${dir}-fine`] = () => resizeOutside(dir, true);
+}
+
+// Resize commands, given how many presses to apply at once
+const RESIZES = {};
+for (const dir of Object.keys(LETTER)) {
+  RESIZES[`resize-${dir}`] = (presses) => resize(dir, false, presses);
+  RESIZES[`resize-${dir}-fine`] = (presses) => resize(dir, true, presses);
+  RESIZES[`resize-outside-${dir}`] = (presses) => resizeOutside(dir, false, presses);
+  RESIZES[`resize-outside-${dir}-fine`] = (presses) => resizeOutside(dir, true, presses);
+}
+
+const report = (command) => (e) => console.log(`keys.${command}: ${e}`);
+
+// Key repeat outpaces a resize, and a backlog would keep resizing after the
+// key is let go: presses that arrive meanwhile merge into the next one.
+const resizes = [];
+let resizing = false;
+
+function queueResize(cx, command) {
+  const last = resizes.at(-1);
+  if (last?.command === command) last.presses++;
+  else resizes.push({ command, presses: 1 });
+  if (resizing) return;
+  resizing = true;
+  cx.spawn(async () => {
+    while (resizes.length) {
+      const { command, presses } = resizes.shift();
+      await RESIZES[command](presses).catch(report(command));
+    }
+    resizing = false;
+  });
 }
 
 export default class Keys extends View {
   init(_props, cx) {
-    const report = (command) => (e) => console.log(`keys.${command}: ${e}`);
     cx.spawn(async (cx) => {
       for (;;) {
         const command = await nextCommand();
-        if (DIALOGS[command]) {
+        if (RESIZES[command]) {
+          queueResize(cx, command);
+        } else if (DIALOGS[command]) {
           cx.spawn((cx) => DIALOGS[command](cx).catch(report(command)));
         } else if (COMMANDS[command]) {
           await COMMANDS[command](cx).catch(report(command));
