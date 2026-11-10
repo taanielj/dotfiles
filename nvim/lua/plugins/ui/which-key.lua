@@ -5,7 +5,7 @@ return {
     },
     event = "VeryLazy",
     opts = function()
-        -- Mappings are read from Neovim directly; only the prefix labels need declaring
+        -- Mappings are read from Neovim directly. Only the prefix labels need declaring.
         return { spec = require("keybinds").groups }
     end,
 }

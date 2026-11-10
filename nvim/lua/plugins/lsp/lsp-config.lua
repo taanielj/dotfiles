@@ -37,7 +37,7 @@ return {
                         "sqlfmt",
                         "buf", -- Protobuf
                         "checkmake", -- Makefile linter
-                        "shellcheck", -- Shell linter
+                        "shellcheck",
                         "sonarlint-language-server",
                     },
                 },
@@ -183,8 +183,8 @@ return {
                         },
                     },
                 },
-                -- A project's ruff.toml or pyproject.toml wins; lineLength applies
-                -- to projects without one.
+                -- lineLength applies only to projects without a ruff.toml or
+                -- pyproject.toml
                 ruff = {
                     init_options = { settings = { configurationPreference = "filesystemFirst", lineLength = 120 } },
                 },
@@ -192,8 +192,9 @@ return {
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
                 marksman = {},
                 dockerls = {},
-                -- `local` is goimports -local. Filled in place: the client
-                -- copied its settings reference before before_init runs.
+                -- `local` is goimports -local. before_init mutates settings.gopls
+                -- in place, because the client holds its settings reference
+                -- before before_init runs.
                 gopls = {
                     settings = { gopls = {} },
                     before_init = function(_, config)
@@ -210,11 +211,11 @@ return {
                 vim.lsp.enable(name)
             end
 
-            -- ensure_installed has no metals: mason-lspconfig does not carry it.
+            -- mason-lspconfig has no metals package to install
             local ensure_installed = vim.tbl_keys(servers)
             table.insert(ensure_installed, "jdtls")
             -- automatic_enable also enables installed servers with no entry above,
-            -- such as stylua; nvim-jdtls starts jdtls itself
+            -- such as stylua. nvim-jdtls starts jdtls itself.
             require("mason-lspconfig").setup({
                 ensure_installed = ensure_installed,
                 automatic_enable = { exclude = { "jdtls" } },

@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-# Build (or focus) a herdr workspace with one tab per repo - starting the herdr
-# server and attaching if needed (herdr's server doesn't auto-start on API
-# calls the way tmux does on session-create). Generic: label + repos come from
-# the environment, so no work-specific paths live in this public repo.
+# Builds a herdr workspace with one tab per repo, or focuses the workspace if it
+# exists, then attaches. The label and repos come from the environment, which
+# keeps work paths out of this public repo.
 #
 #   HERDR_SESSION_LABEL   workspace label, e.g. "work" (arg $1 overrides)
 #   HERDR_SESSION_REPOS   "tab:path;tab:path;..." - path under ${GIT_PATH:-$HOME/git}
 #                         unless absolute; repos whose dir is missing are skipped
 #
-# Nothing in this repo calls this; it is an extension point for ~/.zshrc.local.
+# Meant to be called from ~/.zshrc.local.
 set -euo pipefail
 
 herdr="${HERDR_BIN_PATH:-herdr}"
@@ -23,7 +22,7 @@ spec="${HERDR_SESSION_REPOS:-}"
 
 server_up() { ! "$herdr" status server 2>/dev/null | grep -q "not running"; }
 
-# The workspace API below needs a running server; start one headless if needed.
+# The workspace API needs a running server
 if ! server_up; then
     nohup "$herdr" server >/dev/null 2>&1 &
     for _ in {1..200}; do server_up && break; sleep 0.05; done

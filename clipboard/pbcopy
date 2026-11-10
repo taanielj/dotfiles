@@ -1,5 +1,5 @@
 #!/bin/sh
-# pbcopy for Linux and WSL: zsh, tmux and scripts call the macOS name everywhere.
+# pbcopy for Linux and WSL, where zsh, tmux and scripts call the macOS name too.
 # win32yank is installed by setup/win32yank.sh.
 if command -v win32yank.exe >/dev/null 2>&1; then
     exec win32yank.exe -i --crlf

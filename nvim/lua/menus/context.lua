@@ -1,4 +1,4 @@
--- What the text buffer menu gates its rows on.
+-- Facts about the cursor position that decide which rows the text buffer menu shows
 local M = {}
 
 local symbol_captures = {

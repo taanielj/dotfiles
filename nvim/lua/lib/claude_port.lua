@@ -1,6 +1,6 @@
 -- A Claude pane keeps the port and token of the nvim that opened it. The next
--- nvim in the same directory takes both back when the port is still free, so
--- that Claude reattaches instead of pointing at a dead server.
+-- nvim in the same directory takes both back when the port is still free, and
+-- Claude reattaches instead of pointing at a dead server.
 local M = {}
 
 local function store()
@@ -16,7 +16,7 @@ local function saved()
     return ok and type(data) == "table" and type(data.port) == "number" and data or nil
 end
 
--- bind alone passes on a port another process listens on; listen is the real test
+-- bind succeeds on a port another process listens on. listen fails there.
 local function free(port)
     local sock = vim.uv.new_tcp()
     if not sock then
@@ -57,7 +57,7 @@ function M.remember()
     vim.fn.setfperm(store(), "rw-------")
 end
 
----Remembers the running server's port now and again before nvim exits; a
+---Remembers the running server's port now and again before nvim exits. A
 ---restarted server can come up on another port.
 function M.track()
     M.remember()

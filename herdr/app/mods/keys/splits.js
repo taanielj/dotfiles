@@ -5,9 +5,9 @@ import { app, focusedPane, pathTo } from "./app.js";
 
 const LETTER = { left: "h", down: "j", up: "k", right: "l" };
 
-// Prints what Hammerspoon returns for the Lua. While Hammerspoon isn't
-// running, `hs` hangs rather than fails; this fails instead and relaunches it.
+// Resolves true when the Lua returned true.
 async function hammerspoon(lua) {
+  // `hs` hangs while Hammerspoon isn't running
   if ((await exec("pgrep", ["-xq", "Hammerspoon"])).code !== 0) {
     await exec("open", ["-g", "-a", "Hammerspoon"]);
     return false;
@@ -16,8 +16,7 @@ async function hammerspoon(lua) {
   return r.stdout.trim() === "true";
 }
 
-// The terminal that has the keyboard, when it runs nvim.
-function nvimTerminal() {
+function focusedNvimTerminal() {
   const pane = focusedPane();
   return pane?.program.key === "nvim" ? pane.terminal : null;
 }
@@ -28,8 +27,7 @@ async function focusedPaneNow() {
   return JSON.parse(r.stdout).focused_pane;
 }
 
-// The next pane that way, else the next macOS window.
-async function go(dir) {
+async function focusPaneOrWindow(dir) {
   const before = await focusedPaneNow();
   await app("pane.go", "--direction", dir);
   if ((await focusedPaneNow()) === before) {
@@ -38,13 +36,13 @@ async function go(dir) {
 }
 
 async function nav(dir) {
-  const nvim = nvimTerminal();
+  const nvim = focusedNvimTerminal();
   if (nvim) {
     // nvim's own <C-hjkl> comes back as keys.go-<dir> at its edge (nvim/lua/lib/splits.lua)
     await hc(["keys", nvim, `ctrl+${LETTER[dir]}`]);
     return;
   }
-  await go(dir);
+  await focusPaneOrWindow(dir);
 }
 
 const SPLIT = { left: "row", right: "row", up: "column", down: "column" };
@@ -60,10 +58,10 @@ async function tabTree(tab) {
 
 const weight = (node) => node.size?.weight ?? 1;
 
-// Moves the border of the pane's branch in the nearest split that runs that
-// way, like smart-splits: its far border when it has a neighbour there, else
-// its near one, keeping each side at least 5% of the split. Resolves false
-// when the pane spans the tab along that axis.
+// Resizes the pane's branch in the nearest enclosing split along dir's axis, as
+// smart-splits does. Moves the border with the next sibling, or with the previous
+// sibling for the last child, and keeps both siblings at 5% of the split or more.
+// Resolves false when no split along that axis encloses the pane.
 async function resizePane(pane, dir, step) {
   const path = pathTo((await tabTree(pane.tab)) ?? {}, pane.pane) ?? [];
   for (let i = path.length - 2; i >= 0; i--) {
@@ -84,7 +82,6 @@ async function resizePane(pane, dir, step) {
   return false;
 }
 
-// The focused pane, else the macOS window when the pane spans the tab or is zoomed.
 async function resizeOutside(dir, fine, presses) {
   const pane = focusedPane();
   if (pane && !pane.zoomed && (await resizePane(pane, dir, (fine ? 0.01 : 0.03) * presses))) return;
@@ -92,7 +89,7 @@ async function resizeOutside(dir, fine, presses) {
 }
 
 async function resize(dir, fine, presses) {
-  const nvim = nvimTerminal();
+  const nvim = focusedNvimTerminal();
   if (nvim) {
     // nvim's own <M-hjkl> comes back as keys.resize-outside-<dir> without a split on that axis
     const key = `${fine ? "alt+shift" : "alt"}+${LETTER[dir]}`;
@@ -103,11 +100,11 @@ async function resize(dir, fine, presses) {
 }
 
 export const COMMANDS = {};
-// Take how many presses to apply at once
+// Each takes the number of key presses to apply at once
 export const RESIZES = {};
 for (const dir of Object.keys(LETTER)) {
   COMMANDS[`nav-${dir}`] = () => nav(dir);
-  COMMANDS[`go-${dir}`] = () => go(dir);
+  COMMANDS[`go-${dir}`] = () => focusPaneOrWindow(dir);
   COMMANDS[`window-${dir}`] = () => hammerspoon(`focusWindow('${dir}')`);
   RESIZES[`resize-${dir}`] = (presses) => resize(dir, false, presses);
   RESIZES[`resize-${dir}-fine`] = (presses) => resize(dir, true, presses);

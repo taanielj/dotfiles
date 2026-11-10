@@ -1,7 +1,8 @@
 -- Inside herdr or the Herdr app, a program the debug adapter starts in a
--- terminal runs in a pane below this nvim. The pane exits along with a program
--- that succeeds, stays open to read one that fails, and closes when the session
--- is terminated.
+-- terminal runs in a pane below this nvim.
+-- - When the program succeeds, the pane closes.
+-- - When the program fails, the pane stays open to read its output.
+-- - When the session is terminated, the pane closes.
 local M = {}
 
 ---@param label string
@@ -27,7 +28,8 @@ function M.setup()
         return
     end
     local app = host == require("lib.herdr_app")
-    -- herdr finds the panes by label; the app's script lists their terminals in a file
+    -- Inside herdr, close_herdr_panes finds the debug panes by label. Inside the
+    -- Herdr app, dap-pane.sh writes the debug terminals' addresses to `state`.
     local label = "debug " .. pane_id
     local state = vim.fs.joinpath(vim.fn.stdpath("state"), "debug-terminals", pane_id)
     local script = app and "~/.config/herdr-app/bin/dap-pane.sh" or "~/.config/herdr/bin/herdr-dap-pane.sh"

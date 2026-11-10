@@ -1,6 +1,6 @@
--- Neovim's own popup menus, defined from Lua rows. A menu's right-hand side
--- is a key sequence, so a Lua callback is reached through a registry keyed
--- by menu name and rebuilt with the menu.
+-- Neovim's own popup menus, defined from Lua rows. A menu's right-hand side is
+-- a key sequence. A Lua callback is reached through a registry keyed by menu
+-- name and rebuilt with the menu.
 local M = {}
 
 local callbacks = {}
@@ -12,7 +12,7 @@ function M.run(menu, id)
     end
 end
 
--- Menu paths are dot-separated, so a name's own dots and spaces are escaped.
+-- Menu paths are dot-separated, and a name's own dots and spaces need escaping
 local function escape(name) return (name:gsub("([\\. |])", "\\%1")) end
 
 local function rhs(menu, entry)
@@ -25,8 +25,8 @@ local function rhs(menu, entry)
     return ("<Cmd>lua require('lib.menu').run('%s', %d)<CR>"):format(menu, id)
 end
 
--- Separators only between rows that are shown, so a menu whose whole
--- group was left out does not open with a blank line.
+-- Separators go only between rows that are shown. A menu whose whole group was
+-- left out opens without a blank line.
 local function compact(entries)
     local result = {}
     for _, entry in ipairs(entries) do
@@ -45,7 +45,6 @@ local function compact(entries)
     return result
 end
 
----Collects a menu's rows, leaving out those whose `when` is false.
 function M.rows()
     local entries = {}
     local rows = { entries = entries }
@@ -62,7 +61,6 @@ function M.rows()
     return rows
 end
 
----Replaces `menu` with `entries`.
 ---@return integer rows shown
 function M.define(menu, entries)
     vim.cmd("silent! aunmenu " .. menu)
@@ -78,7 +76,6 @@ function M.define(menu, entries)
     return #shown
 end
 
----Opens `menu` at the mouse, or at the cursor; an empty menu stays closed.
 ---@param opts? { at_cursor: boolean }
 function M.show(menu, entries, opts)
     if M.define(menu, entries) == 0 then

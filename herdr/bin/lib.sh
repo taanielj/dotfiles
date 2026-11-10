@@ -1,7 +1,7 @@
-# Sourced by the scripts in this directory, through the links setup puts on PATH:
+# setup/herdr.sh links the scripts in this directory onto PATH. Each script
+# sources this file through its resolved link:
 #   source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 
-# Usage: nvim_servers
 # Prints each running nvim's server socket, one per line.
 nvim_servers() {
     local socket

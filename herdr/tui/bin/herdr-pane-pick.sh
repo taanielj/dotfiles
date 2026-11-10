@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Pick another pane with fzf over a preview of its screen, then jump to it or
 # pull it into the current tab. Panes are labelled the way the UI shows them.
-# Previews run in a non-interactive shell, so aliases do not apply.
 #
 # Usage: herdr-pane-pick.sh goto
 #        herdr-pane-pick.sh join <right|down>
@@ -9,15 +8,16 @@ set -euo pipefail
 
 herdr="${HERDR_BIN_PATH:-herdr}"
 
-# TSV per pane: pane_id, tab_id, workspace_id, label. The current pane is left
-# out; $1 is a tab id whose panes are left out too.
+# TSV per pane: pane_id, tab_id, workspace_id, label. Leaves out the current
+# pane and the panes in skip_tab.
 pane_lines() {
+    local skip_tab="${1:-}"
     {
         "$herdr" pane list
         "$herdr" tab list
         "$herdr" workspace list
     } |
-        jq -rs --arg cur "${HERDR_ACTIVE_PANE_ID:-}" --arg skip_tab "${1:-}" '
+        jq -rs --arg cur "${HERDR_ACTIVE_PANE_ID:-}" --arg skip_tab "$skip_tab" '
         (.[1].result.tabs | INDEX(.tab_id)) as $tabs
         | (.[2].result.workspaces | INDEX(.workspace_id)) as $ws
         | .[0].result.panes[]
@@ -33,11 +33,12 @@ pane_lines() {
     '
 }
 
-# Prints the chosen pane's pane_id, tab_id, workspace_id as TSV; nothing when
-# cancelled. $1 is the fzf prompt, $2 a tab id to leave out.
+# Prints the chosen pane's pane_id, tab_id, workspace_id as TSV, or nothing
+# when cancelled.
 pick_pane() {
-    pane_lines "${2:-}" |
-        fzf --height=100% --with-nth=4.. --delimiter='\t' --prompt="$1" \
+    local prompt="$1" skip_tab="${2:-}"
+    pane_lines "$skip_tab" |
+        fzf --height=100% --with-nth=4.. --delimiter='\t' --prompt="$prompt" \
             --preview "\"$herdr\" pane read {1} --source visible --format ansi" \
             --preview-window=down,50% |
         cut -f1-3
@@ -45,7 +46,7 @@ pick_pane() {
 
 case "${1:-}" in
 goto)
-    # The CLI focuses workspaces and tabs, so this lands on the pane's tab.
+    # goto focuses the pane's tab, because the CLI focuses only workspaces and tabs.
     IFS=$'\t' read -r _ tab_id workspace_id < <(pick_pane "goto > ") || true
     [[ -n "${tab_id:-}" ]] || exit 0
     "$herdr" workspace focus "$workspace_id"

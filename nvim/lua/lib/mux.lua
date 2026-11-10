@@ -1,9 +1,9 @@
 -- Zoom and chrome of the multiplexers nvim runs inside: tmux, herdr or the
--- Herdr app. Every one present is driven: nvim in tmux in herdr
--- zooms both.
+-- Herdr app. Zooms every multiplexer present, and nvim in tmux in herdr zooms
+-- both.
 local M = {}
 
--- A multiplexer may be gone or hung, so a failure reads as "not zoomed"
+-- A multiplexer may be gone or hung. A failure reads as "not zoomed".
 local function run(cmd)
     local ok, proc = pcall(vim.system, cmd, { text = true })
     if not ok then
@@ -17,7 +17,7 @@ local function tmux_is_zoomed()
     return run({ "tmux", "list-panes", "-F", "#{?pane_active,#{window_zoomed_flag},}" }):match("1") ~= nil
 end
 
--- herdr's --current follows the focused pane, so this pane is addressed by id
+-- herdr's --current follows the focused pane. This pane is addressed by id instead.
 local function herdr_pane() return require("lib.herdr").pane_id() end
 
 local adapters = {
@@ -45,8 +45,9 @@ local adapters = {
         -- The sidebar and tab bar are config-time only
         set_chrome = function() end,
     },
-    -- The app's CLI doesn't report zoom: its keys mod remembers the zoom zen-in
-    -- found, and hides and shows the bars along with it (herdr/app/mods/keys)
+    -- herdr-app's CLI reports no zoom state. The app's keys mod
+    -- (herdr/app/mods/keys) saves the zoom state at keys.zen-in, restores it at
+    -- keys.zen-out, and hides and shows the bars with it.
     herdr_app = {
         present = function() return require("lib.herdr_app").inside() end,
         is_zoomed = function() return false end,
@@ -65,7 +66,6 @@ local function present()
     return found
 end
 
----Hides the chrome and zooms in; returns what `restore` needs.
 ---@return table<string, boolean> zoomed before, by multiplexer
 function M.zoom_in()
     local was = {}

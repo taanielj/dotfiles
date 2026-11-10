@@ -6,8 +6,8 @@ source "$REPO_ROOT/setup/utils.sh"
 main_hammerspoon() {
     install_cask hammerspoon || exit 1
     link_file "$REPO_ROOT/hammerspoon/init.lua" "$HOME/.hammerspoon/init.lua"
-    # A restart loads the config even when the running one predates it and so
-    # has no hs.ipc to take a reload through
+    # A Hammerspoon started before this config was linked has no hs.ipc, and
+    # `hs -c` can't reload it. A restart loads the config in every case.
     if pgrep -xq Hammerspoon; then
         pkill -x Hammerspoon
         while pgrep -xq Hammerspoon; do sleep 0.1; done

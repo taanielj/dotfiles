@@ -1,6 +1,7 @@
--- Marksman registers no file watchers, and Neovim reports only the markdown it
--- creates itself, so notes written by anything else stay out of the index. The
--- server does honour workspace.fileOperations, hence this re-listing.
+-- Marksman registers no file watchers, and Neovim reports only the markdown
+-- files it creates itself. Notes written by anything else stay out of
+-- marksman's index. Marksman does honour workspace.fileOperations, and `sync`
+-- re-lists the workspace to report created and deleted files.
 
 local M = {}
 
@@ -10,7 +11,7 @@ local PATTERNS = { "*.md", "*.markdown" }
 ---@type table<integer, { known: table<string, true>, pending: boolean }>
 local tracked = {}
 
--- Fallback for workspaces marksman rooted on something other than a repo.
+-- Fallback for workspaces marksman rooted outside a git repo
 local function walk(root)
     local files = {}
     for name, type in
@@ -104,14 +105,14 @@ local function sync(client, now)
     end)
 end
 
----@param client vim.lsp.Client the attached marksman client
+---@param client vim.lsp.Client
 function M.attach(client)
     if tracked[client.id] or not client.root_dir then
         return
     end
     local state = { known = {}, pending = false }
     tracked[client.id] = state
-    -- Baseline: what marksman itself just indexed.
+    -- marksman indexes the workspace itself on attach
     list(client.root_dir, function(found) state.known = found end)
 
     local group = vim.api.nvim_create_augroup("user_marksman_sync_" .. client.id, { clear = true })

@@ -1,21 +1,21 @@
--- Claude Code's external editor, served by the nvim in Claude's herdr or Herdr
--- app tab: herdr/bin/herdr-nvim.sh calls `edit` for ctrl+g and `view` for
--- ctrl+o v through this nvim's server socket. ctrl+g lands in the repo's prompt
--- draft, .scratch/prompt.md, which also submits to Claude on its own.
+-- Claude Code's external editor, run by the nvim in the same herdr tab or Herdr
+-- app tab as Claude. herdr/bin/herdr-nvim.sh, the wrapper Claude runs as its
+-- editor, calls `edit` for ctrl+g and `view` for ctrl+o v through this nvim's
+-- server socket. ctrl+g opens the repo's prompt draft, .scratch/prompt.md.
+-- <C-s> in the draft submits it to Claude without a ctrl+g.
 local host = require("lib.pane_host")
 
 local M = {}
 
 local HEIGHT = 12
 
----A ctrl+g edit Claude is waiting on.
----@class ui.claude_editor.Edit
----@field path string Claude's prompt file, read back once the wrapper exits
----@field done string the fifo the wrapper waits on
----@field claude string Claude's pane
----@field before string[] the draft before Claude's text was joined in
+---@class ui.claude_editor.PendingEdit
+---@field prompt_file string Claude reads it back once the wrapper exits
+---@field done_fifo string
+---@field claude_pane string
+---@field original_draft string[]
 
----@type ui.claude_editor.Edit?
+---@type ui.claude_editor.PendingEdit?
 local waiting
 
 ---@param flag string buffer variable that marks the buffer
@@ -29,10 +29,9 @@ local function window(flag)
     return nil
 end
 
----Shows the buffer in its bottom split, made on first use, and focuses it.
 ---@param buf integer
 ---@param flag string
-local function show(buf, flag)
+local function show_in_bottom_split(buf, flag)
     local win = window(flag)
     if not win then
         vim.cmd(("botright %dsplit"):format(HEIGHT))
@@ -47,16 +46,15 @@ end
 local function hide(flag)
     local win = window(flag)
     if win then
-        -- The last window of a tabpage stays
+        -- nvim_win_close errors on a tabpage's last window
         pcall(vim.api.nvim_win_close, win, false)
     end
 end
 
----Wakes the wrapper waiting on `fifo`. A wrapper already gone leaves no
----reader, and the non-blocking open fails instead of hanging nvim.
 ---@param fifo string
 local function wake(fifo)
     local c = vim.uv.constants
+    -- A blocking open hangs nvim when the wrapper already exited and left no reader
     local fd = vim.uv.fs_open(fifo, bit.bor(c.O_WRONLY, c.O_NONBLOCK), 0)
     if fd then
         vim.uv.fs_write(fd, "\n")
@@ -64,8 +62,8 @@ local function wake(fifo)
     end
 end
 
----@return integer the draft buffer, loaded
-local function draft()
+---@return integer
+local function load_draft()
     local cwd = vim.fn.getcwd()
     local path = vim.fs.joinpath(vim.fs.root(cwd, ".git") or cwd, ".scratch", "prompt.md")
     vim.fn.mkdir(vim.fs.dirname(path), "p")
@@ -90,7 +88,7 @@ end
 
 ---Ends the edit Claude is waiting on and focuses Claude.
 ---@param text string[]? what Claude's box gets; nil leaves the box as it was
----@return ui.claude_editor.Edit?
+---@return ui.claude_editor.PendingEdit?
 local function release(text)
     local edit = waiting
     waiting = nil
@@ -98,15 +96,15 @@ local function release(text)
         return nil
     end
     if text then
-        vim.fn.writefile(text, edit.path)
+        vim.fn.writefile(text, edit.prompt_file)
     end
-    wake(edit.done)
-    host().focus(edit.claude)
+    wake(edit.done_fifo)
+    host().focus(edit.claude_pane)
     return edit
 end
 
 ---@param buf integer
----@return ui.claude_editor.Edit?
+---@return ui.claude_editor.PendingEdit?
 local function hand_back(buf)
     local text = lines(buf)
     set_draft(buf, {})
@@ -118,14 +116,13 @@ end
 ---@param buf integer
 local function close(buf)
     if waiting then
-        set_draft(buf, waiting.before)
+        set_draft(buf, waiting.original_draft)
         release(nil)
     end
     hide("claude_draft")
 end
 
----Presses Enter in Claude once its box shows the handed-back text; an Enter
----sent while Claude is still redrawing is lost.
+---An Enter sent while Claude is still redrawing is lost.
 ---@param pane string
 ---@param text string[]
 local function enter_when_shown(pane, text)
@@ -151,19 +148,18 @@ local function submit(buf)
         return
     end
     if waiting then
-        -- A paste would miss Claude's box: its terminal belongs to the
-        -- wrapper until the wrapper exits
+        -- Until the wrapper exits, a paste into Claude's terminal goes to the
+        -- wrapper. The text goes back through Claude's prompt file instead.
         local edit = hand_back(buf)
-        enter_when_shown(edit.claude, text)
+        enter_when_shown(edit.claude_pane, text)
         return
     end
     require("lib.claude_pane").pick(function(pane)
-        host().prompt(pane, table.concat(text, "\n"), function() set_draft(buf, {}) end)
+        host().submit_prompt(pane, table.concat(text, "\n"), function() set_draft(buf, {}) end)
     end)
 end
 
----Sets up a draft buffer however it was opened: by this module, `:edit`, or
----a restored session.
+---Sets up a draft buffer opened by this module, `:edit` or a restored session.
 ---@param buf integer
 function M.attach(buf)
     vim.b[buf].claude_draft = true
@@ -198,39 +194,40 @@ function M.attach(buf)
     })
 end
 
----Toggles the prompt draft's split.
 function M.toggle()
     if window("claude_draft") then
         hide("claude_draft")
     else
-        show(draft(), "claude_draft")
+        show_in_bottom_split(load_draft(), "claude_draft")
     end
 end
 
----ctrl+g: Claude's box text joins the draft, and Claude waits for ZZ or ZQ.
----@param path string Claude's prompt file
----@param done string the fifo the wrapper waits on
----@param claude string Claude's pane
----@return integer 1, which the wrapper takes as nvim having it
-function M.edit(path, done, claude)
-    -- Another Claude in the tab still waiting gives way
+---Opens the draft for ctrl+g with the text of Claude's prompt box appended.
+---Claude waits until ZZ or ZQ in the draft.
+---@param prompt_file string
+---@param done_fifo string
+---@param claude_pane string
+---@return integer 1, which tells the wrapper that nvim took the file
+function M.edit(prompt_file, done_fifo, claude_pane)
+    -- Cancel the edit another Claude in this tab may still be waiting on
     release(nil)
-    local buf = draft()
+    local buf = load_draft()
     local before = lines(buf)
-    local box = vim.fn.readfile(path)
+    local box = vim.fn.readfile(prompt_file)
     if not blank(box) then
         set_draft(buf, blank(before) and box or vim.list_extend(vim.list_extend(vim.deepcopy(before), { "" }), box))
     end
-    waiting = { path = path, done = done, claude = claude, before = before }
-    show(buf, "claude_draft")
+    waiting = { prompt_file = prompt_file, done_fifo = done_fifo, claude_pane = claude_pane, original_draft = before }
+    show_in_bottom_split(buf, "claude_draft")
     host().focus(assert(host().pane_id()))
     return 1
 end
 
----ctrl+o v: the transcript, read-only, in its own split. Claude doesn't wait;
----pressing v again replaces it with a fresh one.
+---Shows the transcript for ctrl+o v, read-only, in its own split. Claude
+---doesn't wait for the split to close. Another ctrl+o v replaces the split's
+---transcript with a fresh copy.
 ---@param path string
----@return integer 1, which the wrapper takes as nvim having it
+---@return integer 1, which tells the wrapper that nvim took the file
 function M.view(path)
     local buf = vim.fn.bufadd(path)
     vim.fn.bufload(buf)
@@ -243,7 +240,7 @@ function M.view(path)
     for _, key in ipairs({ "ZZ", "ZQ" }) do
         map("n", key, function() hide("claude_transcript") end, "close")
     end
-    show(buf, "claude_transcript")
+    show_in_bottom_split(buf, "claude_transcript")
     vim.cmd("normal! G")
     host().focus(assert(host().pane_id()))
     return 1

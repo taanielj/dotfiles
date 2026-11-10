@@ -1,4 +1,4 @@
--- The text buffer menu; `ctx` is menus.context.get().
+-- The text buffer menu. `ctx` is menus.context.get().
 local icons = require("lib.icons")
 local menu = require("lib.menu")
 
@@ -47,7 +47,7 @@ return function(ctx)
         icons.format,
         "Format buffer",
         require("lsp.format").buffer,
-        ctx.modifiable and require("lsp.format").available(ctx.bufnr)
+        ctx.modifiable and require("lsp.format").has_formatter(ctx.bufnr)
     )
     rows.item(icons.diagnostics, "Show diagnostics", vim.diagnostic.open_float, ctx.line_diagnostics)
     rows.item(icons.list, "All diagnostics", vim.diagnostic.setqflist, ctx.diagnostics)

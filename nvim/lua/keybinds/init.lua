@@ -1,12 +1,14 @@
--- Every global mapping, split by area. A plugin that loads at startup has
--- its keys here too, with the require inside the function; a plugin that
--- loads on a key keeps that key as `keys` in its spec, since that is what
--- loads it. Buffer-local maps live with what scopes them.
+-- Every global mapping, split by area.
+-- - A plugin that loads at startup has its keys here, with the require inside
+--   the function.
+-- - A plugin that loads on a key declares that key as `keys` in its spec,
+--   because that key loads it.
+-- - Buffer-local maps are set in the module that creates the buffer.
 
 -- Leader must be set before plugins load
 vim.g.mapleader = " "
 
--- A prefix has no mapping of its own to carry a desc
+-- Labels for prefixes, which have no mapping to put a desc on
 -- stylua: ignore
 local groups = {
     { "=",          group = "Calculate" },

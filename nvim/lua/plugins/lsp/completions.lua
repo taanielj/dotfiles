@@ -19,12 +19,12 @@ return {
             },
             completion = {
                 documentation = { auto_show = true, auto_show_delay_ms = 200 },
-                -- Enter accepts only what was navigated to, not the first match
+                -- Enter accepts only an item navigated to
                 list = { selection = { preselect = false } },
             },
             signature = { enabled = true },
             cmdline = {
-                -- The preset walks the list with Left and Right; Up and Down walk directories
+                -- The preset walks the list with Left and Right. Up and Down walk directories.
                 keymap = {
                     preset = "cmdline",
                     ["<Down>"] = { "accept", "fallback" },

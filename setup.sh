@@ -5,9 +5,9 @@ REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 source "$REPO_ROOT/setup/utils.sh"
 
-# system should be run first (and torn down last)
+# system.sh installs packages that the other scripts need.
 SETUP_SCRIPTS=(
-    "$REPO_ROOT/setup/system.sh"  # only one that needs sudo, supports ubuntu, debian, termux, darwin
+    "$REPO_ROOT/setup/system.sh"
     "$REPO_ROOT/setup/git.sh"
     "$REPO_ROOT/setup/zsh.sh"
     "$REPO_ROOT/setup/tmux.sh"
@@ -15,12 +15,12 @@ SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/mise.sh"
     "$REPO_ROOT/setup/nvim.sh"
     "$REPO_ROOT/setup/cargo.sh"
-    "$REPO_ROOT/setup/lazygit.sh" # brew installs the binary on macOS
+    "$REPO_ROOT/setup/lazygit.sh"
     "$REPO_ROOT/setup/bat.sh"
 )
 [[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/ghostty.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh" "$REPO_ROOT/setup/hammerspoon.sh")
 [[ "$OSTYPE" != "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/clipboard.sh")
-[[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/superfile.sh") # brew installs it on macOS
+[[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/superfile.sh")
 [[ -n "$WSL_DISTRO_NAME" ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/win32yank.sh")
 
 show_help() {
@@ -96,10 +96,10 @@ show_banner() {
     fi
 }
 
-# Teardown runs in reverse; system packages may be shared, so system.sh is skipped.
 teardown_scripts() {
     local scripts=()
     for ((i=${#SETUP_SCRIPTS[@]}-1; i>=0; i--)); do
+        # Other programs may use system.sh's packages
         [[ "$(basename "${SETUP_SCRIPTS[$i]}" .sh)" == "system" ]] && continue
         scripts+=("${SETUP_SCRIPTS[$i]}")
     done
@@ -182,7 +182,6 @@ run_teardown() {
 main() {
     parse_args "$@"
 
-    # --teardown flag skips the menu; otherwise the menu may switch MODE to teardown.
     [[ "$MODE" != "teardown" ]] && select_scripts
 
     show_banner

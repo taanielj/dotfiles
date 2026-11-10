@@ -1,4 +1,3 @@
-# zprofile sources this too, but multiplexer panes start non-login shells
 source "$HOME/.config/zsh/source-cached.zsh"
 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
@@ -7,11 +6,11 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Pure fpath plugin - must load before compinit; atpull clears the stale dump
+# zsh-completions only adds fpath entries and must load before compinit. atpull
+# deletes the completion dump that an update makes stale.
 zinit ice blockf atpull'zinit creinstall -q .; rm -f $ZSH_COMPDUMP{,.zwc}'
 zinit light zsh-users/zsh-completions
 
-# compinit runs ONCE: re-running it wipes dynamic registrations (gcloud etc.)
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' completions 1
 zstyle ':completion:*' glob 1
@@ -27,6 +26,8 @@ ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
 fpath+="$HOME/.zfunc"
 
+# compinit runs once. Running it again wipes completions registered at runtime,
+# such as gcloud's.
 # Adding or removing a completion file bumps its fpath dir's mtime. The dump is
 # removed first because compinit reuses one whose fpath file count still matches.
 autoload -Uz compinit
@@ -44,10 +45,11 @@ autoload -Uz _zinit
 autoload -U select-word-style
 select-word-style bash
 
-# Autosuggestions loads eagerly so suggestions appear from the first prompt.
-# Manual rebind wraps zle widgets once at the first prompt instead of at every
-# prompt; the atload re-wraps after the turbo plugins below add theirs, so any
-# plugin defining widgets must load before it.
+# Autosuggestions loads eagerly to show suggestions from the first prompt.
+# With manual rebind, it wraps zle widgets once at the first prompt instead of
+# at every prompt. The atload on zsh-syntax-highlighting wraps the widgets again
+# after the turbo plugins add their own. A plugin that defines widgets must load
+# before that atload.
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 zinit ice lucid
 zinit light zsh-users/zsh-autosuggestions
@@ -56,8 +58,8 @@ zinit wait lucid for \
     Aloxaf/fzf-tab \
     atload'_zsh_autosuggest_bind_widgets' zsh-users/zsh-syntax-highlighting
 
-# Turbo-loaded, so its aliases land after interactive/*.zsh; atload drops the
-# ones that shadow functions defined there.
+# Turbo mode loads OMZ's git plugin after interactive/*.zsh. Its grm alias would
+# shadow the grm function in interactive/aliases.zsh, and atload removes the alias.
 zinit ice wait'1' lucid atload'unalias grm'
 zinit snippet OMZP::git
 
@@ -74,25 +76,25 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 setopt HIST_SAVE_NO_DUPS
 
-# Activated before the command -v guards below (zoxide, fd, direnv, nvim) so
-# they see mise-managed bins like ~/.cargo/bin; activation applies PATH eagerly.
 export MISE_POETRY_AUTO_INSTALL=1
 export MISE_POETRY_VENV_AUTO=1
 
+# Activated before the command -v guards below (zoxide, fd, direnv, nvim), which
+# need mise-managed bins like ~/.cargo/bin on PATH. activate sets PATH right away.
 mise_bin=$(command -v mise || echo "$HOME/.local/bin/mise") && [[ -x "$mise_bin" ]] && eval "$("$mise_bin" activate zsh)"
 unset mise_bin
 
 export COLORTERM=truecolor
 
-# Bar cursor at each prompt; kitty's shell integration sends the same itself
+# kitty's shell integration sets a bar cursor itself; other terminals need this
 _prompt_cursor_bar() { printf '\e[5 q' }
 precmd_functions+=(_prompt_cursor_bar)
 
 # Exempt a command from CORRECT with: alias foo='nocorrect foo'
 setopt CORRECT
 
-# User-local bins: zprofile sets these for login shells, but multiplexer panes
-# (herdr, tmux) spawn non-login shells that never read it. -U keeps path deduped.
+# zprofile sets these for login shells, and multiplexer panes (herdr, tmux) start
+# non-login shells, which don't read zprofile. -U drops duplicate entries.
 typeset -U path
 path=("$HOME/.local/nvim/bin" "$HOME/.local/bin" $path)
 command -v nvim &>/dev/null && export EDITOR="nvim"
@@ -116,8 +118,9 @@ command -v bat &>/dev/null && export FZF_CTRL_T_OPTS="--preview 'bat --color=alw
 
 command -v direnv &>/dev/null && source_cached direnv hook zsh
 
-# HOMEBREW_PREFIX comes from zprofile, which only login shells read, so probe
-# the same two brew prefixes it does. apt's SDK has gcloud on PATH already and ships only the completion.
+# HOMEBREW_PREFIX comes from zprofile, which only login shells read. The first
+# two entries are zprofile's two brew prefixes. apt's SDK has gcloud on PATH
+# already and ships only the completion.
 for _gcloud_sdk in "${HOMEBREW_PREFIX:-/opt/homebrew}/share/google-cloud-sdk" \
     "/home/linuxbrew/.linuxbrew/share/google-cloud-sdk" \
     "$HOME/google-cloud-sdk" \

@@ -1,13 +1,13 @@
 local function augroup(name) return vim.api.nvim_create_augroup("user_" .. name, { clear = true }) end
 
--- o and O still indent new lines; the rest fire mid-typing
+-- These keys reindent the line while typing. o and O still indent new lines.
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = augroup("indentkeys"),
     pattern = "*",
     callback = function() vim.opt_local.indentkeys:remove({ "<:>", "0}", "0]", "0-", "0)", ")" }) end,
 })
 
--- Relative numbers are for jumps; in insert mode the absolute line is the useful one
+-- Relative numbers help with jumps. In insert mode the absolute line number helps more.
 local number_toggle = augroup("number_toggle")
 vim.api.nvim_create_autocmd("InsertEnter", {
     group = number_toggle,
@@ -41,9 +41,10 @@ vim.api.nvim_create_autocmd("FileType", {
     callback = function() vim.opt_local.conceallevel = 0 end,
 })
 
--- `nvim -` has no file name to detect by. Neovim's own sniffing of stdin knows
--- shebangs, <?xml, HTML and diffs; this adds JSON, YAML and declaration-less XML
--- by the first non-blank line, as a fallback any of those overrides.
+-- `nvim -` has no file name to detect the filetype by. Neovim detects shebangs,
+-- <?xml, HTML and diffs in stdin. From the first non-blank line, JSON, YAML and
+-- XML without a declaration are set as a FALLBACK filetype, which Neovim's
+-- detection overrides.
 vim.api.nvim_create_autocmd("StdinReadPost", {
     group = augroup("stdin_filetype"),
     callback = function()
@@ -58,8 +59,8 @@ vim.api.nvim_create_autocmd("StdinReadPost", {
     end,
 })
 
--- herdr's edit_scrollback opens the dump at its first line; the recent end
--- is what was wanted.
+-- herdr's edit_scrollback opens the dump at its first line, and the latest
+-- output is at the end
 vim.api.nvim_create_autocmd("BufReadPost", {
     group = augroup("herdr_scrollback"),
     pattern = "herdr-scrollback-*.txt",
@@ -72,15 +73,15 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
     callback = function(args) require("ui.claude_editor").attach(args.buf) end,
 })
 
--- An agent writes files while this window keeps focus, which nothing checks
--- for by default; the check itself is one stat per buffer.
+-- An agent writes files while this window keeps focus, and nvim doesn't check
+-- for that by default. checktime costs one stat per buffer.
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
     group = augroup("agent_writes"),
     command = "checktime",
 })
 
--- Files change while focus is elsewhere: herdr's lazygit popup, an agent in a
--- sibling pane.
+-- Files change while focus is elsewhere, for example in herdr's lazygit popup
+-- or an agent in a sibling pane.
 vim.api.nvim_create_autocmd("FocusGained", {
     group = augroup("neotree_refresh"),
     callback = function()
@@ -135,7 +136,7 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- vim-fetch lands a file:line spec at column 1, so move to the text
+-- vim-fetch puts the cursor at column 1 of a file:line spec
 vim.api.nvim_create_autocmd("User", {
     group = augroup("fetch_first_non_blank"),
     pattern = "BufFetchPosPost",
@@ -170,7 +171,6 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
 })
 
--- :q on the last file window: see ui/dashboard.lua
 vim.api.nvim_create_autocmd("WinClosed", {
     group = vim.api.nvim_create_augroup("user_dashboard_fallback", { clear = true }),
     callback = function(ev)

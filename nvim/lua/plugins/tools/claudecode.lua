@@ -1,5 +1,5 @@
 -- Inside herdr, herdr-agents.nvim calls claudecode.setup() itself with its pane
--- provider; a second setup() here would start the server twice. Inside the
+-- provider. A second setup() here would start the server twice. Inside the
 -- Herdr app, lib/claude_app_terminal.lua is the pane provider.
 local inside_herdr = require("lib.herdr").inside()
 

@@ -1,6 +1,9 @@
--- Inside herdr, lazygit is herdr's own popup, the plugin pane behind prefix+g,
--- so one lazygit looks the same from every pane; inside the Herdr app, the
--- dialog behind its prefix+g (herdr/app/mods/keys); elsewhere snacks' float.
+-- Where lazygit opens:
+-- - Inside herdr, in herdr's lazygit plugin pane (prefix+g), which shows the
+--   same lazygit from every pane.
+-- - Inside the Herdr app, in the app's lazygit dialog (prefix+g,
+--   herdr/app/mods/keys).
+-- - Elsewhere, in a snacks float.
 local M = {}
 
 ---@return snacks.image.Placement[]

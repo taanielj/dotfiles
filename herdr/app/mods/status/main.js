@@ -4,8 +4,7 @@ import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { spaces, agents, theme, run, window, keys, exec, home, settings } from "herdr";
 
-// Each script with its arguments and how often it reruns; the weather script
-// caches for 15 minutes itself.
+// [script, args, rerun interval in ms]
 const SCRIPTS = [
   ["herdr-netspeed", ["app"], 1000],
   ["herdr-sysmon", [], 1000],
@@ -33,9 +32,7 @@ export default class WorkspaceStatus extends View {
     cx.timer.every(1000, tick);
   }
 
-  // The palette key as actually bound, not a hardcoded one; without a
-  // binding the hint stays useful ("commands") instead of lying.
-  hint(t) {
+  paletteHint(t) {
     const mac = window()?.platform === "macos";
     const mod = { cmd: mac ? "⌘" : "Ctrl+", ctrl: mac ? "⌃" : "Ctrl+", shift: mac ? "⇧" : "Shift+", alt: mac ? "⌥" : "Alt+", option: mac ? "⌥" : "Alt+" };
     const b = keys().find((k) => k.section === "global" && k.action === "app.palette");
@@ -59,6 +56,6 @@ export default class WorkspaceStatus extends View {
       .child(h_flex().gap(8).items_center().font_family(settings().font_family ?? "JetBrains Mono")
         .children([...SCRIPTS.map(([script]) => this.out[script]), this.time].filter(Boolean).flatMap((text, i) =>
           i ? [div().text_color(t.dim).child("·"), div().child(text)] : [div().child(text)])))
-      .child(div().id("palette").text_color(t.dim).on_click(() => run("app.palette")).child(this.hint(t)));
+      .child(div().id("palette").text_color(t.dim).on_click(() => run("app.palette")).child(this.paletteHint(t)));
   }
 }

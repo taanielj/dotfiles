@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# CPU/RAM for the herdr tab bar. macOS and Linux.
-# ps %cpu is since-process-start, so this is an approximation, not a live sample.
+# CPU/RAM for the herdr tab bar and the Herdr app's status bar. macOS and Linux.
+# The CPU figure is approximate, because ps averages %cpu over each process's
+# lifetime.
 set -euo pipefail
 
 ncpu=$(getconf _NPROCESSORS_ONLN)

@@ -1,6 +1,6 @@
--- claudecode.nvim's terminal provider inside the Herdr app: Claude runs in an
+-- claudecode.nvim's terminal provider inside the Herdr app. Claude runs in an
 -- app pane below this nvim, as herdr-agents.nvim does inside the herdr TUI.
--- Hiding parks the pane (takes it away) while Claude keeps running.
+-- Hiding removes the pane with terminal.park, and Claude keeps running.
 local app = require("lib.herdr_app")
 
 local M = {}
@@ -8,8 +8,8 @@ local M = {}
 ---@type string? the address of this nvim's Claude terminal
 local terminal
 
----@param args string[] everything after `herdr-app do`
----@return table? the reply, nil on failure
+---@param args string[]
+---@return table?
 local function herdr_app(args)
     local res = vim.system(vim.list_extend({ "herdr-app", "do" }, args), { text = true }):wait()
     local ok, reply = pcall(vim.json.decode, res.stdout or "")
@@ -20,7 +20,7 @@ local function herdr_app(args)
     return reply
 end
 
----@return boolean Claude's terminal still runs
+---@return boolean
 local function running()
     if not terminal then
         return false
@@ -56,13 +56,7 @@ local function focused()
     return ok and status.focused_pane == pane()
 end
 
----Gives the focus back to nvim when it shouldn't stay on Claude.
----@param focus boolean?
-local function settle(focus)
-    if focus == false then
-        app.focus(assert(app.pane_id()))
-    end
-end
+local function focus_nvim() app.focus(assert(app.pane_id())) end
 
 local function show(focus)
     if not pane() then
@@ -70,7 +64,9 @@ local function show(focus)
     elseif focus ~= false then
         app.focus(terminal)
     end
-    settle(focus)
+    if focus == false then
+        focus_nvim()
+    end
 end
 
 local function hide() herdr_app({ "terminal.park", "--terminal", terminal }) end
@@ -85,7 +81,7 @@ function M.open(cmd, env, _, focus)
     if running() then
         return show(focus)
     end
-    -- `env` hands claudecode's port and token to Claude; the pane inherits nothing from nvim
+    -- An app pane starts with the app's environment. `env` passes claudecode's port and token to Claude.
     local argv = { "env" }
     for key, value in pairs(env) do
         argv[#argv + 1] = key .. "=" .. value
@@ -96,7 +92,9 @@ function M.open(cmd, env, _, focus)
         vim.json.encode({ argv = argv, folder = vim.fn.getcwd(), place = "down" }),
     })
     terminal = reply and reply.terminal
-    settle(focus)
+    if focus == false then
+        focus_nvim()
+    end
 end
 
 function M.close()

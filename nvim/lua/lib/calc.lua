@@ -2,7 +2,6 @@ local M = {}
 
 local NUMBER = "%-?%d+%.?%d*"
 
----Evaluate a Lua arithmetic expression in a sandbox; nil when it is not a number.
 ---@param expression string
 ---@param env? table
 ---@return number?
@@ -21,12 +20,19 @@ local function format(value) return string.format("%.15g", value) end
 
 local function is_number(text) return text:match("^%s*" .. NUMBER .. "%s*$") ~= nil end
 
----A target is `{ row, start, stop, text }`, 0-based row and columns, stop exclusive.
+---@class calc.Target
+---@field row integer 0-based
+---@field start integer 0-based
+---@field stop integer 0-based, exclusive
+---@field text string
+
+---@param target calc.Target
 local function replace(target, value)
     vim.api.nvim_buf_set_text(0, target.row, target.start, target.row, target.stop, { format(value) })
 end
 
 ---The number under or after the cursor, the way <C-a> finds it.
+---@return calc.Target?
 local function number_under_cursor()
     local row, col = unpack(vim.api.nvim_win_get_cursor(0))
     local line = vim.api.nvim_get_current_line()
@@ -46,7 +52,7 @@ local function number_under_cursor()
     end
 end
 
----The right-hand side of a `KEY=expression` line, when it is an expression rather than a bare number.
+---@return calc.Target?
 local function expression_on_line()
     local row = vim.api.nvim_win_get_cursor(0)[1]
     local line = vim.api.nvim_get_current_line()
@@ -61,8 +67,8 @@ local function expression_on_line()
     return { row = row - 1, start = start, stop = #line, text = text }
 end
 
----The text the operator covers, the selection or what a dot-repeat replays, on one line.
-local function region()
+---@return calc.Target?
+local function operator_region()
     local from, to = vim.fn.getpos("'["), vim.fn.getpos("']")
     if from[2] ~= to[2] then
         return nil
@@ -81,12 +87,12 @@ local function apply(target, expression, env)
     replace(target, value)
 end
 
----Edit the number in a box; what is typed after it becomes the expression a dot-repeat applies.
 local function edit(target, op)
     vim.ui.input({ prompt = "= ", default = target.text }, function(expression)
         if not expression or expression == "" then
             return
         end
+        -- Text typed after the number becomes the expression a dot-repeat applies
         if vim.startswith(expression, target.text) then
             op.expression = "x" .. expression:sub(#target.text + 1)
         end
@@ -94,8 +100,9 @@ local function edit(target, op)
     end)
 end
 
--- The mappings run as the g@ operator so that `.` repeats them: a press
--- leaves what to do in `pending`, a repeat finds it empty and reuses `last`.
+-- The mappings run as the g@ operator, which makes `.` repeat them. A key
+-- press stores its operation in `pending`. A dot-repeat finds `pending` empty
+-- and reuses `last`.
 local pending, last
 
 function M.operatorfunc()
@@ -107,7 +114,7 @@ function M.operatorfunc()
     last = op
     local target
     if op.mode == "x" then
-        target = region()
+        target = operator_region()
     elseif op.operator then
         target = number_under_cursor()
     else

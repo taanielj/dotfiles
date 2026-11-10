@@ -3,7 +3,6 @@
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
-# Applied only where the key is unset, so a value changed by hand survives a rerun.
 GIT_DEFAULTS=(
     "init.defaultBranch=main"
     "core.excludesfile=$HOME/.gitignore_global"
@@ -17,15 +16,14 @@ GIT_DEFAULTS=(
     "branch.sort=-committerdate"
     "core.untrackedCache=true"
 )
-# A watcher daemon per repo keeps git status fast in large repos; on Linux it
-# runs into inotify's per-user watch limit
+# core.fsmonitor starts a watcher daemon per repo, which keeps git status fast
+# in large repos. On Linux the daemons exhaust inotify's per-user watch limit.
 [[ "$OSTYPE" == darwin* ]] && GIT_DEFAULTS+=("core.fsmonitor=true")
 
 main_git() {
     configure_git
 }
 
-# Prompts only when the key is unset, so an existing identity is left alone.
 ensure_git_identity() {
     local key="$1" prompt="$2" value
     git config --global --get "$key" >/dev/null && return 0
@@ -43,7 +41,7 @@ configure_git() {
     local entry key value
     for entry in "${GIT_DEFAULTS[@]}"; do
         key="${entry%%=*}" value="${entry#*=}"
-        git config --global --get "$key" >/dev/null && continue
+        git config --global --get "$key" >/dev/null && continue # keeps a value set by hand
         run_quiet "Setting $key=$value" git config --global "$key" "$value"
     done
 
@@ -64,7 +62,6 @@ teardown_git() {
 
     unlink_file "$REPO_ROOT/gitignore_global" "$HOME/.gitignore_global"
 
-    # Only values still at our default are removed; anything changed by hand stays.
     local entry key value
     for entry in "${GIT_DEFAULTS[@]}"; do
         key="${entry%%=*}" value="${entry#*=}"

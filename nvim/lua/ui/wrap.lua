@@ -1,25 +1,26 @@
 -- A wrapped window keeps a fixed text width, with an empty spacer window on
--- its right taking the rest. The spacer goes with its window.
+-- its right taking the rest. Closing a wrapped window closes its spacer.
 local M = {}
 
--- The decorations a spacer hides, remembered from its window: what an
--- ordinary window looks like in this config, without a global to ask
+-- Window options the spacer turns off. A spacer that becomes an ordinary window
+-- gets the wrapped window's values back, since no global option holds this
+-- config's window defaults.
 local DECORATIONS = { "winbar", "number", "relativenumber", "fillchars", "colorcolumn", "cursorline" }
 
 ---@type table<integer, { id: integer, decorations: table<string, any> }>
 local spacer_by_window = {}
 
--- Unlisted keeps the spacer out of bufferline, unfocusable keeps the split
--- plugins from stepping into it (they navigate by window number, which it has
--- none of), and the separator is drawn by the window on its left.
 local function open_wrap_spacer(win, width)
     local decorations = {}
     for _, option in ipairs(DECORATIONS) do
         decorations[option] = vim.wo[win][option]
     end
+    -- Unlisted, which keeps the spacer out of bufferline
     local buf = vim.api.nvim_create_buf(false, true)
     vim.bo[buf].bufhidden = "wipe"
     vim.bo[buf].modifiable = false
+    -- An unfocusable window has no window number, which keeps smart-splits and
+    -- herdr-splits from navigating into the spacer
     local spacer = vim.api.nvim_open_win(buf, false, { split = "right", win = -1, width = 1, focusable = false })
     vim.wo[spacer].winfixbuf = true
     vim.wo[spacer].winbar = ""
@@ -41,8 +42,8 @@ local function splits()
     )
 end
 
--- The last split cannot close, so a spacer left alone becomes an ordinary
--- window that buffers can be switched into
+-- nvim can't close the last split. A spacer left as the only split becomes an
+-- ordinary window that buffers can be switched into.
 local function close_wrap_spacer(win)
     local entry = spacer_by_window[win]
     spacer_by_window[win] = nil
@@ -62,7 +63,7 @@ end
 
 local group = vim.api.nvim_create_augroup("user_wrap_spacer", { clear = true })
 
--- wincmd and the mouse enter an unfocusable split anyway; step back out
+-- wincmd and the mouse still enter an unfocusable split
 vim.api.nvim_create_autocmd("WinEnter", {
     group = group,
     callback = function()
@@ -78,8 +79,8 @@ vim.api.nvim_create_autocmd("WinEnter", {
     end,
 })
 
--- :q means the window, not its spacer: with the spacer gone first, quitting
--- the last real window quits nvim as usual
+-- Close the spacer before :q closes its window, to let :q on the last wrapped
+-- window quit nvim
 vim.api.nvim_create_autocmd("QuitPre", {
     group = group,
     callback = function()
@@ -90,7 +91,6 @@ vim.api.nvim_create_autocmd("QuitPre", {
     end,
 })
 
--- A spacer closed by hand is forgotten
 vim.api.nvim_create_autocmd("WinClosed", {
     group = group,
     callback = function(ev)
@@ -107,15 +107,14 @@ vim.api.nvim_create_autocmd("WinClosed", {
     end,
 })
 
--- Text columns, the count or the textwidth, plus this window's gutters
 local function width(win)
     local textwidth = vim.bo[vim.api.nvim_win_get_buf(win)].textwidth
-    -- a buffer can switch its textwidth off; the global one still holds the configured width
+    -- A buffer can set textwidth to 0. The global textwidth keeps the configured width.
     local columns = vim.v.count ~= 0 and vim.v.count or textwidth ~= 0 and textwidth or vim.go.textwidth
     return columns + vim.fn.getwininfo(win)[1].textoff
 end
 
--- linebreak is the flag this sets; wrap is on by default and cannot signal the state
+-- linebreak marks a wrapped window, because wrap is on by default
 function M.toggle()
     local win = vim.api.nvim_get_current_win()
     if vim.wo.linebreak then
@@ -136,7 +135,7 @@ function M.toggle()
     vim.wo.breakindent = true
     vim.wo.breakindentopt = "list:2"
     open_wrap_spacer(win, width(win))
-    -- The window edge is the colorcolumn now
+    -- The spacer's edge marks the text width
     vim.wo.colorcolumn = ""
 end
 

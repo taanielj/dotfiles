@@ -1,13 +1,13 @@
--- Scoro's description fields render HTML, so Markdown pasted in shows its
--- backticks, ** and fences literally.
---
--- nl2br stays off: a <br /> at every newline freezes hard-wrapped prose into
--- mid-sentence breaks that Scoro's editor then keeps.
+-- Converts Markdown to HTML on the + register for Scoro's description fields,
+-- which render HTML and show pasted Markdown's backticks, ** and fences
+-- literally.
 
 local M = {}
 
 local INSTALL_URL = "https://docs.astral.sh/uv/getting-started/installation/"
 
+-- No nl2br. A <br /> at every newline breaks hard-wrapped prose mid-sentence,
+-- and Scoro's editor keeps those breaks.
 local CMD = {
     "uvx",
     "--quiet",
@@ -21,9 +21,6 @@ local CMD = {
     "-x",
     "sane_lists",
 }
-
--- python-markdown reads a child indented less than four spaces as a sibling,
--- flattening the nesting, so rewrite every level to four first.
 
 local function width(ws)
     local n = 0
@@ -53,6 +50,8 @@ local function delta_for(stack, indent)
     return (level - 1) * 4 - stack[level]
 end
 
+-- python-markdown reads a child indented less than four spaces as a sibling and
+-- flattens the nesting
 local function reindent(lines)
     local out, stack = {}, {}
     local fence, fence_delta = nil, 0
@@ -83,7 +82,7 @@ local function reindent(lines)
             else
                 local indent = width(line:match("^[ \t]*"))
                 if indent == 0 then
-                    stack = {} -- back at column 0: the list is over
+                    stack = {} -- a line at column 0 ends the list
                 end
                 local delta = delta_for(stack, indent)
                 if marks then
@@ -98,7 +97,6 @@ end
 
 local function notify(msg, level) vim.notify(msg, level, { title = "md2html" }) end
 
---- Convert lines to HTML and put the result on the + register.
 --- @param first integer|nil 1-indexed first line; nil converts the whole buffer
 --- @param last integer|nil 1-indexed last line
 function M.yank(first, last)

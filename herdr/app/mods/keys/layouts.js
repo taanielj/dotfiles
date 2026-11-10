@@ -10,13 +10,11 @@ async function focusPane(cx, pane) {
   await waitFor(cx, () => focused()?.pane === pane);
 }
 
-// Gives each parked terminal a pane right or down of the one before, starting
-// beside `from`; resolves to every pane in the line, `from` first, sized evenly.
 async function line(cx, from, terminals, place) {
   await focusPane(cx, from);
   const ids = [from];
   for (const terminal of terminals) {
-    // The next one goes beside the new pane, which takes the focus
+    // terminal.keep places the next terminal beside the focused pane
     const { pane } = await app("terminal.keep", "--terminal", terminal, "--place", place);
     await waitFor(cx, () => focused()?.pane === pane);
     ids.push(pane);
@@ -25,8 +23,7 @@ async function line(cx, from, terminals, place) {
   return ids;
 }
 
-// Rebuilds the focused tab in the next layout: every pane but the first is
-// parked, then given a pane again in its place. Terminals keep running.
+// Parking keeps the terminals running while their panes are rebuilt.
 async function nextLayout(cx) {
   const { tab, terminal: here } = focused() ?? {};
   const order = panes().filter((p) => p.tab === tab && p.terminal);

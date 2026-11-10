@@ -1,14 +1,13 @@
 local M = {}
 
--- The variable naming the herdr pane a process runs in
-M.ENV = "HERDR_PANE_ID"
+M.PANE_ID_VAR = "HERDR_PANE_ID"
 
 function M.inside() return vim.env.HERDR_ENV == "1" end
 
----@return string the herdr executable, as herdr announces it to its panes
+---@return string
 function M.bin() return vim.env.HERDR_BIN_PATH or "herdr" end
 
----@return string? this pane's id; nil in a popup
+---@return string? nil in a popup
 function M.pane_id()
     local id = vim.env.HERDR_PANE_ID
     if id ~= nil and id ~= "" then
@@ -17,12 +16,11 @@ function M.pane_id()
     return nil
 end
 
----@return string? this pane's tab
+---@return string?
 function M.tab_id() return vim.env.HERDR_TAB_ID end
 
----Run herdr in the background, reporting a failure.
----@param args string[] everything after the executable
----@param on_success? fun() runs in the main loop once herdr exits 0
+---@param args string[]
+---@param on_success? fun()
 function M.run(args, on_success)
     vim.system(vim.list_extend({ M.bin() }, args), { text = true }, function(res)
         if res.code ~= 0 then
@@ -35,7 +33,7 @@ function M.run(args, on_success)
     end)
 end
 
----Focus a pane by id through herdr's socket, because the CLI focuses only by
+---Goes through herdr's socket, because herdr's CLI focuses panes only by
 ---direction.
 ---@param pane string
 function M.focus(pane)
@@ -45,7 +43,6 @@ function M.focus(pane)
             return pipe:close()
         end
         pipe:write(vim.json.encode({ id = "focus", method = "pane.focus", params = { pane_id = pane } }) .. "\n")
-        -- Closes once herdr replies
         pipe:read_start(function()
             if not pipe:is_closing() then
                 pipe:close()
@@ -54,16 +51,14 @@ function M.focus(pane)
     end)
 end
 
----Submit text to the agent in a pane.
 ---@param pane string
 ---@param text string
 ---@param on_success? fun()
-function M.prompt(pane, text, on_success) M.run({ "agent", "prompt", pane, text }, on_success) end
+function M.submit_prompt(pane, text, on_success) M.run({ "agent", "prompt", pane, text }, on_success) end
 
----Press Enter in a pane once its screen shows `match`.
 ---@param pane string
 ---@param match string
----@param on_timeout fun() runs in the main loop when it never shows
+---@param on_timeout fun()
 function M.enter_when_shown(pane, match, on_timeout)
     local wait = { M.bin(), "pane", "wait-output", pane, "--source", "visible", "--match", match, "--timeout", "3000" }
     vim.system(wait, { text = true }, function(res)
@@ -78,7 +73,7 @@ end
 ---@class lib.Pane
 ---@field id string
 ---@field tab string
----@field claude boolean Claude Code runs in it
+---@field is_claude boolean
 ---@field title string
 ---@field cwd string
 
@@ -94,7 +89,7 @@ function M.pane(id)
     return {
         id = pane.pane_id,
         tab = pane.tab_id,
-        claude = pane.agent == "claude",
+        is_claude = pane.agent == "claude",
         title = pane.terminal_title_stripped or "",
         cwd = pane.cwd or "",
     }
@@ -109,7 +104,6 @@ local function get(kind, id, on_result)
     end)
 end
 
----Calls back in the main loop with this pane's workspace and tab labels.
 ---@param on_result fun(space: string?, tab: string?)
 function M.labels(on_result)
     local tab_id = M.tab_id()

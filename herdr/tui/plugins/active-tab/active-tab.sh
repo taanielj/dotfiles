@@ -1,7 +1,7 @@
 #!/bin/sh
 # Sets the $tab sidebar token to each workspace's active tab name, and clears it
-# while that tab still has its automatic number. Workspaces already holding the
-# right value are skipped.
+# while that tab still has its automatic number. Skips workspaces whose token
+# already has that value.
 herdr=${HERDR_BIN_PATH:-herdr}
 
 labels=$("$herdr" tab list | jq -c '.result.tabs | map({key: .tab_id, value: .label}) | from_entries')

@@ -1,6 +1,6 @@
 // Key commands the app has no single command for, bound in keys.json as
-// keys.<command>. The layout docks this mod in a zero-width block because
-// commands reach only a shown copy.
+// keys.<command>. The layout docks this mod in a zero-width block, because herdr
+// delivers commands only to a mod that is shown.
 import { View, div } from "gpui-kit";
 import { nextCommand } from "herdr";
 import * as dialogs from "./dialogs.js";
@@ -14,8 +14,8 @@ const { RESIZES } = splits;
 
 const report = (command) => (e) => console.log(`keys.${command}: ${e}`);
 
-// Key repeat outpaces a resize, and a backlog would keep resizing after the
-// key is let go: presses that arrive meanwhile merge into the next one.
+// Key repeat outpaces a resize. Presses that arrive during a resize merge into
+// one queued resize, to stop resizing once the key is released.
 const resizes = [];
 let resizing = false;
 
@@ -42,6 +42,7 @@ export default class Keys extends View {
         if (RESIZES[command]) {
           queueResize(cx, command);
         } else if (DIALOGS[command]) {
+          // A dialog command runs as its own task, to keep other keys working while the dialog is open
           cx.spawn((cx) => DIALOGS[command](cx).catch(report(command)));
         } else if (COMMANDS[command]) {
           await COMMANDS[command](cx).catch(report(command));

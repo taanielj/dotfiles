@@ -1,6 +1,6 @@
 -- A prompt about the cursor line or the visual selection, typed into the
--- Claude pane connected to this nvim. Inside herdr or the Herdr app only: the
--- host submits the text there (lib/pane_host.lua).
+-- Claude pane connected to this nvim. Works only inside herdr or the Herdr app,
+-- which submit the text to the pane (lib/pane_host.lua).
 local M = {}
 
 ---@param first integer
@@ -13,7 +13,6 @@ local function lines(first, last)
     return (":%d-%d"):format(first, last)
 end
 
----Diagnostics on the selected lines, one line of text, or nil when there are none.
 ---@param first integer
 ---@param last integer
 ---@return string?
@@ -41,15 +40,15 @@ function M.prompt()
     if vim.fn.mode():match("[vV\22]") then
         vim.cmd("normal! \27")
     end
-    -- The short name is for the eye; Claude gets the full path, which resolves
-    -- from wherever its pane is
+    -- The input prompt shows the file name. Claude gets the absolute path, which
+    -- resolves from any working directory.
     local path, name = vim.fn.expand("%:p"), vim.fn.expand("%:t")
     require("lib.claude_pane").pick(function(pane)
         vim.ui.input({ prompt = name .. span .. ": " }, function(instruction)
             if instruction and instruction ~= "" then
                 -- The location goes last, so a slash command typed first still runs
                 local text = table.concat({ instruction .. " " .. path .. span, found }, " - ")
-                require("lib.pane_host")().prompt(pane, text)
+                require("lib.pane_host")().submit_prompt(pane, text)
             end
         end)
     end)

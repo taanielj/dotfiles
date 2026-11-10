@@ -1,6 +1,6 @@
 git:
   diffRenderers:
-    # delta ignores the COLUMNS lazygit sets for the panel width
+    # delta ignores COLUMNS and needs lazygit's panel width as --width
     # Without delta, lazygit would show an empty diff, so pass git's diff through instead
     - command: >-
         if command -v delta >/dev/null; then delta --config ~/.config/delta/config --width=$COLUMNS;
@@ -13,7 +13,7 @@ git:
 customCommands:
   - key: 'o'
     context: 'localBranches'
-    description: 'Open pull/merge request in browser (existing one, else new; repo on main)'
+    description: 'Open or create the branch''s pull/merge request in the browser; on main, open the repo'
     command: >-
       O() { if [ -n "$WSL_DISTRO_NAME" ]; then explorer.exe "$1" || true;
       elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$1"; else open "$1"; fi; };

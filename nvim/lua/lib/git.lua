@@ -1,7 +1,6 @@
--- Git queries against the current working directory.
+-- Git queries, run in the current working directory unless a function takes a path.
 local M = {}
 
----Run a git command and return its trimmed stdout; "" on failure.
 ---@param args string[]
 ---@return string
 function M.run(args)
@@ -15,11 +14,8 @@ end
 ---Short name of the checked-out branch, "HEAD" when detached.
 function M.head() return M.run({ "rev-parse", "--abbrev-ref", "HEAD" }) end
 
----Upstream of the checked-out branch, e.g. "origin/main"; "" when unset.
 function M.upstream() return M.run({ "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}" }) end
 
----The remote's default branch as "origin/<name>", falling back to a local
----main or master; nil when none of those exist.
 ---@return string?
 function M.default_branch()
     local ref = M.run({ "symbolic-ref", "--short", "refs/remotes/origin/HEAD" })
@@ -33,20 +29,17 @@ function M.default_branch()
     end
 end
 
----Top of the repository holding path; nil outside one.
 ---@param path string
 ---@return string?
 function M.root(path) return vim.fs.root(path, ".git") end
 
----The ref a web URL hangs off: the checked-out branch, or the commit when
----detached or pinning, since a forge cannot resolve the literal "HEAD" that
----git names a detached checkout by.
 ---@param root string
 ---@param permalink boolean?
 ---@return string
 local function web_ref(root, permalink)
     if not permalink then
         local branch = M.run({ "-C", root, "rev-parse", "--abbrev-ref", "HEAD" })
+        -- git names a detached checkout's branch "HEAD", which a forge can't resolve
         if branch ~= "" and branch ~= "HEAD" then
             return branch
         end
@@ -54,9 +47,8 @@ local function web_ref(root, permalink)
     return M.run({ "-C", root, "rev-parse", "HEAD" })
 end
 
----The origin's web URL for a file, with a line anchor when lines are given;
----nil outside a repository or without origin. Pinning hangs the URL off the
----commit instead of the branch, so it still points at these lines later.
+---With `permalink`, the URL names the commit instead of the branch and keeps
+---pointing at the same lines after the branch moves.
 ---@param path string
 ---@param first integer?
 ---@param last integer?
@@ -91,9 +83,8 @@ function M.remote_url(path, first, last, opts)
     return url
 end
 
----`remote_url`, warning when there is none to give.
 ---@return string?
-function M.web_url(path, first, last, opts)
+function M.remote_url_or_warn(path, first, last, opts)
     local url = M.remote_url(path, first, last, opts)
     if not url then
         vim.notify("No git remote for this file", vim.log.levels.WARN)

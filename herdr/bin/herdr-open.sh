@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: herdr-open <terminal> <file>
-# Opens the file in the nvim running in that Herdr app terminal (the Files
-# panel's click, herdr/app/mods/files-icons); fails when no nvim there serves a socket.
+# Opens the file in the nvim running in that Herdr app terminal. Fails when no
+# nvim there serves a socket.
 set -euo pipefail
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 

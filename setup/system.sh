@@ -26,7 +26,7 @@ UBUNTU_PACKAGES=(
     "software-properties-common" # for add-apt-repository
     "fastfetch"
 )
-# package:ppa for packages some Ubuntu releases lack; the PPA is added only when apt has no candidate
+# package:ppa pairs for packages that some Ubuntu releases lack
 UBUNTU_PPA_FALLBACKS=(
     "fastfetch:ppa:zhangsongcui3371/fastfetch" # in Ubuntu from 25.04 on
 )
@@ -46,7 +46,7 @@ MACOS_PACKAGES=(
     "mise"
     "tmux-mem-cpu-load" # tmux.conf status line calls the bare binary; no apt package exists
     "imagemagick"       # snacks.nvim image converts non-PNG formats with magick
-    # General Build dependencies are already installed with Xcode which is a prerequisite for Homebrew
+    # Homebrew installs the Xcode Command Line Tools, which provide the build toolchain
 )
 
 main_system() {
@@ -78,7 +78,7 @@ main_system() {
     link_apt_names
 }
 
-# The zsh config knows only the upstream names
+# apt ships bat and fd as batcat and fdfind, and the zsh config calls bat and fd
 link_apt_names() {
     local pair apt_name upstream
     for pair in batcat:bat fdfind:fd; do

@@ -1,7 +1,5 @@
 local M = {}
 
----The first window showing a buffer of `filetype`, in the current tabpage or
----anywhere; nil when there is none.
 ---@param filetype string
 ---@param opts? { tabpage: boolean }
 ---@return integer?

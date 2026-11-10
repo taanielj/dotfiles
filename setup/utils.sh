@@ -44,14 +44,6 @@ title() {
     echo -e "${GREEN}$(printf "%${title_padding}s" | tr ' ' '-') $title $(printf "%${title_padding}s" | tr ' ' '-')${RESET}"
 }
 
-# Usage: ensure_real_dir <path>
-# Real dir, not a symlink (children of a dir-symlink tunnel into its target).
-ensure_real_dir() {
-    local d="$1"
-    [[ -L "$d" ]] && rm -f "$d"
-    mkdir -p "$d"
-}
-
 # Usage: install_cask <cask>
 install_cask() {
     if ! command -v brew &>/dev/null; then
@@ -61,8 +53,6 @@ install_cask() {
     run_quiet "Installing $1" brew install --cask "$1"
 }
 
-# Usage: load_brew
-# Puts an installed Homebrew on PATH when this shell has not loaded it yet.
 load_brew() {
     command -v brew &>/dev/null && return 0
     local brew
@@ -90,7 +80,6 @@ github_latest_version() {
         sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'
 }
 
-# Usage: release_arch
 # Prints this machine's arch as release archives name it; nothing if unsupported.
 release_arch() {
     case "$(uname -m)" in
@@ -177,8 +166,8 @@ stub_file() {
 }
 
 # Usage: unstub_file <source-in-repo> <dest-path>
-# Removes the stub's lines; machine-local appends survive in place, and an
-# otherwise-empty stub is deleted with the newest backup restored.
+# Removes the stub's lines and keeps any machine-local lines in place. When
+# nothing else is left, deletes the file and restores the newest backup.
 unstub_file() {
     local src="$1" dest="$2"
     local line="source \"$src\""
@@ -205,9 +194,13 @@ unstub_file() {
     fi
 }
 
-# A symlinked rc file is this repo's; rewriting one would replace it with a
-# regular file, so both helpers below touch only real, machine-local rc files.
 _RC_FILES=("$HOME/.bashrc" "$HOME/.zshrc")
+
+# A symlinked rc file belongs to this repo, and rewriting it would replace the
+# link with a regular file.
+_is_local_rc() {
+    [[ ! -L "$1" ]]
+}
 
 # Usage: rc_append_line <line> [rc-file...]
 # Appends the line to each rc file that does not already contain it, defaulting
@@ -218,20 +211,20 @@ rc_append_line() {
     local files=("$@")
     [[ ${#files[@]} -eq 0 ]] && files=("${_RC_FILES[@]}")
     for rc in "${files[@]}"; do
-        [[ -L "$rc" ]] && continue
+        _is_local_rc "$rc" || continue
         grep -qF "$line" "$rc" 2>/dev/null || echo "$line" >>"$rc"
     done
 }
 
-# Usage: rc_remove_lines <substring>
-# Deletes every line containing the substring. | delimits the sed address, so
-# paths need no escaping; a substring containing | does.
-rc_remove_lines() {
+# Usage: rc_remove_lines_containing <substring>
+rc_remove_lines_containing() {
     local needle="$1" rc
     for rc in "${_RC_FILES[@]}"; do
-        [[ -L "$rc" ]] && continue
+        _is_local_rc "$rc" || continue
         grep -qF "$needle" "$rc" 2>/dev/null || continue
         log "Removing $needle from $rc"
+        # A path needs no escaping because | delimits the sed address. A | in
+        # the substring needs a backslash.
         sed -i.bak "\\|$needle|d" "$rc"
         rm -f "$rc.bak"
     done

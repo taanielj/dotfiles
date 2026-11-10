@@ -22,8 +22,6 @@ local function toggle(open)
     end
 end
 
----The ref a branch is measured against: the default branch, or the upstream
----when already on it. Notifies and returns nil when there is neither.
 ---@return string?
 function M.base()
     local default = git.default_branch()
@@ -45,7 +43,7 @@ M.uncommitted = toggle(function()
     vim.cmd.DiffviewOpen()
 end)
 
--- Three dots: only what the branch added since it left its base
+-- base...HEAD diffs from the merge base, to show only the branch's own changes
 M.branch = toggle(function()
     local base = M.base()
     if base then
@@ -102,8 +100,6 @@ local function commit_entry_maker()
     end
 end
 
--- One commit picked in telescope opens it and everything after it against the
--- working tree; two picked (Tab) open the range between them, either order.
 M.pick_commits = toggle(function()
     local actions = require("telescope.actions")
     local state = require("telescope.actions.state")
@@ -145,8 +141,9 @@ local function opens_file(view, item)
     return type(item.collapsed) ~= "boolean"
 end
 
--- gg]c[c lands on the first change whether or not it starts on line 1;
--- a failing ]c or [c leaves the cursor where it should be.
+-- gg]c[c ends on the first change. When the first change starts on line 1, ]c
+-- goes to the second change and [c back to the first. A ]c or [c that finds no
+-- change leaves the cursor in place.
 local function jump_to_first_change(view)
     local win = view.cur_layout:get_main_win().id
     if vim.api.nvim_win_is_valid(win) then
@@ -164,9 +161,6 @@ function M.focus_first_change()
     require("diffview.actions").focus_entry()
 end
 
--- A single click opens the entry under the mouse the way j and k do, with focus
--- staying in the panel. A click that lands in another window is passed on as
--- a plain click so it still moves there.
 function M.click_entry()
     local pos = vim.fn.getmousepos()
     if pos.winid ~= vim.api.nvim_get_current_win() then
@@ -180,7 +174,8 @@ function M.click_entry()
     require("diffview.actions").select_entry()
 end
 
--- Snapshot per view, so closing drops only the files the view pulled in
+-- Buffers listed before each view opened. Closing a view drops only the buffers
+-- the view added.
 local listed_before = {}
 
 local function listed()
@@ -191,8 +186,7 @@ local function listed()
     return set
 end
 
--- The bufferline lists buffers the view is not about
-local showtabline
+local saved_showtabline
 
 M.hooks = {
     diff_buf_read = function(bufnr)
@@ -202,12 +196,13 @@ M.hooks = {
     end,
     view_opened = function(view)
         listed_before[view.tabpage] = listed()
-        showtabline = showtabline or vim.o.showtabline
+        saved_showtabline = saved_showtabline or vim.o.showtabline
+        -- Hide the bufferline, which lists buffers outside the view
         vim.o.showtabline = 0
     end,
     view_closed = function(view)
-        vim.o.showtabline = showtabline
-        showtabline = nil
+        vim.o.showtabline = saved_showtabline
+        saved_showtabline = nil
         local before = listed_before[view.tabpage] or {}
         listed_before[view.tabpage] = nil
         for buf in pairs(listed()) do

@@ -4,7 +4,7 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.number = true
 vim.opt.relativenumber = true
--- WSL: the built-in provider uses win32yank.exe from PATH (installed by setup/win32yank.sh).
+-- On WSL, the built-in clipboard provider uses win32yank.exe from PATH (setup/win32yank.sh).
 vim.opt.clipboard = "unnamedplus"
 vim.opt.guicursor =
     "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
@@ -36,7 +36,7 @@ vim.o.timeoutlen = 200 -- how long which-key waits before showing the popup
 vim.o.updatetime = 300 -- how long CursorHold waits, which drives the LSP reference highlights
 vim.opt.sessionoptions:remove("blank") -- nameless windows (fidget, wrap spacers) would come back as empty splits
 
--- Folds come from ufo; every fold starts open
+-- ufo provides the folds, and every fold starts open
 local icons = require("lib.icons")
 vim.o.foldenable = true
 vim.o.foldlevel = 99

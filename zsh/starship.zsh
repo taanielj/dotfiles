@@ -14,8 +14,7 @@ typeset -g _prompt_os=$(starship module os)
 }
 PROMPT='${_prompt_os}${_prompt_dir}'$PROMPT
 
-# The path's colours: path, path_short and path_anchor from the palette
-# starship.toml selects
+# Reads path, path_short and path_anchor from the palette starship.toml selects
 typeset -gA _prompt_colors
 () {
     emulate -L zsh -o extended_glob
@@ -49,10 +48,10 @@ _prompt_rest_width() {
     REPLY=$(( width + 12 + ${#${head#ref: refs/heads/}} ))
 }
 
-# Sets _prompt_dir to the path as p10k's dir segment shows it: the parent
-# folders shorten from the left to their shortest unique prefix (grey) only
-# while the prompt would leave under 40 columns for typing, or the path runs
-# past 80; anchors and the last folder show bold.
+# Sets _prompt_dir to the path as p10k's dir segment shows it. Parent folders
+# shorten from the left to their shortest unique prefix, in grey, while the
+# prompt would leave fewer than 40 columns for typing or the path is longer than
+# 80. Anchors and the last folder are bold.
 _prompt_dir() {
     emulate -L zsh
     local lead dir rest=$PWD root i n name
@@ -116,14 +115,14 @@ TRAPWINCH() {
 # ~/.zshrc.local or an overlay it sources can add some before this file loads.
 typeset -gA prompt_git_host_icons
 
-# p10k's VCS icon for the origin remote's host, unless prompt_git_host_icons
-# names one; GITLAB_HOST (glab's) marks a self-hosted GitLab. Worked out on cd,
-# where a starship custom module would start sh and git on every prompt.
-# `config --local` fails with 128 outside a repo and with 1 in a repo without
-# that remote.
+# Sets STARSHIP_GIT_HOST to p10k's VCS icon for the origin remote's host, unless
+# prompt_git_host_icons names one. GITLAB_HOST (glab's) marks a self-hosted
+# GitLab. Runs on cd, because a starship custom module would start sh and git on
+# every prompt.
 _prompt_git_host() {
     local url pattern
     url=$(git config --local --get remote.origin.url 2>/dev/null)
+    # 128 outside a repo; 1 in a repo without an origin remote
     if (( $? == 128 )); then
         unset STARSHIP_GIT_HOST
         return

@@ -4,7 +4,7 @@ font-style-italic = Medium Italic
 font-style-bold-italic = ExtraBold Italic
 font-size = 14
 
-# kitty's colours: its built-in palette under kitty.conf's background and foreground
+# kitty's built-in ANSI palette, with the background and foreground from kitty.conf
 background = #24273a
 foreground = #cad3f5
 cursor-color = #cccccc
@@ -38,8 +38,8 @@ window-padding-y = 6
 macos-option-as-alt = left
 quit-after-last-window-closed = true
 
-# cmd works as ctrl, as in kitty: cmd+letter sends the control byte, except
-# cmd+m and cmd+q, which stay macOS's. Selecting copies, so cmd+c interrupts.
+# cmd+letter sends the control byte, as in kitty. cmd+m and cmd+q keep their
+# macOS actions. cmd+c always interrupts, because selecting text already copies it.
 keybind = super+a=text:\x01
 keybind = super+b=text:\x02
 keybind = super+c=text:\x03
@@ -77,7 +77,7 @@ keybind = super+shift+arrow_up=csi:1;6A
 keybind = super+shift+arrow_down=csi:1;6B
 keybind = super+shift+arrow_right=csi:1;6C
 keybind = super+shift+arrow_left=csi:1;6D
-# ctrl+shift+hjkl, which plain control bytes can't tell from ctrl+hjkl
+# Sent as CSI u, because a control byte can't tell ctrl+shift+hjkl from ctrl+hjkl
 keybind = super+shift+h=csi:104;6u
 keybind = super+shift+j=csi:106;6u
 keybind = super+shift+k=csi:107;6u

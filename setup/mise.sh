@@ -111,7 +111,6 @@ install_tools() {
     while IFS= read -r selected_tool_version; do
         [[ -z "$selected_tool_version" ]] && continue
 
-        # --global records the tool in ~/.config/mise/config.toml
         run_quiet "📦 Installing $selected_tool_version" "$mise_bin" use --global "$selected_tool_version"
     done <<<"$selected_tools"
 }

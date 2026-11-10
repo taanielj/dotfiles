@@ -1,6 +1,6 @@
--- While a debug session runs, single keys drive it the way insert mode takes
--- over typing. The global mappings they shadow come back when it ends;
--- buffer-local ones still win inside their buffers.
+-- While a debug session runs, single-key mappings control it. When the session
+-- ends, the global mappings they replaced come back. Buffer-local mappings
+-- still take priority in their own buffers.
 local M = {}
 
 -- stylua: ignore

@@ -1,20 +1,18 @@
--- The Herdr desktop app (herdr/app/), whose terminals run in herdr-core. It
--- answers the same calls as lib/herdr.lua, with a terminal address (t7) where
--- herdr has a pane id.
+-- Calls into the Herdr desktop app (herdr/app/), whose terminals run in
+-- herdr-core. Where lib/herdr.lua takes a pane id, these functions take a
+-- terminal address such as t7.
 local M = {}
 
--- The variable naming the terminal a process runs in
-M.ENV = "HC_TERMINAL_ID"
+M.PANE_ID_VAR = "HC_TERMINAL_ID"
 
----@return boolean nvim runs in a terminal of the Herdr app, not the herdr TUI
+-- A herdr TUI running in an app terminal passes HC_TERMINAL_ID on to its panes
 function M.inside() return vim.env.HC_TERMINAL_ID ~= nil and not require("lib.herdr").inside() end
 
----@return string? this terminal's address
+---@return string?
 function M.pane_id() return vim.env.HC_TERMINAL_ID end
 
----Run a command in the background, reporting a failure.
 ---@param cmd string[]
----@param on_success? fun() runs in the main loop once it exits 0
+---@param on_success? fun()
 local function system(cmd, on_success)
     vim.system(cmd, { text = true }, function(res)
         if res.code ~= 0 then
@@ -27,8 +25,7 @@ local function system(cmd, on_success)
     end)
 end
 
----Run a Herdr app command in the background, reporting a failure.
----@param command string an app command, or <mod>.<command> for a mod's
+---@param command string an app command, or <mod>.<command> for a mod's command
 ---@param args? table<string, string|number|boolean>
 function M.run(command, args)
     local cmd = { "herdr-app", "do", command }
@@ -39,7 +36,7 @@ function M.run(command, args)
 end
 
 ---@param terminal string
----@return table? space, table? tab: where `herdr-app ls` shows the terminal
+---@return table? space, table? tab
 local function place(terminal)
     local res = vim.system({ "herdr-app", "ls" }, { text = true }):wait()
     local ok, data = pcall(vim.json.decode, res.code == 0 and res.stdout or "")
@@ -55,7 +52,7 @@ local function place(terminal)
     return nil, nil
 end
 
----@return string? this terminal's tab
+---@return string?
 function M.tab_id()
     local _, tab = place(vim.env.HC_TERMINAL_ID)
     return tab and tab.id
@@ -64,16 +61,14 @@ end
 ---@param terminal string
 function M.focus(terminal) M.run("pane.focus", { terminal = terminal }) end
 
----Submit text to the agent in a terminal.
 ---@param terminal string
 ---@param text string
 ---@param on_success? fun()
-function M.prompt(terminal, text, on_success) system({ "hc", "send", terminal, text }, on_success) end
+function M.submit_prompt(terminal, text, on_success) system({ "hc", "send", terminal, text }, on_success) end
 
----Press Enter in a terminal once its screen shows `match`.
 ---@param terminal string
 ---@param match string
----@param on_timeout fun() runs in the main loop when it never shows
+---@param on_timeout fun()
 function M.enter_when_shown(terminal, match, on_timeout)
     local poll = 'for _ in $(seq 30); do hc read "$1" | grep -qF -- "$2" && exec hc keys "$1" enter; sleep 0.1; done; exit 1'
     vim.system({ "sh", "-c", poll, "sh", terminal, match }, {}, function(res)
@@ -91,13 +86,12 @@ function M.pane(terminal)
     for _, t in ipairs(ok and data.terminals or {}) do
         if t.address == terminal then
             local _, tab = place(terminal)
-            return tab and { id = terminal, tab = tab.id, claude = t.agent == "claude-code", title = t.agent, cwd = t.cwd or "" }
+            return tab and { id = terminal, tab = tab.id, is_claude = t.agent == "claude-code", title = t.agent, cwd = t.cwd or "" }
         end
     end
     return nil
 end
 
----Calls back in the main loop with this terminal's space and tab names.
 ---@param on_result fun(space: string?, tab: string?)
 function M.labels(on_result)
     vim.schedule(function()

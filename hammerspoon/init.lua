@@ -1,20 +1,26 @@
--- Window focus (cmd+hjkl) and resize (alt+hjkl, alt+shift+hjkl for one
--- percent) by direction: the macOS layer under nvim windows and herdr panes.
--- The terminals turn cmd+hjkl into herdr's ctrl+hjkl, and the Herdr app binds
--- cmd+hjkl itself, so the keys stand down while a window running herdr or the
--- app is in front; herdr, the app and nvim reach these functions through
--- `hs -c` once they run out of panes.
+-- Moves focus to the macOS window in a direction (cmd+hjkl) and resizes the
+-- focused window (alt+hjkl, alt+shift+hjkl for one percent of the screen).
+-- - The keys are off while a window running herdr or the Herdr app is in front.
+--   The terminals send cmd+hjkl to herdr as ctrl+hjkl, and the Herdr app binds
+--   cmd+hjkl itself.
+-- - herdr, the Herdr app and nvim call focusWindow and resizeWindow through
+--   `hs -c` when they have no pane in that direction.
 
 require("hs.ipc") -- serves the hs command the cask links into /opt/homebrew/bin
 hs.autoLaunch(true)
 hs.accessibilityState(true) -- asks for Accessibility access until it is granted
 hs.window.animationDuration = 0
 
--- Reload on save; a file that fails to parse keeps the running config and shows
--- why. Set up before anything that could error, so a broken save can't stop it.
--- Watches the symlink's target directory: saves there never touch hs.configdir.
+-- Garbage collection stops a watcher or tap that nothing references. This global
+-- table references them.
+retained = {}
+
+-- Reload on save. A file that fails to parse keeps the running config and shows
+-- the error. The watcher starts before anything that could error, and an error
+-- further down leaves it running. It watches the directory of the symlink's
+-- target, because saves go there and not to hs.configdir.
 local configFile = hs.fs.pathToAbsolute(hs.configdir .. "/init.lua")
-configWatcher = hs.pathwatcher -- global, or garbage collection stops it
+retained.configWatcher = hs.pathwatcher
     .new(configFile:match("^(.*)/"), function()
         local _, err = loadfile(configFile)
         if err then hs.showError(err) else hs.reload() end
@@ -52,17 +58,19 @@ function focusWindow(dir)
     local target = win and win[WINDOWS_TO[dir]](win, nil, true, true)[1]
     if not target then return false end
     target:focus()
-    -- Activating an app raises its last key window over the target, as with
-    -- two Zen windows; once the app is in front, focusing again sticks.
+    -- Activating an app raises its last key window over the target, for example
+    -- with two Zen windows open. A second focus after the app is in front keeps
+    -- the target on top.
     hs.timer.doAfter(0, function() target:focus() end)
     return true
 end
 
 local function overlaps(a, b, pos, size) return a[pos] < b[pos] + b[size] and b[pos] < a[pos] + a[size] end
 
----Move a border of the focused window in a direction, like smart-splits: the
----right or bottom border, or the left or top one when the window sits against
----that side of the screen. A window flush against the moved border follows it.
+---Move a border of the focused window in a direction, like smart-splits. That is
+---the right or bottom border, or the left or top one when the right or bottom
+---border is at the screen's edge. A window that shares the moved border is
+---resized with it.
 ---@param dir "left"|"down"|"up"|"right"
 ---@param step? number fraction of the screen, STEP by default
 ---@param presses? number times to apply the step, 1 by default
@@ -111,8 +119,7 @@ local PASS_THROUGH = { j = true, k = true }
 local focusKeyCodes = {}
 for key in pairs(DIRS) do focusKeyCodes[hs.keycodes.map[key]] = key end
 
--- global, or garbage collection stops it
-focusTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+retained.focusTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
     local key = focusKeyCodes[event:getKeyCode()]
     if not key or not event:getFlags():containExactly({ "cmd" }) then return false end
     return focusWindow(DIRS[key]) or not PASS_THROUGH[key]
@@ -131,16 +138,15 @@ local function follow()
     for _, hotkey in ipairs(hotkeys) do
         if on then hotkey:enable() else hotkey:disable() end
     end
-    if on then focusTap:start() else focusTap:stop() end
+    if on then retained.focusTap:start() else retained.focusTap:stop() end
 end
 
--- globals, or garbage collection stops them
-frontAppWatcher = hs.application.watcher
+retained.frontAppWatcher = hs.application.watcher
     .new(function(_, event)
         if event == hs.application.watcher.activated then follow() end
     end)
     :start()
-terminalWindows = hs.window.filter
+retained.terminalWindows = hs.window.filter
     .new(TERMINALS)
     :subscribe({ hs.window.filter.windowFocused, hs.window.filter.windowTitleChanged }, follow)
 follow()

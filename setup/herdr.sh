@@ -5,60 +5,45 @@ source "$REPO_ROOT/setup/utils.sh"
 
 HERDR_BIN="$HOME/.local/bin/herdr"
 
-# Scripts both herdr and the Herdr app run, linked onto PATH: Claude Code's
-# EDITOR (a name its settings env can give: env values are not expanded), the
-# Files panel's open-in-nvim and the status bars' network, system and weather
-# readouts.
+# The Herdr app's mods and Claude Code's EDITOR setting call these scripts by
+# bare name. Claude's settings env doesn't expand paths.
 SHARED_BIN=(herdr-nvim herdr-open herdr-netspeed herdr-sysmon herdr-weather)
 
 APP_HOME="$HOME/.config/herdr-app"
 # Files the app reads from its home; everything else there is the app's own state.
-# The app's file events don't follow these links: after editing a mod in the
-# repo, `touch -h` its link to reload it.
+# The app doesn't see edits behind these links. After editing a mod in the
+# repo, run `touch -h` on the mod's link to reload the mod.
 APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons bin)
-# The zoom level committed in settings.json, whatever the app last zoomed to.
-APP_ZOOM=1.0
+COMMITTED_APP_ZOOM=1.0
 
 main_herdr() {
-    # macOS gets herdr from brew (setup/system.sh); elsewhere from herdr.dev.
+    # brew installs herdr on macOS (setup/system.sh)
     if [[ "$OSTYPE" != "darwin"* ]]; then
-        install_herdr
+        install_from_script herdr https://herdr.dev/install.sh herdr
     fi
     link_shared_bin
     configure_herdr
     if [[ "$OSTYPE" == "darwin"* ]]; then
         install_cask herdr-app || return 1
-        install_herdr_core
+        install_from_script hc https://releases.herdr.dev/core/install.sh herdr-core
         configure_herdr_app
     fi
 }
 
-install_herdr() {
-    if command -v herdr &>/dev/null; then
-        log "✅ herdr is already installed at $(command -v herdr)"
+# Usage: install_from_script <command> <installer-url> <name>
+install_from_script() {
+    local cmd="$1" url="$2" name="$3"
+    if command -v "$cmd" &>/dev/null; then
+        log "✅ $name is already installed at $(command -v "$cmd")"
         return
     fi
     local installer
-    if ! installer=$(fetch_installer https://herdr.dev/install.sh); then
-        error "❌ Failed to download the herdr installer."
+    if ! installer=$(fetch_installer "$url"); then
+        error "❌ Failed to download the $name installer."
         return 1
     fi
-    # The script installs to ~/.local/bin, which zprofile puts on PATH.
-    run_quiet "Installing herdr" sh -c "$installer"
-}
-
-install_herdr_core() {
-    if command -v hc &>/dev/null; then
-        log "✅ herdr-core is already installed at $(command -v hc)"
-        return
-    fi
-    local installer
-    if ! installer=$(fetch_installer https://releases.herdr.dev/core/install.sh); then
-        error "❌ Failed to download the herdr-core installer."
-        return 1
-    fi
-    # The script installs to ~/.local/bin, which zprofile puts on PATH.
-    run_quiet "Installing herdr-core" sh -c "$installer"
+    # The installers write to ~/.local/bin, which zprofile adds to PATH.
+    run_quiet "Installing $name" sh -c "$installer"
 }
 
 link_shared_bin() {
@@ -79,7 +64,7 @@ configure_herdr() {
     # The whole directory, so a new script is visible to herdr without rerunning setup.
     link_file "$REPO_ROOT/herdr/tui/bin" "$HOME/.config/herdr/bin"
 
-    # Herd-side plugins the config binds to (nvim<->herdr nav/resize).
+    # herdr/tui/config.toml binds keys to these plugins' actions.
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-splits"; then
         run_quiet "Installing herdr-splits plugin" herdr plugin install lmilojevicc/herdr-splits.nvim --yes
     fi
@@ -100,7 +85,6 @@ configure_herdr() {
     else
         warn "No herdr config dir for workspace-manager; skipping its config."
     fi
-    # The lazygit popup behind prefix+g and nvim's <leader>gg.
     if ! herdr plugin list 2>/dev/null | grep -q "^- lazygit "; then
         run_quiet "Linking herdr lazygit plugin" herdr plugin link "$REPO_ROOT/herdr/tui/plugins/lazygit"
     fi
@@ -122,7 +106,6 @@ configure_herdr() {
         return 1
     fi
 
-    # Apply to a running server if there is one; harmless otherwise.
     herdr server reload-config &>/dev/null || true
     success "herdr configuration completed."
 }
@@ -136,8 +119,9 @@ configure_herdr_app() {
     # The app writes its zoom level into settings.json on every zoom; git sees the
     # committed level instead (filter named in .gitattributes).
     git -C "$REPO_ROOT" config filter.herdr-zoom.clean \
-        "sed -E 's/\"zoom\": [0-9.]+/\"zoom\": $APP_ZOOM/'"
-    # The layout docks the keys mod; a running window switches to it now.
+        "sed -E 's/\"zoom\": [0-9.]+/\"zoom\": $COMMITTED_APP_ZOOM/'"
+    # The dotfiles layout docks the keys mod. layout.set also switches a running
+    # app window to the layout.
     herdr-app "do" layout.set --layout dotfiles &>/dev/null || true
     success "Herdr app configuration linked."
 }

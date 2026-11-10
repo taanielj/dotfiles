@@ -1,5 +1,4 @@
 FROM debian:bookworm
-# Install minimal tools needed to bootstrap
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y git sudo && \

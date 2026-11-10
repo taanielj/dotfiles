@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# alt+hjkl, and alt+shift+hjkl for one percent. Neovim gets the chord, so
-# herdr-splits.nvim resizes the split or hands back to herdr. A pane spanning
-# the whole layout across that axis resizes the macOS window instead
-# (hammerspoon/init.lua).
+# alt+hjkl resizes the focused pane by 3%, and alt+shift+hjkl (`fine`) resizes it
+# by 1%. In Neovim, herdr-splits.nvim gets the chord and resizes Neovim's split or
+# calls back into herdr. A pane that spans the layout along the direction's axis
+# resizes the macOS window instead (hammerspoon/init.lua).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 

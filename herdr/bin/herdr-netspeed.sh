@@ -2,8 +2,8 @@
 # Up/down speed on the default-route interface, for the herdr tab bar and the
 # Herdr app's status bar. macOS and Linux.
 # Usage: herdr-netspeed <caller>
-# Each caller keeps its own previous sample: callers sharing one would mostly
-# measure the gap between each other's ticks.
+# Each caller keeps its own previous sample. A shared sample would measure only
+# the traffic since the other caller's last run.
 set -euo pipefail
 
 caller="${1:?usage: herdr-netspeed <caller>}"
@@ -17,7 +17,7 @@ if [[ -d /sys/class/net ]]; then
 else
     iface=$(route -n get default 2>/dev/null | awk '/interface:/ {print $2}')
     [[ -n "${iface:-}" ]] || { printf "󰖪 offline"; exit 0; }
-    # counted from the end: interfaces without a link address (utun VPNs) lack the Address column
+    # Count columns from the end, because interfaces without a link address (utun VPNs) have no Address column
     read -r rx tx < <(netstat -ibn -I "$iface" | awk 'NR==2 {print $(NF-4), $(NF-1)}')
 fi
 now=$(date +%s)

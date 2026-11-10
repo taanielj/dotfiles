@@ -1,5 +1,5 @@
--- With neo-tree open, the dashboard stands in for the last file instead of
--- nvim quitting or the tree being left alone. Without it, closing quits.
+-- With neo-tree open, closing the last file opens the dashboard beside the
+-- tree. Without neo-tree, closing the last file quits nvim.
 local M = {}
 
 local function is_tree(win) return vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree" end
@@ -34,7 +34,7 @@ function M.only_tree_left(closing)
     return true
 end
 
--- In the current window; without one the dashboard opens as a float
+-- win = 0 opens the dashboard in the current window instead of a float
 function M.open() Snacks.dashboard({ win = 0 }) end
 
 function M.open_beside_tree()

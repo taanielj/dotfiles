@@ -1,6 +1,6 @@
--- Staging from inside a diffview: the index buffer is writable and writing
--- it updates the index, so moving a hunk into it with dp or do and then
--- writing is how a hunk gets staged or unstaged.
+-- Stages and unstages hunks inside a diffview. The index buffer is writable,
+-- and writing it updates the index. Moving a hunk into the index buffer with dp
+-- or do and writing it stages or unstages the hunk.
 local M = {}
 
 local function current_view() return require("diffview.lib").get_current_view() end
@@ -42,8 +42,6 @@ function M.hunk_to_index(cmd)
     end
 end
 
--- On the index side the hunk is taken from the other window; on the HEAD
--- side it is pushed across.
 function M.stage_hunk()
     local view = current_view()
     if not view then
@@ -71,8 +69,8 @@ end
 M.stage_file = set_file_staged(true)
 M.unstage_file = set_file_staged(false)
 
--- gitsigns only attaches to real files, so its <leader>g keys are absent on
--- the index and HEAD sides; these are their counterparts there.
+-- gitsigns attaches only to buffers backed by a file on disk, and its <leader>g
+-- keys are missing on the index and HEAD sides. These maps replace them there.
 function M.map_keys(bufnr)
     local map = require("lib.keymap").buffer(bufnr)
     map({ "n", "x" }, "<leader>gs", M.stage_hunk, "Stage/unstage hunk")

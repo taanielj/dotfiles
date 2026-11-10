@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Weather for the herdr tab bar via wttr.in. The 15m gate lives here rather
-# than in interval_seconds because config reloads re-run command entries.
+# Weather from wttr.in for the herdr tab bar and the Herdr app's status bar. The
+# script caches for 15 minutes itself, because a config reload reruns every tab
+# bar command.
 set -euo pipefail
 
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/herdr-weather"
 mkdir -p "$(dirname "$cache")"
 max_age=900
 
-# GNU stat first: it reads "-f %m" as a filename, erroring on stdout rather
-# than to stderr. BSD stat rejects "-c" cleanly, so this order is safe on both.
+# Try GNU stat first. GNU stat reads "-f %m" as a filename and prints the error
+# on stdout, while BSD stat rejects "-c" on stderr.
 mtime() { stat -c %Y "$1" 2>/dev/null || stat -f %m "$1"; }
 
 if [[ -s $cache ]]; then

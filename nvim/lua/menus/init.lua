@@ -1,22 +1,18 @@
--- Which menu opens where. 'mousemodel' is popup_setpos, so a right-click
--- moves the cursor and opens PopUp with no mapping; PopUp is rebuilt for
--- what is under the cursor on every MenuPopup, replacing Neovim's handler,
--- which only disables rows. A bufferline tab is not a window, so it has a
--- separate hidden menu. No mouse button is mapped: a click while a
--- menu is open is pushed back and handled by normal mode directly, where
--- mappings do not apply.
+-- Which menu opens where. 'mousemodel' is popup_setpos, which makes a
+-- right-click move the cursor and open PopUp with no mapping. No mouse button
+-- is mapped, because a click while a menu is open goes straight to normal mode,
+-- where mappings don't apply.
 local menu = require("lib.menu")
 
 local M = {}
 
--- Filetypes with a menu of their own
-local by_filetype = {
+local menu_by_filetype = {
     ["neo-tree"] = "neotree",
     oil = "oil",
 }
 
 local function popup_rows()
-    local spec = by_filetype[vim.bo.filetype]
+    local spec = menu_by_filetype[vim.bo.filetype]
     if spec then
         return require("menus." .. spec)()
     end
@@ -25,13 +21,16 @@ end
 
 function M.popup_at_cursor() menu.show("PopUp", popup_rows(), { at_cursor = true }) end
 
+-- PopUp's rows describe a window. A bufferline tab gets the hidden ]Buffer menu.
 ---@param bufnr integer the clicked tab's buffer
 function M.tab(bufnr) menu.show("]Buffer", require("menus.bufferline")({ bufnr = bufnr })) end
 
 function M.setup()
     vim.cmd("silent! aunmenu PopUp")
+    -- Neovim's MenuPopup handler only disables rows. user_popupmenu rebuilds
+    -- PopUp for what is under the cursor instead.
     pcall(vim.api.nvim_del_augroup_by_name, "nvim.popupmenu")
-    menu.define("PopUp", popup_rows()) -- never empty when a click lands
+    menu.define("PopUp", popup_rows()) -- PopUp must exist before the first right-click
 
     vim.api.nvim_create_autocmd("MenuPopup", {
         group = vim.api.nvim_create_augroup("user_popupmenu", { clear = true }),

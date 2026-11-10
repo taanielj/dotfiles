@@ -12,9 +12,10 @@ return function(rows, path)
         "Copy relative path",
         function() yank.copy(vim.fn.fnamemodify(path, ":~:."), "path") end
     )
-    -- The URL takes two git calls, so it is built on the click, not per menu
+    -- The URL takes two git calls. Building it on the click keeps them out of every
+    -- menu open.
     rows.item(icons.browser, "Copy git URL", function()
-        local url = require("lib.git").web_url(path)
+        local url = require("lib.git").remote_url_or_warn(path)
         if url then
             yank.copy(url, "git URL")
         end

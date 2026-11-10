@@ -1,7 +1,7 @@
 local map = require("lib.keymap").rows
 
--- A fifth of the window, cursor staying put; snacks.scroll animates the jump
-local function scroll(key)
+-- snacks.scroll animates the jump
+local function scroll_fifth(key)
     return function()
         local lines = math.max(1, math.floor(vim.api.nvim_win_get_height(0) / 5))
         vim.cmd("normal! " .. lines .. vim.keycode(key))
@@ -18,7 +18,7 @@ map({
     { "n", "<leader>e", function() require("ui.tree").toggle() end,            "Show files" },
     { "n", "<leader>A", function() require("ui.dashboard").open() end,                     "Dashboard" },
     { "n", "<leader>z", function() require("ui.zen").toggle() end,                "Toggle zen mode" },
-    -- Keyed by cwd, branch and filetype; a count opens a second one
+    -- Keyed by cwd, branch and filetype. A count opens a second one.
     { "n", "<leader>n", function() Snacks.scratch() end,                          "Scratch buffer" },
     { "n", "<leader>N", function() Snacks.scratch.select() end,                   "Pick a scratch buffer" },
     { "n", "<leader>gg", function() require("ui.lazygit").open() end,             "LazyGit" },
@@ -28,8 +28,8 @@ map({
     { "n", "zr",        function() require("lib.folds").step(1) end,           "Open a fold level, or to [count]" },
     { "n", "zm",        function() require("lib.folds").step(-1) end,          "Close a fold level, or to [count]" },
 
-    { { "n", "x", "i" }, "<C-y>",      scroll("<C-y>"),                                "Scroll up a little" },
-    { { "n", "x", "i" }, "<C-e>",      scroll("<C-e>"),                                "Scroll down a little" },
+    { { "n", "x", "i" }, "<C-y>",      scroll_fifth("<C-y>"),                              "Scroll up a little" },
+    { { "n", "x", "i" }, "<C-e>",      scroll_fifth("<C-e>"),                              "Scroll down a little" },
     { { "n", "x", "i" }, "<PageUp>",   half_page("<C-u>"),                             "Scroll up half a page" },
     { { "n", "x", "i" }, "<PageDown>", half_page("<C-d>"),                             "Scroll down half a page" },
 
@@ -51,9 +51,9 @@ map({
     { "n", "<leader>w", function() require("ui.wrap").toggle() end,           "Toggle wrap window" },
 })
 
--- scrollbind only follows the current window, so wheeling over the other side
--- of a diff moves that side alone; syncing from the hovered window brings the
--- rest along.
+-- scrollbind syncs other windows only to the current one, and the wheel over
+-- the other side of a diff scrolls that side alone. syncbind in the hovered
+-- window scrolls the bound windows to match.
 local function wheel(key)
     local termcode = vim.api.nvim_replace_termcodes(key, true, false, true)
     return function()

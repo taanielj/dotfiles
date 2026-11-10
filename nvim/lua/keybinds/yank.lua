@@ -9,7 +9,7 @@ end
 ---@param opts { permalink: boolean? }?
 local function remote_url(opts)
     local first, last = yank.line_range()
-    return require("lib.git").web_url(vim.fn.expand("%:p"), first, last, opts)
+    return require("lib.git").remote_url_or_warn(vim.fn.expand("%:p"), first, last, opts)
 end
 
 local function yank_remote_url(opts)

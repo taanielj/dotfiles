@@ -1,5 +1,5 @@
-# Login shells: brew and platform PATH construction lives here. zshrc repeats
-# only the user-local bins so non-login multiplexer panes get them too.
+# Builds PATH for login shells, with brew and platform directories. zshrc adds
+# the user-local bins again for the non-login shells in multiplexer panes.
 typeset -U path
 
 source "$HOME/.config/zsh/source-cached.zsh"

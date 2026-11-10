@@ -23,7 +23,8 @@ function M.run()
         vim.notify("No test debugger for " .. vim.bo.filetype, vim.log.levels.WARN)
         return
     end
-    -- Loading a dap-* plugin alone skips nvim-dap's config, which sets them up
+    -- nvim-dap's config sets up the dap-* adapters, and loading a dap-* plugin
+    -- alone skips that config
     require("dap")
     runner.run()
 end

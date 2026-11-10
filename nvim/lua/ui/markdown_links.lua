@@ -15,7 +15,6 @@ local function definitions()
     return defs
 end
 
--- Labels match case-insensitively
 local function definition(label)
     for _, def in ipairs(definitions()) do
         if def.label:lower() == label:lower() then
@@ -53,8 +52,8 @@ local function captures_under_cursor(line, col, pattern)
     end
 end
 
--- Inline [text](target) carries its target; a definition line and a reference
--- [text][label], [text][] or [text] take it from a definition
+-- An inline link [text](target) names its target. A definition line, and a
+-- reference [text][label], [text][] or [text], take the target from a definition.
 ---@return string? target
 ---@return boolean from_definition
 local function target_under_cursor()
@@ -104,14 +103,14 @@ local function jump_to_heading(anchor)
     vim.notify("No heading: " .. anchor, vim.log.levels.WARN)
 end
 
--- Marksman resolves an inline target where it is attached, so anchors and
--- [[wiki links]] land on the right heading; for a target from a definition it
--- goes to the label line instead.
+-- Marksman, where attached, resolves an inline target, including anchors and
+-- [[wiki links]], to the right heading. For a target taken from a definition,
+-- Marksman would jump to the definition line. `follow` resolves that target itself.
 local function marksman_resolves(from_definition)
     return not from_definition and next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) ~= nil
 end
 
--- GitHub's #L42 line anchor; heading slugs are lowercase, so the two never clash
+-- GitHub's #L42 line anchor. Heading slugs are lowercase and never clash with it.
 local function jump_to_anchor(anchor)
     local line = anchor:match("^L(%d+)")
     if not line then
@@ -132,7 +131,7 @@ local function edit_at_anchor(path, target)
     end
 end
 
--- git's test: a NUL in the first 8000 bytes makes a file binary
+-- git's test for a binary file, a NUL in the first 8000 bytes
 local function is_binary(path)
     local file = io.open(path, "rb")
     if not file then
@@ -170,7 +169,6 @@ function M.follow()
     edit_at_anchor(path, target)
 end
 
--- A target already defined keeps its label; a new one takes the lowest free number
 local function label_for(link, defs)
     local taken = {}
     for _, def in ipairs(defs) do
@@ -186,9 +184,7 @@ local function label_for(link, defs)
     return tostring(n), false
 end
 
--- Definitions go at the end of the file, joined to a definition block
--- already there and set off by a blank line otherwise
-local function define(label, target)
+local function append_definition(label, target)
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local last = #lines
     while last > 0 and lines[last]:match("^%s*$") do
@@ -199,10 +195,9 @@ local function define(label, target)
     vim.api.nvim_buf_set_lines(0, last, last, false, new)
 end
 
--- Numbered labels count up in the order their references appear in the
--- file, whatever order they were converted in, with the definitions rewritten
--- in that order where the block already sits. Definitions nothing refers
--- to any more keep their place after the referenced ones.
+-- Renumbers numbered labels in the order their references first appear. The
+-- definition block is rewritten in the same order at its current position.
+-- Definitions with no reference left come after the referenced ones.
 local function renumber()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local defs, order, seen = {}, {}, {}
@@ -257,8 +252,6 @@ local function renumber()
     end
 end
 
----Turn inline links into references: `[text](target)` becomes
----`[text][label]` with `[label]: target` defined at the end of the file.
 ---@param first integer 1-based row
 ---@param last integer 1-based row, inclusive
 ---@param col? integer 1-based column; only the link under it is converted
@@ -274,7 +267,7 @@ local function to_references(first, last, col)
         for _, link in ipairs(links) do
             local label, defined = label_for(link, defs)
             if not defined then
-                define(label, link.target)
+                append_definition(label, link.target)
                 table.insert(defs, { label = label, target = link.target })
             end
             link.label = label

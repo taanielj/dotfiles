@@ -3,13 +3,13 @@
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
-# No apt package; macOS gets superfile from brew (setup/system.sh).
 SPF_BIN="$HOME/.local/bin/spf"
 
 main_superfile() {
     install_superfile
 }
 
+# No apt package. brew installs superfile on macOS (setup/system.sh).
 install_superfile() {
     local version arch current_version
     version=$(github_latest_version yorukot/superfile)

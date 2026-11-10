@@ -13,10 +13,10 @@ function location() {
 const key = () => JSON.stringify(location());
 const LANG = { ts: "js", tsx: "js", mts: "js", cts: "js", jsx: "js", mjs: "js", toml: "yaml", jsonc: "json", svelte: "html", vue: "html" };
 const PER_FOLDER = 500, TOTAL = 5000;
-// The Nerd Font build whose glyphs all take one cell, and neo-tree's expander
-// and folder glyphs, closed and open
-const GLYPHS = "JetBrainsMonoNL NFM", EXPANDER = ["\uf460", "\uf47c"], FOLDER = ["\ue5ff", "\ue5fe"];
-const glyph = (icon, color) => div().w(16).flex_none().font_family(GLYPHS).text_color(color).child(icon);
+const ONE_CELL_NERD_FONT = "JetBrainsMonoNL NFM";
+// neo-tree's glyphs, [closed, open]
+const EXPANDER = ["\uf460", "\uf47c"], FOLDER = ["\ue5ff", "\ue5fe"];
+const glyph = (icon, color) => div().w(16).flex_none().font_family(ONE_CELL_NERD_FONT).text_color(color).child(icon);
 
 async function directory(path, on) {
   const windowsDirectory = async () => {
@@ -97,7 +97,7 @@ export default class Files extends View {
         const top = await exec("git", ["rev-parse", "--show-toplevel"], { cwd, on }).catch(() => null);
         const marks = {};
         if (top?.code === 0) {
-          // Writes nothing under .git (index lock, fsmonitor cookie): the folder watch would refresh again.
+          // A write under .git (index lock, fsmonitor cookie) would trigger the folder watch and refresh again
           const status = await exec("git", ["--no-optional-locks", "-c", "core.fsmonitor=false", "status", "--porcelain=v1", "-z", "--no-renames", "--untracked-files=all"], { cwd, on }).catch(() => null);
           if (status?.code === 0) for (const entry of status.stdout.split("\0").filter(Boolean).slice(0, TOTAL)) {
             const xy = entry.slice(0, 2);
@@ -132,9 +132,8 @@ export default class Files extends View {
     cx.notify();
   }
 
-  // Opens a file in the first nvim of the focused tab, or in a new nvim beside the
-  // focused pane; the preview shows what no nvim can take (another machine's files).
   open(path, cx) {
+    // No local nvim can open another machine's files
     if (this.on) return this.show(path, cx);
     const file = `${this.root}/${path}`, tab = focused()?.tab;
     const nvim = panes().find(p => p.tab === tab && p.program?.key === "nvim");

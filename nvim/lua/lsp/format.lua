@@ -1,8 +1,8 @@
 local M = {}
 
--- Import sorting is a code action, not part of textDocument/formatting, and
--- the edit has to land before the format request goes out, so it is fetched
--- and applied synchronously rather than through vim.lsp.buf.code_action.
+-- Import sorting is a code action, separate from textDocument/formatting. Its
+-- edit must apply before the format request goes out, and
+-- vim.lsp.buf.code_action is asynchronous.
 local function organize_imports(bufnr)
     if not next(vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/codeAction" })) then
         return
@@ -15,7 +15,7 @@ local function organize_imports(bufnr)
     for client_id, response in pairs(results or {}) do
         local client = vim.lsp.get_client_by_id(client_id)
         for _, action in ipairs(response.result or {}) do
-            -- `only` is a hint some servers ignore: marksman answers with its
+            -- `only` is a hint some servers ignore. marksman answers with its
             -- table-of-contents action regardless.
             if client and action.kind and vim.startswith(action.kind, "source.organizeImports") then
                 if not action.edit and client:supports_method("codeAction/resolve") then
@@ -30,9 +30,8 @@ local function organize_imports(bufnr)
     end
 end
 
--- A conform formatter for the filetype, or a server that formats. The PopUp
--- menu is first built before lazy.nvim has loaded conform.
-function M.available(bufnr)
+function M.has_formatter(bufnr)
+    -- PopUp's rows are first built before lazy.nvim loads conform
     local ok, conform = pcall(require, "conform")
     if not ok then
         return false
@@ -46,7 +45,7 @@ function M.buffer()
     local bufnr = vim.api.nvim_get_current_buf()
     vim.cmd("mkview")
     organize_imports(bufnr)
-    -- a parse error arrives as an RPC error dump; show only its message
+    -- A parse error arrives as an RPC error dump. Show only its message.
     require("conform").format({ bufnr = bufnr, timeout_ms = 5000, quiet = true }, function(err)
         if err then
             vim.notify(err:match('message = "(.*)"$') or err, vim.log.levels.WARN)

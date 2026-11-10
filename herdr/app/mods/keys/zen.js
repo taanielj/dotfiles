@@ -1,10 +1,8 @@
 import { layout } from "herdr";
 import { app, focusedPane, pathTo } from "./app.js";
 
-// nvim's zen mode (nvim/lua/lib/mux.lua): the focused pane zoomed and the
-// window's bars and Files/Changes panel hidden, until zen-out puts back what
-// zen-in found. A bare strip takes the tab bar's place, keeping the pane clear
-// of macOS's window buttons.
+// nvim's zen mode runs zen-in and zen-out (nvim/lua/lib/mux.lua). The zen-strip
+// mod replaces the tab bar to keep the pane below macOS's window buttons.
 const BARS = ["sidebar", "tabs", "status", "panel"];
 const STRIP = "zen-strip";
 // What zen-in found, kept in storage so a mod reload doesn't lose it

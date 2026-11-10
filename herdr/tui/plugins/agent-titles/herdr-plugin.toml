@@ -5,7 +5,7 @@ min_herdr_version = "0.9.5"
 description = "Show the session title in the sidebar only for agents that share a tab"
 platforms = ["linux", "macos"]
 
-# Tokens are not restored after a server restart.
+# herdr drops tokens on a server restart
 [[startup]]
 command = ["sh", "titles.sh"]
 
@@ -13,8 +13,8 @@ command = ["sh", "titles.sh"]
 on = "pane.agent_detected"
 command = ["sh", "titles.sh"]
 
-# A new title shows at the agent's next status change, because plugin hooks
-# can't subscribe to pane.updated, where title changes land.
+# A new title shows at the agent's next status change, because herdr reports
+# title changes as pane.updated, which plugin hooks can't subscribe to.
 [[events]]
 on = "pane.agent_status_changed"
 command = ["sh", "titles.sh"]

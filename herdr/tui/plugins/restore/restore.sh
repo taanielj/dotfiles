@@ -5,11 +5,10 @@
 #   restore.sh        startup hook: rerun the saved programs, then start the loop
 #   restore.sh loop   save on an interval, until a newer loop takes over
 #
-# Whole seconds between saves on AC power and on battery, and between power
-# checks, read from the herdr server's environment.
-ac_interval=${HERDR_RESTORE_AC_INTERVAL:-1}
-battery_interval=${HERDR_RESTORE_BATTERY_INTERVAL:-10}
-power_interval=${HERDR_RESTORE_POWER_INTERVAL:-10}
+# Whole seconds, from the herdr server's environment
+ac_save_secs=${HERDR_RESTORE_AC_INTERVAL:-1}
+battery_save_secs=${HERDR_RESTORE_BATTERY_INTERVAL:-10}
+power_check_secs=${HERDR_RESTORE_POWER_INTERVAL:-10}
 set -u
 
 herdr=${HERDR_BIN_PATH:-herdr}
@@ -22,9 +21,11 @@ pidfile=$dir/$session.pid
 mkdir -p "$dir"
 [ -f "$state" ] || echo '{}' >"$state"
 
-# Reads herdr's pane list as its first line and `ps` after it. Prints a line per
-# pane: the pid of the listed program in its foreground, - for none, or ? while
-# its shell is unknown. A pane whose shell has exited is left out.
+# Reads herdr's pane list on the first line and `ps` output after it. Prints the
+# pane id of each pane whose shell still runs, then one of:
+#   pid  the pane's foreground program, when `programs` lists it
+#   -    the shell or an unlisted program is in the foreground
+#   ?    the pane's shell pid isn't in $shells yet
 find_programs='
     BEGIN {
         while ((getline line < programs) > 0) if (line !~ /^#/ && line != "") want[line]
@@ -64,10 +65,10 @@ restore() {
         | "\(.key)\t\(.value.argv | map(if test("^[A-Za-z0-9_./:=@%+,-]+$") then . else @sh end) | join(" "))"' "$state" |
         while IFS='	' read -r pane cmd; do
             printf '%s\n' "$live" | grep -qxF "$pane" || continue
-            # After a live handoff the program still runs; only a bare shell takes the command
-            bare=$("$herdr" pane process-info --pane "$pane" |
+            # The program keeps running across `herdr update --handoff`
+            shell_in_foreground=$("$herdr" pane process-info --pane "$pane" |
                 jq '.result.process_info | .foreground_process_group_id == .shell_pid')
-            if [ "$bare" = true ]; then "$herdr" pane run "$pane" "$cmd"; fi
+            if [ "$shell_in_foreground" = true ]; then "$herdr" pane run "$pane" "$cmd"; fi
         done
     # Drop panes that were closed while their program ran
     printf '%s\n' "$live" | jq -R . | jq -s --slurpfile s "$state" \
@@ -75,8 +76,8 @@ restore() {
         mv "$state.tmp" "$state"
 }
 
-# Fails once the server is gone. Past herdr, ps and awk it only runs when a
-# pane or its program changed since the last tick.
+# Returns 1 once the server is gone. Each call runs herdr, ps and awk. The jq
+# work after them runs only when a pane or a pane's program changed.
 tick() {
     list=$("$herdr" pane list) || return 1
     seen=$({ printf '%s\n' "$list"; ps -A -o pid=,ppid=,pgid=,tpgid=,comm=; } |
@@ -84,7 +85,7 @@ tick() {
     [ "$seen" = "$last_seen" ] && return 0
 
     case $seen in *' ?'*)
-        # New panes: look up their shells, and judge them on the next tick
+        # Record the shell pids of new panes, and read the panes' programs next tick
         printf '%s\n' "$seen" | while read -r pane pid; do
             [ "$pid" = '?' ] && "$herdr" pane process-info --pane "$pane" |
                 jq -r --arg p "$pane" '"\($p) \(.result.process_info.shell_pid)"' >>"$shells"
@@ -95,7 +96,7 @@ tick() {
     printf '%s\n' "$seen" | awk 'NR == FNR { live[$1]; next } $1 in live' - "$shells" >"$shells.tmp" &&
         mv "$shells.tmp" "$shells"
 
-    # argv only for programs not saved yet, through one herdr call each
+    # Fetch argv only for programs not in $state yet, one herdr call each
     jq -rn --arg seen "$seen" --slurpfile s "$state" '
         $seen | split("\n")[] | split(" ")
         | select(.[1] != "-" and ($s[0][.[0]].pid | tostring) != .[1]) | join(" ")' |
@@ -118,15 +119,14 @@ case ${1:-startup} in
 loop)
     echo $$ >"$pidfile"
     last_seen=
-    interval=$ac_interval
-    since_power_check=$power_interval
+    interval=$ac_save_secs
+    since_power_check=$power_check_secs
     command -v pmset >/dev/null && has_pmset=true || has_pmset=false
-    # Ends once the server is gone or a newer loop wrote its pid
     while read -r owner <"$pidfile" && [ "$owner" = $$ ] && tick; do
-        if [ "$has_pmset" = true ] && [ "$since_power_check" -ge "$power_interval" ]; then
+        if [ "$has_pmset" = true ] && [ "$since_power_check" -ge "$power_check_secs" ]; then
             case $(pmset -g ps) in
-            *"'Battery Power'"*) interval=$battery_interval ;;
-            *) interval=$ac_interval ;;
+            *"'Battery Power'"*) interval=$battery_save_secs ;;
+            *) interval=$ac_save_secs ;;
             esac
             since_power_check=0
         fi

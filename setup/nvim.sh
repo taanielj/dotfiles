@@ -65,7 +65,7 @@ teardown_nvim() {
         rm -rf "$HOME/.local/nvim"
     fi
 
-    rc_remove_lines ".local/nvim/bin"
+    rc_remove_lines_containing ".local/nvim/bin"
 
     success "Neovim configuration and installation removed."
 }

@@ -1,1 +1,2 @@
+# Vendored in themes/ for bat releases that don't bundle Catppuccin
 --theme="Catppuccin Macchiato"

@@ -37,7 +37,7 @@ end
 
 return {
     {
-        -- Runs through lsp/format.lua; the LSP formats only where no tool is listed
+        -- Runs through lsp/format.lua. The LSP formats only where no tool is listed.
         "stevearc/conform.nvim",
         cmd = "ConformInfo",
         opts = {

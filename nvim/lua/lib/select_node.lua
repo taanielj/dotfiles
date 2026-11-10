@@ -1,5 +1,6 @@
 -- In charwise visual mode v grows the selection to the enclosing treesitter
--- node and V shrinks it back, leaving visual mode once the stack is empty.
+-- node. V shrinks it back one step, and leaves visual mode after the first
+-- selection.
 -- A bracketed node is two steps: its contents, then with the brackets.
 -- Linewise and blockwise visual keep their native v and V.
 local M = {}
@@ -17,7 +18,6 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 
 local pairs_ = { ["("] = ")", ["["] = "]", ["{"] = "}", ['"'] = '"', ["'"] = "'", ["`"] = "`" }
 
--- The opening and closing children, when the node is wrapped in a pair
 local function brackets(node)
     local first, last = node:child(0), node:child(node:child_count() - 1)
     if first and last and first ~= last and pairs_[first:type()] == last:type() then
@@ -97,7 +97,7 @@ function M.shrink()
     end
 end
 
--- The key itself outside charwise visual, so V still means linewise there
+-- Returns the key itself outside charwise visual, to keep V linewise there
 ---@param key "v"|"V"
 function M.map(key)
     local action = key == "v" and "grow" or "shrink"

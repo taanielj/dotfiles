@@ -1,8 +1,8 @@
--- The session must be saved before :restart; auto-session restores it on the
+-- The session must be saved before :restart. auto-session restores it on the
 -- next start.
 local M = {}
 
----File buffers carrying unsaved changes, named as the messages show them.
+---File buffers with unsaved changes, named as nvim's messages name them.
 ---@return string[]
 function M.unsaved()
     local names = {}

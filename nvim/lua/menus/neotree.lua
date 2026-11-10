@@ -23,9 +23,9 @@ local function call(what)
     end)
 end
 
--- The popup cannot nest, so a group of commands is a row that prompts. The
--- state is taken before the picker opens, since the choice lands with the
--- picker's focus, not the tree's.
+-- The popup can't nest, and a group of commands is a row that prompts. `choose`
+-- reads the tree state before the picker opens, because the tree no longer has
+-- focus when the choice comes back.
 local function choose(prompt, choices)
     return function()
         local state = get_state()

@@ -1,16 +1,17 @@
--- The herdr or Herdr app panes of the Claude sessions connected to this nvim's
--- claudecode server, found through the open connections themselves: a session
--- attached with /ide counts the same as one this nvim started.
+-- Finds the herdr or Herdr app panes of the Claude sessions connected to this
+-- nvim's claudecode server. Looking up the processes on the server's open
+-- connections finds a session attached with /ide as well as one this nvim
+-- started.
 local M = {}
 
 ---@param cmd string[]
----@return string? stdout, nil when the command failed
+---@return string?
 local function run(cmd)
     local res = vim.system(cmd, { text = true }):wait()
     return res.code == 0 and res.stdout or nil
 end
 
----@return integer[] pids at the other end of the claudecode server's connections
+---@return integer[]
 local function connected_pids()
     local port = require("claudecode").state.port
     local out = port and run({ "lsof", "-nP", "-a", "-iTCP:" .. port, "-sTCP:ESTABLISHED", "-Fp" }) or ""
@@ -24,9 +25,9 @@ local function connected_pids()
 end
 
 ---@param pid integer
----@param var string the variable naming the process's pane
----@return string? the pane the process runs in
-local function pane_of(pid, var)
+---@param pane_id_var string
+---@return string?
+local function pane_of(pid, pane_id_var)
     local environ = io.open(("/proc/%d/environ"):format(pid), "rb")
     local env
     if environ then
@@ -35,7 +36,7 @@ local function pane_of(pid, var)
     else
         env = (run({ "ps", "eww", "-o", "command=", "-p", tostring(pid) }) or ""):gsub(" ", "\n")
     end
-    return env:match(var .. "=([^\n]+)")
+    return env:match(pane_id_var .. "=([^\n]+)")
 end
 
 ---@return lib.Pane[] Claude panes, those in this nvim's tab first
@@ -46,11 +47,11 @@ local function candidates()
     end
     local seen, panes = {}, {}
     for _, pid in ipairs(connected_pids()) do
-        local id = pane_of(pid, host.ENV)
+        local id = pane_of(pid, host.PANE_ID_VAR)
         if id and not seen[id] then
             seen[id] = true
             local pane = host.pane(id)
-            if pane and pane.claude then
+            if pane and pane.is_claude then
                 panes[#panes + 1] = pane
             end
         end

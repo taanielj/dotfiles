@@ -124,7 +124,7 @@ local function delete_word_backward()
     end
     local line = vim.api.nvim_get_current_line()
 
-    -- Position cursor for normal-mode wordmotion (at EOL, back up one)
+    -- Insert mode allows the cursor past the last character; normal mode doesn't
     vim.api.nvim_win_set_cursor(0, { row, math.min(col, #line - 1) })
     vim.fn["wordmotion#motion"](1, "n", "b", 0, {})
     local target_row, target = unpack(vim.api.nvim_win_get_cursor(0))

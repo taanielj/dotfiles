@@ -10,7 +10,7 @@ main_bat() {
         warn "bat is not installed, the theme and syntax cache builds on the next setup run"
         return 0
     fi
-    # Custom themes and syntaxes load only from the cache; the vendored theme covers bat releases without bundled Catppuccin
+    # bat loads custom themes and syntaxes only from its cache
     run_quiet "Building bat theme and syntax cache" bat cache --build
 }
 

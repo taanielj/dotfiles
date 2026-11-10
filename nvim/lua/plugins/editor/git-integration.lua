@@ -1,7 +1,7 @@
--- Inline blame and a diagnostic both sit at the end of the line, so the
--- diagnostic wins.
 local function inline_blame(username, info)
     local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+    -- Blame and diagnostics both render at the end of the line. A line with a
+    -- diagnostic shows no blame.
     if #vim.diagnostic.get(0, { lnum = lnum }) > 0 then
         return {}
     end

@@ -16,12 +16,16 @@ main_cargo() {
     install_cargo_tools
 }
 
-install_cargo_tools() {
-    # PATH check needed because cargo may be installed but not yet in this shell's PATH
+# A cargo installed earlier in this run isn't on this shell's PATH yet.
+ensure_cargo_on_path() {
     case ":$PATH:" in
     *":$HOME/.cargo/bin:"*) ;;
     *) export PATH="$HOME/.cargo/bin:$PATH" ;;
     esac
+}
+
+install_cargo_tools() {
+    ensure_cargo_on_path
 
     if ! command -v cargo &>/dev/null; then
         error "❌ Cargo is not installed. Please install it first."
@@ -44,10 +48,7 @@ teardown_cargo() {
         esac
     done
 
-    case ":$PATH:" in
-    *":$HOME/.cargo/bin:"*) ;;
-    *) export PATH="$HOME/.cargo/bin:$PATH" ;;
-    esac
+    ensure_cargo_on_path
 
     if ! command -v cargo &>/dev/null; then
         warn "Cargo is not installed. Nothing to uninstall."
@@ -75,7 +76,7 @@ teardown_cargo() {
             rm -rf "$HOME/.cargo"
         fi
 
-        rc_remove_lines ".cargo/bin"
+        rc_remove_lines_containing ".cargo/bin"
 
         log "Cargo has been completely removed"
     fi

@@ -1,5 +1,6 @@
--- ufo keeps 'foldlevel' at 99 and opens and closes folds itself, so the depth a
--- buffer is folded to lives in vim.b.fold_level instead; nil means all open.
+-- ufo keeps 'foldlevel' at 99 and opens and closes folds itself. This module
+-- keeps the buffer's fold depth in vim.b.fold_level instead, nil meaning all
+-- open.
 local M = {}
 
 local function deepest()

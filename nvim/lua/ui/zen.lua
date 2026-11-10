@@ -1,7 +1,6 @@
 -- Strips the window down to the text: numbers, signs, the statusline and
--- tab bar, the tree, and the multiplexer's chrome around nvim. Leaving
--- restores the snapshot taken on entry, so the options come back as they
--- were set.
+-- tab bar, the tree, and the multiplexer's chrome around nvim. Leaving restores
+-- the options as they were on entry.
 local M = {}
 
 local bare = {
@@ -12,7 +11,7 @@ local bare = {
     colorcolumn = "",
 }
 
--- nil while off; otherwise what to hand back
+-- What leaving zen restores, nil while zen is off
 local state
 
 local function enter()
@@ -52,7 +51,7 @@ local function leave()
     require("lib.mux").restore(state.mux)
 
     if state.tree then
-        -- "show" reopens the tree without focusing it, so the cursor stays put
+        -- "show" reopens the tree without focusing it, to keep the cursor in place
         vim.cmd("Neotree show reveal")
         vim.schedule(function()
             if vim.api.nvim_win_is_valid(win) then

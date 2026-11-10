@@ -24,19 +24,24 @@ bash setup.sh --teardown --remove-cargo
 `setup.sh` runs the scripts in [setup](setup) in a fixed order (see `SETUP_SCRIPTS` at the top of the file) and offers an interactive menu to pick a subset. Each script installs and configures one component and knows how to undo itself:
 
 - [system](setup/system.sh): base packages via apt, pkg (termux), or brew - the only script that needs sudo
-- [git](setup/git.sh): sane global defaults, global ignore file, prompts for name and email, gh as credential helper when logged in
+- [git](setup/git.sh): global defaults for keys that are still unset, a global ignore file, prompts for name and email, gh as credential helper when logged in
 - [zsh](setup/zsh.sh): zinit, p10k (or starship with `ZSH_PROMPT=starship` in ~/.zshrc.local), and the config under [zsh](zsh)
 - [tmux](setup/tmux.sh): tpm and [tmux.conf](tmux.conf)
-- [herdr](setup/herdr.sh): the herdr multiplexer with its [config and plugins](herdr/tui), and on macOS the Herdr desktop app and its herdr-core, with [settings, keys, theme and mods](herdr/app) linked into `~/.config/herdr-app`; [scripts both run](herdr/bin) go onto PATH; brew installs the herdr binary on macOS
+- [herdr](setup/herdr.sh): the herdr multiplexer and its [config and plugins](herdr/tui)
+  - On macOS, brew installs the herdr binary.
+  - On macOS, the script also installs the Herdr desktop app and herdr-core, and links the app's [settings, keys, theme and mods](herdr/app) into `~/.config/herdr-app`.
+  - The [scripts that both herdr and the Herdr app run](herdr/bin) are linked onto PATH.
 - [mise](setup/mise.sh): version manager for language runtimes, with an fzf picker for which to install
 - [nvim](setup/nvim.sh): latest stable Neovim and the lazy.nvim config under [nvim](nvim)
 - [cargo](setup/cargo.sh): Rust plus the cargo-installed CLI tools aliased in [zsh/interactive/aliases.zsh](zsh/interactive/aliases.zsh)
 - [lazygit](setup/lazygit.sh): config everywhere, plus the binary itself where brew does not provide it
-- [clipboard](setup/clipboard.sh): pbcopy and pbpaste shims for zsh, tmux and scripts, Linux and WSL only
+- [bat](setup/bat.sh): [config](bat) with a vendored Catppuccin theme and a JSON log syntax, and bat's theme and syntax cache
+- [clipboard](setup/clipboard.sh): pbcopy and pbpaste shims for zsh, tmux and scripts, Linux and WSL only. On WSL, also a wslview that nvim uses to open links and files.
 - [win32yank](setup/win32yank.sh): Windows clipboard tool behind the shims and nvim, WSL only
+- [superfile](setup/superfile.sh): the superfile file manager from its release tarball, Linux only. On macOS, brew installs superfile.
 - [kitty](setup/kitty.sh), [ghostty](setup/ghostty.sh) and [wezterm](setup/wezterm.sh): terminal emulators installed as casks, macOS only
 - [karabiner](setup/karabiner.sh): [karabiner.json](karabiner/karabiner.json) for Karabiner-Elements, macOS only
-- [hammerspoon](setup/hammerspoon.sh): [init.lua](hammerspoon/init.lua) moves window focus with cmd+hjkl and resizes with alt+hjkl, carrying on from herdr panes and nvim windows; macOS only
+- [hammerspoon](setup/hammerspoon.sh): [init.lua](hammerspoon/init.lua) moves window focus with cmd+hjkl and resizes windows with alt+hjkl, macOS only. At the edge of their own layout, herdr, the Herdr app and nvim focus and resize macOS windows through Hammerspoon.
 
 The [Dockerfile](Dockerfile) and [compose.yaml](compose.yaml) build a throwaway Debian container to try the setup in:
 

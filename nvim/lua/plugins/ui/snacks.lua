@@ -1,4 +1,5 @@
--- Guide colours cycle per indent level; redefined after :colorscheme clears them
+-- Guide colours cycle per indent level. :colorscheme clears them, and they are
+-- redefined after it.
 local rainbow = {
     { "RainbowRed", "#E06C75" },
     { "RainbowYellow", "#E5C07B" },
@@ -10,8 +11,8 @@ local rainbow = {
 }
 local rainbow_groups = vim.tbl_map(function(pair) return pair[1] end, rainbow)
 
--- snacks.indent walks every line from the window's top to its bottom on each redraw, the
--- thousands inside a closed fold too; hand it the visible stretches between closed folds
+-- snacks.indent walks every line from the window's top to its bottom on each redraw,
+-- including thousands inside a closed fold. Hand it the visible stretches between closed folds.
 local function skip_closed_folds()
     local indent = require("snacks.indent")
     local on_win = indent.on_win
@@ -99,7 +100,7 @@ return {
         },
         notifier = { enabled = true, style = "fancy" },
         scroll = { enabled = true },
-        -- Outside herdr and the Herdr app; ui/lazygit.lua opens their own popups inside them
+        -- Outside herdr and the Herdr app. Inside them, ui/lazygit.lua opens their own popups.
         lazygit = {
             win = { on_close = function() require("ui.tree").refresh() end },
         },

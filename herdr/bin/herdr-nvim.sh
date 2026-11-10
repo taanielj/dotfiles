@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Claude Code's EDITOR, linked onto PATH as herdr-nvim. Its prompt (ctrl+g) and
-# transcript (ctrl+o v) open in the nvim running in the same herdr or Herdr app
-# tab (nvim/lua/ui/claude_editor.lua); without one, this is plain nvim.
+# Claude Code's EDITOR, linked onto PATH as herdr-nvim. Claude's prompt (ctrl+g)
+# and transcript (ctrl+o v) open in the nvim running in the same herdr or Herdr
+# app tab (nvim/lua/ui/claude_editor.lua). In a tab with no nvim, herdr-nvim runs
+# plain nvim.
 set -euo pipefail
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 
@@ -62,8 +63,8 @@ fi
 # Claude has cleared its screen and redraws once this exits
 printf '\033[2J\033[H\n  Editing in nvim: ZZ hands back, ZQ cancels, <C-s> submits\n' >/dev/tty
 
-# nvim writes the fifo when the edit ends; an nvim that died without doing so
-# has the watcher write it instead
+# nvim writes the fifo when the edit ends. If nvim dies first, this watcher
+# writes the fifo.
 (
     while kill -0 "$nvim_pid" 2>/dev/null; do sleep 1; done
     echo >"$done_fifo"

@@ -10,7 +10,7 @@ register_tmux_session() {
     _tmux_session_builders[$1]="$2"
 }
 
-# Extension point for session builders registered from ~/.zshrc.local.
+# Helpers for the session builders that ~/.zshrc.local registers.
 _tmux_new_session_maybe_dir() {
     local session="$1"
     local window_name="$2"
@@ -23,7 +23,6 @@ _tmux_new_session_maybe_dir() {
     fi
 }
 
-# Extension point for session builders registered from ~/.zshrc.local.
 _tmux_new_window_maybe_dir() {
     local session="$1"
     local window_name="$2"
@@ -51,7 +50,7 @@ _start_all_sessions() {
     done
 }
 
-# Main entry: attach to first unattached session
+# Starts the registered sessions and attaches to the first one with no client.
 ts() {
     _start_all_sessions
 

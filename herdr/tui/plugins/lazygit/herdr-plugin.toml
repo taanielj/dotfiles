@@ -1,5 +1,4 @@
-# One lazygit popup for every pane: herdr's prefix+g and nvim's <leader>gg both
-# open this pane, so its size and command live only here.
+# herdr's prefix+g and nvim's <leader>gg both open this plugin pane.
 id = "lazygit"
 name = "lazygit"
 version = "0.1.0"

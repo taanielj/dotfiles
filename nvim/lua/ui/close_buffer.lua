@@ -1,13 +1,13 @@
--- Closing keeps the window layout, and the last listed buffer going quits
--- nvim, or shows the dashboard when neo-tree is open (ui/dashboard.lua).
--- Inside a diffview the view closes instead: its buffers are not ours.
+-- Closes a buffer and keeps the window layout.
+-- - Closing the last listed buffer quits nvim, or opens the dashboard when
+--   neo-tree is open (ui/dashboard.lua).
+-- - Inside a diffview, closes the whole diffview, which manages its own buffers.
 local M = {}
 
 ---@class ui.close_buffer.Opts: snacks.bufdelete.Opts
 ---@field save? boolean
 
--- An unnamed buffer with changes asks where to write them; nothing happens
--- when the prompt is cancelled
+-- Cancelling the Save as prompt cancels the close too
 local function save(buf, done)
     if vim.bo[buf].buftype ~= "" or vim.bo[buf].readonly or not vim.bo[buf].modified then
         return done()
@@ -59,9 +59,8 @@ function M.close(opts)
     end
 end
 
----Back to an empty workspace: every listed buffer goes and the dashboard
----stands in. Unsaved work refuses the reset rather than prompting per buffer,
----so the answer is the same whichever buffer is current.
+---Refuses with any unsaved buffer instead of prompting per buffer, to give the
+---same answer whichever buffer is current.
 function M.close_all()
     local session = require("ui.session")
     local unsaved = session.unsaved()
@@ -75,7 +74,8 @@ function M.close_all()
         diffview.close()
     end
 
-    -- The dashboard takes the window first, so no delete lands on the last one
+    -- The dashboard opens first, to keep a buffer in the window while bufdelete
+    -- removes the rest
     require("ui.dashboard").open()
     require("snacks.bufdelete").delete({ filter = function() return true end })
     session.forget()

@@ -1,11 +1,12 @@
--- Claude Code's Edit and Write tools write the file on disk, which may be open
--- here with unsaved changes. Its hooks call in over RPC: before the write, so
--- the change on disk is expected rather than a conflict; after it, to reload
--- the buffer with the unsaved changes put back. The reload keeps nvim's
--- "changed since reading" warning for real conflicts.
+-- Claude Code's Edit, MultiEdit and Write tools write the file on disk, which
+-- may be open here with unsaved changes. Claude Code's PreToolUse hook calls
+-- `M.hook` over RPC before the write, and nvim accepts the change on disk
+-- without a warning. The PostToolUse hook calls `M.hook` after the write, and
+-- nvim reloads the buffer with the unsaved changes put back. A change on disk
+-- that no hook announced still gets nvim's "changed since reading" warning.
 local M = {}
 
--- a permission prompt can sit between the two hooks
+-- Claude Code can wait on a permission prompt between PreToolUse and PostToolUse
 local EXPECT_MS = 60000
 
 ---@type table<integer, integer> buffer -> vim.uv.now() deadline
@@ -35,7 +36,7 @@ local function buffers_for(path)
     end, vim.api.nvim_list_bufs())
 end
 
----@return string? nil when old is missing, or repeated without replace_all
+---@return string?
 local function edit_tool_replace(text, old, new, all)
     if old == "" then
         return nil
@@ -84,10 +85,10 @@ local function hunks(old, new)
     }) --[[@as integer[][] ]]
 end
 
--- Only changed lines are replaced, so marks on the rest stay put
+-- Marks on unchanged lines keep their positions
 ---@param buf integer
 ---@param lines string[]
-local function set_lines(buf, lines)
+local function set_changed_lines(buf, lines)
     local changes = hunks(vim.api.nvim_buf_get_lines(buf, 0, -1, false), lines)
     for i = #changes, 1, -1 do
         local old_start, old_count, new_start, new_count = unpack(changes[i])
@@ -115,7 +116,8 @@ local function follow(row, changes)
     return row + shift
 end
 
--- The reload puts every cursor back where it was by line number, not by text
+-- `:edit!` keeps each cursor's line number, which points at other text once
+-- the change adds or removes lines above the cursor
 ---@param buf integer
 ---@param changes integer[][] from hunks()
 ---@return table<integer, vim.fn.winsaveview.ret> window -> its view after the change
@@ -132,8 +134,8 @@ end
 ---@param buf integer
 ---@param path string
 ---@param tool string
----@param input table the tool's input
-local function sync(buf, path, tool, input)
+---@param tool_input table
+local function sync(buf, path, tool, tool_input)
     expected[buf] = nil
     local content = read(path)
     if not content then
@@ -145,7 +147,7 @@ local function sync(buf, path, tool, input)
     local before = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
     local unsaved_with_edit
     if tool ~= "Write" and vim.bo[buf].modified then
-        unsaved_with_edit = merged(before, input.edits or { input })
+        unsaved_with_edit = merged(before, tool_input.edits or { tool_input })
         if not unsaved_with_edit then
             -- left as it is, the buffer gets nvim's warning when saved
             vim.notify(
@@ -164,7 +166,7 @@ local function sync(buf, path, tool, input)
         if unsaved_with_edit then
             -- one undo step takes back the edit
             pcall(vim.cmd.undojoin)
-            set_lines(buf, unsaved_with_edit)
+            set_changed_lines(buf, unsaved_with_edit)
         end
     end)
     for win, view in pairs(views) do
@@ -172,7 +174,6 @@ local function sync(buf, path, tool, input)
     end
 end
 
----Entry point for the Claude Code hook: PreToolUse and PostToolUse on Edit, MultiEdit and Write.
 ---@param input_path string the hook's JSON input, saved to a file
 function M.hook(input_path)
     local ok, input = pcall(vim.json.decode, read(input_path) or "")
@@ -189,8 +190,8 @@ function M.hook(input_path)
     end
 end
 
--- Registered on load, which the first hook call does, so an nvim started
--- before this module existed takes edits too
+-- Registered when the first hook call loads this module, with no setup at
+-- nvim startup
 vim.api.nvim_create_autocmd("FileChangedShell", {
     group = vim.api.nvim_create_augroup("user_agent_edits", { clear = true }),
     callback = function(args)

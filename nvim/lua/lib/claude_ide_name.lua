@@ -31,7 +31,7 @@ local function name()
     return table.concat(parts, " · ")
 end
 
--- The lock exists once the server is up; before that there is nothing to name
+-- The lock file exists once the server is up. Before that, there is nothing to name.
 function M.write()
     local path = lock_path()
     if not path or vim.fn.filereadable(path) == 0 or (path == written_path and name() == written_name) then

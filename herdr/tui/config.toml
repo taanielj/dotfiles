@@ -1,7 +1,6 @@
-# Only bindings that differ from herdr's defaults are set; session, tab and
-# rename bindings rely on herdr defaults, which already mirror the tmux
-# equivalents (prefix+c new tab, prefix+shift+n new workspace,
-# prefix+shift+t / prefix+shift+w rename tab / workspace).
+# Only bindings that differ from herdr's defaults are set. herdr's defaults
+# already match tmux for prefix+c (new tab), prefix+shift+n (new workspace) and
+# prefix+shift+t / prefix+shift+w (rename tab / workspace).
 
 onboarding = false
 
@@ -16,7 +15,7 @@ resume_agents_on_restore = true
 prefix = "ctrl+space"
 
 
-# tmux: M-Left/M-Right = previous/next window; kept alongside herdr's prefix+p/n
+# tmux: M-Left/M-Right = previous/next window
 previous_tab = ["prefix+p", "alt+left"]
 next_tab = ["prefix+n", "alt+right"]
 
@@ -26,7 +25,6 @@ next_agent         = "alt+shift+down"
 previous_agent     = "alt+shift+up"
 
 # --- tmux muscle-memory aliases (secondary keys; prune once the herdr defaults stick) ---
-# settings takes prefix+shift+s, leaving prefix+s for the tmux session-picker key.
 rename_workspace = ["prefix+shift+w", "prefix+shift+4"] # tmux: prefix $
 rename_tab       = ["prefix+shift+t", "prefix+comma"]   # tmux: prefix ,
 detach           = ["prefix+q", "prefix+d"]             # tmux: prefix d
@@ -34,17 +32,15 @@ workspace_picker = ["prefix+w", "prefix+s"]             # tmux: prefix s
 close_tab        = ["prefix+shift+x", "prefix+shift+7"] # tmux: prefix &
 split_horizontal = ["prefix+minus", "prefix+'"]         # tmux: prefix ' (top/bottom)
 split_vertical   = ["prefix+v", 'prefix+"']             # tmux: prefix " (side-by-side)
-settings         = "prefix+shift+s"
+settings         = "prefix+shift+s"                     # frees prefix+s for workspace_picker
 
-# prefix+f is the fzf goto with a pane preview (below); the built-in goto still
-# covers tabs and workspaces that have no pane to preview.
+# prefix+f runs herdr-pane-pick.sh's goto, which previews each pane. The built-in
+# goto also lists tabs and workspaces with no pane to preview.
 goto = "prefix+shift+f"
 
 
-# nvim<->herdr navigation (ctrl+hjkl) and resize (alt+hjkl) via the
-# herdr-splits plugin; the nvim half is nvim/lua/plugins/tools/herdr-splits.lua.
-# Both go through bin/herdr-nav.sh and bin/herdr-resize.sh, which carry on into
-# macOS windows.
+# ctrl+hjkl moves focus and alt+hjkl resizes across Neovim splits, herdr panes
+# and macOS windows. The Neovim side is nvim/lua/plugins/tools/herdr-splits.lua.
 [[keys.command]]
 key = "ctrl+h"
 type = "shell"
@@ -106,7 +102,6 @@ type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-resize.sh" right'
 description = "resize right"
 
-# one-percent resize
 [[keys.command]]
 key = "alt+shift+h"
 type = "shell"
@@ -143,7 +138,7 @@ description = "goto pane (preview)"
 width = "70%"
 height = "60%"
 
-# tmux: prefix m/M = choose-window -> join-pane; fzf picker pulls a pane in
+# tmux: prefix m/M = choose-window -> join-pane
 [[keys.command]]
 key = "prefix+m"
 type = "popup"
@@ -159,14 +154,14 @@ description = "join a pane (split down)"
 width = "70%"
 height = "60%"
 
-# tmux: prefix space = next-layout (cycles even-v, even-h, main-left, main-top, tiled)
+# tmux: prefix space = next-layout (side by side, stacked, main left, main top, tiled)
 [[keys.command]]
 key = "prefix+space"
 type = "plugin_action"
 command = "layouts.cycle"
 description = "cycle layout"
 
-# edit_scrollback, unless the pane has nothing to scroll back to (tmux: prefix /)
+# tmux: prefix /
 [[keys.command]]
 key = "prefix+e"
 type = "shell"
@@ -178,16 +173,14 @@ type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
 description = "scrollback in $EDITOR"
 
-# Reload with the result shown in the tab bar; the built-in reload_config on
-# the same key is silent.
+# herdr's own reload_config on this key shows no result. This one reports the
+# result in the tab bar.
 [[keys.command]]
 key = "prefix+shift+r"
 type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-reload.sh"'
 description = "reload config"
 
-# lazygit popup from plugins/lazygit; nvim's <leader>gg opens the same pane.
-# prefix+l is left to herdr's default focus_pane_right.
 [[keys.command]]
 key = "prefix+g"
 type = "shell"
@@ -213,8 +206,7 @@ window_title = "herdr · {workspace}"
 host_cursor = "native"
 toast.delivery = "system"
 
-# Tab bar right side (tmux status-right equivalent). Separate command entries
-# so each refreshes at its own pace.
+# tmux: status-right
 tab_bar_right = [
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-reload-status.sh", interval_seconds = 1, timeout_seconds = 2 },
     { type = "command", command = "$HOME/.local/bin/herdr-netspeed tui", interval_seconds = 1, timeout_seconds = 2 },
@@ -226,7 +218,8 @@ tab_bar_right_separator = " · "
 
 agent_panel_sort = "priority"
 
-# Each entry names its workspace because priority sort interleaves workspaces.
+# Each row names its workspace, because the priority sort mixes agents from
+# different workspaces.
 [ui.sidebar.agents]
 rows = [
     ["state_icon", "workspace", "tab"],

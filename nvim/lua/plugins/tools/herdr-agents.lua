@@ -11,8 +11,8 @@ return {
     },
     opts = function() return { claude = { opts = { port_range = require("lib.claude_port").reuse() } } } end,
     config = function(_, opts)
-        -- The agent pane splits off right, with no option to change it; this
-        -- turns that split downwards
+        -- herdr-agents splits the agent pane off to the right, with no option to
+        -- change it. The wrapper below splits it downwards.
         local herdr = require("herdr-agents.herdr")
         local json = herdr.json
         herdr.json = function(args)

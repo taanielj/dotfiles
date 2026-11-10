@@ -411,7 +411,6 @@
   # sagging, try setting POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY to a number lower than the output
   # of `git ls-files | wc -l`. Alternatively, add `bash.showDirtyState = false` to the repository's
   # config: `git config bash.showDirtyState false`.
-  # Optimized: Limit git status checks for large repos
   typeset -g POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY=4000
 
   # Don't show Git status in prompt for repositories whose workdir matches this pattern.
@@ -427,7 +426,8 @@
   # Enable counters for staged, unstaged, etc.
   typeset -g POWERLEVEL9K_VCS_{STAGED,UNSTAGED,UNTRACKED,CONFLICTED,COMMITS_AHEAD,COMMITS_BEHIND}_MAX_NUM=-1
 
-  # Speed up git status by enabling caching and limiting refresh
+  # Wait up to 50 ms for git status before drawing the prompt; a slower status
+  # shows when it arrives.
   typeset -g POWERLEVEL9K_VCS_MAX_SYNC_LATENCY_SECONDS=0.05
 
   # Icon color.
@@ -857,7 +857,8 @@
 
   # Don't show context unless running with privileges or in SSH.
   # Tip: Remove the next line to always show context.
-  # SSH detection disabled for performance - always hide context
+  # Hidden in SSH too, because zshrc pre-sets P9K_SSH=0 to skip p10k's SSH
+  # detection.
   typeset -g POWERLEVEL9K_CONTEXT_{DEFAULT,SUDO,REMOTE,REMOTE_SUDO}_{CONTENT,VISUAL_IDENTIFIER}_EXPANSION=
 
   # Custom icon.
@@ -1625,8 +1626,6 @@
   # can slow down prompt by 1-2 milliseconds, so it's better to keep it turned off unless you
   # really need it.
   typeset -g POWERLEVEL9K_DISABLE_HOT_RELOAD=true
-
-  # SSH detection disabled in zshrc before p10k loads
 
   # If p10k is already loaded, reload configuration.
   # This works even with POWERLEVEL9K_DISABLE_HOT_RELOAD=true.

@@ -4,7 +4,7 @@ REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
 main_lazygit() {
-    # macOS gets lazygit from brew (setup/system.sh); elsewhere from the release tarball.
+    # brew installs lazygit on macOS (setup/system.sh)
     if [[ "$OSTYPE" != "darwin"* ]]; then
         install_lazygit
     fi

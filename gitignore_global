@@ -1,7 +1,7 @@
 # MacOS
 .DS_Store
 
-# global .gitignore
+# Python virtualenvs
 .venv/
 venv/
 VENV/
@@ -32,7 +32,7 @@ CLAUDE.local.md
 TODO.md
 
 .mise.toml
-# manually add tool-versions by default
+# Commit a project's .tool-versions with git add -f
 .tool-versions
 
 # scala

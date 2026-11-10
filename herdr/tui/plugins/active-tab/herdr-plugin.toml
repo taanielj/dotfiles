@@ -5,7 +5,7 @@ min_herdr_version = "0.9.5"
 description = "Show each workspace's active tab in the sidebar unless it still has its automatic number"
 platforms = ["linux", "macos"]
 
-# Tokens are not restored after a server restart.
+# herdr drops tokens on a server restart
 [[startup]]
 command = ["sh", "active-tab.sh"]
 

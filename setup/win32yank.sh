@@ -3,8 +3,7 @@
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 source "$REPO_ROOT/setup/utils.sh"
 
-# win32yank is the Windows clipboard tool behind pbcopy (clipboard/) and nvim
-# on WSL. Lives in ~/.local/bin like lazygit, so both find it on PATH.
+# On PATH, where pbcopy (clipboard/) and nvim on WSL look for win32yank.
 WIN32YANK_BIN="$HOME/.local/bin/win32yank.exe"
 
 main_win32yank() {
