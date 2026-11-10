@@ -81,7 +81,8 @@ function M.open(cmd, env, _, focus)
     if running() then
         return show(focus)
     end
-    -- An app pane starts with the app's environment. `env` passes claudecode's port and token to Claude.
+    -- App panes don't inherit nvim's environment. Claude finds nvim's lock file in $CLAUDE_CONFIG_DIR/ide/.
+    env = vim.tbl_extend("keep", env, { CLAUDE_CONFIG_DIR = vim.env.CLAUDE_CONFIG_DIR })
     local argv = { "env" }
     for key, value in pairs(env) do
         argv[#argv + 1] = key .. "=" .. value
