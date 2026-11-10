@@ -217,15 +217,14 @@ toast.delivery = "system"
 # so each refreshes at its own pace.
 tab_bar_right = [
     { type = "command", command = "$HOME/.config/herdr/bin/herdr-reload-status.sh", interval_seconds = 1, timeout_seconds = 2 },
-    { type = "command", command = "$HOME/.config/herdr/bin/herdr-netspeed.sh", interval_seconds = 1, timeout_seconds = 2 },
-    { type = "command", command = "$HOME/.config/herdr/bin/herdr-sysmon.sh", interval_seconds = 1, timeout_seconds = 2 },
-    { type = "command", command = "$HOME/.config/herdr/bin/herdr-weather.sh", interval_seconds = 900, timeout_seconds = 10 },
+    { type = "command", command = "$HOME/.local/bin/herdr-netspeed", interval_seconds = 1, timeout_seconds = 2 },
+    { type = "command", command = "$HOME/.local/bin/herdr-sysmon", interval_seconds = 1, timeout_seconds = 2 },
+    { type = "command", command = "$HOME/.local/bin/herdr-weather", interval_seconds = 900, timeout_seconds = 10 },
     { type = "datetime", format = "%H:%M " },
 ]
 tab_bar_right_separator = " · "
 
 agent_panel_sort = "priority"
-status_indicators = "symbols"
 
 # Each entry names its workspace because priority sort interleaves workspaces.
 [ui.sidebar.agents]

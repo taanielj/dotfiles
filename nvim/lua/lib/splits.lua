@@ -56,7 +56,7 @@ end
 
 ---@param dir "left"|"down"|"up"|"right"
 function M.move(dir)
-    -- The app's keys mod carries on into panes and macOS windows (herdr-app/mods/keys)
+    -- The app's keys mod carries on into panes and macOS windows (herdr/app/mods/keys)
     local app = require("lib.herdr_app")
     if app.inside() and at_nvim_edge({ dir }) then
         app.run("keys.go-" .. dir)

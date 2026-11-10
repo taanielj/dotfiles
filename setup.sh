@@ -18,7 +18,7 @@ SETUP_SCRIPTS=(
     "$REPO_ROOT/setup/lazygit.sh" # brew installs the binary on macOS
     "$REPO_ROOT/setup/bat.sh"
 )
-[[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/ghostty.sh" "$REPO_ROOT/setup/herdr-app.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh" "$REPO_ROOT/setup/hammerspoon.sh")
+[[ "$OSTYPE" == "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/kitty.sh" "$REPO_ROOT/setup/ghostty.sh" "$REPO_ROOT/setup/wezterm.sh" "$REPO_ROOT/setup/karabiner.sh" "$REPO_ROOT/setup/hammerspoon.sh")
 [[ "$OSTYPE" != "darwin"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/clipboard.sh")
 [[ "$OSTYPE" == "linux-gnu"* ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/superfile.sh") # brew installs it on macOS
 [[ -n "$WSL_DISTRO_NAME" ]] && SETUP_SCRIPTS+=("$REPO_ROOT/setup/win32yank.sh")
@@ -88,8 +88,8 @@ show_banner() {
         log "  • Text editor (neovim with plugins)"
         log "  • Rust tools (cargo packages like eza, ripgrep, bat)"
         log "  • Git TUI (lazygit)"
-        log "  • Terminal workspace manager (herdr)"
-        [[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, ghostty, wezterm), the Herdr app, Karabiner-Elements and Hammerspoon"
+        log "  • Terminal workspace manager (herdr, and the Herdr app on macOS)"
+        [[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, ghostty, wezterm), Karabiner-Elements and Hammerspoon"
         [[ "$OSTYPE" != "darwin"* ]] && log "  • Clipboard shims (pbcopy, pbpaste)"
         [[ -n "$WSL_DISTRO_NAME" ]] && log "  • Windows clipboard tool (win32yank)"
         echo ""

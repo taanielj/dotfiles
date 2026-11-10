@@ -6,9 +6,9 @@ import { spaces, agents, theme, run, window, keys, exec, home, settings } from "
 
 // Each script with how often it reruns; the weather script caches for 15 minutes itself.
 const SCRIPTS = [
-  ["herdr-netspeed.sh", 1000],
-  ["herdr-sysmon.sh", 1000],
-  ["herdr-weather.sh", 900000],
+  ["herdr-netspeed", 1000],
+  ["herdr-sysmon", 1000],
+  ["herdr-weather", 900000],
 ];
 
 export default class WorkspaceStatus extends View {
@@ -17,7 +17,7 @@ export default class WorkspaceStatus extends View {
     this.time = "";
     for (const [script, ms] of SCRIPTS) {
       const refresh = (cx) => cx.spawn(async (cx) => {
-        const r = await exec(`${home()}/.config/herdr/bin/${script}`, [], { timeout: 10000 });
+        const r = await exec(`${home()}/.local/bin/${script}`, [], { timeout: 10000 });
         this.out[script] = r.code === 0 ? r.stdout.trim() : "";
         cx.notify();
       });

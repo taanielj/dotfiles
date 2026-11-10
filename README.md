@@ -27,7 +27,7 @@ bash setup.sh --teardown --remove-cargo
 - [git](setup/git.sh): sane global defaults, global ignore file, prompts for name and email, gh as credential helper when logged in
 - [zsh](setup/zsh.sh): zinit, p10k, and the config under [zsh](zsh)
 - [tmux](setup/tmux.sh): tpm and [tmux.conf](tmux.conf)
-- [herdr](setup/herdr.sh): the herdr multiplexer, its config and plugins; brew installs the binary on macOS
+- [herdr](setup/herdr.sh): the herdr multiplexer with its [config and plugins](herdr/tui), and on macOS the Herdr desktop app and its herdr-core, with [settings, keys, theme and mods](herdr/app) linked into `~/.config/herdr-app`; [scripts both run](herdr/bin) go onto PATH; brew installs the herdr binary on macOS
 - [mise](setup/mise.sh): version manager for language runtimes, with an fzf picker for which to install
 - [nvim](setup/nvim.sh): latest stable Neovim and the lazy.nvim config under [nvim](nvim)
 - [cargo](setup/cargo.sh): Rust plus the cargo-installed CLI tools aliased in [zsh/interactive/aliases.zsh](zsh/interactive/aliases.zsh)
@@ -35,7 +35,6 @@ bash setup.sh --teardown --remove-cargo
 - [clipboard](setup/clipboard.sh): pbcopy and pbpaste shims for zsh, tmux and scripts, Linux and WSL only
 - [win32yank](setup/win32yank.sh): Windows clipboard tool behind the shims and nvim, WSL only
 - [kitty](setup/kitty.sh), [ghostty](setup/ghostty.sh) and [wezterm](setup/wezterm.sh): terminal emulators installed as casks, macOS only
-- [herdr-app](setup/herdr-app.sh): the Herdr desktop app and its herdr-core, with [settings, keys and theme](herdr-app) linked into `~/.config/herdr-app`; macOS only
 - [karabiner](setup/karabiner.sh): [karabiner.json](karabiner/karabiner.json) for Karabiner-Elements, macOS only
 - [hammerspoon](setup/hammerspoon.sh): [init.lua](hammerspoon/init.lua) moves window focus with cmd+hjkl and resizes with alt+hjkl, carrying on from herdr panes and nvim windows; macOS only
 

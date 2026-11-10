@@ -5,12 +5,29 @@ source "$REPO_ROOT/setup/utils.sh"
 
 HERDR_BIN="$HOME/.local/bin/herdr"
 
+# Scripts both herdr and the Herdr app run, linked onto PATH: Claude Code's
+# EDITOR (a name its settings env can give: env values are not expanded) and
+# the status bars' network, system and weather readouts.
+SHARED_BIN=(herdr-nvim herdr-netspeed herdr-sysmon herdr-weather)
+
+APP_HOME="$HOME/.config/herdr-app"
+# Files the app reads from its home; everything else there is the app's own state.
+# The app's file events don't follow these links: after editing a mod in the
+# repo, `touch -h` its link to reload it.
+APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons bin)
+
 main_herdr() {
     # macOS gets herdr from brew (setup/system.sh); elsewhere from herdr.dev.
     if [[ "$OSTYPE" != "darwin"* ]]; then
         install_herdr
     fi
+    link_shared_bin
     configure_herdr
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        install_cask herdr-app || return 1
+        install_herdr_core
+        configure_herdr_app
+    fi
 }
 
 install_herdr() {
@@ -27,6 +44,27 @@ install_herdr() {
     run_quiet "Installing herdr" sh -c "$installer"
 }
 
+install_herdr_core() {
+    if command -v hc &>/dev/null; then
+        log "✅ herdr-core is already installed at $(command -v hc)"
+        return
+    fi
+    local installer
+    if ! installer=$(fetch_installer https://releases.herdr.dev/core/install.sh); then
+        error "❌ Failed to download the herdr-core installer."
+        return 1
+    fi
+    # The script installs to ~/.local/bin, which zprofile puts on PATH.
+    run_quiet "Installing herdr-core" sh -c "$installer"
+}
+
+link_shared_bin() {
+    local name
+    for name in "${SHARED_BIN[@]}"; do
+        link_file "$REPO_ROOT/herdr/bin/$name.sh" "$HOME/.local/bin/$name"
+    done
+}
+
 configure_herdr() {
     log "Configuring herdr..."
     if ! command -v herdr &>/dev/null; then
@@ -34,12 +72,9 @@ configure_herdr() {
         return 1
     fi
 
-    link_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
+    link_file "$REPO_ROOT/herdr/tui/config.toml" "$HOME/.config/herdr/config.toml"
     # The whole directory, so a new script is visible to herdr without rerunning setup.
-    link_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
-    # Claude Code's EDITOR, by a name its settings env can give: env values are
-    # not expanded, and ~/.local/bin is on PATH.
-    link_file "$REPO_ROOT/herdr/bin/herdr-nvim.sh" "$HOME/.local/bin/herdr-nvim"
+    link_file "$REPO_ROOT/herdr/tui/bin" "$HOME/.config/herdr/bin"
 
     # Herd-side plugins the config binds to (nvim<->herdr nav/resize).
     if ! herdr plugin list 2>/dev/null | grep -q "herdr-splits"; then
@@ -58,25 +93,25 @@ configure_herdr() {
     local config_dir
     config_dir=$(herdr plugin config-dir herdr-plugin-workspace-manager)
     if [[ -n "$config_dir" ]]; then
-        link_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" "$config_dir/config.yml"
+        link_file "$REPO_ROOT/herdr/tui/plugins/workspace-manager/config.yml" "$config_dir/config.yml"
     else
         warn "No herdr config dir for workspace-manager; skipping its config."
     fi
     # The lazygit popup behind prefix+g and nvim's <leader>gg.
     if ! herdr plugin list 2>/dev/null | grep -q "^- lazygit "; then
-        run_quiet "Linking herdr lazygit plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/lazygit"
+        run_quiet "Linking herdr lazygit plugin" herdr plugin link "$REPO_ROOT/herdr/tui/plugins/lazygit"
     fi
-    # Reruns the programs in herdr/plugins/restore/programs after a server restart.
+    # Reruns the programs in herdr/tui/plugins/restore/programs after a server restart.
     if ! herdr plugin list 2>/dev/null | grep -q "^- restore "; then
-        run_quiet "Linking herdr restore plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/restore"
+        run_quiet "Linking herdr restore plugin" herdr plugin link "$REPO_ROOT/herdr/tui/plugins/restore"
     fi
     # Sets the $title sidebar token the agent rows in config.toml show.
     if ! herdr plugin list 2>/dev/null | grep -q "^- agent-titles "; then
-        run_quiet "Linking herdr agent-titles plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/agent-titles"
+        run_quiet "Linking herdr agent-titles plugin" herdr plugin link "$REPO_ROOT/herdr/tui/plugins/agent-titles"
     fi
     # Sets the $tab sidebar token the space rows in config.toml show.
     if ! herdr plugin list 2>/dev/null | grep -q "^- active-tab "; then
-        run_quiet "Linking herdr active-tab plugin" herdr plugin link "$REPO_ROOT/herdr/plugins/active-tab"
+        run_quiet "Linking herdr active-tab plugin" herdr plugin link "$REPO_ROOT/herdr/tui/plugins/active-tab"
     fi
 
     if ! herdr config check; then
@@ -89,13 +124,27 @@ configure_herdr() {
     success "herdr configuration completed."
 }
 
+configure_herdr_app() {
+    log "Configuring the Herdr app..."
+    local file
+    for file in "${APP_FILES[@]}"; do
+        link_file "$REPO_ROOT/herdr/app/$file" "$APP_HOME/$file"
+    done
+    # The layout docks the keys mod; a running window switches to it now.
+    herdr-app "do" layout.set --layout dotfiles &>/dev/null || true
+    success "Herdr app configuration linked."
+}
+
 teardown_herdr() {
     log "Removing herdr configuration..."
-    unlink_file "$REPO_ROOT/herdr/config.toml" "$HOME/.config/herdr/config.toml"
-    unlink_file "$REPO_ROOT/herdr/bin" "$HOME/.config/herdr/bin"
-    unlink_file "$REPO_ROOT/herdr/bin/herdr-nvim.sh" "$HOME/.local/bin/herdr-nvim"
+    unlink_file "$REPO_ROOT/herdr/tui/config.toml" "$HOME/.config/herdr/config.toml"
+    unlink_file "$REPO_ROOT/herdr/tui/bin" "$HOME/.config/herdr/bin"
+    local name
+    for name in "${SHARED_BIN[@]}"; do
+        unlink_file "$REPO_ROOT/herdr/bin/$name.sh" "$HOME/.local/bin/$name"
+    done
     if command -v herdr &>/dev/null; then
-        unlink_file "$REPO_ROOT/herdr/plugins/workspace-manager/config.yml" \
+        unlink_file "$REPO_ROOT/herdr/tui/plugins/workspace-manager/config.yml" \
             "$(herdr plugin config-dir herdr-plugin-workspace-manager)/config.yml"
         herdr plugin unlink lazygit &>/dev/null || true
         herdr plugin unlink restore &>/dev/null || true
@@ -105,6 +154,13 @@ teardown_herdr() {
     if [[ -f "$HERDR_BIN" ]]; then
         log "Removing herdr installation from $HERDR_BIN"
         rm -f "$HERDR_BIN"
+    fi
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        local file
+        for file in "${APP_FILES[@]}"; do
+            unlink_file "$REPO_ROOT/herdr/app/$file" "$APP_HOME/$file"
+        done
+        uninstall_cask herdr-app
     fi
     success "herdr configuration removed."
 }

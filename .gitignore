@@ -1,5 +1,5 @@
 lazy-lock.json
 karabiner/automatic_backups/
 # Written into each mod folder by the Herdr app for editor types
-herdr-app/mods/*/gpui-kit.d.ts
-herdr-app/mods/*/jsconfig.json
+herdr/app/mods/*/gpui-kit.d.ts
+herdr/app/mods/*/jsconfig.json

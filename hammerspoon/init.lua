@@ -22,8 +22,8 @@ configWatcher = hs.pathwatcher -- global, or garbage collection stops it
     :start()
 
 local TERMINALS = { "Ghostty", "kitty" }
-local HERDR_TITLE = "herdr · " -- how herdr's ui.window_title (herdr/config.toml) starts
-local HERDR_APP = "dev.herdr.app" -- the Herdr desktop app's bundle id (herdr-app/)
+local HERDR_TITLE = "herdr · " -- how herdr's ui.window_title (herdr/tui/config.toml) starts
+local HERDR_APP = "dev.herdr.app" -- the Herdr desktop app's bundle id (herdr/app/)
 local STEP = 0.05 -- of the screen, per resize press
 local FINE_STEP = 0.01
 local TOUCH = 10 -- px; windows this close share a border

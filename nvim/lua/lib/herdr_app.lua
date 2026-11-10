@@ -1,4 +1,4 @@
--- The Herdr desktop app (herdr-app/), whose terminals run in herdr-core. It
+-- The Herdr desktop app (herdr/app/), whose terminals run in herdr-core. It
 -- answers the same calls as lib/herdr.lua, with a terminal address (t7) where
 -- herdr has a pane id.
 local M = {}
