@@ -1,0 +1,139 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+add_newline = false
+
+# Listing the modules keeps starship's per-language modules off.
+format = "${env_var.STARSHIP_GIT_HOST}$git_branch$git_commit$git_state$git_status$character"
+right_format = "$status$cmd_duration$jobs${env_var.DIRENV_DIR}$python$kubernetes$aws$gcloud$username$hostname$time"
+
+# Each icon is followed by a space, which the terminal lets it spill into; an
+# icon followed by text shrinks to one cell.
+
+# Rendered once at startup by zsh/starship.zsh, which draws it and the path
+# itself
+[os]
+disabled = false
+style = ""
+format = "[$symbol]($style) "
+
+[os.symbols]
+Macos = "\uF179"
+Debian = "\uF306"
+Ubuntu = "\uF31B"
+Linux = "\uF17C"
+Android = "\uF17B"
+
+# p10k's VCS icon, the origin remote's host, set on cd by zsh/starship.zsh
+[env_var.STARSHIP_GIT_HOST]
+style = "fg:76"
+format = "[$env_value ]($style)"
+
+[git_branch]
+symbol = "\uF126 "
+style = "fg:76"
+format = "[$symbol$branch]($style) "
+truncation_length = 32
+truncation_symbol = "…"
+
+# Shown only on a detached HEAD, as @hash or #tag
+[git_commit]
+style = "fg:76"
+format = "[@$hash$tag]($style) "
+commit_hash_length = 8
+tag_disabled = false
+tag_symbol = " #"
+
+[git_state]
+style = "fg:196"
+format = "[$state( $progress_current/$progress_total)]($style) "
+
+[git_status]
+format = "$ahead_behind$stashed$conflicted$staged$modified$renamed$deleted$untracked"
+ahead = "[⇡$count](fg:76) "
+behind = "[⇣$count](fg:76) "
+diverged = "[⇣$behind_count ⇡$ahead_count](fg:76) "
+stashed = "[*$count](fg:76) "
+conflicted = "[~$count](fg:196) "
+staged = "[+$count](fg:178) "
+modified = "[!$count](fg:178) "
+renamed = "[»$count](fg:178) "
+deleted = "[✘$count](fg:178) "
+untracked = "[?$count](fg:39) "
+
+[character]
+success_symbol = "[❯](fg:76)"
+error_symbol = "[❯](fg:196)"
+
+[status]
+disabled = false
+style = "fg:160"
+format = "[✘$status]($style) "
+pipestatus = true
+pipestatus_format = "[✘$pipestatus]($style) "
+pipestatus_segment_format = "$status"
+
+[cmd_duration]
+min_time = 3000
+style = "fg:101"
+format = "[\uF252 $duration]($style) "
+
+[jobs]
+symbol = "\uF013 "
+style = "fg:70"
+format = "[$symbol]($style) "
+
+[env_var.DIRENV_DIR]
+style = "fg:178"
+format = "[▼]($style) "
+
+# Only an active venv, without the Python version
+[python]
+symbol = "\uE73C "
+style = "fg:37"
+format = "[$symbol$virtualenv]($style) "
+detect_extensions = []
+detect_files = []
+detect_folders = []
+
+# STARSHIP_KUBE and STARSHIP_GCLOUD are set while the typed command needs them (zsh/starship.zsh).
+[kubernetes]
+disabled = false
+detect_env_vars = ["STARSHIP_KUBE"]
+symbol = "󱃾 "
+style = "fg:134"
+format = "[$symbol$context( /$namespace)]($style) "
+
+# EKS and GKE context names spell out account and region; show the cluster only
+[[kubernetes.contexts]]
+context_pattern = "arn:aws:eks:[^:]+:[^:]+:cluster/(?P<cluster>.+)"
+context_alias = "$cluster"
+
+[[kubernetes.contexts]]
+context_pattern = "gke_[^_]+_[^_]+_(?P<cluster>.+)"
+context_alias = "$cluster"
+
+[gcloud]
+detect_env_vars = ["STARSHIP_GCLOUD"]
+symbol = "󰊭 "
+style = "fg:32"
+format = "[$symbol$project]($style) "
+
+[aws]
+symbol = "\uF270 "
+style = "fg:208"
+format = "[$symbol$profile( $region)]($style) "
+
+[username]
+style_user = "fg:180"
+style_root = "bold fg:178"
+format = "[$user]($style)"
+
+[hostname]
+style = "fg:180"
+format = "[@$hostname]($style) "
+
+[time]
+disabled = false
+style = "fg:66"
+time_format = "%H:%M:%S"
+format = "[\uF017 $time]($style)"

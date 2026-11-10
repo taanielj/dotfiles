@@ -1,7 +1,3 @@
-# Pre-set SSH detection to skip expensive 'who' command in _p9k_init_ssh
-typeset -gix P9K_SSH=0
-typeset -gx _P9K_SSH_TTY=$TTY
-
 # zprofile sources this too, but multiplexer panes start non-login shells
 source "$HOME/.config/zsh/source-cached.zsh"
 
@@ -47,13 +43,6 @@ autoload -Uz _zinit
 ((${+_comps})) && _comps[zinit]=_zinit
 autoload -U select-word-style
 select-word-style bash
-
-setopt promptsubst
-
-# Powerlevel10k - eager load so the prompt renders before lazy plugins
-zinit ice depth=1 lucid
-zinit light romkatv/powerlevel10k
-source "$HOME/.config/zsh/p10k.zsh"
 
 # Autosuggestions loads eagerly so suggestions appear from the first prompt.
 # Manual rebind wraps zle widgets once at the first prompt instead of at every
@@ -153,3 +142,17 @@ fi
 # Machine-local config, not in VCS. Sourced after the interactive files so it
 # can use helpers like register_tmux_session.
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
+
+# The prompt loads after ~/.zshrc.local, where ZSH_PROMPT=starship picks
+# starship over Powerlevel10k. Either renders before the lazy plugins load.
+if [[ $ZSH_PROMPT == starship ]] && command -v starship &>/dev/null; then
+    source "$HOME/.config/zsh/starship.zsh"
+else
+    # Pre-set SSH detection to skip expensive 'who' command in _p9k_init_ssh
+    typeset -gix P9K_SSH=0
+    typeset -gx _P9K_SSH_TTY=$TTY
+    setopt promptsubst
+    zinit ice depth=1 lucid
+    zinit light romkatv/powerlevel10k
+    source "$HOME/.config/zsh/p10k.zsh"
+fi

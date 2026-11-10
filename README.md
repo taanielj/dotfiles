@@ -25,7 +25,7 @@ bash setup.sh --teardown --remove-cargo
 
 - [system](setup/system.sh): base packages via apt, pkg (termux), or brew - the only script that needs sudo
 - [git](setup/git.sh): sane global defaults, global ignore file, prompts for name and email, gh as credential helper when logged in
-- [zsh](setup/zsh.sh): zinit, p10k, and the config under [zsh](zsh)
+- [zsh](setup/zsh.sh): zinit, p10k (or starship with `ZSH_PROMPT=starship` in ~/.zshrc.local), and the config under [zsh](zsh)
 - [tmux](setup/tmux.sh): tpm and [tmux.conf](tmux.conf)
 - [herdr](setup/herdr.sh): the herdr multiplexer with its [config and plugins](herdr/tui), and on macOS the Herdr desktop app and its herdr-core, with [settings, keys, theme and mods](herdr/app) linked into `~/.config/herdr-app`; [scripts both run](herdr/bin) go onto PATH; brew installs the herdr binary on macOS
 - [mise](setup/mise.sh): version manager for language runtimes, with an fzf picker for which to install
