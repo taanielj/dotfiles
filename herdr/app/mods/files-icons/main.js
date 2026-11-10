@@ -1,7 +1,7 @@
-// A lazy file browser for the focused pane's folder, with bounded read-only previews.
+// A lazy file browser for the focused pane's folder: a file opens in the tab's nvim, or in a bounded read-only preview.
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex, Editor, EditorState } from "gpui-base";
-import { spaces, panes, focused, exec, readTextFile, watchFolder, theme, settings, window } from "herdr";
+import { spaces, panes, focused, exec, run, readTextFile, watchFolder, theme, settings, window } from "herdr";
 import { fileIcon } from "./icons.js";
 
 function location() {
@@ -132,6 +132,19 @@ export default class Files extends View {
     cx.notify();
   }
 
+  // Opens a file in the first nvim of the focused tab, or in a new nvim beside the
+  // focused pane; the preview shows what no nvim can take (another machine's files).
+  open(path, cx) {
+    if (this.on) return this.show(path, cx);
+    const file = `${this.root}/${path}`, tab = focused()?.tab;
+    const nvim = panes().find(p => p.tab === tab && p.program?.key === "nvim");
+    if (!nvim) return run("terminal.open", { argv: ["nvim", file], folder: this.root, place: "right" });
+    cx.spawn(async cx => {
+      const r = await exec("herdr-open", [nvim.terminal, file]).catch(() => null);
+      if (r?.code !== 0) { this.show(path, cx); cx.notify(); }
+    });
+  }
+
   show(path, cx) {
     this.code?.release(); this.code = null; this.file = path; this.fileError = null;
     if (!path || !cx) return;
@@ -158,7 +171,7 @@ export default class Files extends View {
       if (out.length >= TOTAL) break;
       const path = prefix ? `${prefix}/${entry.name}` : entry.name, open = this.folders.has(path), mark = this.marks[`${this.root}/${path}`];
       out.push(h_flex().id(`file-${path}`).h(28).flex_none().pl(8 + depth * 18).pr(8).gap(7).items_center().rounded(7).cursor_pointer().hover(s => s.bg(t.hover))
-        .on_click((_e, cx) => entry.dir ? this.toggle(path, cx) : this.show(path, cx))
+        .on_click((_e, cx) => entry.dir ? this.toggle(path, cx) : this.open(path, cx))
         .child(entry.dir ? glyph(EXPANDER[open ? 1 : 0], t.dim) : div().w(16).flex_none())
         .child(entry.dir ? glyph(FOLDER[open ? 1 : 0], t.ansi4) : glyph(...fileIcon(entry.name)))
         .child(div().flex_1().min_w(0).truncate().child(entry.name))

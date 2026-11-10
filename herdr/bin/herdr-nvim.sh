@@ -3,6 +3,7 @@
 # transcript (ctrl+o v) open in the nvim running in the same herdr or Herdr app
 # tab (nvim/lua/ui/claude_editor.lua); without one, this is plain nvim.
 set -euo pipefail
+source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 
 # Claude puts the file last, after +<line> for an editor it knows
 file="${*: -1}"
@@ -13,31 +14,25 @@ app_tab() {
     jq -r --arg t "$1" '.spaces[].tabs[] | select(any(.terminals[]; .terminal == $t)) | .id' <<<"$app_ls"
 }
 
-# Usage: nvim_env <socket> <variable>
-# Prints the variable as the nvim behind the socket has it.
-nvim_env() {
-    nvim --clean --headless --server "$1" --remote-expr "\$$2" 2>/dev/null
-}
-
 server=""
 if [[ -n "${HERDR_TAB_ID:-}" ]]; then
     pane="$HERDR_PANE_ID"
-    for socket in "${TMPDIR:-/tmp}"/nvim."$USER"/*/nvim.*.0; do
+    while read -r socket; do
         if [[ "$(nvim_env "$socket" HERDR_TAB_ID)" == "$HERDR_TAB_ID" ]]; then
             server=$socket
             break
         fi
-    done
+    done < <(nvim_servers)
 elif [[ -n "${HC_TERMINAL_ID:-}" ]] && app_ls=$(herdr-app ls 2>/dev/null); then
     pane="$HC_TERMINAL_ID"
     tab=$(app_tab "$HC_TERMINAL_ID")
-    for socket in "${TMPDIR:-/tmp}"/nvim."$USER"/*/nvim.*.0; do
+    while read -r socket; do
         terminal=$(nvim_env "$socket" HC_TERMINAL_ID) || continue
         if [[ -n "$terminal" && "$(app_tab "$terminal")" == "$tab" ]]; then
             server=$socket
             break
         fi
-    done
+    done < <(nvim_servers)
 fi
 [[ -n "$server" ]] || exec nvim "$@"
 

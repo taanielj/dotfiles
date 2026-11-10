@@ -6,9 +6,10 @@ source "$REPO_ROOT/setup/utils.sh"
 HERDR_BIN="$HOME/.local/bin/herdr"
 
 # Scripts both herdr and the Herdr app run, linked onto PATH: Claude Code's
-# EDITOR (a name its settings env can give: env values are not expanded) and
-# the status bars' network, system and weather readouts.
-SHARED_BIN=(herdr-nvim herdr-netspeed herdr-sysmon herdr-weather)
+# EDITOR (a name its settings env can give: env values are not expanded), the
+# Files panel's open-in-nvim and the status bars' network, system and weather
+# readouts.
+SHARED_BIN=(herdr-nvim herdr-open herdr-netspeed herdr-sysmon herdr-weather)
 
 APP_HOME="$HOME/.config/herdr-app"
 # Files the app reads from its home; everything else there is the app's own state.
