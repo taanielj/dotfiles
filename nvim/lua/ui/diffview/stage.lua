@@ -33,7 +33,7 @@ function M.hunk_to_index(cmd)
         end
         local range = ""
         if vim.fn.mode():match("^[vV]") then
-            local first, last = require("lib.yank").line_range()
+            local first, last = require("lib.yank").selection_or_cursor_lines()
             range = first .. "," .. last
             vim.cmd("normal! \27")
         end
@@ -72,7 +72,7 @@ M.unstage_file = set_file_staged(false)
 -- gitsigns attaches only to buffers backed by a file on disk, and its <leader>g
 -- keys are missing on the index and HEAD sides. These maps replace them there.
 function M.map_keys(bufnr)
-    local map = require("lib.keymap").buffer(bufnr)
+    local map = require("lib.keymap").buffer_mapper(bufnr)
     map({ "n", "x" }, "<leader>gs", M.stage_hunk, "Stage/unstage hunk")
     map("n", "<leader>gS", M.stage_file, "Stage buffer")
     map("n", "<leader>gu", M.unstage_file, "Unstage buffer")

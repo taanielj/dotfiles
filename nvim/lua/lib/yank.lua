@@ -7,9 +7,8 @@ function M.copy(text, what)
     vim.notify(text, vim.log.levels.INFO, { title = "Yanked " .. what })
 end
 
----The visual selection's line span, or the cursor line twice.
 ---@return integer, integer
-function M.line_range()
+function M.selection_or_cursor_lines()
     local mode = vim.fn.mode()
     if mode == "v" or mode == "V" or mode == "\22" then
         local first, last = vim.fn.line("v"), vim.fn.line(".")

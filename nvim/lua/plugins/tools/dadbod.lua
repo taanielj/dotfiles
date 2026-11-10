@@ -21,7 +21,7 @@ return {
                 group = vim.api.nvim_create_augroup("dadbod_sql_keys", { clear = true }),
                 pattern = { "sql", "mysql", "plsql" },
                 callback = function(ev)
-                    local map = require("lib.keymap").buffer(ev.buf)
+                    local map = require("lib.keymap").buffer_mapper(ev.buf)
                     map("n", "<leader>x", "<cmd>%DB<cr>", "SQL: execute whole buffer")
                     map("n", "<leader>X", "<cmd>.DB<cr>", "SQL: execute current line")
                     map("x", "<leader>x", ":DB<cr>", "SQL: execute selection")

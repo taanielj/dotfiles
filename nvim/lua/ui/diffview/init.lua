@@ -141,9 +141,9 @@ local function opens_file(view, item)
     return type(item.collapsed) ~= "boolean"
 end
 
--- gg]c[c ends on the first change. When the first change starts on line 1, ]c
--- goes to the second change and [c back to the first. A ]c or [c that finds no
--- change leaves the cursor in place.
+-- Ends on the first change in the file. When the first change starts on line 1,
+-- `]c` from line 1 skips to the second change and `[c` goes back to the first.
+-- Otherwise `[c` finds no earlier change and the cursor stays.
 local function jump_to_first_change(view)
     local win = view.cur_layout:get_main_win().id
     if vim.api.nvim_win_is_valid(win) then

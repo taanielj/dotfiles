@@ -65,7 +65,7 @@ return {
             vim.api.nvim_create_autocmd("LspAttach", {
                 group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
                 callback = function(event)
-                    local map = require("lib.keymap").buffer(event.buf, "LSP: ")
+                    local map = require("lib.keymap").buffer_mapper(event.buf, "LSP: ")
 
                     local function builtin(picker)
                         return function() require("telescope.builtin")[picker]() end
@@ -192,12 +192,12 @@ return {
                 bashls = { filetypes = { "sh", "zsh", "bash" } },
                 marksman = {},
                 dockerls = {},
-                -- `local` is goimports -local. before_init mutates settings.gopls
-                -- in place, because the client holds its settings reference
-                -- before before_init runs.
                 gopls = {
                     settings = { gopls = {} },
                     before_init = function(_, config)
+                        -- `local` is goimports -local. before_init mutates settings.gopls
+                        -- in place, because the client holds its settings reference
+                        -- before before_init runs.
                         config.settings.gopls["local"] = require("lsp.go").module(config.root_dir)
                     end,
                 },

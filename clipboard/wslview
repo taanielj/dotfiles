@@ -1,6 +1,5 @@
 #!/bin/sh
 # wslview for WSL, in place of wslu's, which Ubuntu 26.04 doesn't package. nvim's vim.ui.open calls wslview.
-# Local paths become Windows paths, and URLs stay as they are.
 [ $# -eq 1 ] || { echo "usage: wslview <url-or-path>" >&2; exit 2; }
 target=$1
 [ -e "$target" ] && target=$(wslpath -w "$target")

@@ -1,6 +1,6 @@
--- A Claude pane keeps the port and token of the nvim that opened it. The next
--- nvim in the same directory takes both back when the port is still free, and
--- Claude reattaches instead of pointing at a dead server.
+-- A Claude pane keeps the port and token of the nvim that opened it.
+-- The next nvim in the same directory reuses both when the port is free.
+-- Claude then reattaches to the new server.
 local M = {}
 
 local function store()
@@ -16,7 +16,7 @@ local function saved()
     return ok and type(data) == "table" and type(data.port) == "number" and data or nil
 end
 
--- bind succeeds on a port another process listens on. listen fails there.
+-- bind succeeds on a port another process listens on, and listen fails on that port.
 local function free(port)
     local sock = vim.uv.new_tcp()
     if not sock then
@@ -27,9 +27,9 @@ local function free(port)
     return ok
 end
 
----The port_range for claudecode.setup(): the saved port when it is free, else nil for the default range.
+---The saved port when it is free, else nil for claudecode's default range.
 ---@return { min: integer, max: integer }?
-function M.reuse()
+function M.port_range()
     local data = saved()
     if not (data and free(data.port)) then
         return nil
@@ -37,7 +37,7 @@ function M.reuse()
     if data.token then
         local lockfile = require("claudecode.lockfile")
         local generate, token = lockfile.generate_auth_token, data.token
-        -- the saved token serves the first call, fresh ones after
+        -- the saved token serves the first call, and generated tokens serve later calls
         ---@diagnostic disable-next-line: duplicate-set-field
         lockfile.generate_auth_token = function()
             local first = token
@@ -57,10 +57,9 @@ function M.remember()
     vim.fn.setfperm(store(), "rw-------")
 end
 
----Remembers the running server's port now and again before nvim exits. A
----restarted server can come up on another port.
 function M.track()
     M.remember()
+    -- A restarted server can come up on another port
     vim.api.nvim_create_autocmd("VimLeavePre", { callback = M.remember })
 end
 

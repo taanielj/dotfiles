@@ -14,7 +14,7 @@ install_superfile() {
     local version arch current_version
     version=$(github_latest_version yorukot/superfile)
     [[ -z "$version" ]] && error "Could not determine the latest superfile version" && return 1
-    case "$(release_arch)" in
+    case "$(release_archive_arch)" in
     x86_64) arch=amd64 ;;
     arm64) arch=arm64 ;;
     *) error "Unsupported architecture for superfile: $(uname -m)" && return 1 ;;

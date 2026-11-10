@@ -1,4 +1,4 @@
--- With a Scala build at the root, metals owns the project, Java files included.
+-- With a Scala build at the root, metals handles the project, Java files included.
 local M = {}
 
 M.root_markers = { "build.sbt", "build.sc", ".scala-build" }

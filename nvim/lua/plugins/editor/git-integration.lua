@@ -34,7 +34,7 @@ return {
                 on_attach = function(bufnr)
                     local gitsigns = require("gitsigns")
 
-                    local map = require("lib.keymap").buffer(bufnr)
+                    local map = require("lib.keymap").buffer_mapper(bufnr)
 
                     map("n", "]c", function()
                         if vim.wo.diff then

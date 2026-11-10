@@ -11,17 +11,18 @@ hs.autoLaunch(true)
 hs.accessibilityState(true) -- asks for Accessibility access until it is granted
 hs.window.animationDuration = 0
 
--- Garbage collection stops a watcher or tap that nothing references. This global
--- table references them.
-retained = {}
+-- Every watcher and tap is stored in this global table, because garbage
+-- collection stops one that nothing references.
+keepAlive = {}
 
--- Reload on save. A file that fails to parse keeps the running config and shows
--- the error. The watcher starts before anything that could error, and an error
--- further down leaves it running. It watches the directory of the symlink's
--- target, because saves go there and not to hs.configdir.
+-- Reload on save. The watcher starts before anything that could error. An error
+-- further down leaves the watcher running.
+-- The watcher watches the directory of the symlink's target, because saves go
+-- there and not to hs.configdir.
 local configFile = hs.fs.pathToAbsolute(hs.configdir .. "/init.lua")
-retained.configWatcher = hs.pathwatcher
+keepAlive.configWatcher = hs.pathwatcher
     .new(configFile:match("^(.*)/"), function()
+        -- A file that fails to parse keeps the running config and shows the error
         local _, err = loadfile(configFile)
         if err then hs.showError(err) else hs.reload() end
     end)
@@ -30,7 +31,7 @@ retained.configWatcher = hs.pathwatcher
 local TERMINALS = { "Ghostty", "kitty" }
 local HERDR_TITLE = "herdr · " -- how herdr's ui.window_title (herdr/tui/config.toml) starts
 local HERDR_APP = "dev.herdr.app" -- the Herdr desktop app's bundle id (herdr/app/)
-local STEP = 0.05 -- of the screen, per resize press
+local STEP = 0.05 -- fraction of the screen per resize press
 local FINE_STEP = 0.01
 local TOUCH = 10 -- px; windows this close share a border
 
@@ -67,10 +68,7 @@ end
 
 local function overlaps(a, b, pos, size) return a[pos] < b[pos] + b[size] and b[pos] < a[pos] + a[size] end
 
----Move a border of the focused window in a direction, like smart-splits. That is
----the right or bottom border, or the left or top one when the right or bottom
----border is at the screen's edge. A window that shares the moved border is
----resized with it.
+---Move a border of the focused window in a direction, like smart-splits.
 ---@param dir "left"|"down"|"up"|"right"
 ---@param step? number fraction of the screen, STEP by default
 ---@param presses? number times to apply the step, 1 by default
@@ -83,26 +81,27 @@ function resizeWindow(dir, step, presses)
     if not horizontal then pos, size, cross, crossSize = "y", "h", "x", "w" end
 
     local f, s = win:frame(), win:screen():frame()
-    local far = f[pos] + f[size] < s[pos] + s[size] - TOUCH
-    local border = far and f[pos] + f[size] or f[pos]
+    local movesRightOrBottom = f[pos] + f[size] < s[pos] + s[size] - TOUCH
+    local border = movesRightOrBottom and f[pos] + f[size] or f[pos]
     local delta = s[size] * (step or STEP) * (presses or 1) * ((dir == "left" or dir == "up") and -1 or 1)
     delta = math.max(s[pos], math.min(s[pos] + s[size], border + delta)) - border
     if delta == 0 then return false end
 
+    -- A window that shares the moved border is resized with it
     for _, other in ipairs(hs.window.visibleWindows()) do
         local o = other:frame()
         if other ~= win and other:isStandard() and overlaps(f, o, cross, crossSize) then
-            if far and math.abs(o[pos] - border) <= TOUCH then
+            if movesRightOrBottom and math.abs(o[pos] - border) <= TOUCH then
                 o[pos], o[size] = o[pos] + delta, o[size] - delta
                 other:setFrame(o)
-            elseif not far and math.abs(o[pos] + o[size] - border) <= TOUCH then
+            elseif not movesRightOrBottom and math.abs(o[pos] + o[size] - border) <= TOUCH then
                 o[size] = o[size] + delta
                 other:setFrame(o)
             end
         end
     end
 
-    if far then
+    if movesRightOrBottom then
         f[size] = f[size] + delta
     else
         f[pos], f[size] = f[pos] + delta, f[size] - delta
@@ -112,14 +111,14 @@ function resizeWindow(dir, step, presses)
 end
 
 local DIRS = { h = "left", j = "down", k = "up", l = "right" }
--- With no window that way, cmd+j and cmd+k reach the app (Slack's cmd+k);
--- cmd+h would hide the app, so h and l always stay focus keys.
+-- With no window that way, cmd+j and cmd+k reach the app (Slack's cmd+k).
+-- cmd+h would hide the app. h and l always focus.
 local PASS_THROUGH = { j = true, k = true }
 
 local focusKeyCodes = {}
 for key in pairs(DIRS) do focusKeyCodes[hs.keycodes.map[key]] = key end
 
-retained.focusTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
+keepAlive.focusTap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
     local key = focusKeyCodes[event:getKeyCode()]
     if not key or not event:getFlags():containExactly({ "cmd" }) then return false end
     return focusWindow(DIRS[key]) or not PASS_THROUGH[key]
@@ -138,15 +137,15 @@ local function follow()
     for _, hotkey in ipairs(hotkeys) do
         if on then hotkey:enable() else hotkey:disable() end
     end
-    if on then retained.focusTap:start() else retained.focusTap:stop() end
+    if on then keepAlive.focusTap:start() else keepAlive.focusTap:stop() end
 end
 
-retained.frontAppWatcher = hs.application.watcher
+keepAlive.frontAppWatcher = hs.application.watcher
     .new(function(_, event)
         if event == hs.application.watcher.activated then follow() end
     end)
     :start()
-retained.terminalWindows = hs.window.filter
+keepAlive.terminalWindows = hs.window.filter
     .new(TERMINALS)
     :subscribe({ hs.window.filter.windowFocused, hs.window.filter.windowTitleChanged }, follow)
 follow()

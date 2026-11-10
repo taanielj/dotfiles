@@ -21,7 +21,7 @@ return {
         metals_config.on_attach = function(client, bufnr)
             require("metals").setup_dap()
 
-            local map = require("lib.keymap").buffer(bufnr)
+            local map = require("lib.keymap").buffer_mapper(bufnr)
 
             map("n", "<leader>lc", vim.lsp.codelens.run, "Run code lens")
             map("n", "<leader>ls", vim.lsp.buf.signature_help, "Signature help")

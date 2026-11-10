@@ -59,8 +59,7 @@ function M.close(opts)
     end
 end
 
----Refuses with any unsaved buffer instead of prompting per buffer, to give the
----same answer whichever buffer is current.
+---Refuses when any buffer is unsaved, whichever buffer is current.
 function M.close_all()
     local session = require("ui.session")
     local unsaved = session.unsaved()

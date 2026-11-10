@@ -1,7 +1,8 @@
--- Marksman registers no file watchers, and Neovim reports only the markdown
--- files it creates itself. Notes written by anything else stay out of
--- marksman's index. Marksman does honour workspace.fileOperations, and `sync`
--- re-lists the workspace to report created and deleted files.
+-- Marksman registers no file watchers.
+-- Neovim notifies marksman only about markdown files that Neovim itself creates.
+-- Marksman's index therefore misses notes written by other programs.
+-- Marksman honours workspace.fileOperations. `sync` re-lists the workspace to
+-- report created and deleted files.
 
 local M = {}
 
@@ -11,8 +12,7 @@ local PATTERNS = { "*.md", "*.markdown" }
 ---@type table<integer, { known: table<string, true>, pending: boolean }>
 local tracked = {}
 
--- Fallback for workspaces marksman rooted outside a git repo
-local function walk(root)
+local function walk_markdown_files(root)
     local files = {}
     for name, type in
         vim.fs.dir(root, {
@@ -33,7 +33,7 @@ end
 local function list(root, done)
     local function fallback()
         vim.schedule(function()
-            local ok, files = pcall(walk, root)
+            local ok, files = pcall(walk_markdown_files, root)
             done(ok and files or {})
         end)
     end

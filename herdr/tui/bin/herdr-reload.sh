@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Reloads the config and writes the result for herdr-reload-status.sh to show in
-# the tab bar. A popup would take keyboard input, and a toast would show as a
-# system notification (toast.delivery = "system").
+# the tab bar.
 set -uo pipefail
 
 state="${XDG_STATE_HOME:-$HOME/.local/state}/herdr"

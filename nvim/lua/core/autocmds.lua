@@ -13,8 +13,7 @@ vim.api.nvim_create_autocmd("InsertEnter", {
     group = number_toggle,
     callback = function() vim.wo.relativenumber = false end,
 })
--- 'scroll' goes back to half the window height whenever a window is resized,
--- which the UI does once more after VimEnter
+-- Neovim resets 'scroll' to half the window height whenever a window is resized.
 vim.api.nvim_create_autocmd({ "UIEnter", "WinNew", "WinResized" }, {
     group = augroup("scroll"),
     callback = function()
@@ -41,10 +40,8 @@ vim.api.nvim_create_autocmd("FileType", {
     callback = function() vim.opt_local.conceallevel = 0 end,
 })
 
--- `nvim -` has no file name to detect the filetype by. Neovim detects shebangs,
--- <?xml, HTML and diffs in stdin. From the first non-blank line, JSON, YAML and
--- XML without a declaration are set as a FALLBACK filetype, which Neovim's
--- detection overrides.
+-- `nvim -` has no file name to detect the filetype by.
+-- Neovim detects shebangs, <?xml, HTML and diffs in stdin.
 vim.api.nvim_create_autocmd("StdinReadPost", {
     group = augroup("stdin_filetype"),
     callback = function()
@@ -54,6 +51,7 @@ vim.api.nvim_create_autocmd("StdinReadPost", {
             or (first:match("^%-%-%-%s*$") or first:match("^%a[%w_.-]*:%s") or first:match("^%a[%w_.-]*:$"))
                 and "yaml"
         if ft then
+            -- Neovim's own detection overrides a FALLBACK filetype
             vim.cmd.setfiletype({ args = { "FALLBACK", ft } })
         end
     end,
@@ -75,13 +73,14 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
 
 -- An agent writes files while this window keeps focus, and nvim doesn't check
 -- for that by default. checktime costs one stat per buffer.
+-- FocusGained below covers files that change while focus is elsewhere.
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
     group = augroup("agent_writes"),
     command = "checktime",
 })
 
--- Files change while focus is elsewhere, for example in herdr's lazygit popup
--- or an agent in a sibling pane.
+-- Refresh the tree after focus returns from herdr's lazygit popup or a sibling
+-- agent pane.
 vim.api.nvim_create_autocmd("FocusGained", {
     group = augroup("neotree_refresh"),
     callback = function()
@@ -128,7 +127,7 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("claude_term_nav"),
     pattern = "snacks_terminal",
     callback = function(ev)
-        local map = require("lib.keymap").buffer(ev.buf)
+        local map = require("lib.keymap").buffer_mapper(ev.buf)
         local dirs = { h = "left", j = "down", k = "up", l = "right" }
         for key, dir in pairs(dirs) do
             map("t", "<C-" .. key .. ">", function() require("lib.splits").move(dir) end, "Window " .. dir)
@@ -151,7 +150,7 @@ vim.api.nvim_create_autocmd("FileType", {
     group = augroup("markdown_links"),
     pattern = "markdown",
     callback = function(ev)
-        local map = require("lib.keymap").buffer(ev.buf)
+        local map = require("lib.keymap").buffer_mapper(ev.buf)
         local loud = { silent = false }
         map("n", "gx", function() require("ui.markdown_links").follow() end, "Follow link under cursor", loud)
         map(

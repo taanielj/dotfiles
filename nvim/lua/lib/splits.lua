@@ -1,8 +1,8 @@
--- Window navigation and resize. herdr-splits handles the keys inside herdr, and
--- smart-splits handles them everywhere else. At nvim's edge inside the Herdr
--- app, the app's keys mod handles them. herdr-splits resizes by a fraction of
--- the pane and smart-splits resizes by cells, and a fine step differs between
--- the two.
+-- Window navigation and resize.
+-- herdr-splits handles the window keys inside herdr, and smart-splits handles the window keys
+-- everywhere else.
+-- At nvim's edge inside the Herdr app, the app's keys mod handles the window keys.
+-- herdr-splits resizes by a fraction of the pane. smart-splits resizes by cells.
 local M = {}
 
 local function plugin() return require(require("lib.herdr").inside() and "herdr-splits" or "smart-splits") end
@@ -22,8 +22,7 @@ local function at_nvim_edge(sides)
 end
 
 ---@param sides ("left"|"down"|"up"|"right")[]
----@return boolean outer every side is both nvim's edge and the layout edge of
----nvim's unzoomed herdr pane, with the macOS window next (hammerspoon/init.lua)
+---@return boolean outer true when every side is at nvim's edge and at the layout edge of nvim's unzoomed herdr pane
 local function at_outer_edge(sides)
     local herdr = require("lib.herdr")
     if not herdr.inside() or vim.fn.executable("hs") == 0 or not at_nvim_edge(sides) then

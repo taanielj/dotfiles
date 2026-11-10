@@ -9,7 +9,7 @@ COMMON_PACKAGES=(
     "unzip" "zip"
     "direnv"
 )
-# The debian/ubuntu list is long because this also supports minimal installs.
+# The debian/ubuntu list includes build tools and libraries because it also supports minimal installs.
 DEBIAN_PACKAGES=(
     "${COMMON_PACKAGES[@]}"
     "build-essential" "gcc" "g++" "make" "cmake"
@@ -28,7 +28,7 @@ UBUNTU_PACKAGES=(
 )
 # package:ppa pairs for packages that some Ubuntu releases lack
 UBUNTU_PPA_FALLBACKS=(
-    "fastfetch:ppa:zhangsongcui3371/fastfetch" # in Ubuntu from 25.04 on
+    "fastfetch:ppa:zhangsongcui3371/fastfetch" # fastfetch is in Ubuntu from 25.04 on
 )
 
 TERMUX_PACKAGES=(
@@ -115,7 +115,7 @@ check_permissions() {
         exit 1
     fi
 
-    # SUDO_USER is set even when EUID != 0 if invoked via `sudo -u $USER`
+    # `sudo -u $USER` leaves EUID nonzero but still sets SUDO_USER
     if [[ -n "$SUDO_USER" ]]; then
         error "❌ Do not run this script with 'sudo'"
         exit 1
@@ -168,7 +168,6 @@ setup_apt() {
 }
 
 # Adds the UBUNTU_PPA_FALLBACKS PPA of each package in PACKAGES that apt can't install as is.
-# A package whose PPA doesn't publish this release either is dropped from PACKAGES.
 add_fallback_ppas() {
     local pair pkg ppa codename ppas=()
     codename=$(. /etc/os-release && echo "$VERSION_CODENAME")

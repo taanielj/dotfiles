@@ -20,7 +20,7 @@ end
 function M.tab_id() return vim.env.HERDR_TAB_ID end
 
 -- The TUI client writes its sidebar state to a file under herdr's state dir,
--- named by an FNV-1a hash of its client socket, a sibling of HERDR_SOCKET_PATH
+-- named by an FNV-1a hash of the client socket path
 -- (herdr's src/client/shell/preferences.rs).
 local function client_state_path()
     local socket = vim.fs.dirname(vim.env.HERDR_SOCKET_PATH) .. "/herdr-client.sock"
@@ -44,11 +44,13 @@ function M.sidebar_collapsed()
     return ok and state.sidebar_collapsed == true
 end
 
----Hammerspoon types prefix+b (herdr/tui/config.toml) into the focused
----terminal, because the TUI has no command for its sidebar and only that
----binding toggles it.
+---Types prefix+b (herdr/tui/config.toml) into the focused terminal through Hammerspoon.
+---The sidebar toggles only through the prefix+b binding.
 function M.toggle_sidebar()
-    local chord = 'hs.eventtap.keyStroke({ "ctrl" }, "space") hs.eventtap.keyStroke({}, "b")'
+    -- Karabiner swaps ctrl and cmd on the keyboard, and Hammerspoon's events skip Karabiner.
+    -- Hammerspoon sends cmd+space, which the terminal's keybind
+    -- (ghostty/config.ghostty) forwards as the ctrl+space byte.
+    local chord = 'hs.eventtap.keyStroke({ "cmd" }, "space") hs.eventtap.keyStroke({}, "b")'
     vim.system({ "hs", "-c", chord }, { text = true }, function(res)
         if res.code ~= 0 then
             vim.schedule(

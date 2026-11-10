@@ -38,10 +38,12 @@ window-padding-y = 6
 macos-option-as-alt = left
 quit-after-last-window-closed = true
 
-# cmd+letter sends the control byte, as in kitty. cmd+m and cmd+q keep their
-# macOS actions. cmd+c always interrupts, because selecting text already copies it.
+# The keybinds mirror kitty.conf.
+# cmd+letter sends the control byte. cmd+m and cmd+q keep their
+# macOS actions.
 keybind = super+a=text:\x01
 keybind = super+b=text:\x02
+# cmd+c always interrupts, because selecting text already copies it
 keybind = super+c=text:\x03
 keybind = super+d=text:\x04
 keybind = super+e=text:\x05

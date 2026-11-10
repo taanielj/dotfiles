@@ -1,7 +1,8 @@
--- Which menu opens where. 'mousemodel' is popup_setpos, which makes a
--- right-click move the cursor and open PopUp with no mapping. No mouse button
--- is mapped, because a click while a menu is open goes straight to normal mode,
--- where mappings don't apply.
+-- Which menu opens where.
+-- 'mousemodel' is popup_setpos, which makes a right-click move the cursor and
+-- open PopUp without a mapping.
+-- No mouse button is mapped because a click while a menu is open goes straight
+-- to normal mode, where mappings don't apply.
 local menu = require("lib.menu")
 
 local M = {}

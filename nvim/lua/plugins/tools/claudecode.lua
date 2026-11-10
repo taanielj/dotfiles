@@ -6,8 +6,7 @@ local inside_herdr = require("lib.herdr").inside()
 local inside_app = require("lib.herdr_app").inside()
 
 -- Keys that depend on where Claude runs. Inside herdr or the Herdr app, a prompt
--- about the lines under the cursor goes to the Claude pane. Outside both,
--- Claude is a snacks window with layouts, which the pane providers ignore.
+-- about the lines under the cursor goes to the Claude pane.
 local pane_keys = {
     {
         "<leader>ap",
@@ -17,6 +16,8 @@ local pane_keys = {
     },
     { "<leader>ae", function() require("ui.claude_editor").toggle() end, desc = "Toggle Claude prompt draft" },
 }
+-- Outside herdr and the Herdr app, Claude is a snacks window with layouts,
+-- which the pane providers ignore.
 local window_keys = {
     -- A layout applies on a fresh open; close Claude first to switch.
     {
@@ -43,7 +44,7 @@ return {
             return require("claudecode").setup(opts)
         end
         require("claudecode").setup(vim.tbl_deep_extend("force", opts, {
-            port_range = require("lib.claude_port").reuse(),
+            port_range = require("lib.claude_port").port_range(),
             terminal = { provider = require("lib.claude_app_terminal") },
         }))
         require("lib.claude_port").track()

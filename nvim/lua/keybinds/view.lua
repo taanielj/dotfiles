@@ -13,7 +13,7 @@ end
 
 -- stylua: ignore
 map({
-    -- Right-click uses Neovim's own popup_setpos; this is the keyboard route
+    -- Opens the menu at the cursor from the keyboard. Right-click uses Neovim's own popup_setpos.
     { "n", "<leader>.", function() require("menus").popup_at_cursor() end,     "Open menu" },
     { "n", "<leader>e", function() require("ui.tree").toggle() end,            "Show files" },
     { "n", "<leader>A", function() require("ui.dashboard").open() end,                     "Dashboard" },
@@ -23,8 +23,8 @@ map({
     { "n", "<leader>N", function() Snacks.scratch.select() end,                   "Pick a scratch buffer" },
     { "n", "<leader>gg", function() require("ui.lazygit").open() end,             "LazyGit" },
     { "n", { "-", "<BS>" }, "<Cmd>Oil<CR>",                                    "Open parent directory" },
-    { "n", "zR",        function() require("lib.folds").show(math.huge) end,   "Open all folds" },
-    { "n", "zM",        function() require("lib.folds").show(0) end,           "Close all folds" },
+    { "n", "zR",        function() require("lib.folds").set_level(math.huge) end,   "Open all folds" },
+    { "n", "zM",        function() require("lib.folds").set_level(0) end,           "Close all folds" },
     { "n", "zr",        function() require("lib.folds").step(1) end,           "Open a fold level, or to [count]" },
     { "n", "zm",        function() require("lib.folds").step(-1) end,          "Close a fold level, or to [count]" },
 
@@ -47,7 +47,6 @@ map({
     { { "n", "x" }, "<M-K>",     function() require("lib.splits").resize("up", true) end,    "Resize split up (fine)" },
     { { "n", "x" }, "<M-L>",     function() require("lib.splits").resize("right", true) end, "Resize split right (fine)" },
 
-    -- <leader>w  Wrap
     { "n", "<leader>w", function() require("ui.wrap").toggle() end,           "Toggle wrap window" },
 })
 

@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
-# ctrl+hjkl moves focus one step:
-#   - In a pane running Neovim, herdr-splits forwards the key to Neovim.
-#   - From any other unzoomed pane at the layout's edge, focus moves to the macOS
-#     window in that direction, if there is one (hammerspoon/init.lua).
-#   - Otherwise herdr-splits moves focus to the next pane, unzooming first and
-#     wrapping around at the edge.
-# ctrl+shift+hjkl passes `window` to move focus straight to the macOS window.
+# ctrl+hjkl moves focus one step, through Neovim splits, herdr panes and macOS
+# windows (hammerspoon/init.lua).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 dir="${1:?usage: herdr-nav.sh <left|down|up|right> [window]}"
 
+# ctrl+shift+hjkl passes `window` to move focus straight to the macOS window.
 if [[ "${2:-}" == window ]]; then
     hammerspoon "focusWindow('$dir')" >/dev/null
     exit 0
@@ -24,4 +20,6 @@ if ! runs_nvim "${HERDR_ACTIVE_PANE_ID:-}"; then
     fi
 fi
 
+# herdr-splits forwards the key to Neovim, or moves focus to the next pane,
+# unzooming first and wrapping around at the edge.
 exec "$herdr" plugin action invoke "nav-$dir" --plugin herdr-splits

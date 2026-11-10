@@ -2,8 +2,7 @@
 # sources this file through its resolved link:
 #   source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 
-# Prints each running nvim's server socket, one per line.
-nvim_servers() {
+nvim_server_sockets() {
     local socket
     for socket in "${TMPDIR:-/tmp}"/nvim."$USER"/*/nvim.*.0; do
         [[ -S "$socket" ]] && printf '%s\n' "$socket"

@@ -1,5 +1,4 @@
--- Guide colours cycle per indent level. :colorscheme clears them, and they are
--- redefined after it.
+-- Guide colours cycle per indent level.
 local rainbow = {
     { "RainbowRed", "#E06C75" },
     { "RainbowYellow", "#E5C07B" },
@@ -52,7 +51,7 @@ local header = [[
     █████████ ██████████ █████████ █████ █████ ████ █████
   ███████████ ███    ███ █████████ █████ █████ ████ █████
  ██████  █████████████████████ ████ █████ █████ ████ ██████]]
--- Rows wider than the dashboard are shifted to centre them one by one, skewing the art
+-- The dashboard is as wide as the widest row. At a narrower width it would centre each wider row separately and skew the art
 local header_width = 0
 for _, row in ipairs(vim.split(header, "\n")) do
     header_width = math.max(header_width, vim.api.nvim_strwidth(row))
@@ -107,6 +106,7 @@ return {
     },
     config = function(_, opts)
         rainbow_highlights()
+        -- :colorscheme clears the guide colours
         vim.api.nvim_create_autocmd("ColorScheme", {
             group = vim.api.nvim_create_augroup("rainbow_highlights", { clear = true }),
             callback = rainbow_highlights,

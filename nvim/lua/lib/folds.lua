@@ -1,5 +1,5 @@
--- ufo keeps 'foldlevel' at 99 and opens and closes folds itself. This module
--- keeps the buffer's fold depth in vim.b.fold_level instead, nil meaning all
+-- ufo keeps 'foldlevel' at 99 and opens and closes folds itself.
+-- vim.b.fold_level records the buffer's fold depth, and nil means all folds are
 -- open.
 local M = {}
 
@@ -11,9 +11,8 @@ local function deepest()
     return max
 end
 
----Open folds up to `level` deep and close the rest.
 ---@param level integer
-function M.show(level)
+function M.set_level(level)
     if level >= deepest() then
         require("ufo").openAllFolds()
         vim.b.fold_level = nil
@@ -28,9 +27,9 @@ end
 ---@param delta integer
 function M.step(delta)
     if vim.v.count > 0 then
-        return M.show(vim.v.count)
+        return M.set_level(vim.v.count)
     end
-    M.show(math.min(vim.b.fold_level or math.huge, deepest()) + delta)
+    M.set_level(math.min(vim.b.fold_level or math.huge, deepest()) + delta)
 end
 
 return M

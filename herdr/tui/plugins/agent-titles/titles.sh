@@ -1,7 +1,6 @@
 #!/bin/sh
 # Sets the $title sidebar token to the session title on agent panes that share
-# their tab with another agent, and clears it everywhere else. Skips panes whose
-# token already has that value.
+# their tab with another agent, and clears it everywhere else.
 herdr=${HERDR_BIN_PATH:-herdr}
 
 "$herdr" pane list | jq -r '

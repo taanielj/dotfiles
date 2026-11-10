@@ -35,7 +35,7 @@ local function diagnostics(first, last)
 end
 
 function M.prompt()
-    local first, last = require("lib.yank").line_range()
+    local first, last = require("lib.yank").selection_or_cursor_lines()
     local span, found = lines(first, last), diagnostics(first, last)
     if vim.fn.mode():match("[vV\22]") then
         vim.cmd("normal! \27")

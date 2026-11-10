@@ -48,7 +48,7 @@ return {
                     },
                     "%S",
                 },
-                -- %v is the screen column the colorcolumn counts in; the default location counts a tab as one
+                -- %v is the screen column the colorcolumn counts in. The default location counts a tab as one column
                 lualine_z = { "%3l:%-2v" },
             },
         })

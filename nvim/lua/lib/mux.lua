@@ -1,5 +1,5 @@
--- Zoom and chrome of the multiplexers nvim runs inside: tmux, herdr or the
--- Herdr app. Zooms every multiplexer present, and nvim in tmux in herdr zooms
+-- Zoom and bar hiding for the multiplexers nvim runs inside: tmux, herdr or the
+-- Herdr app. Acts on every multiplexer present. Nvim in tmux in herdr zooms
 -- both.
 local M = {}
 
@@ -24,7 +24,7 @@ local function tmux_set_zoom(on)
     end
 end
 
--- herdr's --current follows the focused pane. This pane is addressed by id instead.
+-- herdr's --current follows the focused pane. --pane with nvim's own pane id targets nvim's pane.
 local function herdr_pane() return require("lib.herdr").pane_id() end
 
 local function herdr_is_zoomed()
@@ -52,8 +52,7 @@ local adapters = {
             tmux_set_zoom(was.zoomed)
         end,
     },
-    -- The tab bar is config-time only. The sidebar toggles by keystroke, and
-    -- leave reads it again because the user may have toggled it during zen.
+    -- The tab bar is config-time only. The sidebar toggles by keystroke.
     herdr = {
         present = function() return herdr_pane() ~= nil end,
         enter = function()
@@ -68,6 +67,7 @@ local adapters = {
         leave = function(was)
             local herdr = require("lib.herdr")
             herdr_set_zoom(was.zoomed)
+            -- The user may have toggled the sidebar during zen
             if was.sidebar and herdr.sidebar_collapsed() then
                 herdr.toggle_sidebar()
             end

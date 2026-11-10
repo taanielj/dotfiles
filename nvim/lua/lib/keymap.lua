@@ -14,11 +14,10 @@ function M.rows(mappings)
     end
 end
 
----A mapper bound to one buffer, for attach hooks.
 ---@param bufnr integer
 ---@param prefix? string put before every desc
 ---@return fun(mode: string|string[], lhs: string, rhs: string|function, desc: string, opts?: vim.keymap.set.Opts)
-function M.buffer(bufnr, prefix)
+function M.buffer_mapper(bufnr, prefix)
     return function(mode, lhs, rhs, desc, opts)
         local defaults = { buf = bufnr, silent = true, desc = (prefix or "") .. desc }
         vim.keymap.set(mode, lhs, rhs, vim.tbl_extend("force", defaults, opts or {}))

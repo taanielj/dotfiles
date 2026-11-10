@@ -76,12 +76,12 @@ restore() {
         mv "$state.tmp" "$state"
 }
 
-# Returns 1 once the server is gone. Each call runs herdr, ps and awk. The jq
-# work after them runs only when a pane or a pane's program changed.
+# Returns 1 once the server is gone.
 tick() {
     list=$("$herdr" pane list) || return 1
     seen=$({ printf '%s\n' "$list"; ps -A -o pid=,ppid=,pgid=,tpgid=,comm=; } |
         awk -v programs="$here/programs" -v shells="$shells" "$find_programs")
+    # jq runs only when a pane or its program changes
     [ "$seen" = "$last_seen" ] && return 0
 
     case $seen in *' ?'*)

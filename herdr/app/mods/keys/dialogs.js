@@ -10,7 +10,7 @@ async function runInDialog(cx, argv, { cwd, size = 0.6 } = {}) {
   const { address } = JSON.parse((await hc([...args, "--", ...argv])).stdout);
   // The dialog closes itself when its terminal ends
   openOverlay({ kind: "dialog", width: size, height: size, layout: { type: "block", content: { terminal: address } } });
-  // Polls hc get, because the mod API's terminals() lists a new terminal only
+  // Polls with the herdr core CLI's `hc get`, because the mod API's terminals() lists a new terminal only
   // after a delay. --rm removes the terminal once it exits, which makes hc get fail.
   for (;;) {
     const r = await hc(["get", address, "--json"]);
@@ -40,8 +40,7 @@ async function pickTerminal(cx, prompt, keep) {
   return (await fs.readFile(out, "utf8")).trim() || null;
 }
 
-// Gives a terminal a new pane: a new tab, or right or down of the focused pane.
-async function movePane(cx, terminal, place) {
+async function moveToNewPane(cx, terminal, place) {
   await app("terminal.park", "--terminal", terminal);
   // terminal.park removes the pane asynchronously, and terminal.keep needs it gone
   await waitFor(cx, () => !panes().some((p) => p.terminal === terminal));
@@ -61,12 +60,12 @@ async function goto(cx) {
 async function join(cx, place) {
   const tab = focused()?.tab;
   const terminal = await pickTerminal(cx, `join pane (${place}) > `, (p) => p.tab !== tab);
-  if (terminal) await movePane(cx, terminal, place);
+  if (terminal) await moveToNewPane(cx, terminal, place);
 }
 
 async function breakPane(cx) {
   const terminal = focused()?.terminal;
-  if (terminal) await movePane(cx, terminal, "tab");
+  if (terminal) await moveToNewPane(cx, terminal, "tab");
 }
 
 async function scrollback(cx) {

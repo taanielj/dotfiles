@@ -1,6 +1,6 @@
 return {
     "ctbaum/herdr-agents.nvim",
-    -- main requires herdr-agents.status, which that commit never added
+    -- main requires herdr-agents.status, which this pinned commit predates
     commit = "ed5774360f61a6de155657769d7d84a32037972f",
     cond = require("lib.herdr").inside(),
     -- setup starts the claudecode server that an agent pane attaches to
@@ -9,7 +9,7 @@ return {
         { "coder/claudecode.nvim", dependencies = { "folke/snacks.nvim" } },
         { "ishiooon/codex.nvim", dependencies = { "folke/snacks.nvim" } },
     },
-    opts = function() return { claude = { opts = { port_range = require("lib.claude_port").reuse() } } } end,
+    opts = function() return { claude = { opts = { port_range = require("lib.claude_port").port_range() } } } end,
     config = function(_, opts)
         -- herdr-agents splits the agent pane off to the right, with no option to
         -- change it. The wrapper below splits it downwards.

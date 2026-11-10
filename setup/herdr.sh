@@ -10,9 +10,9 @@ HERDR_BIN="$HOME/.local/bin/herdr"
 SHARED_BIN=(herdr-nvim herdr-open herdr-netspeed herdr-sysmon herdr-weather herdr-sync)
 
 APP_HOME="$HOME/.config/herdr-app"
-# Files the app reads from its home; everything else there is the app's own state.
-# The app doesn't see edits behind these links. After editing a mod in the
-# repo, run `touch -h` on the mod's link to reload the mod.
+# The app reads these paths from its home and keeps its own state in the rest of the home.
+# The app watches the links themselves. After editing a mod in the repo, run
+# `touch -h` on the mod's link to reload the mod.
 APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons bin)
 COMMITTED_APP_ZOOM=1.0
 
@@ -116,8 +116,8 @@ configure_herdr_app() {
     for file in "${APP_FILES[@]}"; do
         link_file "$REPO_ROOT/herdr/app/$file" "$APP_HOME/$file"
     done
-    # The app writes its zoom level into settings.json on every zoom; git sees the
-    # committed level instead (filter named in .gitattributes).
+    # The app writes its zoom level into settings.json on every zoom.
+    # The herdr-zoom filter, which .gitattributes applies to settings.json, makes git see COMMITTED_APP_ZOOM instead.
     git -C "$REPO_ROOT" config filter.herdr-zoom.clean \
         "sed -E 's/\"zoom\": [0-9.]+/\"zoom\": $COMMITTED_APP_ZOOM/'"
     # The dotfiles layout docks the keys mod. layout.set also switches a running

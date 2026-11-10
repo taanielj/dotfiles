@@ -1,9 +1,11 @@
--- Claude Code's Edit, MultiEdit and Write tools write the file on disk, which
--- may be open here with unsaved changes. Claude Code's PreToolUse hook calls
--- `M.hook` over RPC before the write, and nvim accepts the change on disk
--- without a warning. The PostToolUse hook calls `M.hook` after the write, and
--- nvim reloads the buffer with the unsaved changes put back. A change on disk
--- that no hook announced still gets nvim's "changed since reading" warning.
+-- Claude Code's Edit, MultiEdit and Write tools write a file on disk that may be
+-- open here with unsaved changes. Claude Code's hooks call `M.hook` over RPC:
+-- - Before the write (PreToolUse), nvim accepts the change on disk without a
+--   warning.
+-- - After the write (PostToolUse), nvim reloads the buffer and puts the unsaved
+--   changes back.
+-- - A change on disk that no hook announced still gets nvim's "changed since
+--   reading" warning.
 local M = {}
 
 -- Claude Code can wait on a permission prompt between PreToolUse and PostToolUse
@@ -85,7 +87,7 @@ local function hunks(old, new)
     }) --[[@as integer[][] ]]
 end
 
--- Marks on unchanged lines keep their positions
+-- Marks on unchanged lines keep their positions.
 ---@param buf integer
 ---@param lines string[]
 local function set_changed_lines(buf, lines)
@@ -100,7 +102,7 @@ end
 
 ---@param row integer a line before the change
 ---@param changes integer[][] from hunks()
----@return integer the line its text moved to
+---@return integer the line the text moved to
 local function follow(row, changes)
     local shift = 0
     for _, change in ipairs(changes) do
@@ -116,8 +118,6 @@ local function follow(row, changes)
     return row + shift
 end
 
--- `:edit!` keeps each cursor's line number, which points at other text once
--- the change adds or removes lines above the cursor
 ---@param buf integer
 ---@param changes integer[][] from hunks()
 ---@return table<integer, vim.fn.winsaveview.ret> window -> its view after the change
@@ -162,6 +162,8 @@ local function sync(buf, path, tool, tool_input)
 
     local views = followed_views(buf, hunks(before, unsaved_with_edit or split(content)))
     vim.api.nvim_buf_call(buf, function()
+        -- `:edit!` keeps each cursor's line number, which points at other text once
+        -- the change adds or removes lines above the cursor. The views are restored below.
         vim.cmd("silent edit!")
         if unsaved_with_edit then
             -- one undo step takes back the edit
@@ -190,8 +192,7 @@ function M.hook(input_path)
     end
 end
 
--- Registered when the first hook call loads this module, with no setup at
--- nvim startup
+-- Registered when the first hook call loads this module
 vim.api.nvim_create_autocmd("FileChangedShell", {
     group = vim.api.nvim_create_augroup("user_agent_edits", { clear = true }),
     callback = function(args)

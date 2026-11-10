@@ -24,7 +24,7 @@ previous_workspace = "alt+up"
 next_agent         = "alt+shift+down"
 previous_agent     = "alt+shift+up"
 
-# --- tmux muscle-memory aliases (secondary keys; prune once the herdr defaults stick) ---
+# --- tmux muscle-memory aliases (secondary keys) ---
 rename_workspace = ["prefix+shift+w", "prefix+shift+4"] # tmux: prefix $
 rename_tab       = ["prefix+shift+t", "prefix+comma"]   # tmux: prefix ,
 detach           = ["prefix+q", "prefix+d"]             # tmux: prefix d
@@ -169,19 +169,19 @@ type = "plugin_action"
 command = "layouts.cycle"
 description = "cycle layout"
 
-# tmux: prefix /
 [[keys.command]]
 key = "prefix+e"
 type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
 description = "scrollback in $EDITOR"
+# tmux: prefix / = scrollback in $EDITOR
 [[keys.command]]
 key = "prefix+slash"
 type = "shell"
 command = 'bash "$HOME/.config/herdr/bin/herdr-scrollback.sh"'
 description = "scrollback in $EDITOR"
 
-# herdr's own reload_config on this key shows no result. This one reports the
+# herdr's own reload_config on this key shows no result. herdr-reload.sh reports the
 # result in the tab bar.
 [[keys.command]]
 key = "prefix+shift+r"
@@ -209,7 +209,7 @@ description = "resurrect: restore"
 
 [ui]
 pane_gaps = false
-# hammerspoon/init.lua tells windows running herdr apart by this prefix
+# hammerspoon/init.lua finds windows running herdr by this prefix
 window_title = "herdr · {workspace}"
 host_cursor = "native"
 toast.delivery = "system"

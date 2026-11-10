@@ -4,12 +4,12 @@
     "enabled": true
   },
   "font": "JetBrains Mono NL",
-  "font_size": 14.0,
+  "font_size": 14,
   "font_ligatures": false,
   "ui_font": "JetBrains Mono NL",
   "telemetry": false,
-  "minimum_contrast": 1.0,
+  "minimum_contrast": 1,
   "option_as_alt": "left",
-  "appearance": "dark",
-  "theme": "ghostty"
+  "theme": "ghostty",
+  "appearance": "dark"
 }

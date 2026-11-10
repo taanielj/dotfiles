@@ -1,6 +1,7 @@
--- gitsigns' blame panel is scrollbound to the file, one line per line, and a
--- commit's summary can't wrap. This module spreads the summary over the
--- block's bar-only lines instead, which one-line blocks don't have.
+-- gitsigns' blame panel is scrollbound to the file and shows one panel line per
+-- file line. A commit's summary can't wrap there.
+-- The summary spreads over the lines of the commit's block that start with a bar
+-- glyph. A block of one line has no such lines.
 local M = {}
 
 local ns = vim.api.nvim_create_namespace("user_blame_summary")
@@ -30,8 +31,7 @@ local function continues_block(line) return vim.startswith(line, "│") or vim.s
 
 local function summary_of(line) return line:match("^│ (.+)$") or line:match("^┕ (.+)$") end
 
--- A block is a header line followed by lines that start with a bar glyph.
--- gitsigns puts the summary on the first bar line.
+-- gitsigns puts the summary on the first bar line of a block.
 local function blocks(lines)
     local result = {}
     local i = 1

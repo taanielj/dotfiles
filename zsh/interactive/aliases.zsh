@@ -2,12 +2,11 @@
 if command -v nvim &>/dev/null; then
     alias vim=nvim
 
-    # Drop this directory's auto-session and start nvim clean. The filename
-    # mirrors auto-session's encoding of the cwd (/ and . percent-encoded).
+    # Drop this directory's auto-session and start nvim clean.
     nvf() {
-        local enc=${PWD//\//%2F}
-        enc=${enc//./%2E}
-        rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/sessions/${enc}.vim"
+        local session_name=${PWD//\//%2F}
+        session_name=${session_name//./%2E}
+        rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/sessions/${session_name}.vim"
         nvim "$@"
     }
 fi
@@ -65,11 +64,12 @@ nvimf() {
 
 alias gflog='git log --follow --stat --date=format:%Y-%m-%d --pretty=format:"%C(yellow)%h%Creset %C(cyan)%cd%Creset %s %C(auto)%d%Creset%n" --'
 
-# Rebase onto origin's default branch. origin/HEAD is set at clone time;
-# set-head --auto asks the remote when the repo was cloned without it.
+# Rebase onto origin's default branch.
 function grm {
     git fetch origin || return
     local base
+    # origin/HEAD is set at clone time; set-head --auto asks the remote when the
+    # repo was cloned without it.
     base=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null) ||
         { git remote set-head origin --auto >/dev/null &&
             base=$(git symbolic-ref --short refs/remotes/origin/HEAD) } || return

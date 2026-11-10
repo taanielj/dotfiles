@@ -1,5 +1,5 @@
 -- Strips the window down to the text: numbers, signs, the statusline and
--- tab bar, the tree, and the multiplexer's chrome around nvim. Leaving restores
+-- tab bar, the tree, and the multiplexer's bars around nvim. Leaving restores
 -- the options as they were on entry.
 local M = {}
 

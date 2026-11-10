@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# alt+hjkl resizes the focused pane by 3%, and alt+shift+hjkl (`fine`) resizes it
-# by 1%. In Neovim, herdr-splits.nvim gets the chord and resizes Neovim's split or
-# calls back into herdr. A pane that spans the layout along the direction's axis
-# resizes the macOS window instead (hammerspoon/init.lua).
+# alt+hjkl resizes the focused pane, and alt+shift+hjkl (`fine`) resizes it in
+# smaller steps.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
@@ -20,10 +18,13 @@ case "$dir" in
 esac
 
 pane_id="${HERDR_ACTIVE_PANE_ID:-}"
+# herdr-splits.nvim resizes Neovim's split or calls back into herdr
 if runs_nvim "$pane_id"; then
     exec "$herdr" pane send-keys "$pane_id" "$chord+$letter"
 fi
 
+# A pane that spans the layout along the direction's axis resizes the macOS
+# window (hammerspoon/init.lua)
 edges=$("$herdr" pane edges --current 2>/dev/null || true)
 if [[ "$edges" == *"\"${sides[0]}\":true"* && "$edges" == *"\"${sides[1]}\":true"* &&
     "$edges" != *'"zoomed":true'* &&

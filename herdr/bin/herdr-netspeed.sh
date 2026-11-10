@@ -2,8 +2,6 @@
 # Up/down speed on the default-route interface, for the herdr tab bar and the
 # Herdr app's status bar. macOS and Linux.
 # Usage: herdr-netspeed <caller>
-# Each caller keeps its own previous sample. A shared sample would measure only
-# the traffic since the other caller's last run.
 set -euo pipefail
 
 caller="${1:?usage: herdr-netspeed <caller>}"
@@ -22,6 +20,8 @@ else
 fi
 now=$(date +%s)
 
+# Each caller keeps its own previous sample. A shared sample would measure only
+# the traffic since the other caller's last run.
 state="${XDG_CACHE_HOME:-$HOME/.cache}/herdr-netspeed-$caller"
 mkdir -p "$(dirname "$state")"
 prev_now=0 prev_rx=$rx prev_tx=$tx

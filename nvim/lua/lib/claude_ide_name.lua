@@ -1,6 +1,6 @@
--- claudecode.nvim names every nvim "Neovim" in its lock file, so /ide lists
--- them alike. The name is rewritten as the herdr workspace or Herdr app space,
--- the tab and the current file.
+-- claudecode.nvim writes the name "Neovim" into the lock file of every nvim,
+-- and /ide then shows identical entries. The lock file name becomes "Neovim",
+-- the herdr workspace or Herdr app space, the tab and the current file, joined with " · ".
 local M = {}
 
 local workspace_label
@@ -31,7 +31,7 @@ local function name()
     return table.concat(parts, " · ")
 end
 
--- The lock file exists once the server is up. Before that, there is nothing to name.
+-- The lock file exists once the server is up. Writing the name waits for the lock file.
 function M.write()
     local path = lock_path()
     if not path or vim.fn.filereadable(path) == 0 or (path == written_path and name() == written_name) then

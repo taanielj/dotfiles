@@ -2,16 +2,13 @@ local map = require("lib.keymap").rows
 
 -- stylua: ignore
 map({
-    -- <leader>  leaves
     { "n",               "<leader>s",                  ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/g<Left><Left>", "Search and replace" },
     { "n",               "<leader>m",                  function() require("lsp.format").buffer() end,       "Format buffer" },
 
-    -- Common functionality
     { { "n", "i", "v" }, "<C-s>",                      "<Cmd>w<CR>",                                    "Save file" },
     { "n",               "<C-q>",                      "<C-v>",                                         "Visual block" },
     { "n",               "<Esc>",                      "<Cmd>nohlsearch<CR>",                           "Clear search highlight" },
 
-    -- Line movement and indentation
     { "n",               "<C-Up>",                     ":silent! m .-2<CR>==",                          "Move line up" },
     { "n",               "<C-Down>",                   ":silent! m .+1<CR>==",                          "Move line down" },
     { "n",               "<C-Left>",                   "<<hhhh",                                        "Unindent line" },
@@ -23,7 +20,6 @@ map({
     { "x",               "<C-Left>",                   "<gvhhhh",                                       "Unindent line" },
     { "x",               "<C-Right>",                  ">gvllll",                                       "Indent line" },
 
-    -- Selecting text
     { "n",               "<S-Down>",                   "vj",                                            "Select down" },
     { "n",               "<S-Up>",                     "vk",                                            "Select up" },
     { "n",               "<S-Left>",                   "vh",                                            "Select left" },
@@ -56,13 +52,11 @@ map({
     { { "n", "i", "v", "c", "t", "o" }, "<Find>",      "<Home>",                                        "Home" },
     { { "n", "i", "v", "c", "t", "o" }, "<Select>",    "<End>",                                         "End" },
 
-    -- Copy and paste
     { "x",               "<C-c>",                      '"+y',                                           "Copy" },
     { "x",               "<C-x>",                      '"+x',                                           "Cut" },
     { "x",               "<C-v>",                      "P",                                             "Paste without yanking the replaced text" },
     { "i",               "<C-v>",                      "<C-o>P",                                        "Paste" },
 
-    -- Navigation with wrap enabled
     { "n",               "j",                          'v:count ? "j" : "gj"',                          "Move down (smart)",                    true },
     { "n",               "k",                          'v:count ? "k" : "gk"',                          "Move up (smart)",                      true },
     { "x",               "j",                          'v:count ? "j" : "gj"',                          "Move down (smart)",                    true },
@@ -72,7 +66,6 @@ map({
     { "x",               "<Up>",                       "gk",                                            "Move up (visual line)" },
     { "x",               "<Down>",                     "gj",                                            "Move down (visual line)" },
 
-    -- Surround replacement
     { "x",               "'",                          "\"zc''<Esc>\"zP",                               "Add single quotes" },
     { "x",               '"',                          '"zc""<Esc>"zP',                                 "Add double quotes" },
     { "x",               "`",                          '"zc``<Esc>"zP',                                 "Add backticks" },
@@ -94,7 +87,6 @@ map({
     { "x",               { "<Leader>i", "<Leader>_" }, '"zc__<Esc>h"zp',                                "Add italic" },
     { "x",               "<Leader>s",                  '"zc~~<Esc>h"zp',                                "Add strikethrough" },
 
-    -- <leader>c  Copilot
     { "n",               "<leader>cc",                 "<Cmd>Copilot<CR>",                              "Copilot" },
     { "n",               "<leader>cd",                 "<Cmd>Copilot disable<CR>",                      "Copilot disable" },
     { "n",               "<leader>ce",                 "<Cmd>Copilot enable<CR>",                       "Copilot enable" },
@@ -105,7 +97,6 @@ local toggle_comment_line = vim.fn.maparg("gcc", "n", false, true).callback
 vim.keymap.del("n", "gcc")
 map({ { "n", "gc", toggle_comment_line, "Toggle comment line", true } })
 
--- Insert-mode editing
 local function move_cursor_visual(lines)
     local count = math.abs(lines)
     local key = lines > 0 and "gj" or "gk"
@@ -171,7 +162,6 @@ vim.keymap.set("i", "<Esc>", function()
     return "<Esc>"
 end, { expr = true, desc = "Exit insert mode preserving cursor position" })
 
--- Word selection
 vim.keymap.set("n", "<C-S-Right>", "ve", { remap = true, desc = "Select word forward" })
 vim.keymap.set("n", "<C-S-Left>", "vb", { remap = true, desc = "Select word backward" })
 vim.keymap.set("x", "<C-S-Right>", "e", { remap = true, desc = "Extend selection word forward" })
@@ -189,7 +179,6 @@ map({
     },
 })
 
--- Copilot in insert
 local function suggestion_shown() return vim.fn["copilot#GetDisplayedSuggestion"]().text ~= "" end
 
 vim.keymap.set(

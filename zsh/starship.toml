@@ -7,14 +7,13 @@ add_newline = false
 palette = "catppuccin_macchiato"
 
 # Listing the modules keeps starship's per-language modules off.
-format = "${env_var.STARSHIP_GIT_HOST}$git_branch$git_commit$git_state$git_status$character"
+format = "${env_var.STARSHIP_GIT_HOST_ICON}$git_branch$git_commit$git_state$git_status$character"
 right_format = "$status$cmd_duration$jobs${env_var.DIRENV_DIR}$python$kubernetes$aws$gcloud$username$hostname$time"
 
-# Each icon is followed by a space, which the terminal lets it spill into; an
-# icon followed by text shrinks to one cell.
+# Each icon is followed by a space because the terminal draws a wide icon across two cells when the next cell is empty.
+# An icon followed by text shrinks to one cell.
 
-# Rendered once at startup by zsh/starship.zsh, which draws it and the path
-# itself
+# zsh/starship.zsh renders this module once at startup and draws the path itself.
 [os]
 disabled = false
 style = "fg:os"
@@ -28,7 +27,7 @@ Linux = "\uF17C"
 Android = "\uF17B"
 
 # p10k's VCS icon, the origin remote's host, set on cd by zsh/starship.zsh
-[env_var.STARSHIP_GIT_HOST]
+[env_var.STARSHIP_GIT_HOST_ICON]
 style = "fg:git"
 format = "[$env_value ]($style)"
 

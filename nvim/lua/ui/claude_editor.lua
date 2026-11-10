@@ -1,8 +1,10 @@
 -- Claude Code's external editor, run by the nvim in the same herdr tab or Herdr
--- app tab as Claude. herdr/bin/herdr-nvim.sh, the wrapper Claude runs as its
--- editor, calls `edit` for ctrl+g and `view` for ctrl+o v through this nvim's
--- server socket. ctrl+g opens the repo's prompt draft, .scratch/prompt.md.
--- <C-s> in the draft submits it to Claude without a ctrl+g.
+-- app tab as Claude.
+-- - herdr/bin/herdr-nvim.sh is the wrapper Claude runs as its editor.
+-- - The wrapper calls `edit` for ctrl+g and `view` for ctrl+o v through this
+--   nvim's server socket.
+-- - ctrl+g opens the repo's prompt draft, .scratch/prompt.md.
+-- - <C-s> in the draft submits the draft to Claude without a ctrl+g.
 local host = require("lib.pane_host")
 
 local M = {}
@@ -86,10 +88,9 @@ local function set_draft(buf, text)
     vim.api.nvim_buf_call(buf, function() vim.cmd("silent update") end)
 end
 
----Ends the edit Claude is waiting on and focuses Claude.
 ---@param text string[]? what Claude's box gets; nil leaves the box as it was
 ---@return ui.claude_editor.PendingEdit?
-local function release(text)
+local function end_pending_edit(text)
     local edit = waiting
     waiting = nil
     if not edit then
@@ -108,7 +109,7 @@ end
 local function hand_back(buf)
     local text = lines(buf)
     set_draft(buf, {})
-    local edit = release(text)
+    local edit = end_pending_edit(text)
     hide("claude_draft")
     return edit
 end
@@ -117,7 +118,7 @@ end
 local function close(buf)
     if waiting then
         set_draft(buf, waiting.original_draft)
-        release(nil)
+        end_pending_edit(nil)
     end
     hide("claude_draft")
 end
@@ -164,7 +165,7 @@ end
 function M.attach(buf)
     vim.b[buf].claude_draft = true
     vim.bo[buf].buflisted = false
-    local map = require("lib.keymap").buffer(buf, "Prompt draft: ")
+    local map = require("lib.keymap").buffer_mapper(buf, "Prompt draft: ")
     map("n", "ZZ", function()
         if waiting then
             hand_back(buf)
@@ -190,7 +191,7 @@ function M.attach(buf)
     vim.api.nvim_create_autocmd("BufWinLeave", {
         group = group,
         buffer = buf,
-        callback = function() release(nil) end,
+        callback = function() end_pending_edit(nil) end,
     })
 end
 
@@ -210,7 +211,7 @@ end
 ---@return integer 1, which tells the wrapper that nvim took the file
 function M.edit(prompt_file, done_fifo, claude_pane)
     -- Cancel the edit another Claude in this tab may still be waiting on
-    release(nil)
+    end_pending_edit(nil)
     local buf = load_draft()
     local before = lines(buf)
     local box = vim.fn.readfile(prompt_file)
@@ -236,7 +237,7 @@ function M.view(path)
     vim.bo[buf].bufhidden = "wipe"
     vim.bo[buf].modifiable = false
     vim.bo[buf].readonly = true
-    local map = require("lib.keymap").buffer(buf, "Transcript: ")
+    local map = require("lib.keymap").buffer_mapper(buf, "Transcript: ")
     for _, key in ipairs({ "ZZ", "ZQ" }) do
         map("n", key, function() hide("claude_transcript") end, "close")
     end

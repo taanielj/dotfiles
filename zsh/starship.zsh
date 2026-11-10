@@ -5,17 +5,16 @@ eval "$(starship init zsh)"
 
 # zsh draws the OS icon and the path in front of starship's prompt, since
 # starship's directory module can't shorten or colour the path the way p10k's
-# dir segment does (zsh/p10k.zsh). The OS icon renders once, here.
-typeset -g _prompt_os=$(starship module os)
+# dir segment does (zsh/p10k.zsh).
+typeset -g _prompt_os_icon=$(starship module os)
 # `starship module` prints raw colour codes; %{ %} tells zsh they take no columns
 () {
     emulate -L zsh -o extended_glob
-    _prompt_os=${_prompt_os//(#m)$'\e'\[[0-9;]#m/"%{$MATCH%}"}
+    _prompt_os_icon=${_prompt_os_icon//(#m)$'\e'\[[0-9;]#m/"%{$MATCH%}"}
 }
-PROMPT='${_prompt_os}${_prompt_dir}'$PROMPT
+PROMPT='${_prompt_os_icon}${_prompt_dir}'$PROMPT
 
-# Reads path, path_short and path_anchor from the palette starship.toml selects
-typeset -gA _prompt_colors
+typeset -gA _prompt_path_colors
 () {
     emulate -L zsh -o extended_glob
     local line palette section
@@ -25,20 +24,20 @@ typeset -gA _prompt_colors
         elif [[ -z $section && $line == palette[[:space:]]#=[[:space:]]#\"(#b)([^\"]#)\"* ]]; then
             palette=$match[1]
         elif [[ $section == palettes.$palette && $line == (#b)(path[a-z_]#)[[:space:]]#=[[:space:]]#\"([^\"]#)\"* ]]; then
-            _prompt_colors[$match[1]]=$match[2]
+            _prompt_path_colors[$match[1]]=$match[2]
         fi
     done
 }
 
-# Folders holding one of these are anchors: never shortened, and bold. The
-# same list as anchor_files in zsh/p10k.zsh.
-typeset -g _prompt_dir_markers='(.bzr|.citc|.git|.hg|.node-version|.python-version|.go-version|.ruby-version|.lua-version|.java-version|.perl-version|.php-version|.tool-versions|.shorten_folder_marker|.svn|.terraform|CVS|Cargo.toml|composer.json|go.mod|package.json|stack.yaml)'
+# Anchors are never shortened and render bold. The list matches anchor_files in
+# zsh/p10k.zsh.
+typeset -g _prompt_anchor_files='(.bzr|.citc|.git|.hg|.node-version|.python-version|.go-version|.ruby-version|.lua-version|.java-version|.perl-version|.php-version|.tool-versions|.shorten_folder_marker|.svn|.terraform|CVS|Cargo.toml|composer.json|go.mod|package.json|stack.yaml)'
 
-# Sets REPLY to roughly how many columns the prompt takes besides the path: the OS
-# and folder icons, the prompt char, the clock, and in a repo its host icon,
-# branch and a few status counts. Starship renders them after this runs.
-# Usage: _prompt_rest_width <repo root or "">
-_prompt_rest_width() {
+# Sets REPLY to a rough width for the OS and folder icons, the prompt char, the
+# clock, and in a repo its host icon, branch and a few status counts. Starship
+# renders them after this runs.
+# Usage: _prompt_width_besides_path <repo root or "">
+_prompt_width_besides_path() {
     local width=20 git=$1/.git head
     [[ -n $DIRENV_DIR ]] && (( width += 2 ))
     [[ -n $1 ]] || { REPLY=$width; return }
@@ -48,10 +47,9 @@ _prompt_rest_width() {
     REPLY=$(( width + 12 + ${#${head#ref: refs/heads/}} ))
 }
 
-# Sets _prompt_dir to the path as p10k's dir segment shows it. Parent folders
-# shorten from the left to their shortest unique prefix, in grey, while the
-# prompt would leave fewer than 40 columns for typing or the path is longer than
-# 80. Anchors and the last folder are bold.
+# Sets _prompt_dir to the path as p10k's dir segment shows it.
+# Parent folders shorten from the left to their shortest unique prefix, in grey.
+# Anchors and the last folder are bold.
 _prompt_dir() {
     emulate -L zsh
     local lead dir rest=$PWD root i n name
@@ -64,13 +62,15 @@ _prompt_dir() {
         dir+=/$names[i]
         dirs[i]=$dir shown[i]=$names[i] kinds[i]=plain
         (( len += 1 + ${#names[i]} ))
-        marker=($dir/${~_prompt_dir_markers}(N[1]))
+        marker=($dir/${~_prompt_anchor_files}(N[1]))
         (( $#marker )) && kinds[i]=anchor
         [[ -e $dir/.git ]] && root=$dir
     done
     (( $#names )) && kinds[-1]=anchor
     local REPLY
-    _prompt_rest_width "$root"
+    _prompt_width_besides_path "$root"
+    # Shortening applies while the prompt would leave fewer than 40 columns for
+    # typing or the path is longer than 80.
     local -i budget=$(( COLUMNS - 40 - REPLY ))
     (( budget > 80 )) && budget=80
     for (( i = 1; i <= $#names; i++ )); do
@@ -87,21 +87,21 @@ _prompt_dir() {
     done
     local out
     if (( $#names )); then
-        out="%F{$_prompt_colors[path]}$lead"
+        out="%F{$_prompt_path_colors[path]}$lead"
     elif [[ -n $lead ]]; then
-        out="%B%F{$_prompt_colors[path_anchor]}$lead%b"
+        out="%B%F{$_prompt_path_colors[path_anchor]}$lead%b"
     else
-        out="%B%F{$_prompt_colors[path_anchor]}/%b"
+        out="%B%F{$_prompt_path_colors[path_anchor]}/%b"
     fi
     for (( i = 1; i <= $#names; i++ )); do
         name=${shown[i]//\%/%%}
         case $kinds[i] in
-            anchor) out+="%F{$_prompt_colors[path]}/%B%F{$_prompt_colors[path_anchor]}$name%b" ;;
-            short) out+="%F{$_prompt_colors[path]}/%F{$_prompt_colors[path_short]}$name" ;;
-            *) out+="%F{$_prompt_colors[path]}/$name" ;;
+            anchor) out+="%F{$_prompt_path_colors[path]}/%B%F{$_prompt_path_colors[path_anchor]}$name%b" ;;
+            short) out+="%F{$_prompt_path_colors[path]}/%F{$_prompt_path_colors[path_short]}$name" ;;
+            *) out+="%F{$_prompt_path_colors[path]}/$name" ;;
         esac
     done
-    typeset -g _prompt_dir="%F{$_prompt_colors[path]}"$'\uF07C'" $out%f "
+    typeset -g _prompt_dir="%F{$_prompt_path_colors[path]}"$'\uF07C'" $out%f "
 }
 precmd_functions+=(_prompt_dir)
 
@@ -115,33 +115,31 @@ TRAPWINCH() {
 # ~/.zshrc.local or an overlay it sources can add some before this file loads.
 typeset -gA prompt_git_host_icons
 
-# Sets STARSHIP_GIT_HOST to p10k's VCS icon for the origin remote's host, unless
-# prompt_git_host_icons names one. GITLAB_HOST (glab's) marks a self-hosted
-# GitLab. Runs on cd, because a starship custom module would start sh and git on
-# every prompt.
-_prompt_git_host() {
+_export_git_host_icon() {
     local url pattern
     url=$(git config --local --get remote.origin.url 2>/dev/null)
     # 128 outside a repo; 1 in a repo without an origin remote
     if (( $? == 128 )); then
-        unset STARSHIP_GIT_HOST
+        unset STARSHIP_GIT_HOST_ICON
         return
     fi
     for pattern in ${(k)prompt_git_host_icons}; do
         if [[ $url == ${~pattern} ]]; then
-            export STARSHIP_GIT_HOST=$prompt_git_host_icons[$pattern]
+            export STARSHIP_GIT_HOST_ICON=$prompt_git_host_icons[$pattern]
             return
         fi
     done
     case $url in
-        *github*) export STARSHIP_GIT_HOST=$'\uF113' ;;
-        *gitlab* | *${GITLAB_HOST:-gitlab.com}*) export STARSHIP_GIT_HOST=$'\uF296' ;;
-        *bitbucket*) export STARSHIP_GIT_HOST=$'\uE703' ;;
-        *) export STARSHIP_GIT_HOST=$'\uF1D3' ;;
+        # GITLAB_HOST (glab's) marks a self-hosted GitLab
+        *github*) export STARSHIP_GIT_HOST_ICON=$'\uF113' ;;
+        *gitlab* | *${GITLAB_HOST:-gitlab.com}*) export STARSHIP_GIT_HOST_ICON=$'\uF296' ;;
+        *bitbucket*) export STARSHIP_GIT_HOST_ICON=$'\uE703' ;;
+        *) export STARSHIP_GIT_HOST_ICON=$'\uF1D3' ;;
     esac
 }
-chpwd_functions+=(_prompt_git_host)
-_prompt_git_host
+# Runs on cd to avoid starting sh and git on every prompt.
+chpwd_functions+=(_export_git_host_icon)
+_export_git_host_icon
 
 # Kube context and gcloud project show only while the typed command's first
 # word matches; starship.toml gates those modules on these variables.

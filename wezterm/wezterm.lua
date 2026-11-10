@@ -2,7 +2,9 @@ local wezterm = require("wezterm")
 local act = wezterm.action
 local config = wezterm.config_builder()
 
--- Catppuccin Macchiato background and foreground only. The full color_scheme turns the ANSI colors into pastels that are hard to tell apart with color blindness.
+-- The key and mouse bindings mirror kitty.conf.
+
+-- Catppuccin background and foreground only. Catppuccin's pastel ANSI colors aren't colorblind friendly.
 config.colors = {
 	foreground = "#cad3f5",
 	background = "#24273a",
@@ -37,9 +39,9 @@ if wezterm.target_triple:find("darwin") then
 
 	config.keys = {
 		-- Cmd+letter → Ctrl+letter (Karabiner swaps physical Ctrl↔Cmd)
+		-- cmd+m and cmd+q keep their macOS actions.
 		cmd_to_ctrl("a"),
 		cmd_to_ctrl("b"),
-		-- matches kitty's copy_and_clear_or_interrupt
 		{
 			key = "c",
 			mods = "CMD",
@@ -62,11 +64,9 @@ if wezterm.target_triple:find("darwin") then
 		cmd_to_ctrl("j"),
 		cmd_to_ctrl("k"),
 		cmd_to_ctrl("l"),
-		-- cmd+m = minimize (macOS default, keep it)
 		cmd_to_ctrl("n"),
 		cmd_to_ctrl("o"),
 		cmd_to_ctrl("p"),
-		-- cmd+q = quit (macOS default, keep it)
 		cmd_to_ctrl("r"),
 		cmd_to_ctrl("s"),
 		cmd_to_ctrl("t"),
@@ -89,7 +89,7 @@ if wezterm.target_triple:find("darwin") then
 		cmd_to_ctrl("0"),
 
 		-- Cmd+Shift+letter → Ctrl+Shift+letter (CSI u encoding: ESC[keycode;6u)
-		-- SendString bypasses wezterm's legacy key encoding which can't distinguish Ctrl+Shift+letter from Ctrl+letter
+		-- Wezterm's legacy key encoding cannot tell Ctrl+Shift+letter from Ctrl+letter, and SendString avoids that encoding
 		{ key = "f", mods = "CMD|SHIFT", action = act.SendString("\x1b[102;6u") },
 		{ key = "h", mods = "CMD|SHIFT", action = act.SendString("\x1b[104;6u") },
 		{ key = "j", mods = "CMD|SHIFT", action = act.SendString("\x1b[106;6u") },
@@ -119,7 +119,6 @@ if wezterm.target_triple:find("darwin") then
 		{ key = "`", mods = "CMD", action = act.ActivateWindowRelative(1) },
 		{ key = "`", mods = "ALT", action = act.ActivateWindowRelative(1) },
 
-		-- matches kitty's cmd+alt+shift+o
 		{
 			key = "o",
 			mods = "CMD|ALT|SHIFT",
@@ -134,7 +133,6 @@ if wezterm.target_triple:find("darwin") then
 				window:set_config_overrides(overrides)
 			end),
 		},
-		-- matches kitty's cmd+option+control+Up/Down
 		{
 			key = "UpArrow",
 			mods = "CMD|ALT|CTRL",
@@ -162,9 +160,8 @@ if wezterm.target_triple:find("darwin") then
 	}
 end
 
--- Copy on select (matches kitty copy_on_select clipboard)
+-- Copy on select
 config.mouse_bindings = {
-	-- Matches default but ensures copy-on-select works alongside link opening
 	{
 		event = { Up = { streak = 1, button = "Left" } },
 		mods = "NONE",

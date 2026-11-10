@@ -1,5 +1,5 @@
-// Cmd+hjkl moves through nvim windows, then panes, then macOS windows
-// (hammerspoon/init.lua); Alt+hjkl resizes the same way.
+// Cmd+hjkl moves through nvim windows, then panes, then macOS windows (hammerspoon/init.lua).
+// Alt+hjkl resizes nvim windows, then panes, then macOS windows.
 import { exec, hc } from "herdr";
 import { app, focusedPane, pathTo } from "./app.js";
 
@@ -47,9 +47,8 @@ async function nav(dir) {
 
 const SPLIT = { left: "row", right: "row", up: "column", down: "column" };
 
-// A tab's split tree as the app keeps it in herdr-core's herdr-app document;
-// the app's own commands don't expose it.
-async function tabTree(tab) {
+// Read from herdr-core's herdr-app document, because the app's commands don't expose it
+async function tabSplitTree(tab) {
   const get = '{"jsonrpc":"2.0","id":1,"method":"doc.get","params":{"name":"herdr-app"}}';
   const r = await exec("sh", ["-c", 'printf "%s\\n" "$1" | hc connect', "sh", get]);
   const doc = JSON.parse(r.stdout).result.value;
@@ -59,11 +58,9 @@ async function tabTree(tab) {
 const weight = (node) => node.size?.weight ?? 1;
 
 // Resizes the pane's branch in the nearest enclosing split along dir's axis, as
-// smart-splits does. Moves the border with the next sibling, or with the previous
-// sibling for the last child, and keeps both siblings at 5% of the split or more.
-// Resolves false when no split along that axis encloses the pane.
+// smart-splits does. Resolves false when no split along that axis encloses the pane.
 async function resizePane(pane, dir, step) {
-  const path = pathTo((await tabTree(pane.tab)) ?? {}, pane.pane) ?? [];
+  const path = pathTo((await tabSplitTree(pane.tab)) ?? {}, pane.pane) ?? [];
   for (let i = path.length - 2; i >= 0; i--) {
     const kids = path[i].children;
     if (path[i].type !== SPLIT[dir] || kids.length < 2) continue;

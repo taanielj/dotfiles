@@ -1,4 +1,4 @@
-# Streams stdin, pretty-printing JSON log lines; bat colours them as JSON and the rest as a log.
+# Streams stdin and pretty-prints JSON log lines. bat colours JSON lines as JSON and the rest as a log.
 jsonl() {
     # Command form merges stderr, where loggers usually write
     if (( $# )); then

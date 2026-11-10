@@ -2,7 +2,6 @@ local map = require("lib.keymap").rows
 
 -- stylua: ignore
 map({
-    -- <leader>b  Buffer
     { "n", "<leader>bn",                           "<Cmd>BufferLineCycleNext<CR>",                  "Next buffer" },
     { "n", "<leader>bp",                           "<Cmd>BufferLineCyclePrev<CR>",                  "Previous buffer" },
     { "n", "<Tab>",                                "<Cmd>BufferLineCycleNext<CR>",                  "Next buffer" },
@@ -20,7 +19,6 @@ map({
     { "n", "<leader>bst",                          "<Cmd>BufferLineSortByTabs<CR>",                 "Sort by tabs" },
     { "n", "<leader>bse",                          "<Cmd>BufferLineSortByExtension<CR>",            "Sort by extension" },
 
-    -- <leader>q  Close
     { "n", { "ZQ", "<leader>q!" },                 function() require("ui.close_buffer").close({ force = true }) end, "Close buffer without saving" },
     { "n", "<leader>qa",                           "<Cmd>wa<CR><Cmd>qa<CR>",                        "Quit and save all" },
     { "n", "<leader>qfy",                          "<Cmd>qa!<CR>",                                  "Quit without saving?" },

@@ -11,7 +11,7 @@ return {
     },
     {
         "brianhuster/live-preview.nvim",
-        -- local fork: editing in the preview, on branch edit-in-preview
+        -- local fork on branch edit-in-preview, which adds editing in the preview
         dir = live_preview_fork,
         cond = vim.fn.isdirectory(live_preview_fork) == 1,
         cmd = "LivePreview",
@@ -24,7 +24,7 @@ return {
             require("livepreview.config").set({ port = port })
         end,
         keys = {
-            -- always start: a closed browser tab leaves the server up, and a toggle would stop it instead
+            -- always start, because a closed browser tab leaves the server up and a toggle would stop it
             { "<leader>p", "<cmd>LivePreview start<cr>", ft = "markdown", desc = "Preview markdown" },
         },
     },

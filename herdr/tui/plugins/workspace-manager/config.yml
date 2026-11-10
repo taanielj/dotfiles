@@ -1,6 +1,4 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/razajamil/herdr-plugin-workspace-manager/main/schema.json
-# A Claude subagent's worktree gets a shell instead of Claude, because the
-# subagent already runs in the parent session.
 layouts:
   - id: dev
     tabs:
@@ -15,6 +13,8 @@ layouts:
       - title: shell
         panes:
           - title: shell
+  # A Claude subagent's worktree gets a shell instead of Claude, because the
+  # subagent already runs in the parent session.
   - id: agent
     tabs:
       - title: code

@@ -20,7 +20,7 @@ end
 
 ---@param root_dir string
 local function connected_mode(root_dir)
-    -- Connected mode needs both. Set them in ~/.zshrc.local per machine.
+    -- Connected mode needs SONAR_TOKEN and SONAR_HOST_URL. Set them in ~/.zshrc.local per machine.
     local token = os.getenv("SONAR_TOKEN")
     local server_url = os.getenv("SONAR_HOST_URL")
     local key = token and server_url and project_key(root_dir)

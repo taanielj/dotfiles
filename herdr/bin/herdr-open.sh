@@ -14,5 +14,5 @@ while read -r socket; do
             "luaeval('require(\"ui.open_file\").open(_A)', '${file//\'/\'\'}')" 2>/dev/null)" == 1 ]]
         exit
     fi
-done < <(nvim_servers)
+done < <(nvim_server_sockets)
 exit 1

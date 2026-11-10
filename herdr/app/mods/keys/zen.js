@@ -1,12 +1,11 @@
 import { layout } from "herdr";
 import { app, focusedPane, pathTo } from "./app.js";
 
-// nvim's zen mode runs zen-in and zen-out (nvim/lua/lib/mux.lua). The zen-strip
-// mod replaces the tab bar to keep the pane below macOS's window buttons.
+// nvim's zen mode runs zen-in and zen-out (nvim/lua/lib/mux.lua).
 const BARS = ["sidebar", "tabs", "status", "panel"];
+// Replaces the tab bar to keep the pane below macOS's window buttons
 const STRIP = "zen-strip";
-// What zen-in found, kept in storage so a mod reload doesn't lose it
-const FOUND = "zen";
+const ZEN_IN_STATE_KEY = "zen"; // localStorage keeps the state across a mod reload
 
 async function zenIn() {
   const root = layout();
@@ -15,15 +14,15 @@ async function zenIn() {
     return node && !node.hidden;
   });
   const zoomed = focusedPane()?.zoomed ?? false;
-  localStorage.setItem(FOUND, JSON.stringify({ shown, zoomed }));
+  localStorage.setItem(ZEN_IN_STATE_KEY, JSON.stringify({ shown, zoomed }));
   if (!zoomed) await app("pane.zoom");
   for (const id of shown) await app("layout.hide", "--id", id);
   await app("layout.show", "--id", STRIP);
 }
 
 async function zenOut() {
-  const { shown = [], zoomed = true } = JSON.parse(localStorage.getItem(FOUND) ?? "{}");
-  localStorage.removeItem(FOUND);
+  const { shown = [], zoomed = true } = JSON.parse(localStorage.getItem(ZEN_IN_STATE_KEY) ?? "{}");
+  localStorage.removeItem(ZEN_IN_STATE_KEY);
   await app("layout.hide", "--id", STRIP);
   for (const id of shown) await app("layout.show", "--id", id);
   if (!zoomed && focusedPane()?.zoomed) await app("pane.zoom");

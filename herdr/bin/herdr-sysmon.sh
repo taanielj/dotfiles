@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # CPU/RAM for the herdr tab bar and the Herdr app's status bar. macOS and Linux.
-# The CPU figure is approximate, because ps averages %cpu over each process's
-# lifetime.
 set -euo pipefail
 
 ncpu=$(getconf _NPROCESSORS_ONLN)
+# Approximate, because ps averages %cpu over each process's lifetime
 cpu=$(ps -A -o %cpu= | awk -v n="$ncpu" '{s+=$1} END {printf "%.0f", s/n}')
 
 if [[ -r /proc/meminfo ]]; then

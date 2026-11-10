@@ -110,7 +110,7 @@ local function marksman_resolves(from_definition)
     return not from_definition and next(vim.lsp.get_clients({ bufnr = 0, name = "marksman" })) ~= nil
 end
 
--- GitHub's #L42 line anchor. Heading slugs are lowercase and never clash with it.
+-- GitHub's #L42 line anchor. Heading slugs are lowercase and never clash with a line anchor.
 local function jump_to_anchor(anchor)
     local line = anchor:match("^L(%d+)")
     if not line then
@@ -296,7 +296,7 @@ function M.to_reference()
 end
 
 function M.references_in_selection()
-    local first, last = require("lib.yank").line_range()
+    local first, last = require("lib.yank").selection_or_cursor_lines()
     vim.cmd("normal! \27")
     to_references(first, last)
 end

@@ -20,7 +20,7 @@ install_lazygit() {
     LAZYGIT_BIN="$HOME/.local/bin/lazygit"
 
     local arch
-    arch=$(release_arch)
+    arch=$(release_archive_arch)
     [[ -z "$arch" ]] && error "Unsupported architecture: $(uname -m)" && return 1
 
     mkdir -p "$HOME/.local/bin"

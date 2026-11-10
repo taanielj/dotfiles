@@ -1,6 +1,5 @@
 -- claudecode.nvim's terminal provider inside the Herdr app. Claude runs in an
 -- app pane below this nvim, as herdr-agents.nvim does inside the herdr TUI.
--- Hiding removes the pane with terminal.park, and Claude keeps running.
 local app = require("lib.herdr_app")
 
 local M = {}
@@ -69,6 +68,7 @@ local function show(focus)
     end
 end
 
+-- Claude keeps running in a parked terminal
 local function hide() herdr_app({ "terminal.park", "--terminal", terminal }) end
 
 function M.setup() end

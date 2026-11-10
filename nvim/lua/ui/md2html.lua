@@ -6,8 +6,8 @@ local M = {}
 
 local INSTALL_URL = "https://docs.astral.sh/uv/getting-started/installation/"
 
--- No nl2br. A <br /> at every newline breaks hard-wrapped prose mid-sentence,
--- and Scoro's editor keeps those breaks.
+-- Hard-wrapped prose keeps its newlines. A <br /> at every newline would break
+-- sentences mid-way, and Scoro's editor keeps those breaks.
 local CMD = {
     "uvx",
     "--quiet",
@@ -38,7 +38,7 @@ local function shift(line, delta)
     return string.rep(" ", math.max(0, width(ws) + delta)) .. rest
 end
 
--- A line with no marker of its own moves with the deepest open level it clears.
+-- A line with no marker of its own takes the shift of the deepest open list level whose indent is at most the line's indent.
 local function delta_for(stack, indent)
     local level = 0
     while level < #stack and stack[level + 1] <= indent do

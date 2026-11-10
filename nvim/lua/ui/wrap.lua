@@ -2,9 +2,9 @@
 -- its right taking the rest. Closing a wrapped window closes its spacer.
 local M = {}
 
--- Window options the spacer turns off. A spacer that becomes an ordinary window
--- gets the wrapped window's values back, since no global option holds this
--- config's window defaults.
+-- Window options the spacer turns off.
+-- A spacer that becomes an ordinary window gets the value of each DECORATIONS option from
+-- the wrapped window, because no global option stores the window defaults.
 local DECORATIONS = { "winbar", "number", "relativenumber", "fillchars", "colorcolumn", "cursorline" }
 
 ---@type table<integer, { id: integer, decorations: table<string, any> }>
@@ -63,7 +63,8 @@ end
 
 local group = vim.api.nvim_create_augroup("user_wrap_spacer", { clear = true })
 
--- wincmd and the mouse still enter an unfocusable split
+-- wincmd and the mouse can still enter the spacer despite focusable = false.
+-- Send focus back to the wrapped window.
 vim.api.nvim_create_autocmd("WinEnter", {
     group = group,
     callback = function()

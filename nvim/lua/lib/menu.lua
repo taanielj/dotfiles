@@ -1,8 +1,8 @@
--- Neovim's own popup menus, defined from Lua rows. A menu's right-hand side is
--- a key sequence. A Lua callback is reached through a registry keyed by menu
--- name and rebuilt with the menu.
+-- Neovim's own popup menus, defined from Lua rows.
+-- A menu's right-hand side is a key sequence.
 local M = {}
 
+-- Lua callbacks, keyed by menu name and rebuilt with the menu
 local callbacks = {}
 
 function M.run(menu, id)
@@ -25,9 +25,7 @@ local function rhs(menu, entry)
     return ("<Cmd>lua require('lib.menu').run('%s', %d)<CR>"):format(menu, id)
 end
 
--- Separators go only between rows that are shown. A menu whose whole group was
--- left out opens without a blank line.
-local function compact(entries)
+local function drop_stray_separators(entries)
     local result = {}
     for _, entry in ipairs(entries) do
         local last = result[#result]
@@ -65,7 +63,7 @@ end
 function M.define(menu, entries)
     vim.cmd("silent! aunmenu " .. menu)
     callbacks[menu] = {}
-    local shown = compact(entries)
+    local shown = drop_stray_separators(entries)
     for i, entry in ipairs(shown) do
         if entry.separator then
             vim.cmd(("anoremenu %s.-sep%d- <Nop>"):format(menu, i))

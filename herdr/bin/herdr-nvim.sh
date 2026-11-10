@@ -9,9 +9,8 @@ source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 # Claude puts the file last, after +<line> for an editor it knows
 file="${*: -1}"
 
-# Usage: app_tab <terminal>
-# Prints the Herdr app tab showing the terminal.
-app_tab() {
+# Usage: app_tab_of_terminal <terminal>
+app_tab_of_terminal() {
     jq -r --arg t "$1" '.spaces[].tabs[] | select(any(.terminals[]; .terminal == $t)) | .id' <<<"$app_ls"
 }
 
@@ -23,17 +22,17 @@ if [[ -n "${HERDR_TAB_ID:-}" ]]; then
             server=$socket
             break
         fi
-    done < <(nvim_servers)
+    done < <(nvim_server_sockets)
 elif [[ -n "${HC_TERMINAL_ID:-}" ]] && app_ls=$(herdr-app ls 2>/dev/null); then
     pane="$HC_TERMINAL_ID"
-    tab=$(app_tab "$HC_TERMINAL_ID")
+    tab=$(app_tab_of_terminal "$HC_TERMINAL_ID")
     while read -r socket; do
         terminal=$(nvim_env "$socket" HC_TERMINAL_ID) || continue
-        if [[ -n "$terminal" && "$(app_tab "$terminal")" == "$tab" ]]; then
+        if [[ -n "$terminal" && "$(app_tab_of_terminal "$terminal")" == "$tab" ]]; then
             server=$socket
             break
         fi
-    done < <(nvim_servers)
+    done < <(nvim_server_sockets)
 fi
 [[ -n "$server" ]] || exec nvim "$@"
 

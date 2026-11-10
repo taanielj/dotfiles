@@ -16,7 +16,7 @@ install_nvim() {
     local os="" arch
     [[ "$OS" == "Darwin" ]] && os="macos"
     [[ "$OS" == "Linux" ]] && os="linux"
-    arch=$(release_arch)
+    arch=$(release_archive_arch)
     [[ -z "$os" || -z "$arch" ]] && error "Unsupported architecture: $(uname -m)" && return 1
     local archive_name="nvim-$os-$arch.tar.gz"
 

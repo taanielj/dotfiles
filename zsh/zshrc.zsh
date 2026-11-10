@@ -26,13 +26,13 @@ ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 mkdir -p "$(dirname "$ZSH_COMPDUMP")"
 fpath+="$HOME/.zfunc"
 
-# compinit runs once. Running it again wipes completions registered at runtime,
-# such as gcloud's.
-# Adding or removing a completion file bumps its fpath dir's mtime. The dump is
-# removed first because compinit reuses one whose fpath file count still matches.
+# compinit runs once, because a second run wipes completions registered at
+# runtime, such as gcloud's.
 autoload -Uz compinit
+# Adding or removing a completion file bumps the mtime of its fpath directory
 newer_fpath_dirs=( ${^fpath}(N-/e:'[[ $REPLY -nt $ZSH_COMPDUMP.zwc ]]':) )
 if [[ ! -s $ZSH_COMPDUMP.zwc || $ZSH_COMPDUMP.zwc -ot $ZSH_COMPDUMP || -n $newer_fpath_dirs ]]; then
+    # compinit reuses a dump whose fpath file count still matches
     rm -f "$ZSH_COMPDUMP"
     compinit -d "$ZSH_COMPDUMP"
     zcompile "$ZSH_COMPDUMP"
@@ -45,15 +45,12 @@ autoload -Uz _zinit
 autoload -U select-word-style
 select-word-style bash
 
-# Autosuggestions loads eagerly to show suggestions from the first prompt.
-# With manual rebind, it wraps zle widgets once at the first prompt instead of
-# at every prompt. The atload on zsh-syntax-highlighting wraps the widgets again
-# after the turbo plugins add their own. A plugin that defines widgets must load
-# before that atload.
-export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+# Loads eagerly to show suggestions from the first prompt
+export ZSH_AUTOSUGGEST_MANUAL_REBIND=1  # wraps widgets only once
 zinit ice lucid
 zinit light zsh-users/zsh-autosuggestions
 
+# A plugin that adds widgets must load before zsh-syntax-highlighting, whose atload wraps them again
 zinit wait lucid for \
     Aloxaf/fzf-tab \
     atload'_zsh_autosuggest_bind_widgets' zsh-users/zsh-syntax-highlighting
@@ -118,14 +115,14 @@ command -v bat &>/dev/null && export FZF_CTRL_T_OPTS="--preview 'bat --color=alw
 
 command -v direnv &>/dev/null && source_cached direnv hook zsh
 
-# HOMEBREW_PREFIX comes from zprofile, which only login shells read. The first
-# two entries are zprofile's two brew prefixes. apt's SDK has gcloud on PATH
-# already and ships only the completion.
+# HOMEBREW_PREFIX comes from zprofile, which only login shells read.
+# The first two entries are zprofile's two brew prefixes.
 for _gcloud_sdk in "${HOMEBREW_PREFIX:-/opt/homebrew}/share/google-cloud-sdk" \
     "/home/linuxbrew/.linuxbrew/share/google-cloud-sdk" \
     "$HOME/google-cloud-sdk" \
     "/usr/share/google-cloud-sdk"; do
     [[ -f "$_gcloud_sdk/completion.zsh.inc" ]] || continue
+    # apt's SDK has gcloud on PATH already and ships only the completion
     [[ -f "$_gcloud_sdk/path.zsh.inc" ]] && source "$_gcloud_sdk/path.zsh.inc"
     source "$_gcloud_sdk/completion.zsh.inc"
     break
@@ -142,8 +139,8 @@ if [[ -o interactive ]]; then
     done
 fi
 
-# Machine-local config, not in VCS. Sourced after the interactive files so it
-# can use helpers like register_tmux_session.
+# Machine-local config kept outside the repo. Sourced after the interactive
+# files to use helpers like register_tmux_session.
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 
 # The prompt loads after ~/.zshrc.local, where ZSH_PROMPT=starship picks

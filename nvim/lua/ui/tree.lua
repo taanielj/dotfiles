@@ -4,7 +4,6 @@ local M = {}
 ---@return integer? the tree window in any tabpage
 function M.window() return require("lib.win").by_filetype("neo-tree") end
 
----The name the tree shows for its root; nil when no tree is open.
 function M.display_name()
     local win = M.window()
     if not win then

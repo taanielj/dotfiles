@@ -5,7 +5,7 @@ source "$REPO_ROOT/setup/utils.sh"
 
 GLOBAL_TOOLS=(
     "deno@2.9"
-    "gh@2" # from upstream: Ubuntu's archive lags years behind GitHub's API
+    "gh@2" # from upstream because Ubuntu's archive has an older version
     "go@1.27.3"
     "java@zulu-27"
     "node@26.13.0"

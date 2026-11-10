@@ -1,4 +1,3 @@
--- <leader>f  Find
 local function builtin(picker, opts)
     return function() require("telescope.builtin")[picker](opts) end
 end

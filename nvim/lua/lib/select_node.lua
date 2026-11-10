@@ -1,7 +1,9 @@
--- In charwise visual mode v grows the selection to the enclosing treesitter
--- node. V shrinks it back one step, and leaves visual mode after the first
--- selection.
--- A bracketed node is two steps: its contents, then with the brackets.
+-- In charwise visual mode, v grows the selection to the enclosing treesitter
+-- node.
+-- V shrinks the selection back one step and leaves visual mode when no earlier
+-- step remains.
+-- A bracketed node takes two steps. The first selects its contents and the
+-- second adds the brackets.
 -- Linewise and blockwise visual keep their native v and V.
 local M = {}
 

@@ -11,7 +11,7 @@ return {
     dependencies = {
         "igorlfs/nvim-dap-view",
         "leoluz/nvim-dap-go",
-        -- Its rockspec makes lazy.nvim load it at startup unless marked lazy
+        -- nvim-dap-python's rockspec makes lazy.nvim load it at startup unless marked lazy
         { "mfussenegger/nvim-dap-python", lazy = true },
         { "jay-babu/mason-nvim-dap.nvim", dependencies = { "mason-org/mason.nvim" } },
     },
@@ -62,7 +62,7 @@ return {
         require("dap-python").setup(require("lib.mason").path("bin/debugpy-adapter"))
 
         local dap = require("dap")
-        -- Exception filter names are the adapter's own; delve stops on panics by itself
+        -- Exception filter names belong to the adapter. delve stops on panics by itself.
         dap.defaults.python.exception_breakpoints = { "uncaught" }
         -- Every python session, whether a built-in config, launch.json or a test
         dap.listeners.on_config.python_return_value = function(config)

@@ -1,7 +1,7 @@
 local M = {}
 
--- Import sorting is a code action, separate from textDocument/formatting. Its
--- edit must apply before the format request goes out, and
+-- Import sorting is a code action, separate from textDocument/formatting.
+-- The import edit must apply before the format request goes out, and
 -- vim.lsp.buf.code_action is asynchronous.
 local function organize_imports(bufnr)
     if not next(vim.lsp.get_clients({ bufnr = bufnr, method = "textDocument/codeAction" })) then
