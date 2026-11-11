@@ -2,6 +2,7 @@
 // Alt+hjkl resizes nvim windows, then panes, then macOS windows.
 import { exec, hc, home } from "herdr";
 import { app, focusedPane, pathTo } from "./app.js";
+import { timed } from "./timing.js";
 
 const LETTER = { left: "h", down: "j", up: "k", right: "l" };
 
@@ -46,10 +47,10 @@ async function focusedPaneNow() {
 }
 
 async function focusPaneOrWindow(dir) {
-  const before = await focusedPaneNow();
-  await app("pane.go", "--direction", dir);
-  if ((await focusedPaneNow()) === before) {
-    await hammerspoon(`focusWindow('${dir}')`);
+  const before = await timed("  status before", focusedPaneNow);
+  await timed("  pane.go", () => app("pane.go", "--direction", dir));
+  if ((await timed("  status after", focusedPaneNow)) === before) {
+    await timed("  hammerspoon", () => hammerspoon(`focusWindow('${dir}')`));
   }
 }
 
@@ -57,7 +58,7 @@ async function nav(dir) {
   const nvim = focusedNvimTerminal();
   if (nvim) {
     // nvim's own <C-hjkl> comes back as keys.go-<dir> at its edge (nvim/lua/lib/splits.lua)
-    await nvimKeys(nvim, [`ctrl+${LETTER[dir]}`]);
+    await timed(`  nvim keys ${nvim}`, () => nvimKeys(nvim, [`ctrl+${LETTER[dir]}`]));
     return;
   }
   await focusPaneOrWindow(dir);

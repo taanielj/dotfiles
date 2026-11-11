@@ -60,6 +60,13 @@ function M.move(dir)
     -- At nvim's edge, the Herdr app's keys mod moves focus to the next pane or
     -- macOS window (herdr/app/mods/keys)
     local app = require("lib.herdr_app")
+    -- Debug timing, next to the keys mod's ~/.config/herdr-app/keys-timing.log
+    local sec, usec = vim.uv.gettimeofday()
+    local log = io.open(vim.env.HOME .. "/.config/herdr-app/keys-timing-nvim.log", "a")
+    if log then
+        log:write(("%d nvim %s move %s%s\n"):format(sec * 1000 + math.floor(usec / 1000), vim.env.HC_TERMINAL_ID or "-", dir, at_nvim_edge({ dir }) and " edge" or ""))
+        log:close()
+    end
     if app.inside() and at_nvim_edge({ dir }) then
         app.run("keys.go-" .. dir)
         return
