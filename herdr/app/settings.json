@@ -11,5 +11,8 @@
   "minimum_contrast": 1,
   "option_as_alt": "left",
   "theme": "ghostty",
+  "programs": {
+    "claude": { "run": ["~/.config/herdr-app/bin/bar-cursor.sh", "claude"] }
+  },
   "appearance": "dark"
 }

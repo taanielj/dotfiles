@@ -87,6 +87,7 @@ function M.open(cmd, env, _, focus)
     for key, value in pairs(env) do
         argv[#argv + 1] = key .. "=" .. value
     end
+    argv[#argv + 1] = vim.fn.expand("~/.config/herdr-app/bin/bar-cursor.sh")
     vim.list_extend(argv, require("claudecode.utils").parse_command(cmd))
     local reply = herdr_app({
         "terminal.open",
