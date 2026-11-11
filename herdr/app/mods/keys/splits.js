@@ -1,6 +1,6 @@
 // Cmd+hjkl moves through nvim windows, then panes, then macOS windows (hammerspoon/init.lua).
 // Alt+hjkl resizes nvim windows, then panes, then macOS windows.
-import { exec, hc } from "herdr";
+import { exec, hc, home } from "herdr";
 import { app, focusedPane, pathTo } from "./app.js";
 
 const LETTER = { left: "h", down: "j", up: "k", right: "l" };
@@ -21,6 +21,24 @@ function focusedNvimTerminal() {
   return pane?.program.key === "nvim" ? pane.terminal : null;
 }
 
+// "alt+shift+h" -> "<M-H>"
+function nvimNotation(key) {
+  const mods = key.split("+");
+  let letter = mods.pop();
+  if (mods.includes("shift")) letter = letter.toUpperCase();
+  const prefix = mods.filter((m) => m !== "shift").map((m) => ({ ctrl: "C", alt: "M" })[m]);
+  return prefix.length ? `<${prefix.join("-")}-${letter}>` : letter;
+}
+
+// Presses keys in the terminal's nvim through the socket nvim/lua/lib/herdr_app.lua
+// opens, because herdr-core holds `hc keys` until the person stops typing in the
+// terminal. An nvim without that socket gets `hc keys`.
+async function nvimKeys(terminal, keys) {
+  const socket = `${home()}/.local/state/nvim/herdr-app/${terminal}.sock`;
+  const r = await exec("nvim", ["--server", socket, "--remote-send", keys.map(nvimNotation).join("")]);
+  if (r.code !== 0) await hc(["keys", terminal, ...keys]);
+}
+
 // The window's focused pane, read through the CLI: run() applies after it returns.
 async function focusedPaneNow() {
   const r = await exec("herdr-app", ["status"]);
@@ -39,7 +57,7 @@ async function nav(dir) {
   const nvim = focusedNvimTerminal();
   if (nvim) {
     // nvim's own <C-hjkl> comes back as keys.go-<dir> at its edge (nvim/lua/lib/splits.lua)
-    await hc(["keys", nvim, `ctrl+${LETTER[dir]}`]);
+    await nvimKeys(nvim, [`ctrl+${LETTER[dir]}`]);
     return;
   }
   await focusPaneOrWindow(dir);
@@ -90,7 +108,7 @@ async function resize(dir, fine, presses) {
   if (nvim) {
     // nvim's own <M-hjkl> comes back as keys.resize-outside-<dir> without a split on that axis
     const key = `${fine ? "alt+shift" : "alt"}+${LETTER[dir]}`;
-    await hc(["keys", nvim, ...Array(presses).fill(key)]);
+    await nvimKeys(nvim, Array(presses).fill(key));
     return;
   }
   await resizeOutside(dir, fine, presses);

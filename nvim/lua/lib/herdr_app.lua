@@ -11,6 +11,20 @@ function M.inside() return vim.env.HC_TERMINAL_ID ~= nil and not require("lib.he
 ---@return string?
 function M.pane_id() return vim.env.HC_TERMINAL_ID end
 
+---Listens at <state>/herdr-app/<terminal>.sock, where the app's keys mod sends
+---ctrl+hjkl and alt+hjkl (herdr/app/mods/keys/splits.js). herdr-core holds keys
+---sent through `hc keys` until the person stops typing in that terminal.
+function M.serve()
+    if not M.inside() then
+        return
+    end
+    local path = ("%s/herdr-app/%s.sock"):format(vim.fn.stdpath("state"), vim.env.HC_TERMINAL_ID)
+    vim.fn.mkdir(vim.fs.dirname(path), "p")
+    -- A crashed nvim leaves its socket behind
+    os.remove(path)
+    vim.fn.serverstart(path)
+end
+
 ---@param cmd string[]
 ---@param on_success? fun()
 local function system(cmd, on_success)

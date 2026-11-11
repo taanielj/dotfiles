@@ -16,6 +16,7 @@ require("keybinds")
 require("core.autocmds")
 require("ui.md2html")
 require("menus").setup()
+require("lib.herdr_app").serve()
 require("lazy").setup({
     { import = "plugins.ui" },
     { import = "plugins.editor" },
