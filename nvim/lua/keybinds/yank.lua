@@ -29,6 +29,7 @@ local permalink = { permalink = true }
 
 -- stylua: ignore
 require("lib.keymap").rows({
+    { "n",          "<leader>yy", "<Cmd>%y+<CR>",                                                              "Yank entire buffer" },
     { "n",          "<leader>yb", function() yank.copy(vim.fn.expand("%:p"), "path") end,                     "Yank buffer absolute path" },
     { { "n", "v" }, "<leader>yl", function() yank.copy(vim.fn.expand("%:p") .. line_suffix(), "path:line") end, "Yank buffer path with line" },
     { "n",          "<leader>yh", function() require("ui.md2html").yank() end,                                  "Yank buffer as HTML" },

@@ -2,9 +2,10 @@ local M = {}
 
 ---@param text string
 ---@param what string  named in the notification title
-function M.copy(text, what)
+---@param shown? string  notification body in place of `text`
+function M.copy(text, what, shown)
     vim.fn.setreg("+", text)
-    vim.notify(text, vim.log.levels.INFO, { title = "Yanked " .. what })
+    vim.notify(shown or text, vim.log.levels.INFO, { title = "Yanked " .. what })
 end
 
 ---@return integer, integer
