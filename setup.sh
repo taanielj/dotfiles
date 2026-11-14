@@ -88,7 +88,7 @@ show_banner() {
         log "  • Text editor (neovim with plugins)"
         log "  • Rust tools (cargo packages like eza, ripgrep, bat)"
         log "  • Git TUI (lazygit)"
-        log "  • Terminal workspace manager (herdr, and the Herdr app on macOS and Windows)"
+        log "  • Terminal workspace manager (herdr, and the Herdr app on macOS)"
         [[ "$OSTYPE" == "darwin"* ]] && log "  • Terminal emulators (kitty, ghostty, wezterm), Karabiner-Elements and Hammerspoon"
         [[ "$OSTYPE" != "darwin"* ]] && log "  • Clipboard shims (pbcopy, pbpaste)"
         [[ -n "$WSL_DISTRO_NAME" ]] && log "  • Windows clipboard tool (win32yank)"

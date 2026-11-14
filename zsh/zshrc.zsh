@@ -143,12 +143,6 @@ fi
 # files to use helpers like register_tmux_session.
 [[ -f $HOME/.zshrc.local ]] && source $HOME/.zshrc.local
 
-# A Windows Herdr app terminal: use the Windows hc. After .zshrc.local, which puts ~/.local/bin first
-if [[ $HC_TERMINAL_SOCKET == '\\.\pipe\'* ]]; then
-    path=("$HOME/.local/share/herdr-wsl/bin" $path)
-    [[ $PWD:h == /mnt/?/Users ]] && cd ~
-fi
-
 # The prompt loads after ~/.zshrc.local, where ZSH_PROMPT=starship picks
 # starship over Powerlevel10k. Either renders before the lazy plugins load.
 if [[ $ZSH_PROMPT == starship ]] && command -v starship &>/dev/null; then
