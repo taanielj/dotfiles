@@ -16,6 +16,12 @@ APP_HOME="$HOME/.config/herdr-app"
 APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons bin)
 COMMITTED_APP_ZOOM=1.0
 
+# Windows hc and herdr-app, which zshrc puts first on PATH in Windows app terminals
+WSL_APP_BIN="$HOME/.local/share/herdr-wsl/bin"
+# Passed between Windows and WSL through WSLENV
+WSL_APP_ENV="HC_TERMINAL_ID:HC_SCOPE:HC_TERMINAL_SOCKET:COLORTERM:TERM_PROGRAM"
+WSL_APP_SHELL_COMMENT="# Set by dotfiles setup/herdr.sh"
+
 main_herdr() {
     # brew installs herdr on macOS (setup/system.sh)
     if [[ "$OSTYPE" != "darwin"* ]]; then
@@ -27,6 +33,9 @@ main_herdr() {
         install_cask herdr-app || return 1
         install_from_script hc https://releases.herdr.dev/core/install.sh herdr-core
         configure_herdr_app
+    fi
+    if [[ -n "$WSL_DISTRO_NAME" ]]; then
+        configure_herdr_app_wsl
     fi
 }
 
@@ -126,6 +135,83 @@ configure_herdr_app() {
     success "Herdr app configuration linked."
 }
 
+# Usage: win_ps <script>
+win_ps() {
+    # PowerShell warns when started from a Linux folder
+    (cd /mnt/c && powershell.exe -NoProfile -NonInteractive -Command "$1") | tr -d '\r'
+}
+
+wsl_core_config() {
+    local appdata
+    appdata=$(win_ps "[Environment]::GetFolderPath('ApplicationData')") && [[ -n "$appdata" ]] || return 1
+    echo "$(wslpath -u "$appdata")/herdr-core/config.toml"
+}
+
+# Usage: update_wslenv add|remove
+update_wslenv() {
+    # shellcheck disable=SC2016 # PowerShell variables
+    HERDR_WSLENV_ACTION="$1" HERDR_WSLENV_NAMES="$WSL_APP_ENV" WSLENV=HERDR_WSLENV_ACTION:HERDR_WSLENV_NAMES win_ps '
+        $names = $env:HERDR_WSLENV_NAMES -split ":"
+        $old = [Environment]::GetEnvironmentVariable("WSLENV", "User")
+        $have = @($old -split ":" | Where-Object { $_ })
+        if ($env:HERDR_WSLENV_ACTION -eq "add") {
+            $new = $have + @($names | Where-Object { $have -notcontains $_ })
+        } else {
+            $new = @($have | Where-Object { $names -notcontains $_ })
+        }
+        $value = $new -join ":"
+        if ($value -ne [string]$old) {
+            [Environment]::SetEnvironmentVariable("WSLENV", $(if ($value) { $value } else { $null }), "User")
+        }'
+}
+
+configure_herdr_app_wsl() {
+    log "Configuring the Windows Herdr app to start terminals in WSL..."
+    local local_appdata
+    local_appdata=$(win_ps "[Environment]::GetFolderPath('LocalApplicationData')")
+    local programs
+    programs="$(wslpath -u "$local_appdata")/Programs"
+    if [[ -z "$local_appdata" || ! -f "$programs/herdr-core/hc.exe" ]]; then
+        warn "The Herdr app is not installed on Windows. Skipping."
+        return 0
+    fi
+
+    mkdir -p "$WSL_APP_BIN"
+    ln -sfn "$programs/herdr-core/hc.exe" "$WSL_APP_BIN/hc"
+    ln -sfn "$programs/herdr-app/herdr-app.exe" "$WSL_APP_BIN/herdr-app"
+
+    local config shell_line="shell = [\"wsl.exe\", \"-d\", \"$WSL_DISTRO_NAME\"]"
+    config=$(wsl_core_config) || {
+        error "❌ Could not find the Windows AppData folder."
+        return 1
+    }
+    if grep -qxF "$shell_line" "$config" 2>/dev/null; then
+        :
+    elif grep -q '^shell *=' "$config" 2>/dev/null; then
+        warn "$config already sets another shell. Leaving it."
+    else
+        mkdir -p "$(dirname "$config")"
+        printf '%s\n%s\n' "$WSL_APP_SHELL_COMMENT" "$shell_line" >>"$config"
+    fi
+
+    update_wslenv add
+    success "Herdr app on Windows starts terminals in $WSL_DISTRO_NAME."
+}
+
+teardown_herdr_app_wsl() {
+    rm -rf "$WSL_APP_BIN"
+    local config
+    if config=$(wsl_core_config) && [[ -f "$config" ]]; then
+        grep -vxF -e "$WSL_APP_SHELL_COMMENT" -e "shell = [\"wsl.exe\", \"-d\", \"$WSL_DISTRO_NAME\"]" "$config" >"$config.tmp"
+        if [[ -s "$config.tmp" ]]; then
+            mv "$config.tmp" "$config"
+        else
+            rm -f "$config.tmp" "$config"
+        fi
+    fi
+    update_wslenv remove
+}
+
 teardown_herdr() {
     log "Removing herdr configuration..."
     unlink_file "$REPO_ROOT/herdr/tui/config.toml" "$HOME/.config/herdr/config.toml"
@@ -153,6 +239,9 @@ teardown_herdr() {
         done
         git -C "$REPO_ROOT" config --unset filter.herdr-zoom.clean || true
         uninstall_cask herdr-app
+    fi
+    if [[ -n "$WSL_DISTRO_NAME" ]]; then
+        teardown_herdr_app_wsl
     fi
     success "herdr configuration removed."
 }
