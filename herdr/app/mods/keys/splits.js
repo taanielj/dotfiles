@@ -1,13 +1,15 @@
 // Cmd+hjkl moves through nvim windows, then panes, then macOS windows (hammerspoon/init.lua).
 // Alt+hjkl resizes nvim windows, then panes, then macOS windows.
+// On Windows the same goes for Ctrl+hjkl, without the windows.
 import { exec, hc, home } from "herdr";
-import { app, focusedPane, pathTo } from "./app.js";
+import { app, focusedPane, localId, machineOf, onMac, onWindows, pathTo } from "./app.js";
 import { timed } from "./timing.js";
 
 const LETTER = { left: "h", down: "j", up: "k", right: "l" };
 
 // Resolves true when the Lua returned true.
 async function hammerspoon(lua) {
+  if (!onMac()) return false;
   // `hs` hangs while Hammerspoon isn't running
   if ((await exec("pgrep", ["-xq", "Hammerspoon"])).code !== 0) {
     await exec("open", ["-g", "-a", "Hammerspoon"]);
@@ -35,8 +37,11 @@ function nvimNotation(key) {
 // opens, because herdr-core holds `hc keys` until the person stops typing in the
 // terminal. An nvim without that socket gets `hc keys`.
 async function nvimKeys(terminal, keys) {
-  const socket = `${home()}/.local/state/nvim/herdr-app/${terminal}.sock`;
-  const r = await exec("nvim", ["--server", socket, "--remote-send", keys.map(nvimNotation).join("")]);
+  const send = keys.map(nvimNotation).join("");
+  const on = machineOf(terminal);
+  const r = on
+    ? await exec("sh", ["-c", 'exec nvim --server "$HOME/.local/state/nvim/herdr-app/$1.sock" --remote-send "$2"', "sh", localId(terminal), send], { on })
+    : await exec("nvim", ["--server", `${home()}/.local/state/nvim/herdr-app/${terminal}.sock`, "--remote-send", send]);
   if (r.code !== 0) await hc(["keys", terminal, ...keys]);
 }
 
@@ -47,6 +52,7 @@ async function focusedPaneNow() {
 }
 
 async function focusPaneOrWindow(dir) {
+  if (!onMac()) return app("pane.go", "--direction", dir);
   const before = await timed("  status before", focusedPaneNow);
   await timed("  pane.go", () => app("pane.go", "--direction", dir));
   if ((await timed("  status after", focusedPaneNow)) === before) {
@@ -66,12 +72,15 @@ async function nav(dir) {
 
 const SPLIT = { left: "row", right: "row", up: "column", down: "column" };
 
-// Read from herdr-core's herdr-app document, because the app's commands don't expose it
+// From the tab's core's herdr-app document; the app's commands don't expose it
 async function tabSplitTree(tab) {
   const get = '{"jsonrpc":"2.0","id":1,"method":"doc.get","params":{"name":"herdr-app"}}';
-  const r = await exec("sh", ["-c", 'printf "%s\\n" "$1" | hc connect', "sh", get]);
+  const on = machineOf(tab);
+  const r = onWindows() && !on
+    ? await exec("powershell", ["-NoProfile", "-Command", `'${get}' | hc connect`])
+    : await exec("sh", ["-c", 'printf "%s\\n" "$1" | hc connect', "sh", get], { on });
   const doc = JSON.parse(r.stdout).result.value;
-  return doc.spaces.flatMap((s) => s.tabs).find((t) => t.id === tab)?.root ?? null;
+  return doc.spaces.flatMap((s) => s.tabs).find((t) => t.id === localId(tab))?.root ?? null;
 }
 
 const weight = (node) => node.size?.weight ?? 1;
@@ -79,7 +88,7 @@ const weight = (node) => node.size?.weight ?? 1;
 // Resizes the pane's branch in the nearest enclosing split along dir's axis, as
 // smart-splits does. Resolves false when no split along that axis encloses the pane.
 async function resizePane(pane, dir, step) {
-  const path = pathTo((await tabSplitTree(pane.tab)) ?? {}, pane.pane) ?? [];
+  const path = pathTo((await tabSplitTree(pane.tab)) ?? {}, localId(pane.pane)) ?? [];
   for (let i = path.length - 2; i >= 0; i--) {
     const kids = path[i].children;
     if (path[i].type !== SPLIT[dir] || kids.length < 2) continue;

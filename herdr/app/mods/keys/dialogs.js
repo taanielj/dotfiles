@@ -2,10 +2,13 @@
 // move a pane to another tab.
 import { appHome, focused, hc, openOverlay, panes, spaces } from "herdr";
 import * as fs from "fs/promises";
-import { app, sleep, waitFor } from "./app.js";
+import { app, machineOf, onWindows, shellMachine, shellPath, sleep, waitFor } from "./app.js";
 
+// The tools run on shellMachine(); cwd is a path there
 async function runInDialog(cx, argv, { cwd, size = 0.6 } = {}) {
   const args = ["run", "--bg", "--json", "--no-parent", "--rm"];
+  const on = shellMachine();
+  if (on) args.push("--on", on);
   if (cwd) args.push("--cwd", cwd);
   const { address } = JSON.parse((await hc([...args, "--", ...argv])).stdout);
   // The dialog closes itself when its terminal ends
@@ -34,9 +37,11 @@ async function pickTerminal(cx, prompt, keep) {
   const out = `${dataDir()}/picked`;
   await fs.writeFile(list, rows.join("\n") + "\n");
   await fs.writeFile(out, "");
+  // Windows' hc reads the app's addresses
+  const preview = onWindows() ? "hc.exe read {1}" : "hc read {1}";
   await runInDialog(cx, ["sh", "-c",
-    'fzf --height=100% --with-nth=2.. --delimiter="\t" --prompt="$1" --preview "hc read {1}" --preview-window=down,50% <"$2" | cut -f1 >"$3"',
-    "sh", prompt, list, out]);
+    'fzf --height=100% --with-nth=2.. --delimiter="\t" --prompt="$1" --preview "$4" --preview-window=down,50% <"$2" | cut -f1 >"$3"',
+    "sh", prompt, shellPath(list), shellPath(out), preview]);
   return (await fs.readFile(out, "utf8")).trim() || null;
 }
 
@@ -79,11 +84,14 @@ async function scrollback(cx) {
   await fs.mkdir(dataDir(), { recursive: true });
   const file = `${dataDir()}/scrollback.txt`;
   await fs.writeFile(file, all);
-  await runInDialog(cx, ["nvim", "+", file], { size: 0.9 });
+  await runInDialog(cx, ["nvim", "+", shellPath(file)], { size: 0.9 });
 }
 
 async function lazygit(cx) {
-  await runInDialog(cx, ["lazygit"], { cwd: focused()?.cwd ?? undefined, size: 0.9 });
+  const { cwd, terminal } = focused() ?? {};
+  // A Windows folder as lazygit's machine sees it
+  const here = cwd && !machineOf(terminal) ? shellPath(cwd) : cwd;
+  await runInDialog(cx, ["lazygit"], { cwd: here ?? undefined, size: 0.9 });
 }
 
 // The dialog's terminal outlives the spaces the sync closes, because it sits outside every space

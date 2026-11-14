@@ -16,6 +16,9 @@ APP_HOME="$HOME/.config/herdr-app"
 APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons bin)
 COMMITTED_APP_ZOOM=1.0
 
+# Copied to the Windows app on WSL (no links without Developer Mode); rerun setup after edits
+WINDOWS_APP_FILES=(layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons)
+
 main_herdr() {
     # brew installs herdr on macOS (setup/system.sh)
     if [[ "$OSTYPE" != "darwin"* ]]; then
@@ -27,6 +30,9 @@ main_herdr() {
         install_cask herdr-app || return 1
         install_from_script hc https://releases.herdr.dev/core/install.sh herdr-core
         configure_herdr_app
+    fi
+    if [[ -n "$WSL_DISTRO_NAME" ]]; then
+        configure_herdr_app_windows
     fi
 }
 
@@ -126,6 +132,71 @@ configure_herdr_app() {
     success "Herdr app configuration linked."
 }
 
+# Prints the Windows app's home as a Linux path
+windows_app_home() {
+    local profile
+    # cmd.exe warns when started from a Linux folder
+    profile=$(cd /mnt/c && cmd.exe /c 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r') && [[ -n "$profile" ]] || return 1
+    echo "$(wslpath -u "$profile")/.config/herdr-app"
+}
+
+# keys.json for Windows: Cmd -> Ctrl, Ctrl+1-9 -> Alt+1-9, no Ctrl+Alt+<char> (AltGr)
+windows_keys() {
+    jq '
+        def chords: gsub("(?<s>^| )cmd-"; "\(.s)ctrl-");
+        .global |= with_entries(
+            select(.value | test("^(app\\.(quit|hide|hide_others|show_all)|keys\\.window-)") | not)
+            | .key |= (sub("^ctrl-(?<n>[1-9])$"; "alt-\(.n)") | chords)
+            | select(.key | test("(^| )ctrl-alt-[^ ]$|^ctrl-[][]$") | not))
+        | .terminal |= {
+            "ctrl-backspace": "send:\u0017", "ctrl-left": "send:\u001bb", "ctrl-right": "send:\u001bf",
+            "ctrl-shift-c": "terminal.copy", "ctrl-shift-v": "terminal.paste", "ctrl-shift-f": "terminal.search",
+            "ctrl-v": "terminal.paste_image", "ctrl-insert": "terminal.copy", "shift-insert": "terminal.paste"
+        } + with_entries(select((.key | startswith("cmd-")) and (.value | startswith("send:")) | not) | .key |= chords)
+    ' "$REPO_ROOT/herdr/app/keys.json"
+}
+
+configure_herdr_app_windows() {
+    if ! command -v herdr-app.exe &>/dev/null; then
+        warn "The Herdr app is not installed on Windows. Skipping."
+        return 0
+    fi
+    log "Configuring the Herdr app on Windows..."
+    # For the app's terminals on this distro
+    link_file "$REPO_ROOT/herdr/app/bin" "$APP_HOME/bin"
+    link_file "$REPO_ROOT/herdr/bin/herdr-app-wsl.sh" "$HOME/.local/bin/herdr-app"
+
+    local home file
+    home=$(windows_app_home) || {
+        error "❌ Could not find the Windows user folder."
+        return 1
+    }
+    for file in "${WINDOWS_APP_FILES[@]}"; do
+        rm -rf "${home:?}/$file"
+        mkdir -p "$(dirname "$home/$file")"
+        cp -r "$REPO_ROOT/herdr/app/$file" "$home/$file"
+    done
+    if [[ -e "$home/keys.json" ]] && ! compgen -G "$home/keys.json.backup.*" >/dev/null; then
+        backup_file "$home/keys.json"
+    fi
+    windows_keys >"$home/keys.json"
+    herdr-app.exe "do" layout.switch --name dotfiles &>/dev/null || true
+    success "Herdr app on Windows configured."
+}
+
+teardown_herdr_app_windows() {
+    unlink_file "$REPO_ROOT/herdr/app/bin" "$APP_HOME/bin"
+    unlink_file "$REPO_ROOT/herdr/bin/herdr-app-wsl.sh" "$HOME/.local/bin/herdr-app"
+    local home file
+    home=$(windows_app_home) || return 0
+    herdr-app.exe "do" layout.switch --name main &>/dev/null || true
+    for file in "${WINDOWS_APP_FILES[@]}"; do
+        rm -rf "${home:?}/$file"
+    done
+    rm -f "$home/keys.json"
+    restore_backup "$home/keys.json"
+}
+
 teardown_herdr() {
     log "Removing herdr configuration..."
     unlink_file "$REPO_ROOT/herdr/tui/config.toml" "$HOME/.config/herdr/config.toml"
@@ -153,6 +224,9 @@ teardown_herdr() {
         done
         git -C "$REPO_ROOT" config --unset filter.herdr-zoom.clean || true
         uninstall_cask herdr-app
+    fi
+    if [[ -n "$WSL_DISTRO_NAME" ]]; then
+        teardown_herdr_app_windows
     fi
     success "herdr configuration removed."
 }

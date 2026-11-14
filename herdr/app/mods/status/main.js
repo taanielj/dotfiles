@@ -2,7 +2,20 @@
 // speed, CPU and memory, weather and the time, from herdr/bin's scripts.
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, agents, theme, run, window, keys, exec, home, settings } from "herdr";
+import { spaces, agents, theme, run, window, keys, exec, home, settings, machines } from "herdr";
+
+// On Windows the scripts run on, and report, a machine (WSL)
+function scriptMachine() {
+  if (window()?.platform !== "windows") return null;
+  return spaces().find(s => s.active)?.machine ?? machines().find(m => m.name)?.name ?? null;
+}
+
+async function runScript(script, args) {
+  const on = scriptMachine();
+  return on
+    ? exec("sh", ["-c", 'exec "$HOME/.local/bin/$0" "$@"', script, ...args], { on, timeout: 10000 })
+    : exec(`${home()}/.local/bin/${script}`, args, { timeout: 10000 });
+}
 
 // [script, args, rerun interval in ms]
 const SCRIPTS = [
@@ -17,8 +30,8 @@ export default class WorkspaceStatus extends View {
     this.time = "";
     for (const [script, args, ms] of SCRIPTS) {
       const refresh = (cx) => cx.spawn(async (cx) => {
-        const r = await exec(`${home()}/.local/bin/${script}`, args, { timeout: 10000 });
-        this.out[script] = r.code === 0 ? r.stdout.trim() : "";
+        const r = await runScript(script, args).catch(() => null);
+        this.out[script] = r?.code === 0 ? r.stdout.trim() : "";
         cx.notify();
       });
       refresh(cx);

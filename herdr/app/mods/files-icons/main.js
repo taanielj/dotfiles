@@ -133,13 +133,13 @@ export default class Files extends View {
   }
 
   open(path, cx) {
-    // No local nvim can open another machine's files
-    if (this.on) return this.show(path, cx);
-    const file = `${this.root}/${path}`, tab = focused()?.tab;
+    const file = `${this.root}/${path}`, tab = focused()?.tab, on = this.on;
     const nvim = panes().find(p => p.tab === tab && p.program?.key === "nvim");
+    // terminal.open starts nvim on the tab's machine
     if (!nvim) return run("terminal.open", { argv: ["nvim", file], folder: this.root, place: "right" });
     cx.spawn(async cx => {
-      const r = await exec("herdr-open", [nvim.terminal, file]).catch(() => null);
+      // Another machine's herdr-open takes bare ids
+      const r = await exec("herdr-open", [on ? nvim.terminal.split("/").pop() : nvim.terminal, file], { on }).catch(() => null);
       if (r?.code !== 0) { this.show(path, cx); cx.notify(); }
     });
   }
