@@ -17,7 +17,7 @@ APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mod
 COMMITTED_APP_ZOOM=1.0
 
 # Copied to the Windows app on WSL (no links without Developer Mode); rerun setup after edits
-WINDOWS_APP_FILES=(layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons)
+WINDOWS_APP_FILES=(themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons)
 
 main_herdr() {
     # brew installs herdr on macOS (setup/system.sh)
@@ -156,6 +156,13 @@ windows_keys() {
     ' "$REPO_ROOT/herdr/app/keys.json"
 }
 
+# Usage: set_windows_setting <app-home> <jq-filter>
+set_windows_setting() {
+    local settings="$1/settings.json" updated
+    [[ -f "$settings" ]] || echo '{}' >"$settings"
+    updated=$(jq "$2" "$settings") && printf '%s\n' "$updated" >"$settings"
+}
+
 configure_herdr_app_windows() {
     if ! command -v herdr-app.exe &>/dev/null; then
         warn "The Herdr app is not installed on Windows. Skipping."
@@ -180,6 +187,8 @@ configure_herdr_app_windows() {
         backup_file "$home/keys.json"
     fi
     windows_keys >"$home/keys.json"
+    # Only the theme; zoom and fonts stay Windows' own
+    set_windows_setting "$home" '.theme = "ghostty"'
     herdr-app.exe "do" layout.switch --name dotfiles &>/dev/null || true
     success "Herdr app on Windows configured."
 }
@@ -190,6 +199,7 @@ teardown_herdr_app_windows() {
     local home file
     home=$(windows_app_home) || return 0
     herdr-app.exe "do" layout.switch --name main &>/dev/null || true
+    set_windows_setting "$home" 'if .theme == "ghostty" then del(.theme) else . end'
     for file in "${WINDOWS_APP_FILES[@]}"; do
         rm -rf "${home:?}/$file"
     done
