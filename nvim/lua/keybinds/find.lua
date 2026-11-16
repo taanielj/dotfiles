@@ -2,6 +2,17 @@ local function builtin(picker, opts)
     return function() require("telescope.builtin")[picker](opts) end
 end
 
+-- find_files needs no_ignore because .scratch/ is globally gitignored
+local function find_scratch()
+    local cwd = vim.fn.getcwd()
+    local dir = vim.fs.joinpath(vim.fs.root(cwd, ".git") or cwd, ".scratch")
+    if vim.fn.isdirectory(dir) == 0 then
+        vim.notify("No .scratch directory at " .. dir, vim.log.levels.WARN)
+        return
+    end
+    require("telescope.builtin").find_files({ cwd = dir, hidden = true, no_ignore = true, prompt_title = "Find scratch files" })
+end
+
 -- stylua: ignore
 require("lib.keymap").rows({
     { "n", "<leader> ",  builtin("find_files"),                                   "Find files" },
@@ -12,6 +23,7 @@ require("lib.keymap").rows({
     { "n", "<leader>fc", builtin("commands"),                                    "Find commands" },
     { "n", "<leader>fk", builtin("keymaps"),                                     "Find keymaps" },
     { "n", "<leader>fh", builtin("help_tags"),                                   "Find help" },
+    { "n", "<leader>fs", find_scratch,                                           "Find scratch files" },
     { "n", "<leader>ft", "<cmd>TodoTelescope<cr>",                              "Find todo comments" },
     { "n", "<leader>hf", builtin("find_files", { hidden = true, no_ignore = true }), "Find hidden files" },
     { "n", "<leader>hb", builtin("buffers", { show_all_buffers = true, no_ignore = true }), "Find hidden buffers" },
