@@ -6,8 +6,9 @@ add_newline = false
 # matches the terminal and nvim. zsh/starship.zsh reads the path's colours here too.
 palette = "catppuccin_macchiato"
 
-# Listing the modules keeps starship's per-language modules off.
-format = "${env_var.STARSHIP_GIT_HOST_ICON}$git_branch$git_commit$git_state$git_status$character"
+# Listing the modules keeps starship's per-language modules off. The command is
+# typed on a second line; right_format sits on that line, right of the command.
+format = "${env_var.STARSHIP_GIT_HOST_ICON}$git_branch$git_commit$git_state$git_status$line_break$character"
 right_format = "$status$cmd_duration$jobs${env_var.DIRENV_DIR}$python$kubernetes$aws$gcloud$username$hostname$time"
 
 # Each icon is followed by a space because the terminal draws a wide icon across two cells when the next cell is empty.

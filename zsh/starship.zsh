@@ -14,7 +14,7 @@ typeset -g _prompt_os_icon=$(starship module os)
 }
 PROMPT='${_prompt_os_icon}${_prompt_dir}'$PROMPT
 
-typeset -gA _prompt_path_colors
+typeset -gA _prompt_colors
 () {
     emulate -L zsh -o extended_glob
     local line palette section
@@ -23,8 +23,8 @@ typeset -gA _prompt_path_colors
             section=$match[1]
         elif [[ -z $section && $line == palette[[:space:]]#=[[:space:]]#\"(#b)([^\"]#)\"* ]]; then
             palette=$match[1]
-        elif [[ $section == palettes.$palette && $line == (#b)(path[a-z_]#)[[:space:]]#=[[:space:]]#\"([^\"]#)\"* ]]; then
-            _prompt_path_colors[$match[1]]=$match[2]
+        elif [[ $section == palettes.$palette && $line == (#b)(path[a-z_]#|git|error)[[:space:]]#=[[:space:]]#\"([^\"]#)\"* ]]; then
+            _prompt_colors[$match[1]]=$match[2]
         fi
     done
 }
@@ -33,13 +33,12 @@ typeset -gA _prompt_path_colors
 # zsh/p10k.zsh.
 typeset -g _prompt_anchor_files='(.bzr|.citc|.git|.hg|.node-version|.python-version|.go-version|.ruby-version|.lua-version|.java-version|.perl-version|.php-version|.tool-versions|.shorten_folder_marker|.svn|.terraform|CVS|Cargo.toml|composer.json|go.mod|package.json|stack.yaml)'
 
-# Sets REPLY to a rough width for the OS and folder icons, the prompt char, the
-# clock, and in a repo its host icon, branch and a few status counts. Starship
+# Sets REPLY to a rough width for the rest of the path's line: the OS and folder
+# icons, and in a repo its host icon, branch and a few status counts. Starship
 # renders them after this runs.
 # Usage: _prompt_width_besides_path <repo root or "">
 _prompt_width_besides_path() {
-    local width=20 git=$1/.git head
-    [[ -n $DIRENV_DIR ]] && (( width += 2 ))
+    local width=6 git=$1/.git head
     [[ -n $1 ]] || { REPLY=$width; return }
     # A worktree's .git is a file naming its git dir
     [[ -f $git ]] && git=${${(f)"$(<$git)"}[1]#gitdir: }
@@ -69,9 +68,9 @@ _prompt_dir() {
     (( $#names )) && kinds[-1]=anchor
     local REPLY
     _prompt_width_besides_path "$root"
-    # Shortening applies while the prompt would leave fewer than 40 columns for
-    # typing or the path is longer than 80.
-    local -i budget=$(( COLUMNS - 40 - REPLY ))
+    # The command is typed on the next line. Shortening applies while the
+    # path's line would overflow or the path is longer than 80.
+    local -i budget=$(( COLUMNS - REPLY ))
     (( budget > 80 )) && budget=80
     for (( i = 1; i <= $#names; i++ )); do
         (( len <= budget )) && break
@@ -87,21 +86,21 @@ _prompt_dir() {
     done
     local out
     if (( $#names )); then
-        out="%F{$_prompt_path_colors[path]}$lead"
+        out="%F{$_prompt_colors[path]}$lead"
     elif [[ -n $lead ]]; then
-        out="%B%F{$_prompt_path_colors[path_anchor]}$lead%b"
+        out="%B%F{$_prompt_colors[path_anchor]}$lead%b"
     else
-        out="%B%F{$_prompt_path_colors[path_anchor]}/%b"
+        out="%B%F{$_prompt_colors[path_anchor]}/%b"
     fi
     for (( i = 1; i <= $#names; i++ )); do
         name=${shown[i]//\%/%%}
         case $kinds[i] in
-            anchor) out+="%F{$_prompt_path_colors[path]}/%B%F{$_prompt_path_colors[path_anchor]}$name%b" ;;
-            short) out+="%F{$_prompt_path_colors[path]}/%F{$_prompt_path_colors[path_short]}$name" ;;
-            *) out+="%F{$_prompt_path_colors[path]}/$name" ;;
+            anchor) out+="%F{$_prompt_colors[path]}/%B%F{$_prompt_colors[path_anchor]}$name%b" ;;
+            short) out+="%F{$_prompt_colors[path]}/%F{$_prompt_colors[path_short]}$name" ;;
+            *) out+="%F{$_prompt_colors[path]}/$name" ;;
         esac
     done
-    typeset -g _prompt_dir="%F{$_prompt_path_colors[path]}"$'\uF07C'" $out%f "
+    typeset -g _prompt_dir="%F{$_prompt_colors[path]}"$'\uF07C'" $out%f "
 }
 precmd_functions+=(_prompt_dir)
 
@@ -166,3 +165,17 @@ add-zle-hook-widget zle-line-pre-redraw _prompt_show_on_command
 
 _prompt_show_on_clear() { unset ${(k)_prompt_show_on} }
 precmd_functions+=(_prompt_show_on_clear)
+
+# A finished command line collapses to the prompt char and the command, as p10k's
+# transient prompt does. The char keeps the colour starship gave it.
+typeset -g _prompt_full=$PROMPT _prompt_full_right=$RPROMPT
+_prompt_transient() {
+    local color=$_prompt_colors[git]
+    (( ${STARSHIP_CMD_STATUS:-0} )) && color=$_prompt_colors[error]
+    PROMPT="%F{$color}❯%f " RPROMPT=
+    zle reset-prompt
+}
+add-zle-hook-widget zle-line-finish _prompt_transient
+
+_prompt_restore() { PROMPT=$_prompt_full RPROMPT=$_prompt_full_right }
+precmd_functions+=(_prompt_restore)
