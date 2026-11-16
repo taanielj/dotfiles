@@ -1,18 +1,26 @@
 {
+  "programs": {
+    "claude": {
+      "run": [
+        "~/.config/herdr-app/bin/bar-cursor.sh",
+        "claude"
+      ]
+    }
+  },
   "zoom": 1.0,
   "sounds": {
     "enabled": true
   },
   "font": "JetBrains Mono NL",
-  "font_size": 14,
+  "font_size": 14.0,
   "font_ligatures": false,
+  "terminal_line_height": 1.0,
+  "terminal_cell_width": 1.0,
+  "terminal_scroll_speed": 1.0,
   "ui_font": "JetBrains Mono NL",
   "telemetry": false,
-  "minimum_contrast": 1,
+  "minimum_contrast": 1.0,
   "option_as_alt": "left",
-  "theme": "ghostty",
-  "programs": {
-    "claude": { "run": ["~/.config/herdr-app/bin/bar-cursor.sh", "claude"] }
-  },
-  "appearance": "dark"
+  "appearance": "dark",
+  "theme": "ghostty"
 }

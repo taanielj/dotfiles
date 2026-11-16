@@ -36,8 +36,6 @@ format = "[$env_value ]($style)"
 symbol = "\uF126 "
 style = "fg:git"
 format = "[$symbol$branch]($style) "
-truncation_length = 32
-truncation_symbol = "…"
 
 # Shown only on a detached HEAD, as @hash or #tag
 [git_commit]

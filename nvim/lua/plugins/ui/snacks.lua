@@ -36,6 +36,49 @@ local function skip_closed_folds()
     end
 end
 
+-- The Herdr app's terminals report 0x0 pixels and refuse kitty images sent as a file path
+-- (EINVAL: unsupported medium). Ghostty, which the herdr TUI runs in, does both.
+-- Size cells as the app does, 9x18, and send image data inline, as snacks does over ssh.
+local function herdr_app_images()
+    if not require("lib.herdr_app").inside() then
+        return
+    end
+    local terminal = require("snacks.image.terminal")
+    local size, env = terminal.size, terminal.env
+    terminal.size = function()
+        local s = size()
+        if s.cell_width == 0 or s.cell_height == 0 then
+            s.cell_width, s.cell_height = 9, 18
+            s.width, s.height = s.columns * 9, s.rows * 18
+            s.scale = 9 / 8
+        end
+        return s
+    end
+    terminal.env = function()
+        local e = env()
+        e.remote = true
+        return e
+    end
+end
+
+-- A placement hides itself when its buffer leaves every window, but nothing shows it again
+-- when the buffer returns. An image buffer stays blank until it's reopened.
+-- Show only what update() hid, not inline images that markdown hides on purpose.
+local function reshow_returning_images()
+    local placement = require("snacks.image.placement")
+    local update = placement.update
+    placement.update = function(self)
+        if self.auto_hidden and self:valid() and #self:wins() > 0 then
+            self.auto_hidden, self.hidden = nil, false
+        end
+        local was_hidden = self.hidden
+        update(self)
+        if not was_hidden and self.hidden then
+            self.auto_hidden = true
+        end
+    end
+end
+
 local function rainbow_highlights()
     for _, pair in ipairs(rainbow) do
         vim.api.nvim_set_hl(0, pair[1], { fg = pair[2] })
@@ -111,6 +154,8 @@ return {
             group = vim.api.nvim_create_augroup("rainbow_highlights", { clear = true }),
             callback = rainbow_highlights,
         })
+        herdr_app_images()
+        reshow_returning_images()
         require("snacks").setup(opts)
         skip_closed_folds()
     end,

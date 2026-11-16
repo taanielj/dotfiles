@@ -25,6 +25,7 @@ customCommands:
       glab mr view --web "$B" 2>/dev/null || O "$U/-/merge_requests/new?merge_request[source_branch]=$B"; exit; fi;
       case "$U" in
       *github*) if command -v gh >/dev/null 2>&1; then gh pr view --web "$B" 2>/dev/null || gh pr create --web --head "$B"; else O "$U/compare/$B?expand=1"; fi ;;
+      *gitlab*) O "$U/-/merge_requests/new?merge_request[source_branch]=$B" ;;
       *) O "$U/compare/$B?expand=1" ;;
       esac
     output: log
