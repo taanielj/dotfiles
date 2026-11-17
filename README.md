@@ -29,7 +29,7 @@ Each script installs and configures one component and knows how to undo itself:
   - Installs a global ignore file.
   - Prompts for name and email.
   - Sets gh as credential helper when gh is logged in.
-- [zsh](setup/zsh.sh): zinit, p10k (or starship with `ZSH_PROMPT=starship` in ~/.zshrc.local), and the config under [zsh](zsh)
+- [zsh](setup/zsh.sh): zinit, p10k (or starship with `ZSH_PROMPT=starship` in ~/.zshrc.local, styled with `prompt-style`, see [zsh/starship](zsh/starship/settings.zsh)), and the config under [zsh](zsh)
 - [tmux](setup/tmux.sh): tpm and [tmux.conf](tmux.conf)
 - [herdr](setup/herdr.sh): the herdr multiplexer and its [config and plugins](herdr/tui)
   - On macOS, brew installs the herdr binary.

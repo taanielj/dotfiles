@@ -146,7 +146,7 @@ fi
 # The prompt loads after ~/.zshrc.local, where ZSH_PROMPT=starship picks
 # starship over Powerlevel10k. Either renders before the lazy plugins load.
 if [[ $ZSH_PROMPT == starship ]] && command -v starship &>/dev/null; then
-    source "$HOME/.config/zsh/starship.zsh"
+    source "$HOME/.config/zsh/starship/init.zsh"
 else
     # Pre-set SSH detection to skip expensive 'who' command in _p9k_init_ssh
     typeset -gix P9K_SSH=0

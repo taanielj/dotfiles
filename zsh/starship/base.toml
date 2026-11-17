@@ -2,19 +2,25 @@
 
 add_newline = false
 
-# Colours by role: "p10k" keeps p10k's 256-colour defaults, "catppuccin_macchiato"
-# matches the terminal and nvim. zsh/starship.zsh reads the path's colours here too.
-palette = "catppuccin_macchiato"
+# The base config. generate-config.zsh generates the config starship reads from
+# this file and the STARSHIP_* options (settings.zsh): it sets palette, moves
+# right_format's modules and the command line as the options say and, for
+# STARSHIP_LOOK=segments, restyles the modules.
+#
+# Colours by role: "p10k" keeps p10k's 256-colour defaults, "catppuccin" (macchiato)
+# matches the terminal and nvim, "gruvbox" is gruvbox dark. zsh reads the palette
+# too, for the path, the frame and the segments' caps.
+palette = "catppuccin"
 
-# Listing the modules keeps starship's per-language modules off. The command is
-# typed on a second line; right_format sits on that line, right of the command.
+# Listing the modules keeps starship's per-language modules off. The generator
+# replaces format's `$line_break$character` ending.
 format = "${env_var.STARSHIP_GIT_HOST_ICON}$git_branch$git_commit$git_state$git_status$line_break$character"
 right_format = "$status$cmd_duration$jobs${env_var.DIRENV_DIR}$python$kubernetes$aws$gcloud$username$hostname$time"
 
 # Each icon is followed by a space because the terminal draws a wide icon across two cells when the next cell is empty.
 # An icon followed by text shrinks to one cell.
 
-# zsh/starship.zsh renders this module once at startup and draws the path itself.
+# path.zsh renders this module once at startup and draws the path itself.
 [os]
 disabled = false
 style = "fg:os"
@@ -27,7 +33,7 @@ Ubuntu = "\uF31B"
 Linux = "\uF17C"
 Android = "\uF17B"
 
-# p10k's VCS icon, the origin remote's host, set on cd by zsh/starship.zsh
+# p10k's VCS icon, the origin remote's host, set on cd by module-variables.zsh
 [env_var.STARSHIP_GIT_HOST_ICON]
 style = "fg:git"
 format = "[$env_value ]($style)"
@@ -97,13 +103,13 @@ detect_extensions = []
 detect_files = []
 detect_folders = []
 
-# STARSHIP_KUBE and STARSHIP_GCLOUD are set while the typed command needs them (zsh/starship.zsh).
+# STARSHIP_KUBE and STARSHIP_GCLOUD are set while the typed command needs them (module-variables.zsh).
 [kubernetes]
 disabled = false
 detect_env_vars = ["STARSHIP_KUBE"]
 symbol = "󱃾 "
 style = "fg:kube"
-format = "[$symbol$context( /$namespace)]($style) "
+format = "[$symbol$context(/$namespace)]($style) "
 
 # EKS and GKE context names spell out account and region; show the cluster only
 [[kubernetes.contexts]]
@@ -140,6 +146,9 @@ style = "fg:time"
 time_format = "%H:%M:%S"
 format = "[\uF017 $time]($style)"
 
+# <role>_bg are the segments' backgrounds, seg_fg their text unless <role>_fg is set,
+# path_dim the shortened folders on path_bg.
+
 # os is left out, for the terminal's own foreground
 [palettes.p10k]
 path = "31"
@@ -160,8 +169,28 @@ aws = "208"
 user = "180"
 root = "178"
 time = "66"
+frame = "242"
+seg_fg = "232"
+path_bg = "31"
+path_fg = "254"
+path_dim = "250"
+git_bg = "76"
+status_bg = "160"
+status_fg = "226"
+duration_bg = "101"
+jobs_bg = "70"
+direnv_bg = "178"
+python_bg = "37"
+kube_bg = "134"
+kube_fg = "255"
+gcloud_bg = "32"
+gcloud_fg = "255"
+aws_bg = "208"
+user_bg = "180"
+time_bg = "66"
+time_fg = "255"
 
-[palettes.catppuccin_macchiato]
+[palettes.catppuccin]
 os = "#cad3f5"            # text
 path = "#8aadf4"          # blue
 path_short = "#8087a2"    # overlay1
@@ -181,3 +210,55 @@ aws = "#f5a97f"           # peach
 user = "#f0c6c6"          # flamingo
 root = "#eed49f"          # yellow
 time = "#a5adcb"          # subtext0
+frame = "#6e738d"         # overlay0
+seg_fg = "#24273a"        # base
+path_bg = "#8aadf4"       # blue
+path_dim = "#494d64"      # surface1
+git_bg = "#a6da95"        # green
+status_bg = "#ed8796"     # red
+duration_bg = "#ee99a0"   # maroon
+jobs_bg = "#8bd5ca"       # teal
+direnv_bg = "#eed49f"     # yellow
+python_bg = "#7dc4e4"     # sapphire
+kube_bg = "#c6a0f6"       # mauve
+gcloud_bg = "#b7bdf8"     # lavender
+aws_bg = "#f5a97f"        # peach
+user_bg = "#f0c6c6"       # flamingo
+time_bg = "#494d64"       # surface1
+time_fg = "#cad3f5"       # text
+
+[palettes.gruvbox]
+os = "#ebdbb2"
+path = "#fabd2f"
+path_short = "#a89984"
+path_anchor = "#fe8019"
+git = "#b8bb26"
+git_changed = "#fabd2f"
+git_untracked = "#83a598"
+error = "#fb4934"
+status = "#fb4934"
+duration = "#fe8019"
+jobs = "#8ec07c"
+direnv = "#fabd2f"
+python = "#8ec07c"
+kube = "#d3869b"
+gcloud = "#83a598"
+aws = "#fe8019"
+user = "#ebdbb2"
+root = "#fabd2f"
+time = "#a89984"
+frame = "#665c54"
+seg_fg = "#fbf1c7"
+path_bg = "#d79921"
+path_dim = "#504945"
+git_bg = "#689d6a"
+status_bg = "#cc241d"
+duration_bg = "#d65d0e"
+jobs_bg = "#98971a"
+direnv_bg = "#b57614"
+python_bg = "#458588"
+kube_bg = "#b16286"
+gcloud_bg = "#076678"
+aws_bg = "#af3a03"
+user_bg = "#d65d0e"
+time_bg = "#3c3836"

@@ -13,7 +13,7 @@ GLOBAL_TOOLS=(
     "python@3.15"
     "ruby@4.0"
     "rust@1.99.1"
-    "starship@1" # zsh prompt opted into with ZSH_PROMPT=starship (zsh/starship.zsh)
+    "starship@1" # zsh prompt opted into with ZSH_PROMPT=starship (zsh/starship)
     "uv@0.13"
     "yq@4" # mikefarah's yq, whose `yq e` syntax zsh/modules/docker.zsh uses
 )
