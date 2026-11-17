@@ -24,14 +24,13 @@ typeset -gA _starship_option_values=(
 # of these. An entry ending in a space waits for that space: 's ' doesn't show
 # on `sleep`.
 typeset -ga _starship_kube_commands=(
-    'k ' 'ka ' 'kl ' 'kc ' 'kn ' 'kcn ' 'kcnp ' 'kp ' 'kd ' 'ke '
+    'k ' 'ka ' 'kl ' 'kc' 'kn' 'kcn' 'kcnp' 'kp' 'kd' 'ke'
     's ' 'sj ' 'sg ' 'sd ' 'sc ' 'oc '
     kubectl kubens kubectx kubecolor kubeseal kubent k9s helm helmfile flux fluxctl
     stern istioctl kogito skaffold cmctl sparkctl
 )
 typeset -ga _starship_gcloud_commands=(gcs gcloud gsutil bq)
-# The variable base.toml gates the module on, and its commands
-typeset -gA _starship_show_on=(
+typeset -gA _starship_typed_commands_setting=(
     STARSHIP_KUBE _starship_kube_commands
     STARSHIP_GCLOUD _starship_gcloud_commands
 )

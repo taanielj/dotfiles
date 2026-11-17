@@ -29,12 +29,12 @@ chpwd_functions+=(_starship_export_git_host_icon)
 _starship_export_git_host_icon
 
 # The leading _ keeps zsh-autosuggestions from wrapping it as an editing widget
-_starship_show_on_command() {
+_starship_set_variables_for_typed_command() {
     local line=${BUFFER#"${BUFFER%%[^[:space:]]*}"} var start
     local -i typed changed=0
-    for var in ${(k)_starship_show_on}; do
+    for var in ${(k)_starship_typed_commands_setting}; do
         typed=0
-        for start in ${(P)_starship_show_on[$var]}; do
+        for start in ${(P)_starship_typed_commands_setting[$var]}; do
             [[ $line == ${(b)start}* ]] && typed=1 && break
         done
         if (( typed )) && [[ ! -v $var ]]; then
@@ -45,10 +45,13 @@ _starship_show_on_command() {
             changed=1
         fi
     done
-    (( changed )) && zle reset-prompt
+    if (( changed )); then
+        _starship_run_starship
+        zle reset-prompt
+    fi
 }
 autoload -Uz add-zle-hook-widget
-add-zle-hook-widget zle-line-pre-redraw _starship_show_on_command
+add-zle-hook-widget zle-line-pre-redraw _starship_set_variables_for_typed_command
 
-_starship_show_on_clear() { unset ${(k)_starship_show_on} }
-precmd_functions+=(_starship_show_on_clear)
+_starship_unset_typed_command_variables() { unset ${(k)_starship_typed_commands_setting} }
+precmd_functions+=(_starship_unset_typed_command_variables)

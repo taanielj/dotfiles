@@ -16,12 +16,6 @@ _starship_render_path() {
 }
 precmd_functions+=(_starship_render_path)
 
-# A resized window refits the path while a command is being typed, as p10k's does
-TRAPWINCH() {
-    _starship_render_path
-    zle && zle reset-prompt
-}
-
 _starship_classify_folders() {
     local dir rest=$PWD
     local -a anchor_file
@@ -47,7 +41,7 @@ _starship_shorten_plain_folders() {
     for name in $names; do
         (( length += 1 + ${#name} ))
     done
-    _starship_width_besides_path "$repo_root"
+    _starship_estimate_width_besides_path "$repo_root"
     local -i budget=$(( COLUMNS - REPLY ))
     (( budget > longest_unshortened_path )) && budget=longest_unshortened_path
     for (( i = 1; i <= $#names; i++ )); do
@@ -64,8 +58,8 @@ _starship_shorten_plain_folders() {
     done
 }
 
-# Sets REPLY to an estimate, since starship renders the rest after the path.
-_starship_width_besides_path() {
+# Sets REPLY. starship renders the rest only after the path is drawn.
+_starship_estimate_width_besides_path() {
     local repo_root=$1
     local -i os_and_folder_icons=6 segment_caps_and_padding=6 frame=3 time_and_status=14 room_to_type=20
     local -i width=os_and_folder_icons+time_and_status
