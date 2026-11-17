@@ -96,3 +96,7 @@ keybind = alt+arrow_right=unbind
 keybind = super+==increase_font_size:2
 keybind = super++=increase_font_size:2
 keybind = super+-=decrease_font_size:2
+
+# Scrollback, half a page a press
+keybind = shift+page_up=scroll_page_fractional:-0.5
+keybind = shift+page_down=scroll_page_fractional:0.5

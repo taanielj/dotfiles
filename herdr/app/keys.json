@@ -161,6 +161,8 @@
     "cmd-shift-c": "terminal.copy",
     "cmd-shift-f": "terminal.search",
     "ctrl-v": "terminal.paste_image",
-    "alt-backspace": "send:\u0017"
+    "alt-backspace": "send:\u0017",
+    "shift-pageup": {"command": "terminal.scroll", "args": {"pages": -0.5}},
+    "shift-pagedown": {"command": "terminal.scroll", "args": {"pages": 0.5}}
   }
 }
