@@ -13,7 +13,7 @@ APP_HOME="$HOME/.config/herdr-app"
 # The app reads these paths from its home and keeps its own state in the rest of the home.
 # The app watches the links themselves. After editing a mod in the repo, run
 # `touch -h` on the mod's link to reload the mod.
-APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons bin)
+APP_FILES=(settings.json keys.json themes/ghostty.json layouts/dotfiles.json mods/keys mods/status mods/strip mods/files-icons mods/copy-mode bin)
 COMMITTED_APP_ZOOM=1.0
 
 # Copied to the Windows app on WSL (no links without Developer Mode); rerun setup after edits
